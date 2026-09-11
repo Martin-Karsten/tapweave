@@ -7,8 +7,8 @@ This is the first M0 implementation increment from [`docs/roadmap.md`](../docs/r
 From the repository root:
 
 ```sh
-npm --prefix engine test
 npm --prefix engine run setup
+npm --prefix engine test
 npm --prefix engine run build
 engine/artifacts/decode-native path/to/map.osu
 ```
