@@ -1,0 +1,319 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Odin decoded-map trace v1",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "decoded-map"
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "enum": [
+            "OK",
+            "INVALID_ARGUMENT",
+            "INVALID_STATE",
+            "UNSUPPORTED",
+            "QUOTA_EXCEEDED",
+            "MALFORMED_MAP",
+            "MISSING_ASSET",
+            "LATE_INPUT",
+            "OUTPUT_REQUIRED",
+            "STALE_HANDLE",
+            "OUT_OF_MEMORY",
+            "INTERNAL"
+          ]
+        },
+        "code": {
+          "enum": [
+            "NONE",
+            "HEADER",
+            "FORMAT_VERSION",
+            "UTF8",
+            "NUMBER",
+            "SECTION",
+            "FIELD_COUNT",
+            "MODE",
+            "OBJECT_TYPE",
+            "RAW_BYTES",
+            "LINES",
+            "OBJECTS",
+            "TIMING_POINTS",
+            "ARENA_BYTES",
+            "DURATION",
+            "PATH",
+            "HANDLE",
+            "QUOTAS"
+          ]
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "requested": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "status",
+        "code",
+        "line",
+        "column",
+        "requested",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "format_version": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "difficulty": {
+      "type": "object",
+      "properties": {
+        "hp": {
+          "type": "number"
+        },
+        "cs": {
+          "type": "number"
+        },
+        "od": {
+          "type": "number"
+        },
+        "ar": {
+          "type": "number"
+        },
+        "slider_multiplier": {
+          "type": "number"
+        },
+        "tick_rate": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "hp",
+        "cs",
+        "od",
+        "ar",
+        "slider_multiplier",
+        "tick_rate"
+      ],
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "artist": {
+          "type": "string"
+        },
+        "creator": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "audio": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "artist",
+        "creator",
+        "version",
+        "audio"
+      ],
+      "additionalProperties": false
+    },
+    "stack_leniency": {
+      "type": "number"
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "flags": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "hit_sound": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "spans": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "kind": {
+            "enum": [
+              "CIRCLE",
+              "SLIDER",
+              "SPINNER"
+            ]
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "time_ms": {
+            "type": "number"
+          },
+          "end_time_ms": {
+            "type": "number"
+          },
+          "length": {
+            "type": "number"
+          },
+          "path": {
+            "type": "string"
+          },
+          "edge_sounds": {
+            "type": "string"
+          },
+          "edge_sets": {
+            "type": "string"
+          },
+          "hit_sample": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "line",
+          "flags",
+          "hit_sound",
+          "spans",
+          "kind",
+          "x",
+          "y",
+          "time_ms",
+          "end_time_ms",
+          "length",
+          "path",
+          "edge_sounds",
+          "edge_sets",
+          "hit_sample"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "timing": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "time_ms": {
+            "type": "number"
+          },
+          "beat_length": {
+            "type": "number"
+          },
+          "meter": {
+            "type": "integer",
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "sample_set": {
+            "type": "integer",
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "sample_index": {
+            "type": "integer",
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "volume": {
+            "type": "integer",
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "effects": {
+            "type": "integer",
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "timing_change": {
+            "type": "boolean"
+          },
+          "generate_ticks": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "line",
+          "time_ms",
+          "beat_length",
+          "meter",
+          "sample_set",
+          "sample_index",
+          "volume",
+          "effects",
+          "timing_change",
+          "generate_ticks"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "error",
+    "format_version",
+    "difficulty",
+    "metadata",
+    "stack_leniency",
+    "objects",
+    "timing"
+  ],
+  "additionalProperties": false
+}

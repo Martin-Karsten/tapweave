@@ -1,0 +1,21 @@
+name: Foundation checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  foundation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install linkers
+        run: sudo apt-get update && sudo apt-get install -y clang lld
+      - name: Install pinned Odin
+        run: npm --prefix engine run setup
+      - name: Test native and WebAssembly foundation
+        run: npm --prefix engine test

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <OsuCheckout>$(OSU_REFERENCE_CHECKOUT)</OsuCheckout>
+  </PropertyGroup>
+  <Target Name="VerifyPinnedSources" BeforeTargets="Restore;PrepareForBuild">
+    <Exec Command="node &quot;$(MSBuildThisFileDirectory)../scripts/verify-sources.mjs&quot; --require-checkouts" />
+  </Target>
+  <ItemGroup>
+    <ProjectReference Include="$(OsuCheckout)/osu.Game/osu.Game.csproj" />
+    <ProjectReference Include="$(OsuCheckout)/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj" />
+  </ItemGroup>
+</Project>

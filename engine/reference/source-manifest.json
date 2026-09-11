@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "osu": {
+    "repository": "ppy/osu",
+    "version": "2026.804.2-lazer",
+    "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955"
+  },
+  "framework": {
+    "repository": "ppy/osu-framework",
+    "version": "2026.731.0",
+    "commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+  },
+  "files": [
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "LICENCE",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/LICENCE",
+      "local": "sources/osu__LICENCE",
+      "sha256": "2e73c7c4295cc3da18697ac982f64a4ec449e0781e8f4c59318216e13998864a",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/osu.Game.csproj",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/osu.Game.csproj",
+      "local": "sources/osu__osu.Game__osu.Game.csproj",
+      "sha256": "952e71fae52dc3956e71d1cafa0fd7f89b1a608acf971193c52fbc4be7b8117e",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/Formats/LegacyDecoder.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/Formats/LegacyDecoder.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__Formats__LegacyDecoder.cs",
+      "sha256": "6f0b279884a084787fdda24fd7db868027ea5035f1132c78b0c5c78f4c455653",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/Formats/LegacyBeatmapDecoder.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/Formats/LegacyBeatmapDecoder.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__Formats__LegacyBeatmapDecoder.cs",
+      "sha256": "39125e84f1b4108e25d4da40cbc547ad1ed24f01cc60058d64a249327672c0c4",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs",
+      "local": "sources/osu__osu.Game__Rulesets__Objects__Legacy__ConvertHitObjectParser.cs",
+      "sha256": "643620a3a8113235e66e7324f29153442523bd6028cb19162e3df15e548d6f78",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+      "path": "LICENCE",
+      "url": "https://raw.githubusercontent.com/ppy/osu-framework/f02756c5aa5032e6d04729922702b8d56c4bc2eb/LICENCE",
+      "local": "sources/osu-framework__LICENCE",
+      "sha256": "d07e3ce383a24bdc4665208e0ca3730e433ea1e8235b67a301a2b26335692c8e",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/Formats/Parsing.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/Formats/Parsing.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__Formats__Parsing.cs",
+      "sha256": "aa058f6f9a8ac4adf06c364e0747e3ff044cb7074bebd70a0156b4db320e095c",
+      "licence": "MIT"
+    }
+  ]
+}

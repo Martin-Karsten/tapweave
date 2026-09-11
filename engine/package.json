@@ -1,0 +1,12 @@
+{
+  "name": "tapweave-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node scripts/verify-sources.mjs && node scripts/test.mjs",
+    "verify:sources": "node scripts/verify-sources.mjs",
+    "setup": "node scripts/setup.mjs"
+  }
+}

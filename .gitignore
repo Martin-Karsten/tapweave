@@ -1,0 +1,26 @@
+# Public repository allowlist: experiments remain local.
+/*
+!/.gitignore
+!/.gitattributes
+!/README.md
+!/LICENSE
+!/THIRD_PARTY_NOTICES.md
+!/.github/
+!/docs/
+!/engine/
+
+# Historical regression tooling is local-only.
+/engine/scripts/test-spike.mjs
+/engine/reference/spike-manifest.json
+
+# Toolchains, dependencies, generated output, and credentials.
+**/.toolchain/
+**/node_modules/
+**/artifacts/
+**/bin/
+**/obj/
+**/.DS_Store
+**/.env
+**/.env.*
+**/*.pem
+**/*.key

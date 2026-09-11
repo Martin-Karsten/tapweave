@@ -1,0 +1,22 @@
+{
+  "version": "dev-2026-09",
+  "commit": "a2fb372",
+  "assets": {
+    "linux-x64": {
+      "url": "https://github.com/odin-lang/Odin/releases/download/dev-2026-09/odin-linux-amd64-dev-2026-09.tar.gz",
+      "sha256": "167c3e1d7056419dad2e04bb3bd98715b7ff286d4c125f3c5a5ee337c6254283"
+    },
+    "linux-arm64": {
+      "url": "https://github.com/odin-lang/Odin/releases/download/dev-2026-09/odin-linux-arm64-dev-2026-09.tar.gz",
+      "sha256": "c150c6f2d13668f3a1c4116ef96ea85c1ba1c9ededfd76081cd3c7d4ba92aa91"
+    },
+    "darwin-x64": {
+      "url": "https://github.com/odin-lang/Odin/releases/download/dev-2026-09/odin-macos-amd64-dev-2026-09.tar.gz",
+      "sha256": "c1f6d6320218ec7e511093a87bdd599b72a8417a9d2a00de2c9691103562165b"
+    },
+    "darwin-arm64": {
+      "url": "https://github.com/odin-lang/Odin/releases/download/dev-2026-09/odin-macos-arm64-dev-2026-09.tar.gz",
+      "sha256": "3e6cbc1f247d8d14fe02c3151272d0a5b8d6d77acb7219f5b62914e4d95d97f7"
+    }
+  }
+}
