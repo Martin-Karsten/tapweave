@@ -42,3 +42,27 @@ fails (including voice quota exhaustion), it cancels queued playback and stops a
 disconnects active/retiring voices, then reports the error for explicit caller
 recovery. A failed start cannot indefinitely block a subsequent loop stop. This
 failure path does not choose substitute samples or silently steal voices.
+
+## Explicit engine/browser mapping and decode admission
+
+The browser clock now binds a session handle and engine epoch to an independently
+numbered browser epoch and immutable DOM-receipt/AudioContext pair. Numeric epoch
+equality is never assumed. Pause invalidates the mapping; input conversion neither
+clamps late timestamps nor applies offsets again. Production M2 still requires
+zero offsets; the independent clock's nonzero-offset fixtures do not change that
+profile. The [contract audit](../implementation/m3-contract-audit.md) separates DOM
+receipt diagnostics from ABI beatmap-relative raw/effective timestamps.
+
+Music transport consumes the same anchor and its separate media coordinate.
+Negative lead-in schedules media zero in the future; resume recreates the source
+at the saved media position. The lifecycle controller must establish/invalidate
+the clock and invoke music cancellation; the transport does not judge or advance.
+This independent service is not yet wired into production Play.
+
+Each selection controller admits at most two concurrent browser audio decodes
+and 128 MiB of their encoded inputs, shared across old and candidate asset scopes.
+A busy decoder rejects with QUOTA_EXCEEDED and preserves the active selection;
+there is no unbounded waiting queue. Cancellation releases candidate ownership
+immediately but does not free a decoder slot before uninterruptible work settles.
+Same-source requests share a pending decode by normalized asset name. Internal
+browser decoder peak memory remains unbounded by this admission accounting.

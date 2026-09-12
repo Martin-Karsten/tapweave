@@ -45,3 +45,38 @@ test('malicious archive reports a typed error and diagnostics download works', a
   expect(download.suggestedFilename()).toBe('tapweave-diagnostics.json');
   expect(await download.failure()).toBe(null);
 });
+
+test('production session and coordinate exports execute in the browser', async ({ page }) => {
+  await page.goto('/');
+  const observed = await page.evaluate(async map_text => {
+    const { Engine_Bridge } = await import('/platform/browser-js/src/engine-bridge.mjs');
+    const engine = await Engine_Bridge.create(await (await fetch('/tapweave.wasm')).arrayBuffer());
+    try {
+      const prepared = engine.prepare_map(new TextEncoder().encode(map_text));
+      const session = engine.create_session(prepared.map_handle, { input_capacity: 64, batch_capacity: 8 });
+      engine.release_map(prepared.map_handle);
+      const bounds = document.body.getBoundingClientRect();
+      const transform = engine.playfield_transform({ css_left: bounds.left, css_top: bounds.top,
+        css_width: bounds.width, css_height: bounds.height, device_pixel_ratio: devicePixelRatio });
+      const client_x = transform.client_left + 256 * transform.scale;
+      const client_y = transform.client_top + 192 * transform.scale;
+      const x = client_x * transform.inverse_a + transform.inverse_e;
+      const y = client_y * transform.inverse_d + transform.inverse_f;
+      engine.submit_inputs(session, [{ sequence: 1n, raw_time_ms: 1000, effective_time_ms: 1000, x, y, action_bits: 1 }]);
+      const snapshot = engine.advance(session, 2000);
+      engine.acknowledge(session, snapshot.summary.batch_token);
+      const final = engine.result(session);
+      engine.release_session(session);
+      return { x, y, state: final.summary.state, accuracy: final.summary.accuracy,
+        owned_sessions: engine.session_handles.size, owned_maps: engine.map_handles.size };
+    } finally {
+      engine.dispose();
+    }
+  }, beatmap);
+  expect(Math.abs(observed.x - 256)).toBeLessThanOrEqual(1e-6);
+  expect(Math.abs(observed.y - 192)).toBeLessThanOrEqual(1e-6);
+  expect(observed.state).toBe(3);
+  expect(observed.accuracy).toBe(1);
+  expect(observed.owned_sessions).toBe(0);
+  expect(observed.owned_maps).toBe(0);
+});

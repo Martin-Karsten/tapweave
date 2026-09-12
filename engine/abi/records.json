@@ -1455,6 +1455,312 @@
           "u64"
         ]
       }
+    },
+    {
+      "name": "viewport",
+      "kind": 29,
+      "size": 48,
+      "fields": {
+        "css_left": [
+          8,
+          "f64"
+        ],
+        "css_top": [
+          16,
+          "f64"
+        ],
+        "css_width": [
+          24,
+          "f64"
+        ],
+        "css_height": [
+          32,
+          "f64"
+        ],
+        "device_pixel_ratio": [
+          40,
+          "f64"
+        ]
+      }
+    },
+    {
+      "name": "playfield_transform",
+      "kind": 30,
+      "size": 80,
+      "fields": {
+        "scale": [
+          8,
+          "f64"
+        ],
+        "client_left": [
+          16,
+          "f64"
+        ],
+        "client_top": [
+          24,
+          "f64"
+        ],
+        "inverse_a": [
+          32,
+          "f64"
+        ],
+        "inverse_b": [
+          40,
+          "f64"
+        ],
+        "inverse_c": [
+          48,
+          "f64"
+        ],
+        "inverse_d": [
+          56,
+          "f64"
+        ],
+        "inverse_e": [
+          64,
+          "f64"
+        ],
+        "inverse_f": [
+          72,
+          "f64"
+        ]
+      }
+    },
+    {
+      "name": "gameplay_output",
+      "kind": 31,
+      "size": 120,
+      "fields": {
+        "state": [
+          8,
+          "u32"
+        ],
+        "epoch": [
+          12,
+          "u32"
+        ],
+        "committed_ms": [
+          16,
+          "f64"
+        ],
+        "presentation_ms": [
+          24,
+          "f64"
+        ],
+        "score": [
+          32,
+          "u64"
+        ],
+        "accuracy": [
+          40,
+          "f64"
+        ],
+        "health": [
+          48,
+          "f64"
+        ],
+        "combo": [
+          56,
+          "u32"
+        ],
+        "highest_combo": [
+          60,
+          "u32"
+        ],
+        "objects_offset": [
+          64,
+          "u32"
+        ],
+        "objects_count": [
+          68,
+          "u32"
+        ],
+        "objects_stride": [
+          72,
+          "u32"
+        ],
+        "judgements_offset": [
+          76,
+          "u32"
+        ],
+        "judgements_count": [
+          80,
+          "u32"
+        ],
+        "judgements_stride": [
+          84,
+          "u32"
+        ],
+        "batch_token": [
+          88,
+          "u64"
+        ],
+        "total_bytes": [
+          96,
+          "u64"
+        ],
+        "audio_offset": [
+          104,
+          "u32"
+        ],
+        "audio_count": [
+          108,
+          "u32"
+        ],
+        "audio_stride": [
+          112,
+          "u32"
+        ],
+        "reserved": [
+          116,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "presentation_frame",
+      "kind": 32,
+      "size": 88,
+      "fields": {
+        "state": [
+          8,
+          "u32"
+        ],
+        "epoch": [
+          12,
+          "u32"
+        ],
+        "committed_ms": [
+          16,
+          "f64"
+        ],
+        "presentation_ms": [
+          24,
+          "f64"
+        ],
+        "objects_offset": [
+          32,
+          "u32"
+        ],
+        "objects_count": [
+          36,
+          "u32"
+        ],
+        "objects_stride": [
+          40,
+          "u32"
+        ],
+        "reserved": [
+          44,
+          "u32"
+        ],
+        "total_bytes": [
+          48,
+          "u64"
+        ],
+        "visited_count": [
+          56,
+          "u64"
+        ],
+        "revealed_count": [
+          64,
+          "u64"
+        ],
+        "cursor_x": [
+          72,
+          "f64"
+        ],
+        "cursor_y": [
+          80,
+          "f64"
+        ]
+      }
+    },
+    {
+      "name": "presentation_object",
+      "kind": 33,
+      "size": 96,
+      "fields": {
+        "object_id": [
+          8,
+          "u32"
+        ],
+        "object_kind": [
+          12,
+          "u32"
+        ],
+        "result": [
+          16,
+          "u32"
+        ],
+        "head_result": [
+          20,
+          "u32"
+        ],
+        "tracking": [
+          24,
+          "u32"
+        ],
+        "reserved": [
+          28,
+          "u32"
+        ],
+        "result_time_ms": [
+          32,
+          "f64"
+        ],
+        "head_time_ms": [
+          40,
+          "f64"
+        ],
+        "position_x": [
+          48,
+          "f64"
+        ],
+        "position_y": [
+          56,
+          "f64"
+        ],
+        "rotation": [
+          64,
+          "f64"
+        ],
+        "start_time_ms": [
+          72,
+          "f64"
+        ],
+        "radius": [
+          80,
+          "f64"
+        ],
+        "preempt_ms": [
+          88,
+          "f64"
+        ]
+      }
+    },
+    {
+      "name": "output_capabilities",
+      "kind": 34,
+      "size": 24,
+      "fields": {
+        "compact_version": [
+          8,
+          "u32"
+        ],
+        "projection_version": [
+          12,
+          "u32"
+        ],
+        "flags": [
+          16,
+          "u32"
+        ],
+        "reserved": [
+          20,
+          "u32"
+        ]
+      }
     }
   ],
   "transport": {
@@ -1470,6 +1776,13 @@
       "count": 8,
       "reserved": 12,
       "token": 16
+    },
+    "record_header": {
+      "kind": 0,
+      "version": 2,
+      "byte_size": 4,
+      "size": 8,
+      "alignment": 8
     }
   }
 }

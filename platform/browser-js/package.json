@@ -8,6 +8,7 @@
     "build": "node scripts/build.mjs",
     "serve": "node scripts/serve.mjs",
     "test": "node --test tests/*.test.mjs",
+    "test:session": "node scripts/session-evidence.mjs",
     "test:browser": "playwright test"
   },
   "dependencies": { "fflate": "0.8.3" },

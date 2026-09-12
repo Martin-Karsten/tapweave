@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <string.h>
 #include "gameplay_abi.h"
+#include "presentation_abi.h"
 int main(void) {
     unsigned char *base=(unsigned char *)oe_abi_control();
     oe_handle *handle_output=(oe_handle *)(base+256);
@@ -70,6 +71,7 @@ int main(void) {
     assert(oe_engine_release(engine)==0);
     unsigned char gameplay_result[2048];
     uint32_t gameplay_byte_count=gameplay_native_probe(gameplay_result);
+    presentation_native_probe();
     printf("{\"capabilities\":[");
     for(unsigned value_index=0;value_index<16;value_index++)printf("%s%u",value_index?",":"",capabilities[value_index]);
     printf("],\"statuses\":[");

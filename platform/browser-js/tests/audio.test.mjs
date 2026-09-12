@@ -155,3 +155,38 @@ test('epoch replacement counts only surviving events and validates before cancel
   assert.equal(audio.epoch, clock.epoch);
   audio.dispose();
 });
+
+test('session and browser epochs map explicitly without retiming receipt timestamps', () => {
+  const clock = new Audio_Clock();
+  clock.start(10, -500, { global_ms: 20 });
+  clock.bind_session(99n, 17, 2000, 10);
+  assert.equal(clock.mapped_epoch(99n, 17), 1);
+  assert.equal(clock.input_time(99n, 17, 2250), -230);
+  assert.equal(clock.input_time(99n, 17, 1500), -980);
+  assert.throws(() => clock.mapped_epoch(99n, 1), { code: 'INVALID_CLOCK' });
+  assert.throws(() => clock.mapped_epoch(98n, 17), { code: 'INVALID_CLOCK' });
+  assert.throws(() => clock.bind_session(99n, 18, 2000, 10), { code: 'INVALID_STATE' });
+  clock.pause(11);
+  assert.throws(() => clock.input_time(99n, 17, 3000), { code: 'INVALID_CLOCK' });
+  clock.resume(20);
+  clock.bind_session(99n, 19, 5000, 20);
+  assert.equal(clock.input_time(99n, 19, 5000), 520);
+  assert.equal(clock.mapped_epoch(99n, 19), 3);
+});
+
+test('clock epoch exhaustion rejects without replacing the active anchor or mapping', () => {
+  const clock = new Audio_Clock();
+  clock.epoch = 0xfffffffe;
+  clock.start(10, 0);
+  clock.bind_session(1n, 9, 1000, 10);
+  const anchor = clock.anchor;
+  const mapping = clock.session_mapping;
+  assert.throws(() => clock.pause(11), { code: 'QUOTA_EXCEEDED' });
+  assert.equal(clock.anchor, anchor);
+  assert.equal(clock.session_mapping, mapping);
+  assert.equal(clock.paused_media_ms, 0);
+  const exhausted = new Audio_Clock();
+  exhausted.epoch = 0xffffffff;
+  assert.throws(() => exhausted.start(10, 0), { code: 'QUOTA_EXCEEDED' });
+  assert.equal(exhausted.anchor, null);
+});

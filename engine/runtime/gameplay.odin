@@ -5,7 +5,7 @@ import "core:crypto/sha2"
 import "core:mem"
 import core_types "../core_types"
 import simulation "../simulation"
-import rules "../osu_rules"
+import presentation "../presentation"
 import replay "../replay"
 
 put_f64 :: proc(bytes: []byte, byte_offset: int, number: f64) {
@@ -24,11 +24,23 @@ gameplay_initialize :: proc(session: ^Session, input_capacity: u64) -> core_type
 		return status
 	}
 	_, judgement_count, _ := simulation.counts(prepared_map)
-	output_bytes := u64(ABI_SESSION_SNAPSHOT_SIZE) + u64(len(prepared_map.objects)) * ABI_SESSION_OBJECT_SIZE + judgement_count * ABI_JUDGEMENT_SIZE + simulation.sample_count(prepared_map) * ABI_AUDIO_EVENT_SIZE
+	output_bytes := u64(ABI_SESSION_SNAPSHOT_SIZE)
+	if !simulation.size_add(&output_bytes, [ABI_SESSION_OBJECT_SIZE]byte, u64(len(prepared_map.objects))) ||
+	   !simulation.size_add(&output_bytes, [ABI_JUDGEMENT_SIZE]byte, judgement_count) ||
+	   !simulation.size_add(&output_bytes, [ABI_AUDIO_EVENT_SIZE]byte, simulation.sample_count(prepared_map)) {
+		return .QUOTA_EXCEEDED
+	}
 	replay_bytes, _ := replay.encoded_size(simulation.recording_capacity(prepared_map, input_capacity))
 	output_bytes = max(output_bytes, replay_bytes, ABI_FINAL_RESULT_SIZE + 17 * ABI_RESULT_COUNT_SIZE)
+	presentation_bytes := u64(ABI_PRESENTATION_FRAME_SIZE)
+	if !simulation.size_add(&presentation_bytes, [ABI_PRESENTATION_OBJECT_SIZE]byte, u64(len(prepared_map.objects))) {
+		return .QUOTA_EXCEEDED
+	}
 	required := simulation_bytes
 	if !simulation.size_add(&required, core_types.Input_Snapshot, simulation.recording_capacity(prepared_map, input_capacity)) ||
+	   !simulation.size_add(&required, presentation.Reveal, u64(len(prepared_map.objects))) ||
+	   !simulation.size_add(&required, int, u64(len(prepared_map.objects))) ||
+	   !simulation.size_add(&required, u64, (presentation_bytes + 7) / 8) ||
 	   !simulation.size_add(&required, u64, (output_bytes + 7) / 8) || required > u64(len(session.arena.bytes)) {
 		return .QUOTA_EXCEEDED
 	}
@@ -37,6 +49,12 @@ gameplay_initialize :: proc(session: ^Session, input_capacity: u64) -> core_type
 		return status
 	}
 	session.input_candidate, _ = core_types.arena_take(&session.arena, core_types.Input_Snapshot, simulation.recording_capacity(prepared_map, input_capacity))
+	status = presentation.initialize_active(&session.active_presentation, prepared_map, &session.arena)
+	if status != .OK {
+		return status
+	}
+	presentation_words, _ := core_types.arena_take(&session.arena, u64, (presentation_bytes + 7) / 8)
+	session.presentation_output = mem.slice_ptr(cast(^byte)raw_data(presentation_words), len(presentation_words) * 8)
 	output_words, _ := core_types.arena_take(&session.arena, u64, (output_bytes + 7) / 8)
 	session.output = mem.slice_ptr(cast(^byte)raw_data(output_words), len(output_words) * 8)
 	return .OK
@@ -72,7 +90,7 @@ gameplay_digest :: proc(session: ^Session) -> [32]byte {
 	return result
 }
 
-gameplay_snapshot :: proc(session: ^Session, presentation_ms: f64) -> core_types.Status {
+gameplay_snapshot :: proc(session: ^Session, presentation_ms: f64, include_objects: bool = true) -> core_types.Status {
 	if !core_types.finite(presentation_ms) {
 		return .INVALID_ARGUMENT
 	}
@@ -82,12 +100,14 @@ gameplay_snapshot :: proc(session: ^Session, presentation_ms: f64) -> core_types
 	simulation_state := &session.simulation
 	bytes := session.output
 	object_offset := ABI_SESSION_SNAPSHOT_SIZE
-	judgement_offset := object_offset + len(simulation_state.objects) * ABI_SESSION_OBJECT_SIZE
+	object_count := include_objects ? len(simulation_state.objects) : 0
+	judgement_offset := object_offset + object_count * ABI_SESSION_OBJECT_SIZE
 	judgement_count := simulation_state.journal_count - simulation_state.acknowledged_count
 	audio_offset := judgement_offset + judgement_count * ABI_JUDGEMENT_SIZE
 	audio_count := simulation_state.audio_count - simulation_state.acknowledged_audio_count
 	total_bytes := audio_offset + audio_count * ABI_AUDIO_EVENT_SIZE
-	put_header(bytes, ABI_SESSION_SNAPSHOT_KIND, ABI_SESSION_SNAPSHOT_SIZE)
+	// Kinds 19 and 31 intentionally share the generated summary layout.
+	put_header(bytes, include_objects ? ABI_SESSION_SNAPSHOT_KIND : ABI_GAMEPLAY_OUTPUT_KIND, ABI_SESSION_SNAPSHOT_SIZE)
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_STATE_OFFSET, u32(simulation_state.state))
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_EPOCH_OFFSET, simulation_state.epoch)
 	put_f64(bytes, ABI_SESSION_SNAPSHOT_COMMITTED_MS_OFFSET, simulation_state.committed_ms)
@@ -98,7 +118,7 @@ gameplay_snapshot :: proc(session: ^Session, presentation_ms: f64) -> core_types
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_COMBO_OFFSET, simulation_state.score.accumulator.combo)
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_HIGHEST_COMBO_OFFSET, simulation_state.score.accumulator.highest_combo)
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_OBJECTS_OFFSET_OFFSET, u32(object_offset))
-	put_u32(bytes, ABI_SESSION_SNAPSHOT_OBJECTS_COUNT_OFFSET, u32(len(simulation_state.objects)))
+	put_u32(bytes, ABI_SESSION_SNAPSHOT_OBJECTS_COUNT_OFFSET, u32(object_count))
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_OBJECTS_STRIDE_OFFSET, ABI_SESSION_OBJECT_SIZE)
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_JUDGEMENTS_OFFSET_OFFSET, u32(judgement_offset))
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_JUDGEMENTS_COUNT_OFFSET, u32(judgement_count))
@@ -112,21 +132,20 @@ gameplay_snapshot :: proc(session: ^Session, presentation_ms: f64) -> core_types
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_RESERVED_OFFSET, 0)
 	put_u64(bytes, ABI_SESSION_SNAPSHOT_BATCH_TOKEN_OFFSET, session.output_token)
 	put_u64(bytes, ABI_SESSION_SNAPSHOT_TOTAL_BYTES_OFFSET, u64(total_bytes))
-	for &object_state, object_index in simulation_state.objects {
+	projection := simulation.project(simulation_state)
+	for object_index in 0 ..< object_count {
+		object_state := simulation.project_object(projection, object_index, presentation_ms)
 		object := &simulation_state.prepared_map.objects[object_index]
 		record := bytes[object_offset + object_index * ABI_SESSION_OBJECT_SIZE:]
 		put_header(record, ABI_SESSION_OBJECT_KIND, ABI_SESSION_OBJECT_SIZE)
 		put_u32(record, ABI_SESSION_OBJECT_OBJECT_ID_OFFSET, object.id)
 		put_u32(record, ABI_SESSION_OBJECT_RESULT_OFFSET, u32(object_state.result))
 		put_u32(record, ABI_SESSION_OBJECT_HEAD_RESULT_OFFSET, u32(object_state.head_result))
-		put_u32(record, ABI_SESSION_OBJECT_TRACKING_OFFSET, u32(object_state.tracking && simulation_state.state != .PAUSED))
+		put_u32(record, ABI_SESSION_OBJECT_TRACKING_OFFSET, u32(object_state.tracking))
 		put_f64(record, ABI_SESSION_OBJECT_RESULT_TIME_MS_OFFSET, object_state.result_time_ms)
 		put_f64(record, ABI_SESSION_OBJECT_HEAD_TIME_MS_OFFSET, object_state.head_time_ms)
-		put_f64(record, ABI_SESSION_OBJECT_ROTATION_OFFSET, f64(rules.total_rotation(&object_state.spin_history)))
-		position := object.position + object.stack_offset
-		if object.kind == .SLIDER {
-			position = rules.slider_position(object, presentation_ms)
-		}
+		put_f64(record, ABI_SESSION_OBJECT_ROTATION_OFFSET, object_state.rotation)
+		position := object_state.position
 		put_f64(record, ABI_SESSION_OBJECT_POSITION_X_OFFSET, position[0])
 		put_f64(record, ABI_SESSION_OBJECT_POSITION_Y_OFFSET, position[1])
 	}

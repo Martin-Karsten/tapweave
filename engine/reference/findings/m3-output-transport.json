@@ -1,0 +1,494 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-12",
+  "oracle": "local-production-output-contract",
+  "m3_complete": false,
+  "integrated_playable": false,
+  "completed_units": [],
+  "partial_units": [
+    "W01",
+    "W03-active-projection"
+  ],
+  "acceptance": [
+    "A12",
+    "A21",
+    "A22",
+    "A23"
+  ],
+  "acceptance_complete": false,
+  "baseline": {
+    "commit": "cf379bcdb92cfc6b6f5fd582670a30199aa99746",
+    "preserved_commit": "061f19a",
+    "patch_sha256": "183fb29c15d62940c6b8dab0f1c057cf0b4b09f95f389884ba9894dc4db3d189",
+    "verified_tree": "e2ac5047a169a3cacdbedb86e885d0e60ccfb80e",
+    "manifest_files": 33
+  },
+  "environment": {
+    "node": "v24.13.0",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "compiler": "/Users/martin/stuff/osu-web/engine/.toolchain/odin/odin version dev-2026-09-nightly:a2fb372",
+    "dotnet": "10.0.401"
+  },
+  "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "checks": {
+    "engine": {
+      "command": "npm --prefix engine test",
+      "passed": true,
+      "foundation_tests": 29,
+      "decoder_fixtures": 88,
+      "geometry_fixtures": 74,
+      "geometry_failure_cases": 4,
+      "prepared_fixtures": 101,
+      "primitive_fixtures": 104,
+      "presentation_coordinate_fixtures": 4
+    },
+    "browser_services": {
+      "command": "npm --prefix platform/browser-js test",
+      "passed": true,
+      "tests": 38,
+      "bounded_map_objects": 10000,
+      "scope": "Active output work and lifetime; not integrated performance approval"
+    },
+    "sessions": {
+      "command": "npm --prefix platform/browser-js run test:session",
+      "passed": true,
+      "fixture_sha256": "6b7c3ed83a507c0f513021dd09960eb398247fbff9dcd5a7e9b3f36a5234530b",
+      "inputs_sha256": "c958f21676012c2daa012ff69c3881505a3496f03af805f4cbfdcdc3d64eabc3",
+      "wasm_sha256": "45bcec9dae41bc10acfd930bebd37ccef978c926ceb3992c70bfd892ed6ae680",
+      "report_sha256": "6a15d79b03db4a0cb0950f748dc6bc950d510ff867af0e7923312bd30b4fd5f3",
+      "schedules": [
+        {
+          "transport": "diagnostic",
+          "frequency": 0,
+          "stall_ms": 0,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 30,
+          "stall_ms": 0,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 30,
+          "stall_ms": 50,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 30,
+          "stall_ms": 100,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 30,
+          "stall_ms": 250,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 60,
+          "stall_ms": 0,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 60,
+          "stall_ms": 50,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 60,
+          "stall_ms": 100,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 60,
+          "stall_ms": 250,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 120,
+          "stall_ms": 0,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 120,
+          "stall_ms": 50,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 120,
+          "stall_ms": 100,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 120,
+          "stall_ms": 250,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 144,
+          "stall_ms": 0,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 144,
+          "stall_ms": 50,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 144,
+          "stall_ms": 100,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "diagnostic",
+          "frequency": 144,
+          "stall_ms": 250,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 0,
+          "stall_ms": 0,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 30,
+          "stall_ms": 0,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 30,
+          "stall_ms": 50,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 30,
+          "stall_ms": 100,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 30,
+          "stall_ms": 250,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 60,
+          "stall_ms": 0,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 60,
+          "stall_ms": 50,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 60,
+          "stall_ms": 100,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 60,
+          "stall_ms": 250,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 120,
+          "stall_ms": 0,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 120,
+          "stall_ms": 50,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 120,
+          "stall_ms": 100,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 120,
+          "stall_ms": 250,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 144,
+          "stall_ms": 0,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 144,
+          "stall_ms": 50,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 144,
+          "stall_ms": 100,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        },
+        {
+          "transport": "compact",
+          "frequency": 144,
+          "stall_ms": 250,
+          "digests": {
+            "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+            "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+            "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+          }
+        }
+      ],
+      "wasm_growth": false
+    },
+    "upstream_components": {
+      "command": "npm --prefix engine run test:simulation:upstream",
+      "passed": true,
+      "comparisons": 72,
+      "lock_sha256": "a6cf520b8e80b0e7c06da2bb4493db9173ba20a734433348fe0df54dc4ff7e8a",
+      "report_sha256": "16e584cfb527d144a401381ac16d7227397f22230bcb5c13b3fde1fc7d54adb4",
+      "observations_sha256": "0c36bc7bede008623b88c65a9f2af485e6bb8530a90b880d92ab597d85e5c1ca",
+      "scope": "Existing components only; no new whole-session, drawable or H11 oracle"
+    },
+    "chromium": {
+      "command": "npm --prefix platform/browser-js run test:browser -- --project=chromium",
+      "passed": true,
+      "tests": 4
+    },
+    "all_browsers": {
+      "command": "npm --prefix platform/browser-js run test:browser",
+      "passed": false,
+      "chromium_passed": 4,
+      "firefox_launch_failures": 4,
+      "webkit_launch_failures": 4,
+      "cause": "Missing firefox-1543 and webkit-2359 executables"
+    },
+    "install": {
+      "command": "PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT=15000 npm exec --prefix platform/browser-js -- playwright install firefox webkit",
+      "passed": false,
+      "firefox_attempts": 5,
+      "timeout_ms_per_attempt": 15000,
+      "webkit_install_reached": false
+    }
+  },
+  "preserved_contracts": {
+    "record_kinds_1_through_30_exact": true,
+    "old_c_exports_exact": true,
+    "prepared_identity_changed": false
+  },
+  "implementation_files_sha256": {
+    "engine/abi/engine.h": "b5dff89898e719575d4ba26334d60d0c79444abb52b6b6b0699aa11fce8730a7",
+    "engine/abi/records.d.mts": "8dade9463a4555e1d712c73e058c320b3792c3b273bbca42bf54ad9cb7c51ce6",
+    "engine/abi/records.json": "5e0e8082e2925ab5ff23eac0820f31c1035fbbc4be15f726a2825ed0d2f1304d",
+    "engine/abi/records.mjs": "771af6b8a02d8b9936143be2d49c90830fd31f9172da7891f9f89809cbdfad35",
+    "engine/abi/records.ts": "c60ea704574f65de34c8c4619bb81475726e58a3cc66e0713b1496ce9ef4b34e",
+    "engine/prepared/abi_records.odin": "6e5c83a360dfc2044cfce8eb57452fc9cc1c5cfe3a51d5cb38d5add77e544674",
+    "engine/runtime/abi.odin": "2290bf8f39ad0b768c6c78b7a207d8be8db11a0f102c7d46d521293e1d5da6f7",
+    "engine/runtime/abi_records.odin": "4d05f4ba0947106d47695845de018be42569f0f35dc3e131ef7d7672019c16b6",
+    "engine/runtime/gameplay.odin": "b5ca1c937f8de2b1f6bec01814cda1a2ec78403c87e8f0d3abd0758bd45eab7e",
+    "engine/runtime/lifecycle.odin": "0cc69e815c5bbff59a9e1139bc544ebef0d36a5f345614999505730060323809",
+    "engine/runtime/presentation.odin": "afeb24c5846a53be76761efe5e710daeec3705eee2500f0c1997a88507264a21",
+    "engine/scripts/generate-abi.mjs": "9653241a06b5888cccab79bc0b8093c724834cadd4a72d0cca3ae15b8438b5b1",
+    "engine/simulation/session.odin": "4b219cce0393b15fa1e023a4ad431b8145dc7690cbbbb86302e9aee53faf365f",
+    "engine/tests/gameplay_abi.h": "00823d4a1a1f90abb585c9ecdb10d2f995e7aea6357fc7d1ae16d2f17f7260e3",
+    "engine/tests/presentation_test.odin": "453e269aa3570cd3d34c50e8726540a3357028458b982832ea190cbf66aa7f82",
+    "platform/browser-js/scripts/session-evidence.mjs": "835033b2012420c9d48e7382c67a27d113efd0dc737f0e0c1cf3976fd234511c",
+    "platform/browser-js/src/engine-bridge.mjs": "4441a6a7109dcf4c2ba2463167bb3b1599adf6e2828821bd49c0a7aab3aea9ed",
+    "platform/browser-js/tests/engine.test.mjs": "531b8148fb136fd8204a7fcbe042b37bc5e500db37504ea42b66da22063678cc",
+    "engine/presentation/active.odin": "f67ecb0b0042ec3cac0907064d673e796aa14416229143f37f5f79116921e649",
+    "engine/simulation/projection.odin": "95d84b6062eeac1208b5232e5e44ea9a40f070997dba7f086c40226224e84d62"
+  },
+  "unfinished_implementation": [
+    "W01 static render/resource and voice/loop/ramp contracts",
+    "W02 executable pinned whole-session/drawable H05–H11 and A22 adapters",
+    "W03 animations, complete feedback, cursor trail, follow points and HUD",
+    "W04 counted meshes, original atlas/shaders and WebGL2 executor",
+    "W05 frozen assets, authoritative loops/ramps and durable browser admission",
+    "W06 DOM input and one integrated frame/music driver",
+    "W07 lifecycle, recovery, retry and results UI",
+    "W08 whole-scenario compatibility corrections",
+    "W09 integrated resource and measured performance matrix",
+    "W10 complete release validation"
+  ],
+  "external_unexecuted": [
+    "Firefox/WebKit automation binaries unavailable after attempted install",
+    "Actual release Chrome/Firefox/Safari with physical inputs and audible output",
+    "Performance approval after concrete integrated measurements"
+  ],
+  "open_acceptance": [
+    "A12",
+    "A13",
+    "A14",
+    "A15",
+    "A16",
+    "A17",
+    "A18",
+    "A19",
+    "A20",
+    "A21",
+    "A22",
+    "A23",
+    "H11"
+  ]
+}
