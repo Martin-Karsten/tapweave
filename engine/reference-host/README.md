@@ -55,3 +55,16 @@ locked framework package. It needs .NET 10 and a locked NuGet restore, but no fu
 checkout. Its 74 fixtures isolate path math/workspace behavior from decoding and
 complete object preparation. Geometry provenance lives in
 `reference/geometry/manifest.json`; full observations go to `artifacts/geometry/`.
+
+## Independent M2 observations
+
+`npm --prefix engine run test:simulation:upstream` executes actual result
+properties, `OsuScoreProcessor`, `OsuHitWindows`, `SpinnerSpinHistory` and
+`DrainingHealthProcessor` against explicit synthetic inputs. `--simulation` is
+a separate adapter mode; H01/H02 and the preparation projection retain their
+existing behavior. The real dependency lock remains unchanged.
+
+The H06/H08/H09/H10 subsets do not exercise drawable input selection, slider
+tracking, spinner cursor sampling, player failure, or full replay sessions.
+M2's local event/replay fixtures are never submitted as upstream observations.
+See [M2 status](../../docs/implementation/m2.md).

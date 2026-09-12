@@ -1,6 +1,6 @@
 # Traceability matrix
 
-M0 rows below describe the tested foundation matrix; the [M0 report](../status.md) and [hashed findings](../../engine/reference/findings/m0.json) define its bounded coverage. M1 rows link to the complete-preparation findings. Later milestones remain unimplemented.
+M0 rows below describe the tested foundation matrix; the [M0 report](../status.md) and [hashed findings](../../engine/reference/findings/m0.json) define its bounded coverage. M1 rows link to the complete-preparation findings. M2 has independent component evidence below; full gameplay and later milestone capabilities remain unsupported.
 
 `unsupported` means the current engine does not implement that capability; design descriptions are not implementation evidence.
 
@@ -54,3 +54,13 @@ local lifetime/ABI evidence and stage measurements. The separate geometry runner
 covers explicit typed paths; the integrated runner also exercises raw legacy path
 conversion and final optimised paths. Byte-identical native/WASM traces and binary
 digests are a separate check from the pinned upstream projection.
+
+## Independent M2 component observations
+
+[M2 status](../implementation/m2.md) records pinned result/scoring, hit-window,
+forward spin-history and drain-calibration subsets, with separate local
+scheduler/replay evidence. These do **not** complete A13–A20 or A23. In particular,
+H06 window predicates are not circle/note-lock dispatch acceptance; H08 history
+is not complete spinner judgement; H09 calibration is not player failure.
+The `unsupported` gameplay entries above describe production capabilities;
+independent component evidence does not advertise simulation support.

@@ -8,6 +8,12 @@ using osu.Game.IO;
 using osu.Game.Rulesets.Objects.Types;
 using osu.Game.Rulesets.Objects.Legacy;
 
+if (args.Length > 0 && args[0] == "--simulation")
+{
+    SimulationObservation.Run(args[1]);
+    return;
+}
+
 if (args.Length > 0 && args[0] == "--prepared") { PreparedObservation.Run(args[1..]); return; }
 
 // H01/H02 observations come exclusively from the real pinned decoder. Exceptions

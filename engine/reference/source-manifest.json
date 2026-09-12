@@ -343,6 +343,114 @@
       "local": "sources/osu__osu.Game__Rulesets__Objects__Legacy__LegacyRulesetExtensions.cs",
       "sha256": "89891e2511450e49e669df2dcbcc22f4df5e7cbcdbe0324b36e4e331f757ffe5",
       "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Scoring/HitResult.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Scoring/HitResult.cs",
+      "local": "sources/osu__osu.Game__Rulesets__Scoring__HitResult.cs",
+      "sha256": "8270b84c41327f8c861624c4bd9eab634a564e707d8580816cc353969e8b113b",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Scoring/ScoreProcessor.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Scoring/ScoreProcessor.cs",
+      "local": "sources/osu__osu.Game__Rulesets__Scoring__ScoreProcessor.cs",
+      "sha256": "8530910f2cfe44cad9bf110d35374be727edcbb7bf50a36035a57d65edd02df3",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Scoring/JudgementProcessor.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Scoring/JudgementProcessor.cs",
+      "local": "sources/osu__osu.Game__Rulesets__Scoring__JudgementProcessor.cs",
+      "sha256": "63b5d22228b36994ea2c39874ad1f4f557e75e0a75785759eed5d6bfbc98976e",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Scoring/HitWindows.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Scoring/HitWindows.cs",
+      "local": "sources/osu__osu.Game__Rulesets__Scoring__HitWindows.cs",
+      "sha256": "ec37acc67a4656dddc68dbddce8dc21eea6cd0fee64129dd18c0a977f0583b88",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Judgements/Judgement.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Judgements/Judgement.cs",
+      "local": "sources/osu__osu.Game__Rulesets__Judgements__Judgement.cs",
+      "sha256": "49dda9a080c64bcaaa0108760078892bbc8037e5fda6134093b9026d1333a416",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/IBeatmapDifficultyInfo.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/IBeatmapDifficultyInfo.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__IBeatmapDifficultyInfo.cs",
+      "sha256": "6bad98edb969e717922468f4a0f3ea3f8344d715fec720ae47c6c32fef06d423",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu/Scoring/OsuScoreProcessor.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Scoring/OsuScoreProcessor.cs",
+      "local": "sources/osu__osu.Game.Rulesets.Osu__Scoring__OsuScoreProcessor.cs",
+      "sha256": "07e1dc54455a3bd69f8026d314871710a89f2c22af04b299ba008fd81cab27e6",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+      "local": "sources/osu__osu.Game.Rulesets.Osu__Scoring__OsuHitWindows.cs",
+      "sha256": "48d12c8356d2f86766bd98c69643fa6dfbd6d1cd7635620eb641dc96fb19bdb0",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs",
+      "local": "sources/osu__osu.Game.Rulesets.Osu__Objects__Drawables__DrawableHitCircle.cs",
+      "sha256": "b334d895bb51cfb618c28ee9d895947bdd2847e1bc10643b861e9e4392a1f88f",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu/Objects/Drawables/SpinnerSpinHistory.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Objects/Drawables/SpinnerSpinHistory.cs",
+      "local": "sources/osu__osu.Game.Rulesets.Osu__Objects__Drawables__SpinnerSpinHistory.cs",
+      "sha256": "5d7f1190ce04d2aaf024c82ad269609cc14c478556d037ea58496711745db46a",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Scoring/DrainingHealthProcessor.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Scoring/DrainingHealthProcessor.cs",
+      "local": "sources/osu__osu.Game__Rulesets__Scoring__DrainingHealthProcessor.cs",
+      "sha256": "6a1709f450cd9523ada79d0d2c8590d6a0df28ba70abd6e6dab76f5cb946b5db",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Scoring/HealthProcessor.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Scoring/HealthProcessor.cs",
+      "local": "sources/osu__osu.Game__Rulesets__Scoring__HealthProcessor.cs",
+      "sha256": "81effc182e55e0abee663ef6e9f6a438ebc62bc2a818c5d49e0ae43f8b5e099b",
+      "licence": "MIT"
     }
   ]
 }

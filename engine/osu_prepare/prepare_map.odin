@@ -84,16 +84,6 @@ create_scratch :: proc(
 	return result, .OK
 }
 
-difficulty_range :: proc(value, low, middle, high: f64) -> f64 {
-	if value > 5 {
-		return middle + (high - middle) * ((value - 5) / 5)
-	}
-	if value < 5 {
-		return middle + (middle - low) * ((value - 5) / 5)
-	}
-	return middle
-}
-
 prepare_map :: proc(
 	decoded: ^beatmap_decode.Map,
 	points: ^Points,
@@ -241,7 +231,7 @@ prepare_object :: proc(
 		f32(f32(1 - f64(f32(0.7)) * ((decoded.difficulty.circle_size - 5) / 5)) / 2) * f32(1.00041),
 	)
 	object.radius = 64 * object.scale
-	object.preempt_ms = math.trunc(difficulty_range(decoded.difficulty.approach_rate, 1800, 1200, 450))
+	object.preempt_ms = math.trunc(core_types.difficulty_range(decoded.difficulty.approach_rate, 1800, 1200, 450))
 	object.fade_in_ms = 400 * min(1, object.preempt_ms / 450)
 	primary_point := query(points.sample, .SAMPLE, object.end_time_ms + 5)
 	bank := parse_bank(raw_object.hit_sample, {}, raw_object.kind == .SLIDER)
@@ -370,13 +360,13 @@ prepare_object :: proc(
 		if raw_object.kind == .SPINNER {
 			duration := (object.end_time_ms - object.time_ms) / 1000
 			object.spins_required = i32(
-				difficulty_range(decoded.difficulty.overall_difficulty, 90, 150, 225) / 60 * duration +
+				core_types.difficulty_range(decoded.difficulty.overall_difficulty, 90, 150, 225) / 60 * duration +
 				0.0001,
 			)
 			object.maximum_bonus_spins = max(
 				0,
 				i32(
-					difficulty_range(decoded.difficulty.overall_difficulty, 250, 380, 430) / 60 * duration +
+					core_types.difficulty_range(decoded.difficulty.overall_difficulty, 250, 380, 430) / 60 * duration +
 					0.0001,
 				) -
 				object.spins_required -

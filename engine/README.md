@@ -94,3 +94,16 @@ control flow and one statement per line. `odinfmt.json` records the formatting
 preferences; an optional external `odinfmt` can format individual source packages.
 Do not format retained upstream sources or generated ABI files. Generate ABI
 constants/bindings from `abi/records.json`; writers use its named field offsets.
+
+## Independent M2 primitives
+
+The [M2 increment](../docs/implementation/m2.md) adds result/scoring, hit-window,
+forward spinner-history and drain-calibration primitives, bounded event/input
+queues, and [replay validation/serialization](replay/README.md). These consume
+explicit inputs and do not expose production gameplay or replay capabilities.
+
+`npm test` includes allocation-tracked primitive tests and native/WASM traces.
+`npm --prefix engine run test:simulation:upstream` uses the same clean pinned
+checkouts and .NET setup as the reference host for component comparisons.
+Integration with the completed M1 interfaces, complete sessions and whole-scenario
+M2 acceptance remain open.

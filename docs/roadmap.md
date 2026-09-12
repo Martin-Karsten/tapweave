@@ -22,7 +22,7 @@ Every scenario runs native and WASM. Discrete traces must be byte-identical; com
 
 ### Circles, input, spinner, score and health
 
-- Every ±Great/Ok/Meh boundary and adjacent representable value; +400 miss; clicks outside radius.
+- Every ±Great/Ok/Meh boundary and adjacent representable value; ±400 user-result and strict post-Meh automatic miss boundaries; clicks outside radius.
 - Equal-time circles and inputs, one edge/multiple overlaps, skipped note force-miss, held buttons and source ordinal ties.
 - Spinner zero/partial/exactly 75%/above 75%/exactly 90%/above 90%/complete/bonus, direction reversal, dead-centre movement, 180° crossing, rate adjustment and varied input sample density.
 - Synthetic result sequences for every result property, combo break/increase, accuracy, midpoint rounding, max simulation, rank, bonus >1M.
@@ -70,6 +70,9 @@ Deliverables: all control points/sample candidates; exact framework path algorit
 Exit criteria: A08–A11 pass on generated and upstream corpus; H03/H04 resolved; no unexplained geometry failure outside tolerance; preparation fits default quotas and reports per-stage time/memory.
 
 ### M2 — Complete unmodded simulation and scoring
+
+Status: [independent primitives implemented](implementation/m2.md); full gameplay remains open.
+Implementation sequence: [M2 plan](implementation/m2-plan.md).
 
 Prerequisites: M1 objects/schedules and result tables.
 

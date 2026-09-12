@@ -1,0 +1,1300 @@
+{
+  "schemaVersion": 1,
+  "compiler": "/Users/martin/stuff/osu-web/engine/.toolchain/odin/odin version dev-2026-09-nightly:a2fb372",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "lockSha256": "a6cf520b8e80b0e7c06da2bb4493db9173ba20a734433348fe0df54dc4ff7e8a",
+  "upstreamExecuted": true,
+  "m2Complete": false,
+  "scope": "Independent result/scoring, hit-window, forward spin and drain-calibration primitives; local event/input and replay codec primitives. No prepared-map gameplay or production ABI.",
+  "records": [
+    {
+      "fixture": "result-properties",
+      "sha256": "a03461b0b5ffcd0c2e426510b1ae170dd3048e87863f365ffb3f711db19cf277",
+      "acceptance": [
+        "A17"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "8c2e9f27f6bcfbb9784aa991cf0d158547ab3d9ad04ed65d9c2611d3f4aa0ab1",
+      "difference": null
+    },
+    {
+      "fixture": "great-ok",
+      "sha256": "9b62664811db781c0289934584cdb2b74c9784c410eb3e645c063f798d5748f1",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "62c863ba1a345c4e07df7b7ba46d56e9e6e449a1697be0a9dbf53481f12baf51",
+      "difference": null
+    },
+    {
+      "fixture": "perfect",
+      "sha256": "13b47e167ac9f498befc38c1bc2dbe6de0be03c1a4c559f7f743831cb17404ec",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "31a32e364d63499014cacb5045c05737b551de4edfb31ab9cf2f172f942b5b1e",
+      "difference": null
+    },
+    {
+      "fixture": "miss-combo",
+      "sha256": "6439326f00f608293f55e147710fff14a2be10611946e95f4ed3ab26f3bab8b3",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "680356335e49592f9ce2b493ab5f8e16cc9229f0996ceeabb0d12c625a725de5",
+      "difference": null
+    },
+    {
+      "fixture": "nested-and-parent",
+      "sha256": "3ea53b4cad82c7d44bc40caabfb80fdab5c4cfbc9ec5bcb6476c6df8cdc727d1",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "981e2f5e7a0ef27292e3b300106bc1bf7544825b42d778548b320dc981494984",
+      "difference": null
+    },
+    {
+      "fixture": "ignored-tail",
+      "sha256": "425f2ac95ec4021982830bc7262fe732ee82a7e76a59bc7f575c725c690c978d",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "ecb81a59610cfc9f4fba5a609bab311e610ff2895200950d7300f7dd1e97ad07",
+      "difference": null
+    },
+    {
+      "fixture": "small-ticks",
+      "sha256": "b3e7c3d72a10e18fe6b4fcd3023ceedc3e6cca1fc620b1db8a42a4785867d624",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "3da383e5fcd338840873081b2bfb17eaf7129462ad1fb07de52807b1a2792110",
+      "difference": null
+    },
+    {
+      "fixture": "bonus-above-million",
+      "sha256": "5a92022cb830138ade61d62aaa52556077f2d5add29da24f3a0bb109c7dcbe78",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "8d4f061293a3cbb999ee357933c7fe70c88034a477d402de1f671034416eff54",
+      "difference": null
+    },
+    {
+      "fixture": "ignored-bonus",
+      "sha256": "7c60648fd902cd69cae0c16e80e9eba855519118006231ebc6f5b636986e2f42",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "269cb0d79ebac6354b46795fe3e51c05d607ff4a2ed1c59822d4f806e713b4e6",
+      "difference": null
+    },
+    {
+      "fixture": "combo-break",
+      "sha256": "3112ceacc38ce562617b4a3e0b6a4a3e52d4cc24833bb79edaf047b579d64945",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "63513c1d98306f5f2ba7e578c9c448abd8a29712799b819dbff32f4c3090cac6",
+      "difference": null
+    },
+    {
+      "fixture": "ignored-only",
+      "sha256": "d674f098b9ba48f6d9ac9ed7c598e5906cfdbb30c7a18277883010f28b0e5980",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "ea21bf9d77829c493a88873f09512edfd22ac2d0dd7b75b53a78eab93a932094",
+      "difference": null
+    },
+    {
+      "fixture": "bonus-only",
+      "sha256": "781266e5ff0afdb4d7cfe18b59883532a060ae314357db6cbc2dc585bf4965c2",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "7915d5d057e43fe166efa927711fc485c43acb0f084f5240773cc160aa238274",
+      "difference": null
+    },
+    {
+      "fixture": "suppressed-after-failure",
+      "sha256": "5edb129d30f8cd7dd4ea8525f1c53024c1537c9de9a3bcb320539168d130dda5",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "3c223581dbb22dae139a1fac87075af56ac61ea89c46ac480c702efce977b986",
+      "difference": null
+    },
+    {
+      "fixture": "all-basic",
+      "sha256": "02fde9e118cd8582fd11684b1107a43c0ec5c2f32f4614fd7c152abda9012916",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "414ed077dd0acb6f7020e349b1e73f2baf745b0478602442a2b9db0159a40647",
+      "difference": null
+    },
+    {
+      "fixture": "basic-1",
+      "sha256": "bddd09692464bc515ed1a8a0071723adefa93b99c0ef8be81fb37ccd812ed007",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "b8738fcbbb4b65fb15a61ea24d3e75a6bf55bf2215e6072a2b6396fa74488547",
+      "difference": null
+    },
+    {
+      "fixture": "basic-2",
+      "sha256": "80cbacdc221b27ffe9c69514098d3583deb338bf46530f5015145dd77e7a528f",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "18c74e6ba3daf7b440e7af092cb211fb61a52be2acfa22d4a554984788c94c90",
+      "difference": null
+    },
+    {
+      "fixture": "basic-3",
+      "sha256": "aeae4a3e391260f97f3f166d2ccfa9c65676317f579d3d869c5763564faf6f62",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "520aebe13e7eeb6a6ca47967ce9733a071a03265a323649fbf7238ddac1cd78c",
+      "difference": null
+    },
+    {
+      "fixture": "basic-4",
+      "sha256": "3cf095f46db5564778201d8604d981865147889ed3122b9f6583ca59d62c908b",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "ce758be42c4e1f4343e9fa00ac8f170c7ac60cb6dd803a1239e695459f49fe13",
+      "difference": null
+    },
+    {
+      "fixture": "basic-5",
+      "sha256": "d6f399f5b471fbfa3abe29be4d0810e158d205689a8f17a6aa5720d6103a4f10",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "e0a586cae35c5ea294178f4abec82a56407aa0e6cc1ae00f709b40faa64e10b8",
+      "difference": null
+    },
+    {
+      "fixture": "basic-6",
+      "sha256": "ea07076fb1631dd988b6d122efd5c99d5d253d15ce20a61dbda9ded2c9faeaf0",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "9bc4a3a50b4ae0b43575693b1d23e8adf3b731a7d6d9d11a01cf3df5dafb313c",
+      "difference": null
+    },
+    {
+      "fixture": "mixed-1",
+      "sha256": "b20b9b060fa17e5a542a05eb2d2d50dc3df49aa4f27780ddf0ec3e23c49d11d6",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "c23f4c6adf4ea876fdc2a06350cbaecfc5f38efba833ab473ca3dc0aa8c00fb1",
+      "difference": null
+    },
+    {
+      "fixture": "mixed-2",
+      "sha256": "770e48daaa6b1d04fa93afe9fa33cca65e46cb1e10626cdf49b1dbf811322b26",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "89e087eda70362024ce571d36462edd5c62d22a57abc916430a0ea10bca4e03a",
+      "difference": null
+    },
+    {
+      "fixture": "mixed-3",
+      "sha256": "e30cdac5123d81f5b205a897ecf931e3cea7b36ba1fa7c9d6f87da16b982ab0a",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "4d4ff0c66a592a3322c1d468ac70736b0589fb610f637107a8150809220e1cdb",
+      "difference": null
+    },
+    {
+      "fixture": "mixed-4",
+      "sha256": "688fb0361cac7443520a74095036487b847275add8b97882e571c69a26ca1792",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "6fb6512f6d39442f10b633830033328de960d41297addce92d7a108d9b0ddb8a",
+      "difference": null
+    },
+    {
+      "fixture": "mixed-5",
+      "sha256": "366e0777c732e0200d5dc120b9bdb6668b7036674ab2458768effd6a5119cc48",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "9313ac0bf2b8c555008d8a3ff69c0b9ed4dda57bafeeb867b0ec2ca05f646b7f",
+      "difference": null
+    },
+    {
+      "fixture": "mixed-6",
+      "sha256": "63d5998c7939b7952a4fb501266eb7124845b79ad098ac236651b4d0d75232c5",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "3fe11698eafbc8dc679b9e74f6152e119bb17f955b5c216ef8cc06ad911ccdc0",
+      "difference": null
+    },
+    {
+      "fixture": "mixed-7",
+      "sha256": "09abca88d54db67c417a941317a2f4c75531d28eb5d2a98a5435020df26fd08f",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "e6544251ec20fe79edc0681916338a34376c5837ca88e2bb2d2d02f6f05186e4",
+      "difference": null
+    },
+    {
+      "fixture": "mixed-8",
+      "sha256": "918b14b2daeae61f18788d2d17d692a1bee1dcae43f603ea7954d94e9ddc3cda",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "1bf80950101b31d80b6109e048ea059a3008fabfd3974a75a9afb3dbe13cfa0c",
+      "difference": null
+    },
+    {
+      "fixture": "mixed-9",
+      "sha256": "fe21c0f8a4f6bb08bb131b63613e7e05544b1bcb39e57a54172e3457818be4ae",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "d52c68e2152cd0b411b8923068d4baf188e4e62dfe112acb5b851d9d4194588b",
+      "difference": null
+    },
+    {
+      "fixture": "mixed-10",
+      "sha256": "f4daf41b1f9138628516b646a9e57e5c556fdb3fa2d58b4da10362c1ab4e1dd7",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "846fb308fecb162258cda3540accca637810076290692af0b2267da6c29e7c71",
+      "difference": null
+    },
+    {
+      "fixture": "mixed-11",
+      "sha256": "759c348b955ef6acc0a6521dc0ace51889f315b1d1ea9bda3126dd42ca38629f",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "e6978d2de102159840ebe2c43b7dbd443067032534dc25e80d8c2745b485e07c",
+      "difference": null
+    },
+    {
+      "fixture": "mixed-12",
+      "sha256": "0d0b839cadbb03b4bfa0f319d037082df5568173f94850a4a3902e810917985b",
+      "acceptance": [
+        "A17",
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "6da7f619a7620153b1c6b1a841bc9ee254a4196a1b2af7e2b1d7eb21f3004824",
+      "difference": null
+    },
+    {
+      "fixture": "windows-0",
+      "sha256": "5cbc2f6e6eb55840c083a1e475e26b5d2803a64f091864c0d3f7045341e4e69d",
+      "acceptance": [
+        "A13"
+      ],
+      "experiment": "H06-windows-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "5b36721fea377a4df810b04fba07de1bbef6e01831404f13ff4f9598f98c73c5",
+      "difference": null
+    },
+    {
+      "fixture": "windows-1",
+      "sha256": "4ccb045459bcecb94067fb2b1bb832f1027c252e35721146f97dcc3d56b7aa96",
+      "acceptance": [
+        "A13"
+      ],
+      "experiment": "H06-windows-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "3722d22226b02e932e768c1ef9811bc8b6ba09aef344919b7b3db4dd7561c65a",
+      "difference": null
+    },
+    {
+      "fixture": "windows-2.5",
+      "sha256": "d5827a0a44c75e7a510111af48e0fc4652495f20e113c7b902d9bfa034035918",
+      "acceptance": [
+        "A13"
+      ],
+      "experiment": "H06-windows-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "431503cf41787afb8cf7d3fc9f5b1307c9fdd8be5a4ad7a1bcae04d121817f88",
+      "difference": null
+    },
+    {
+      "fixture": "windows-4.9",
+      "sha256": "41bc8e11be6bb57a4021e1fd841e65538ab7568245bc627ef7d8b65a2bf72146",
+      "acceptance": [
+        "A13"
+      ],
+      "experiment": "H06-windows-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "fa532101cba4809d11c4381147b0e5f06c366f7ffbc794f53c4df1a5a46cccaf",
+      "difference": null
+    },
+    {
+      "fixture": "windows-5",
+      "sha256": "612c344c7c2dc367f53e8525c6827fb797caf85287d54926eed2e9255c80b758",
+      "acceptance": [
+        "A13"
+      ],
+      "experiment": "H06-windows-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "2fde371098c13ed2fa2eb68e3ed97dfd3804a56010f1ac2172d1a3cc48a5f280",
+      "difference": null
+    },
+    {
+      "fixture": "windows-5.1",
+      "sha256": "789d9724184ad15cd6f850c138be58f03791eb052717852d84e14ff4e579a7f0",
+      "acceptance": [
+        "A13"
+      ],
+      "experiment": "H06-windows-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "a382befb73fdfa3d93bde5ded89ca43af9f135474fbb24f952903b9644b13b18",
+      "difference": null
+    },
+    {
+      "fixture": "windows-7.5",
+      "sha256": "24ac63379d3b4d0387ff9d6b210f7ae3d1955e565f59852ef0450d10327ad6db",
+      "acceptance": [
+        "A13"
+      ],
+      "experiment": "H06-windows-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "39f6e4cee8bbeeeb3c98b1f2f9d3974936c8e4c28935baff4ab5753ac7c18456",
+      "difference": null
+    },
+    {
+      "fixture": "windows-9",
+      "sha256": "a250a763b47e32cca9d8f9af7ac706f3d57177614276f317c85752df2691e41e",
+      "acceptance": [
+        "A13"
+      ],
+      "experiment": "H06-windows-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "c44721689bcff06821cdd135825d0cc96d4a5f065cce50607e615e257b4fdedd",
+      "difference": null
+    },
+    {
+      "fixture": "windows-10",
+      "sha256": "ab516b5442ab27b9ccc8c4abf3538945c5143cf47395d0a454ec8ce7bf09139a",
+      "acceptance": [
+        "A13"
+      ],
+      "experiment": "H06-windows-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "410bb41b21b09ad9a62be5890c770113bf602de41cfa65f43f4a0f7d619e3962",
+      "difference": null
+    },
+    {
+      "fixture": "spin-clockwise",
+      "sha256": "98388c19cd02806eac7c5f6ea031faa903e35ec332914452f9cac6ebb569663f",
+      "acceptance": [
+        "A16"
+      ],
+      "experiment": "H08-history-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "d44d94bd20a9ca53f09009b640322fc0c225aa6391b237f9b300a37ef984d1e9",
+      "difference": null
+    },
+    {
+      "fixture": "spin-counterclockwise",
+      "sha256": "b7b55553c9dec6834bcf67c8f8fcbe8ff9eba637884a7851d33a7cf16b0a3d4f",
+      "acceptance": [
+        "A16"
+      ],
+      "experiment": "H08-history-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "db0dff98153f6a597a25582da7007542a8b5176edb99ab91623dbf8548b4cfb6",
+      "difference": null
+    },
+    {
+      "fixture": "spin-reversal",
+      "sha256": "6179ee3a8193f172e2b268583b4eb0b907a236bb2abe034c4a35e986c0624e42",
+      "acceptance": [
+        "A16"
+      ],
+      "experiment": "H08-history-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "3c0b8e3a3a5412ab65c7c731dcac9ff4883648824b38a56a0448bb9fe503d93c",
+      "difference": null
+    },
+    {
+      "fixture": "spin-cheese",
+      "sha256": "f340698b478cf4e3df5c27b8a7f9318b2fda200152cce8580e0a826d8d14354d",
+      "acceptance": [
+        "A16"
+      ],
+      "experiment": "H08-history-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "bb2db834f31b7c149ffec9d12c61baa610f3c7815f7b764321a79788f501b5c5",
+      "difference": null
+    },
+    {
+      "fixture": "spin-partial",
+      "sha256": "9f0f25eba047c14f6ef5da81d864f4e8c375ff436bbe7c7d6093cfa37ee0c5ac",
+      "acceptance": [
+        "A16"
+      ],
+      "experiment": "H08-history-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "b898c49f68a49471e51eddd491eaae1cd77b10c5f072de63f68f1233ed1312a5",
+      "difference": null
+    },
+    {
+      "fixture": "spin-fractional",
+      "sha256": "4720a78144a0ef159c41cbae525270d5afc08662155964eec3085f82b61c7f6a",
+      "acceptance": [
+        "A16"
+      ],
+      "experiment": "H08-history-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "ab1995f7881ebf4bae9cad23bd23deff925b326cb42c650a2da8a7542978451d",
+      "difference": null
+    },
+    {
+      "fixture": "spin-zero",
+      "sha256": "0a501ff3cde7cf7720273fb4abbb03c8119c3e7e40e5f9c0658edcebe2eb9f59",
+      "acceptance": [
+        "A16"
+      ],
+      "experiment": "H08-history-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "28b852669838c1f1810a5375e905c5d4d7420cdf1b134b333da4938a07a5d6c0",
+      "difference": null
+    },
+    {
+      "fixture": "drain-0-empty",
+      "sha256": "c2db1b0c173ef225face4438ce306cb9794c41fdb7f954184a28d46056ccd988",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "cc24a581946e58afd4763da3a0629c2fd1c80f4948137070a9c7aa9043c16f08",
+      "difference": null
+    },
+    {
+      "fixture": "drain-0-single",
+      "sha256": "370d526ead6a85ca49f03275b05762687879b62765d78e2ced7fb92e19b1af9d",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "7ca90ff9c5689528d12d8ebdb076617110c47de15073c5c0a6ecba6e34cb52c4",
+      "difference": null
+    },
+    {
+      "fixture": "drain-0-stream",
+      "sha256": "3f26d7066ad0908fcfb925a5e883a19c978255553e9b902fb2e4b6d43b301de3",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "760e05b081b3e239d4afae63666b7a7db56e0fd6191b944135827eea74ad47a3",
+      "difference": null
+    },
+    {
+      "fixture": "drain-0-break",
+      "sha256": "aeb9fb95a2a714ca939f06369242be6e64cb7e62afa1d53b72c4988169ae9e76",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "b080d7ded85fc772fd39f6bcc99d0a259086776845a87eb062f51b97b9f390b2",
+      "difference": null
+    },
+    {
+      "fixture": "drain-0-same-time",
+      "sha256": "525e3c2b2104d70b73d8d61a441088d43e23fd5d9feb7cd5b70adbf85c59b799",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "5ae86aa86044e361ff1f0ae20a7475025f4d93446fcd3178ba4ad86e18919dee",
+      "difference": null
+    },
+    {
+      "fixture": "drain-0-nested-order",
+      "sha256": "6a92a2a24391b47f80e4cfc47088dd770fd3d2d902067e654e45159f8b15c5c8",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "cb3ba8fffccff1eeb4ac69c0970de0cd745339d013bac073a53494e1f0e73913",
+      "difference": null
+    },
+    {
+      "fixture": "drain-5-empty",
+      "sha256": "c426864d547cf2c498c476e9754298825a1ed8d703166b014f98ac0951aa39ce",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "c19f540029019cfb90316b5ac263757a00eb8f92b47cd29d4c19b875fa55ae40",
+      "difference": null
+    },
+    {
+      "fixture": "drain-5-single",
+      "sha256": "4bf49fc3f3b1182c5468a665b9c4c49e8429eae56e58264d0c3dd2bec4b88488",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "9f6eb79eec6fccfebbedc5e7962b8b1d9cc9964d05804d4b5fbefbeedcf7ab1f",
+      "difference": null
+    },
+    {
+      "fixture": "drain-5-stream",
+      "sha256": "ec9b29e188dfbc8d2eb093a867e5115edc7371af2939b38198258263effc007d",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "0ef18ca7b2ed28d98ac1cdabc2861ff6d99d5b65f086075f81dbc484008a59d3",
+      "difference": null
+    },
+    {
+      "fixture": "drain-5-break",
+      "sha256": "1fe237b0576cec53cc1e8b25847fe4e02c69228c5965a710d7fbd525b822f338",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "db8e22f7f55f77f19cbde953f8a1a43538280d450a65fba7de8a21010a345659",
+      "difference": null
+    },
+    {
+      "fixture": "drain-5-same-time",
+      "sha256": "44586d7dc41c788bf3da5cdb427075a8b41c2992a43f347f44d915d7ffe60917",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "e6d5ad81e4567353008cc8f94bfaf0f3c6c0dc65420494b8dde887b55c6912cf",
+      "difference": null
+    },
+    {
+      "fixture": "drain-5-nested-order",
+      "sha256": "7035a814c93648d03b6ee5ca7828416c13468ad97b7b5133d5e2061b3bed61e6",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "e2181c632769d83399bcdb8a76ca5f072b9546a210cb6ccc02743f9ea256f158",
+      "difference": null
+    },
+    {
+      "fixture": "drain-10-empty",
+      "sha256": "f40143059fc9f8bc986a8960e3901531f0c35f018ee64b65ffb1c092c9cefd45",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "b27b82f453c0cb1ee49c2632b923c0a3bb1981408c1a654773e133405ce48eb7",
+      "difference": null
+    },
+    {
+      "fixture": "drain-10-single",
+      "sha256": "da8ee07cb1f9e74223301574901c366f5e1b11470d9b3bf93ca264f9759135cc",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "5ebac75eb365eb52df5224a552a2474695bb344c8ae29d31bcfc1bf42d3b3f48",
+      "difference": null
+    },
+    {
+      "fixture": "drain-10-stream",
+      "sha256": "b1c16aacb952a2a8ea4dabe4b0de6a38c855d10afbdca25a63146ad51493c5d3",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "36f56d39a15a9a2e7dd08f57d16fffd8fa10d5c80de7c0b57ed773a388dc75c8",
+      "difference": null
+    },
+    {
+      "fixture": "drain-10-break",
+      "sha256": "cacfe5647ab94945abdfde7856803360ffee87e04dda5cf0ea3cf67cbd7e2259",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "ea37137699ffb0091b400733bda5d25fb34b6ab8f4e59075f28d0df936c24911",
+      "difference": null
+    },
+    {
+      "fixture": "drain-10-same-time",
+      "sha256": "57f8978e474b9ce12e1d1e9887c2f3453cbeed4cfa67054557ada1612e156beb",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "d5342026afeaea670aaa615b2fbd0716a9d5be2bf86a2f0e04896561518f278b",
+      "difference": null
+    },
+    {
+      "fixture": "drain-10-nested-order",
+      "sha256": "d9addbd7c39d7a4e126f8d8477b39a019e1885914302adfe026fa42b6909260d",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-calibration-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "21e59a2e015c2cade716b966c1881f9b2f755d63204c96f3dba74940cec28854",
+      "difference": null
+    },
+    {
+      "fixture": "round-midpoints",
+      "sha256": "d5837ff92ecb9e5215e7f7e84d358ba2f977012dc407a4b168670c10e8c78dce",
+      "acceptance": [
+        "A18"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "2093fb7a7b1ea81c95cc272f24fbb8db828f2c8f59ab83ae59fbf7d5cbddd47d",
+      "difference": null
+    },
+    {
+      "fixture": "events-direct",
+      "sha256": "1d646b00cd6b214855a0c06686e17f55777907985283a7e5f43616ddb5c770ef",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "d811a242dfe3ccc79b49e930520423e58c6ef62f795aaa54f5ce1b51cf7eafcb",
+      "difference": null
+    },
+    {
+      "fixture": "events-30hz",
+      "sha256": "15f852c3e182e16d59c413c93acf5d8b43ba4d092282e5dd4e36e8e238842131",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "70bcf7ceb3cc5755741e6d1a4d2e5c380764043c85baca38c16753777e40d972",
+      "difference": null
+    },
+    {
+      "fixture": "events-60hz",
+      "sha256": "bffd1950c17e85f6aa6853d60fa9bccd6b12aece21d74913f0ba0662f3a92a8f",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "14acaead49cfd4334154207b2b398f4fe985a4f836f2938102e3e0a12da55bc0",
+      "difference": null
+    },
+    {
+      "fixture": "events-120hz",
+      "sha256": "aa514ba2f27b131d0613e46f381438fa775e6f1b6fda1cb131f2b0070145870f",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "5ca99d03c6bd6ebaaddfdad1a9c05c7e71e35c3bfca51bab2e4dd90082622d72",
+      "difference": null
+    },
+    {
+      "fixture": "events-144hz",
+      "sha256": "3407bfdc6122c167d64c1b9df9ef8694d0ab3c0eb8af8515b21e74ccfb4c72ca",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "784187cee83146306091eb5b88cbbe85dcfe5edcc168f4f5ff3e48971fabf7f5",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-50-at-0",
+      "sha256": "a4f75ca5d29300b0d161390c06abfb0d37e841856ca9030d7904563df270f6c7",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "6704442b3b16833859a36cdaf66a3a5a8864fe139d230e7994975e44b0a45233",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-50-at-50",
+      "sha256": "cfec293d582edebdd06d111c429d1152c303d31acb4f07ab54dcbc514978bdc1",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "34eb69ca3c9b1035f01cccaf2c507c1382f46c250e10c034acd876f6f477da91",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-50-at-100",
+      "sha256": "63849d3136de42bdfe1b3b948a0ce45c5ea797dd9a56e75d2f3c7a933cf0b162",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "e1e22bec4e88c0bc139f10bba90bb9efd4a207770080d5c94e5bcbbb2079f228",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-50-at-150",
+      "sha256": "56ead322222b1223b8e389266da1dcac6bde01d3251f1ed07304051920846bd7",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "5bf452803da30823b9046bc028793327a32b8135ca18fc1b5aebec55f786e490",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-50-at-400",
+      "sha256": "ee50d3fc3fee1cec39d835fab7b30a7e13f559459e13483dcac5662ca5ef6d9b",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "b30e668e1c66987c05bbb922f8ddbd4d4012265fe382e576f87da3e055fc337a",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-100-at-0",
+      "sha256": "0c0d0e0c7d78f483fae8d2673b6c11cf9aedf7dad96efaf5fa6a22022ea5e442",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "1065fed39003f764990be4a3061df8021d65d409ad013b4fae4fef8d991af41d",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-100-at-50",
+      "sha256": "06e0f1778199e50976e2438dbf61798d4bc87850750d311fd8149cc8c6ec2244",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "26ac5460392d777dbbff81b4d5ba0a41752c3aa6997c2a609971491333e16ef9",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-100-at-100",
+      "sha256": "7452c1d3e1f97da5801ea07688ba7fad94bce8ef7e63a7cf511e852dc6caaf32",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "a7c541385ef37c8e456be80846ce53f14f5ee27c4c7569c6e3ffd45351a59cfc",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-100-at-150",
+      "sha256": "73fc011022050a8b2e3628ff7301a95a33ec3d689d36fb6977631e1fb032513e",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "a899e182e7d94313c85c27689b3f0d9a86d60a94561fa4df6aa777133b5b5ab9",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-100-at-400",
+      "sha256": "1e3fe9a9b421b533ae8179a91005b09d425145698638491f84e8c325f3813725",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "3da3ded446978ce75099ac0148d26b00bc234fd75ea13f7fcbd036e1d7be0e7b",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-250-at-0",
+      "sha256": "87f3436c3b857390e4b74cd6e035500867ebd952b3284b9bb46dc128781320cb",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "f19b5dd08084ecb50bc270beecff3ef3faea762ce825f28e571eb3eb230a8ef0",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-250-at-50",
+      "sha256": "28e45fe5f2d8505b7af96c2e79a6073fe09e20a821e966ea14a6b86710e772b9",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "8afdc2e78a73675fbecf760386cbe4f90b06e52783b2839c32247317ca26e2fa",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-250-at-100",
+      "sha256": "bfbb98af88febbefb950bbaacd7e69f17eb8a979b83db5f80b457decccc043b3",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "a7d25299c18cc76835a365ba8b2e7c04af4083294ffc7aa7bd5f54e8d79e2ff7",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-250-at-150",
+      "sha256": "1c2c0280b0c0f38e4ffbdc0d4e26d31832445f777828d858129613b2353fce72",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "488d6122f30ed36ea69437c3def2b9ca7c4da9ee2f0d652dbdbf64f27b4619ab",
+      "difference": null
+    },
+    {
+      "fixture": "events-stall-250-at-400",
+      "sha256": "409fb125a9ca77e2be0ac8f867062018f5bc86d733f20db37ce2e5f6ca0e7991",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "c2fa7f35d2c9dc41775439d36bb9e85bfe1015be62d1a7b845522fb8dea71055",
+      "difference": null
+    },
+    {
+      "fixture": "inputs-equal-time",
+      "sha256": "940c2a443fd0d9f5f0a71f4c4293103e524afd90b1c613cf59ae36503362f26a",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "4b21e715dc733e06f9a8cd6fbad099a2b428f4796a9f318c27b1032fb546db09",
+      "difference": null
+    },
+    {
+      "fixture": "inputs-unknown-action",
+      "sha256": "270437b3f439c01922aed663c3d9d11672e38b178442e3dcd719b14476aa3632",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "eeb52e5ae8c98b05f60624f1983dae996789c31ee62e2cb1d26a9959cf7fd565",
+      "difference": null
+    },
+    {
+      "fixture": "inputs-late",
+      "sha256": "6eb1f624b9c07ac467f52204ab9347da9627167920e4b7a9835da2fb56d4b0aa",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "6dcead2621f27f849e38432e59f72fdef25ef80e5b58f5f67a986655be9f20e3",
+      "difference": null
+    },
+    {
+      "fixture": "inputs-sequence-reuse",
+      "sha256": "d25040e643bf624335d48d55ab2c791bf2afcbd4ba37eebb8aaa1233291207d8",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "9e3c0693909c9fc7437524f00ddab983b3e858874bc1d90d7f7a06ddd22b310d",
+      "difference": null
+    },
+    {
+      "fixture": "inputs-time-reversal",
+      "sha256": "a674eed142d83b85305cbe46225c00ecf2fb3383f4b532c718c69468afd678e4",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "b21a6e539181b0df6dea8761313182bede231aca96367eeb0d8ba90296e69027",
+      "difference": null
+    },
+    {
+      "fixture": "inputs-capacity",
+      "sha256": "0703b23d0cc0df707465f2794021e633065ae6e95e771447aa891a71502a5d9e",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "6c5c2eee3e63e442ceb2968433b8bdfbf80079fa3a017cb6cf77f15fe6e97f97",
+      "difference": null
+    },
+    {
+      "fixture": "codec-empty",
+      "sha256": "461338d781f3410081d33011d3f612d4254984ad455e6f9f18aeb019b0a08458",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "b980a1899e6a4b94d34f62dfc5e2952a703ed1ab67028ccfb039afbb36a94ffa",
+      "difference": null
+    },
+    {
+      "fixture": "codec-frames",
+      "sha256": "2b985bb72fc2fde1d9a52a9ff987d3d8f915d51bdb07ae3711e0cbd558be0687",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "1554ff9dbf64e93a1c3a63aa1ad4449e79b99feea50581ae78832e505665e2bc",
+      "difference": null
+    },
+    {
+      "fixture": "replay-equal-time",
+      "sha256": "8fc09ed780ee7f3f9d4f7c90e280fcd28581a8c7a725361707c5f599e670e9f3",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": null,
+      "oracle": "local-contract-only",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation",
+      "observationSha256": "899257a2d15e1c52304efd4b135fa61933ea6f04c5de92a854f3db78fd5109e6",
+      "difference": null
+    }
+  ],
+  "recordedDate": "2026-09-11",
+  "limitations": [
+    "No production session/gameplay/replay ABI capability.",
+    "H06/H08/H09/H10 component subsets do not close whole acceptance scenarios.",
+    "Event/input/replay fixtures are local contracts, not upstream gameplay evidence.",
+    "M1 production integration remains gated."
+  ]
+}

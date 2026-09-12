@@ -17,7 +17,7 @@ Meh   = floor(range(d,200,150,100)) - 0.5 ms
 Miss  = 400 ms
 ```
 
-These values and the fixed miss window are source-confirmed in [`OsuHitWindows`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs). Boundaries are inclusive because `HitWindows.ResultFor()` selects a result when absolute offset is no greater than its window ([base implementation](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Scoring/HitWindows.cs)). OD5 therefore produces Great through ±49.5 ms, Ok through ±99.5, Meh through ±149.5, then no user hit; automatic miss occurs at +400 ms.
+These values and the fixed miss window are source-confirmed in [`OsuHitWindows`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs). Boundaries are inclusive because `HitWindows.ResultFor()` selects a result when absolute offset is no greater than its window ([base implementation](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Scoring/HitWindows.cs)). OD5 therefore produces Great through ±49.5 ms, Ok through ±99.5, Meh through ±149.5, then `ResultFor()` returns Miss through ±400 ms and None outside that range. The non-user circle path instead checks `!CanBeHit(timeOffset)`: automatic miss becomes eligible strictly after the Meh window (OD5: after +149.5 ms), not after +400 ms. Pinned component observations are recorded in [M2 status](../implementation/m2.md); drawable dispatch and note-lock acceptance remain open.
 
 ## Default note lock
 
@@ -28,8 +28,8 @@ Classic mod instead installs `LegacyHitPolicy`, blocks on earlier valid objects 
 ## Circle transition
 
 ```text
-pending --press edge + in radius + hittable--> Great|Ok|Meh
-pending --time > start+400------------------> Miss
+pending --press edge + in radius + hittable--> ResultFor(offset)
+pending --time > start+MehWindow------------> Miss
 ```
 
 `DrawableHitCircle.CheckForResult` first checks the miss deadline for non-user updates, then maps user offset to a result, asks the hit policy, and applies the result with hit position ([source](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs#L137-L188)). A held action does not generate another press edge. If two inputs share a time, sequence determines which circle sees the edge first; one physical edge may hit at most one head.

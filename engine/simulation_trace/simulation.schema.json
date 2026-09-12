@@ -1,0 +1,542 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "M2 primitive observations v1",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "schema_version",
+      "id",
+      "kind",
+      "values"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "schema_version": {
+        "const": 1
+      },
+      "id": {
+        "type": "string"
+      },
+      "kind": {
+        "enum": [
+          "properties",
+          "score",
+          "windows",
+          "spin",
+          "round",
+          "events",
+          "replay",
+          "codec",
+          "drain",
+          "inputs"
+        ]
+      },
+      "values": {
+        "type": "array"
+      }
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "kind": {
+              "const": "properties"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "values": {
+              "items": {
+                "$ref": "#/$defs/properties"
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "kind": {
+              "const": "score"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "values": {
+              "items": {
+                "$ref": "#/$defs/score"
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "kind": {
+              "const": "windows"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "values": {
+              "items": {
+                "$ref": "#/$defs/windows"
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "kind": {
+              "const": "spin"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "values": {
+              "items": {
+                "$ref": "#/$defs/spin"
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "kind": {
+              "const": "round"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "values": {
+              "items": {
+                "$ref": "#/$defs/round"
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "kind": {
+              "const": "events"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "values": {
+              "items": {
+                "$ref": "#/$defs/events"
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "kind": {
+              "const": "replay"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "values": {
+              "items": {
+                "$ref": "#/$defs/replay"
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "kind": {
+              "const": "codec"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "values": {
+              "items": {
+                "$ref": "#/$defs/codec"
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "kind": {
+              "const": "drain"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "values": {
+              "items": {
+                "$ref": "#/$defs/drain"
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "kind": {
+              "const": "inputs"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "values": {
+              "items": {
+                "$ref": "#/$defs/inputs"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "$defs": {
+    "properties": {
+      "type": "object",
+      "required": [
+        "result",
+        "base_score",
+        "hit",
+        "miss",
+        "scorable",
+        "accuracy",
+        "increases_combo",
+        "breaks_combo",
+        "tick",
+        "bonus"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "type": "number"
+        },
+        "base_score": {
+          "type": "number"
+        },
+        "hit": {
+          "type": "boolean"
+        },
+        "miss": {
+          "type": "boolean"
+        },
+        "scorable": {
+          "type": "boolean"
+        },
+        "accuracy": {
+          "type": "boolean"
+        },
+        "increases_combo": {
+          "type": "boolean"
+        },
+        "breaks_combo": {
+          "type": "boolean"
+        },
+        "tick": {
+          "type": "boolean"
+        },
+        "bonus": {
+          "type": "boolean"
+        }
+      }
+    },
+    "score": {
+      "type": "object",
+      "required": [
+        "total",
+        "accuracy",
+        "combo",
+        "highest_combo",
+        "numerator",
+        "denominator",
+        "accuracy_count",
+        "combo_portion",
+        "bonus",
+        "rank",
+        "counts"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "total": {
+          "type": "number"
+        },
+        "accuracy": {
+          "type": "number"
+        },
+        "combo": {
+          "type": "number"
+        },
+        "highest_combo": {
+          "type": "number"
+        },
+        "numerator": {
+          "type": "number"
+        },
+        "denominator": {
+          "type": "number"
+        },
+        "accuracy_count": {
+          "type": "number"
+        },
+        "combo_portion": {
+          "type": "number"
+        },
+        "bonus": {
+          "type": "number"
+        },
+        "rank": {
+          "type": "string"
+        },
+        "counts": {
+          "type": "array",
+          "minItems": 17,
+          "maxItems": 17,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "windows": {
+      "type": "object",
+      "required": [
+        "result",
+        "can_be_hit"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "type": "number"
+        },
+        "can_be_hit": {
+          "type": "boolean"
+        }
+      }
+    },
+    "spin": {
+      "type": "object",
+      "required": [
+        "rotation"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "rotation": {
+          "type": "number"
+        }
+      }
+    },
+    "round": {
+      "type": "object",
+      "required": [
+        "rounded"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "rounded": {
+          "type": "number"
+        }
+      }
+    },
+    "events": {
+      "type": "object",
+      "required": [
+        "key",
+        "id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "object",
+          "required": [
+            "time_ms",
+            "phase",
+            "object_index",
+            "component_index",
+            "input_sequence"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "time_ms": {
+              "type": "number"
+            },
+            "phase": {
+              "enum": [
+                "INPUT",
+                "TRACKING",
+                "JUDGEMENT",
+                "PARENT",
+                "SCORE_HEALTH",
+                "OUTPUT"
+              ]
+            },
+            "object_index": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "component_index": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "input_sequence": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "id": {
+          "type": "number"
+        }
+      }
+    },
+    "replay": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "action_bits"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "action_bits": {
+          "type": "number"
+        }
+      }
+    },
+    "codec": {
+      "type": "object",
+      "required": [
+        "encoded"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "encoded": {
+          "type": "string"
+        }
+      }
+    },
+    "drain": {
+      "type": "object",
+      "required": [
+        "drain_rate"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "drain_rate": {
+          "type": "number"
+        }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "required": [
+        "status",
+        "record_index",
+        "queued_count"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "record_index": {
+          "type": "number"
+        },
+        "queued_count": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "x-value-fields": {
+    "properties": {
+      "result": "number",
+      "base_score": "number",
+      "hit": "boolean",
+      "miss": "boolean",
+      "scorable": "boolean",
+      "accuracy": "boolean",
+      "increases_combo": "boolean",
+      "breaks_combo": "boolean",
+      "tick": "boolean",
+      "bonus": "boolean"
+    },
+    "score": {
+      "total": "number",
+      "accuracy": "number",
+      "combo": "number",
+      "highest_combo": "number",
+      "numerator": "number",
+      "denominator": "number",
+      "accuracy_count": "number",
+      "combo_portion": "number",
+      "bonus": "number",
+      "rank": "string",
+      "counts": "counts"
+    },
+    "windows": {
+      "result": "number",
+      "can_be_hit": "boolean"
+    },
+    "spin": {
+      "rotation": "number"
+    },
+    "round": {
+      "rounded": "number"
+    },
+    "events": {
+      "key": "key",
+      "id": "number"
+    },
+    "replay": {
+      "x": "number",
+      "y": "number",
+      "action_bits": "number"
+    },
+    "codec": {
+      "encoded": "string"
+    },
+    "drain": {
+      "drain_rate": "number"
+    },
+    "inputs": {
+      "status": "string",
+      "record_index": "number",
+      "queued_count": "number"
+    }
+  }
+}

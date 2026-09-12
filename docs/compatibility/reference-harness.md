@@ -52,7 +52,7 @@ Every diff reports fixture hash, behavior ID, source commit, first differing eve
 
 H01/H02 are implemented and executed by [`engine/reference-host`](../../engine/reference-host/README.md). The [M0 finding index](../../engine/reference/findings/m0.json) records the 83-observation run, fixture/observation digests, locked dependency digest and policy classifications. The runner rebuilds and tests native/WASM before comparison. Its projection excludes M1 geometry, slider duration/children and final sample candidates; matching this projection is not full prepared-map equivalence.
 
-Malformed-line observations preserve upstream's actual catch-and-continue behavior. The adapter records an exception and rethrows it into the original decoder recovery loop. The comparison separately verifies Tapweave's stricter typed, transactional rejection policy. H03/H04 are implemented below; H05–H12 remain future experiments.
+Malformed-line observations preserve upstream's actual catch-and-continue behavior. The adapter records an exception and rethrows it into the original decoder recovery loop. The comparison separately verifies Tapweave's stricter typed, transactional rejection policy. H03/H04 are implemented below. M2 has component subsets of H06/H08/H09/H10; see [M2 status](../implementation/m2.md). Full gameplay observations and H05/H07/H11/H12 remain open.
 
 ## Implemented preparation observations
 
