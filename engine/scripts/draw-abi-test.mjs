@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { Engine_Bridge, Draw_Output } from '../../platform/browser-js/src/engine-bridge.mjs';
+import { load_browser_runtime } from './browser-runtime.mjs';
+const { Engine_Bridge, Draw_Output } = await load_browser_runtime();
 
 export function testDrawABI(wasm, native_instances) {
   const engine = new Engine_Bridge(wasm);

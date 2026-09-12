@@ -4,7 +4,8 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import assert from 'node:assert/strict';
-import { Engine_Bridge } from '../../platform/browser-js/src/engine-bridge.mjs';
+import { load_browser_runtime } from './browser-runtime.mjs';
+const { Engine_Bridge } = await load_browser_runtime();
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const artifacts = path.join(root, 'artifacts/scenarios');

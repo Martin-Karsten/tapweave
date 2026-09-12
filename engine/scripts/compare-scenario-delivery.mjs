@@ -2,7 +2,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
-import { Engine_Bridge } from '../../platform/browser-js/src/engine-bridge.mjs';
+import { load_browser_runtime } from './browser-runtime.mjs';
+const { Engine_Bridge } = await load_browser_runtime();
 
 // A diagnostic intervention, not a replacement for timestamped-input evidence:
 // run Odin with the times at which the controlled host queues each input.

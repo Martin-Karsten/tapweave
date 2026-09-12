@@ -1,7 +1,8 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
-import { Engine_Bridge, Gameplay_Output, Voice_Output } from '../../platform/browser-js/src/engine-bridge.mjs';
+import { load_browser_runtime } from './browser-runtime.mjs';
+const { Engine_Bridge, Gameplay_Output, Voice_Output } = await load_browser_runtime();
 
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const artifact = filename => new URL(`../artifacts/scenarios/${filename}`, import.meta.url);

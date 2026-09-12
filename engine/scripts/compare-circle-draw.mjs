@@ -2,7 +2,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
-import { Engine_Bridge, Draw_Output } from '../../platform/browser-js/src/engine-bridge.mjs';
+import { load_browser_runtime } from './browser-runtime.mjs';
+const { Engine_Bridge, Draw_Output } = await load_browser_runtime();
 import { readRecord } from '../abi/records.mjs';
 
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');

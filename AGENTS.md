@@ -120,7 +120,11 @@ or bypass its verification to make a build pass.
 
 For engine or tooling changes, run `npm --prefix engine test`: it verifies
 source hashes, builds native/WASM, runs allocation-tracked Odin tests, and
-compares generated decoder traces byte-for-byte. Add targeted regression cases
+compares generated decoder traces byte-for-byte. For browser runtime changes,
+also run `npm --prefix platform/browser-js run typecheck` and the browser
+package's `test`/`build` scripts; `src/` is TypeScript compiled by the pinned
+Go-native `typescript` devDependency into `build/`, and Node harnesses import
+that emit through `engine/scripts/browser-runtime.mjs`. Add targeted regression cases
 in `engine/tests/foundation_test.odin` and/or `engine/scripts/fixtures.mjs` for
 changed behavior, including relevant malformed input, quota, failure, ownership,
 and native/WASM edge cases. Keep trace serializers, schemas, and validators in

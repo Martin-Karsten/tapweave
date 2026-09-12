@@ -4,7 +4,8 @@ import { createHash } from 'node:crypto';
 import { platform, arch } from 'node:os';
 import assert from 'node:assert/strict';
 import { root, compile, verifyCompiler } from './toolchain.mjs';
-import { Engine_Bridge } from '../../platform/browser-js/src/engine-bridge.mjs';
+import { load_browser_runtime } from './browser-runtime.mjs';
+const { Engine_Bridge } = await load_browser_runtime();
 
 const compiler = verifyCompiler();
 compile(['build', 'cost_native', '-o:speed', '-out:artifacts/input-cost-native']);

@@ -136,6 +136,8 @@ jobs:
         run: npm --prefix engine run build
       - name: Install pinned browser dependencies
         run: npm --prefix platform/browser-js ci
+      - name: Typecheck browser runtime
+        run: npm --prefix platform/browser-js run typecheck
       - name: Test browser services and assemble player
         run: |
           npm --prefix platform/browser-js test

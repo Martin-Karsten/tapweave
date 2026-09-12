@@ -20,8 +20,11 @@ npm --prefix platform/browser-js run serve
 Open `http://127.0.0.1:4173`. The server binds to loopback and serves only the
 assembled artifact directory. No assets are uploaded. `TAPWEAVE_PORT` changes
 the development port. Dependencies are pinned in this package; the engine keeps
-its dependency-free tooling. Builds copy the same generated ABI JavaScript used
-by Node/TypeScript consumers and serve fflate locally with its licence.
+its dependency-free tooling. `src/` is TypeScript compiled by the pinned
+Go-native `typescript` devDependency; `npm run compile`/`test`/`build` emit
+`build/` first, and the site is assembled from that emit. `typecheck` runs the
+compiler without emitting. Builds copy the same generated ABI JavaScript used
+by Node consumers and serve fflate locally with its licence.
 
 ## Checks
 
@@ -41,17 +44,17 @@ they do not certify audible output or H11 compatibility.
 
 ## Ownership and current boundaries
 
-- `engine-bridge.mjs` is the only production ABI consumer. Views are reacquired
+- `engine-bridge.ts` is the only production ABI consumer. Views are reacquired
   after calls; descriptions retained by the UI are owned copies. No object-by-
   object JavaScript gameplay state is created.
-- `selection.mjs` transactionally replaces the selected map and its asset scope.
+- `selection.ts` transactionally replaces the selected map and its asset scope.
   Superseded loads release candidate maps immediately, including during pending
   audio decoding, and cannot publish. Failures preserve the previous selection.
-- `archive.mjs` owns the asset index, extracted bytes and cached decoded music.
+- `archive.ts` owns the asset index, extracted bytes and cached decoded music.
   fflate performs DEFLATE decoding; a bounded ZIP envelope reader validates
   local/central consistency, data descriptors, names, ranges and CRC before
   returning bytes.
-- `clock.mjs`, `audio.mjs` and `input.mjs` are independent, tested services awaiting
+- `clock.ts`, `audio.ts` and `input.ts` are independent, tested services awaiting
   M2 integration. Their JavaScript test event objects are **not** production ABI
   records. Dispatch failure cancels queued and active playback before reporting
   the error; callers must recover explicitly. No gameplay, sample fallback, or
@@ -80,10 +83,10 @@ claimed. These remain tracked in the [browser gameplay plan](../../docs/browser-
 The bridge now exposes headless M2 sessions, copied output/replay/result records,
 sample availability and production Odin coordinate conversion (kinds 29/30).
 These are testable services; Play still awaits the integrated renderer/lifecycle.
-`music.mjs` consumes the shared clock's media anchor; its tests use mock sources.
-`clock.mjs` explicitly maps session and browser epochs and receipt timestamps.
+`music.ts` consumes the shared clock's media anchor; its tests use mock sources.
+`clock.ts` explicitly maps session and browser epochs and receipt timestamps.
 
-`audio-decoder.mjs` limits each selection controller to two concurrent decodes
+`audio-decoder.ts` limits each selection controller to two concurrent decodes
 and 128 MiB of encoded input. Busy admission rejects with QUOTA_EXCEEDED so the
 previous selection stays valid. Same-source in-flight decodes are reused.
 Cancelled work retains its admission charge until the browser promise settles;
@@ -96,7 +99,7 @@ production-WASM cadence/stall matrix. Hashed artifacts are written to
 
 ## Independent WebGL2 resources
 
-`webgl-resources.mjs` provides bounded kind-35 resource publication, reuse,
+`webgl-resources.ts` provides bounded kind-35 resource publication, reuse,
 transactional replacement, explicit context restoration and disposal. It owns a
 dedicated context and one retained attachment; it is not wired into the player.
 `publish(resources)` runs during preparation/resource replacement. After context
