@@ -306,3 +306,36 @@ test('active presentation has independent lifetime, stable order and bounded ste
     engine.dispose();
   }
 });
+
+test('immutable render attachment is shared across four session lifetimes', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  try {
+    const prepared = engine.prepare_map(map_bytes);
+    const sessions = Array.from({ length: 4 }, () => engine.create_session(prepared.map_handle, { input_capacity: 8, batch_capacity: 8 }));
+    assert.throws(() => engine.session_render_resources(sessions[0]), { code: 'ENGINE_2' });
+    const resources = engine.render_resources(prepared.map_handle);
+    assert.equal(resources.summary.vertices_count, 4);
+    assert.equal(resources.summary.indices_count, 6);
+    assert.equal(resources.summary.atlas_count, 4);
+    const buffer = engine.wasm.memory.buffer;
+    const retained = engine.render_resources(prepared.map_handle);
+    assert.deepEqual(retained.bytes, resources.bytes);
+    engine.release_map(prepared.map_handle);
+    for (const session of sessions) {
+      const output = new Gameplay_Output();
+      engine.advance_output(session, 1000, output);
+      const token = output.summary.batch_token;
+      assert.deepEqual(engine.session_render_resources(session).bytes, resources.bytes);
+      engine.acknowledge(session, token);
+      engine.reset_session(session);
+      assert.deepEqual(engine.session_render_resources(session).bytes, resources.bytes);
+      engine.release_session(session);
+      assert.throws(() => engine.session_render_resources(session));
+    }
+    assert.equal(engine.wasm.memory.buffer, buffer);
+    assert.equal(resources.summary.attachment_version, 1);
+    assert.throws(() => engine.render_resources(prepared.map_handle));
+  } finally {
+    engine.dispose();
+  }
+});

@@ -27,6 +27,7 @@ Map_Resource :: struct {
 	decoded: beatmap_decode.Map,
 	points: osu_prepare.Points,
 	prepared_map: prepared.Map,
+	render_attachment: core_types.Arena,
 	fully_prepared: bool,
 	references, external_references: u32,
 }
@@ -168,6 +169,7 @@ map_prepare :: proc(
 			beatmap_decode.destroy(&map_resource.decoded)
 			osu_prepare.destroy(&map_resource.points)
 			prepared.destroy_map(&map_resource.prepared_map)
+			core_types.arena_destroy(&map_resource.render_attachment)
 			free(map_resource, instance.allocator)
 		}
 	}
@@ -257,6 +259,7 @@ map_drop :: proc(instance: ^Instance, map_resource: ^Map_Resource) {
 		beatmap_decode.destroy(&map_resource.decoded)
 		osu_prepare.destroy(&map_resource.points)
 		prepared.destroy_map(&map_resource.prepared_map)
+		core_types.arena_destroy(&map_resource.render_attachment)
 		free(map_resource, instance.allocator)
 	}
 }

@@ -1761,6 +1761,137 @@
           "u32"
         ]
       }
+    },
+    {
+      "name": "render_resource",
+      "kind": 35,
+      "size": 160,
+      "fields": {
+        "resource_id": [
+          8,
+          "u64"
+        ],
+        "attachment_version": [
+          16,
+          "u32"
+        ],
+        "flags": [
+          20,
+          "u32"
+        ],
+        "total_bytes": [
+          24,
+          "u64"
+        ],
+        "prepared_digest_0": [
+          32,
+          "u64"
+        ],
+        "prepared_digest_1": [
+          40,
+          "u64"
+        ],
+        "prepared_digest_2": [
+          48,
+          "u64"
+        ],
+        "prepared_digest_3": [
+          56,
+          "u64"
+        ],
+        "vertices_offset": [
+          64,
+          "u32"
+        ],
+        "vertices_count": [
+          68,
+          "u32"
+        ],
+        "vertices_stride": [
+          72,
+          "u32"
+        ],
+        "vertices_reserved": [
+          76,
+          "u32"
+        ],
+        "indices_offset": [
+          80,
+          "u32"
+        ],
+        "indices_count": [
+          84,
+          "u32"
+        ],
+        "indices_stride": [
+          88,
+          "u32"
+        ],
+        "indices_reserved": [
+          92,
+          "u32"
+        ],
+        "atlas_offset": [
+          96,
+          "u32"
+        ],
+        "atlas_count": [
+          100,
+          "u32"
+        ],
+        "atlas_stride": [
+          104,
+          "u32"
+        ],
+        "atlas_reserved": [
+          108,
+          "u32"
+        ],
+        "vertex_shader_offset": [
+          112,
+          "u32"
+        ],
+        "vertex_shader_count": [
+          116,
+          "u32"
+        ],
+        "vertex_shader_stride": [
+          120,
+          "u32"
+        ],
+        "vertex_shader_reserved": [
+          124,
+          "u32"
+        ],
+        "fragment_shader_offset": [
+          128,
+          "u32"
+        ],
+        "fragment_shader_count": [
+          132,
+          "u32"
+        ],
+        "fragment_shader_stride": [
+          136,
+          "u32"
+        ],
+        "fragment_shader_reserved": [
+          140,
+          "u32"
+        ],
+        "atlas_width": [
+          144,
+          "u32"
+        ],
+        "atlas_height": [
+          148,
+          "u32"
+        ],
+        "reserved": [
+          152,
+          "u64"
+        ]
+      }
     }
   ],
   "transport": {

@@ -390,3 +390,46 @@ reveals. Counters expose visited/revealed work. No allocation occurs in these Od
 reads. Generated `readRecordInto` and reusable browser output readers avoid
 per-record object containers and full-buffer copies; JavaScript VM scalar and
 iterator allocation behavior has not been certified as allocation-free.
+
+## Minimal immutable render attachment
+
+Kind 35/version 1 is an executable W01 resource container. Call
+`oe_map_render_resources(engine, map, mailbox_output)` during preparation. The
+first call allocates a complete candidate under the remaining combined map quota;
+subsequent calls return the same immutable bytes. Failure leaves the output slot
+and map publication unchanged. Reacquire WASM views even after a failed candidate.
+`oe_session_render_resources(engine, session, mailbox_output)` only borrows an
+already-published attachment and never allocates. An absent attachment returns
+`INVALID_STATE`; foundation maps return `UNSUPPORTED` from creation.
+
+The header contains a logical resource ID (the original generation-checked map
+handle), attachment version, prepared digest, total bytes, five relative spans
+and RGBA atlas dimensions. This identity remains usable through retained sessions
+after the external map handle is released; it cannot be used as a new map handle.
+The last map/session owner frees the attachment. Browser GPU generations are
+independent and are never serialized. Resource reads do not replace frame output
+or gameplay acknowledgement tokens.
+
+Span starts are eight-byte aligned and non-overlapping. Vertices are pairs of
+finite little-endian f64 coordinates (stride 16); indices are u32 (stride 4), in
+triangle groups, and must reference an existing vertex. Atlas bytes are RGBA8
+(stride 1); shader sources are UTF-8 GLSL ES 3.00 (stride 1). Atlas dimensions are
+positive and bounded by 4096 in each axis; byte count must equal width*height*4.
+Every reserved field and flags field is zero; unknown attachment versions reject.
+An empty span has a valid aligned offset and is never dereferenced. Shader spans
+must be nonempty. The current payload is a unit quad and one white pixel, with
+original transform/colour shaders. It does not implement slider tessellation or
+advertise final draw/animation/WebGL capability. W04 extends the payload producer.
+
+The browser `Audio_Admission` owns one session's retained engine-epoch/sequence
+watermark. It validates and admits the entire new kind-27 suffix before calling
+acknowledge. If acknowledgement fails, a new compact snapshot may be admitted:
+already-admitted sequences are skipped and the latest token is acknowledged.
+Queue rejection preserves engine pending events and the watermark. Dispatch
+cancellation retains the watermark, so an acknowledgement retry cannot replay
+cancelled one-shots. A new engine epoch resets sequence admission; browser epoch
+changes require an explicit clock mapping and do not themselves reset admission.
+Kind-27 events retain their exact nominal times and silence flags. Immediate late
+one-shot execution is a provisional diagnostic policy pending H11; this adapter
+does not enable production Play or voice/loop capability. Its staging and executor
+queues still allocate JS objects; allocation-free browser ingestion is not claimed.

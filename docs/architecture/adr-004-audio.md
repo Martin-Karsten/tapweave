@@ -105,3 +105,15 @@ never adds that offset again. While the M2 profile is zero-offset only, producti
 start must reject nonzero vectors rather than export incorrect replay metadata.
 DOM receipt time and mapped beatmap time remain distinct diagnostic fields. Input
 ABI raw/effective fields both receive the mapped beatmap time for this profile.
+
+
+## Executable one-shot admission
+
+The browser `Audio_Admission` implements the retained session/engine-epoch/sequence
+watermark for compact kind-31 output and legacy kind-27 one-shots. Failed queue
+admission does not acknowledge; failed acknowledgement retries skip admitted
+sequences even after output-token replacement or dispatch cancellation. Executor
+sequence validation resets on browser epoch change, including cancellation before
+new admission. Tests use actual production WASM output. The provisional immediate
+late policy and allocating JS staging are explicitly diagnostic; H11, bounded
+voice records, the full executor and integrated playback remain open.

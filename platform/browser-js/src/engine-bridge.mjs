@@ -1,3 +1,4 @@
+import { Render_Resources } from './render-resources.mjs';
 import { schema, checkedSpan, validateSpan, readRecord, readRecordInto, writeRecord } from '../../../engine/abi/records.mjs';
 import { Browser_Error, require_condition } from './errors.mjs';
 
@@ -148,6 +149,16 @@ export class Engine_Bridge {
   bind_sample(session_handle, binding) {
     this.write_creation(28, binding);
     this.check_status(this.wasm.oe_session_bind_sample(this.engine_handle, session_handle, this.mailbox_address), false);
+  }
+
+  render_resources(map_handle) {
+    this.check_status(this.wasm.oe_map_render_resources(this.engine_handle, map_handle, this.result_address), false);
+    return new Render_Resources(this.copy_output());
+  }
+
+  session_render_resources(session_handle) {
+    this.check_status(this.wasm.oe_session_render_resources(this.engine_handle, session_handle, this.result_address), false);
+    return new Render_Resources(this.copy_output());
   }
 
   playfield_transform(viewport) {

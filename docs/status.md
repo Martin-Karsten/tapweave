@@ -119,7 +119,7 @@ ZIP descriptors and audio dispatch recovery.
 
 The runtime exposes compact gameplay output and an arena-backed active projection
 with independent output lifetime (kinds 31–34). This is partial W01 and the W03
-foundation; object animation, static resources, WebGL2, voice/loop intent and
+foundation; object animation, full static resource generation, WebGL2, voice/loop intent and
 integrated input/music/lifecycle/results remain work in the [browser gameplay plan](browser-gameplay.md).
 Play stays disabled; no aggregate gameplay capability is advertised.
 
@@ -177,3 +177,26 @@ Use the checksum-pinned Odin compiler and Node 24. Upstream runs also require th
 [reference host setup](../engine/reference-host/README.md). Generated full traces,
 statistics and reports go to ignored `engine/artifacts/`; checked-in finding
 indices retain evidence without committing build products.
+
+## Current W01–W03 implementation additions
+
+A controlled pinned drawable host now executes six bounded scenarios over 72
+cadence/stall runs through actual input, playfield policy, drawable judgement and
+score processing. The [scenario findings](../engine/reference/findings/m3-scenarios.json)
+record 36 selected result/score/combo matches and 36 differences, retaining actual
+update schedules and live-input quantisation. This is additional drawable evidence,
+not full Player, replay, health/failure or audio acceptance; W02 remains open.
+
+W01 adds a minimal immutable kind-35 render attachment shared by map/session
+owners, transactional publication, native/generated browser validation and
+production one-shot admission with acknowledgement retry watermarks. Full dynamic
+reserve/draw/voice contracts remain open. The browser admission path still
+allocates staging/executor objects, and its late policy is provisional pending H11.
+
+Simulation exposes component and semantic cursor/feedback history independently
+of acknowledgement. Per-object sample ranges avoid scanning unrelated objects'
+samples on each judgement. Work counters retain input-candidate, predecessor,
+tracking and sample-binding visits; input/tracking scans remain to be addressed.
+Active projection uses allocation-free heap sorting for adverse reveal bursts.
+These are W03 inputs and cost improvements; complete animation, cursor/trail,
+follow points and final ordered draw intent remain unimplemented. Play stays off.

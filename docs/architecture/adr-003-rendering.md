@@ -83,3 +83,21 @@ readers and conformance tests land together, preserving kinds 1–34.
   Their concrete defaults require count-pass workload measurements; no capability
   can be enabled with an unbounded or unimplemented quota. No static mesh builds,
   shader compilation, allocation or memory growth in advance/render hot paths.
+
+
+## Minimal attachment and bounded projection refinement
+
+Kind 35 implements the immutable resource container using a small real payload.
+Runtime creates it transactionally on explicit map-resource request, retains it
+with the map and frees it with the last session/map owner. Session resource reads
+only borrow existing storage. See the [ABI](interface-v2.md#minimal-immutable-render-attachment)
+for payload and validation. Full draw output, dynamic reserve and W04 generation
+remain open. No additional aggregate rendering capability is advertised.
+
+Active projection now heap-sorts newly expanded membership, bounding reverse
+reveal bursts to O(active*log(active)) without allocation; reads with no new
+members do no ordering work. The conservative retention policy is unchanged.
+The borrowed simulation facade additionally exposes component results, retained
+judgement feedback, cursor and semantic recording history. These views survive
+journal acknowledgement and must be reacquired after mutation/reset/seek. They
+are inputs for W03, not completed feedback/trail animation.

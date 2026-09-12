@@ -20,11 +20,21 @@ static uint32_t gameplay_native_probe(unsigned char *result_bytes) {
     *map_creation = (oe_map_prepare_v1){2,1,sizeof(*map_creation),input_token,0,sizeof(gameplay_map_text)-1,2,0};
     assert(oe_map_prepare(engine_handle,map_creation,handle_output,error_output)==0);
     oe_handle map_handle = *handle_output;
+    assert(oe_map_render_resources(engine_handle, map_handle, (uintptr_t)span_output) == 0);
+    const oe_render_resource_v1 *resources = (void *)(uintptr_t)span_output->address;
+    assert(resources->type == 35 && resources->attachment_version == 1);
+    assert(resources->resource_id == map_handle && resources->vertices_count == 4 && resources->indices_count == 6);
+    uint64_t resource_address = span_output->address;
+    assert(oe_map_render_resources(engine_handle, map_handle, 1) == 1);
+    assert(span_output->address == resource_address);
     oe_gameplay_create_v1 *session_creation = (oe_gameplay_create_v1 *)mailbox;
     *session_creation = (oe_gameplay_create_v1){18,1,sizeof(*session_creation),2,0,65536,0,64,0};
     assert(oe_session_create(engine_handle,map_handle,(void *)session_creation,handle_output,error_output)==0);
     oe_handle session_handle = *handle_output;
     assert(oe_map_release(engine_handle,map_handle)==0);
+    assert(oe_session_render_resources(engine_handle, session_handle, (uintptr_t)span_output) == 0);
+    assert(span_output->address == resource_address);
+    assert(resources->resource_id == map_handle);
     oe_input_snapshot_v1 frames[28] = {
         {23,1,64,1,1000,1000,64,64,1,0,0,0},
         {23,1,64,2,1500,1500,64,64,0,0,0,0},

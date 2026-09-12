@@ -120,3 +120,12 @@ identity are unchanged; the additional reserved storage counts against the exist
 session arena quota. The [ABI lifetime contract](interface-v2.md#compact-gameplay-output-and-active-projection)
 also specifies rebuild costs and the distinction between projections and render
 commands. Aggregate gameplay capability remains zero.
+
+
+## Minimal render-resource extension
+
+Kind 35 and the map/session resource exports add a validated immutable attachment
+without changing kinds 1–34 or prepared/replay identity. Odin/C/JS/TS bindings are
+generated together. Native and WASM consumers validate the container; existing
+capability fields remain unchanged while final resource/draw/reserve contracts
+are incomplete. See the [ABI](interface-v2.md#minimal-immutable-render-attachment).

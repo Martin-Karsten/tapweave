@@ -29,7 +29,7 @@ export class Audio_Service {
 
   enqueue(events) {
     let current_epoch_event_count = 0;
-    let previous_sequence = this.last_sequence;
+    let previous_sequence = this.clock.epoch === this.epoch ? this.last_sequence : 0n;
     for (const event of events) {
       require_condition(typeof event.sequence === 'bigint' && event.sequence > previous_sequence && event.sequence <= 0xffffffffffffffffn &&
         Number.isInteger(event.epoch) && event.epoch >= 0 && event.epoch <= 0xffffffff &&
@@ -164,6 +164,9 @@ export class Audio_Service {
   }
 
   cancel() {
+    if (this.epoch !== this.clock.epoch) {
+      this.last_sequence = 0n;
+    }
     this.epoch = this.clock.epoch;
     this.pending.length = 0;
     for (const voice of [...this.voices.values(), ...this.retiring_voices]) {

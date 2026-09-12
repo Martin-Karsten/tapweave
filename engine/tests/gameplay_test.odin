@@ -325,3 +325,68 @@ gameplay_pause_keeps_future_input_and_tail_miss_is_ignored :: proc(test: ^testin
 		testing.expect(test, frame.effective_time_ms == 1000 || frame.effective_time_ms == 1100 || frame.effective_time_ms == 1200 || frame.effective_time_ms == 2000 || frame.effective_time_ms == 2500)
 	}
 }
+
+@(test)
+gameplay_sample_ranges_and_work_counters_preserve_reset :: proc(test: ^testing.T) {
+	instance, _ := engine_runtime.instance_create()
+	defer engine_runtime.instance_destroy(&instance)
+	engine, _ := engine_runtime.engine_create(&instance)
+	defer engine_runtime.engine_release(&instance, engine)
+	map_handle, preparation_error := engine_runtime.map_prepare(&instance, engine, GAMEPLAY_CIRCLES, true)
+	testing.expect_value(test, preparation_error.status, core_types.Status.OK)
+	session_handle, created := engine_runtime.session_create(&instance, engine, map_handle, 65536, 0, true, 8)
+	testing.expect_value(test, created, core_types.Status.OK)
+	if created != .OK {
+		return
+	}
+	session, _ := engine_runtime.session_get(&instance, engine, session_handle)
+	testing.expect_value(test, len(session.simulation.sample_ranges), 2)
+	testing.expect_value(test, session.simulation.sample_ranges[0].end, session.simulation.sample_ranges[1].start)
+	inputs := []core_types.Input_Snapshot{input_frame(1, 1000, 64, 64, 1)}
+	context.allocator = mem.panic_allocator()
+	testing.expect_value(test, simulation.submit_inputs(&session.simulation, inputs), core_types.Status.OK)
+	testing.expect_value(test, simulation.advance_session(&session.simulation, 1000), core_types.Status.OK)
+	testing.expect_value(test, session.simulation.audio_count, 1)
+	testing.expect_value(test, session.simulation.work.sample_binding_visits, 1)
+	testing.expect_value(test, session.simulation.work.input_candidate_visits, 1)
+	testing.expect_value(test, session.simulation.work.tracking_visits, 2)
+	testing.expect_value(test, simulation.reset_session(&session.simulation, 0), core_types.Status.OK)
+	testing.expect_value(test, session.simulation.work, simulation.Work_Counters{})
+	testing.expect_value(test, simulation.submit_inputs(&session.simulation, inputs), core_types.Status.OK)
+	testing.expect_value(test, simulation.advance_session(&session.simulation, 1000), core_types.Status.OK)
+	testing.expect_value(test, session.simulation.work.sample_binding_visits, 1)
+}
+
+@(test)
+render_attachment_failure_and_sharing_preserve_map_owner :: proc(test: ^testing.T) {
+	instance, _ := engine_runtime.instance_create()
+	defer engine_runtime.instance_destroy(&instance)
+	engine, _ := engine_runtime.engine_create(&instance)
+	defer engine_runtime.engine_release(&instance, engine)
+	map_handle, preparation_error := engine_runtime.map_prepare(&instance, engine, GAMEPLAY_CIRCLES, true)
+	testing.expect_value(test, preparation_error.status, core_types.Status.OK)
+	map_resource, _ := engine_runtime.map_get(&instance, engine, map_handle)
+	original_allocator := instance.allocator
+	instance.allocator = mem.Allocator{procedure = reject_allocations}
+	testing.expect_value(test, engine_runtime.render_resource_create(&instance, engine, map_handle), core_types.Status.OUT_OF_MEMORY)
+	testing.expect_value(test, len(map_resource.render_attachment.bytes), 0)
+	instance.allocator = original_allocator
+	testing.expect_value(test, engine_runtime.render_resource_create(&instance, engine, map_handle), core_types.Status.OK)
+	attachment_address := raw_data(map_resource.render_attachment.bytes)
+	instance.allocator = mem.Allocator{procedure = reject_allocations}
+	testing.expect_value(test, engine_runtime.render_resource_create(&instance, engine, map_handle), core_types.Status.OK)
+	instance.allocator = original_allocator
+	testing.expect_value(test, raw_data(map_resource.render_attachment.bytes), attachment_address)
+	session_handles: [4]core_types.Handle
+	for &session_handle in session_handles {
+		created: core_types.Status
+		session_handle, created = engine_runtime.session_create(&instance, engine, map_handle, 65536, 0, true, 8)
+		testing.expect_value(test, created, core_types.Status.OK)
+	}
+	engine_runtime.map_release(&instance, engine, map_handle)
+	for session_handle in session_handles {
+		session, _ := engine_runtime.session_get(&instance, engine, session_handle)
+		testing.expect_value(test, raw_data(session.map_storage.render_attachment.bytes), attachment_address)
+		engine_runtime.session_release(&instance, engine, session_handle)
+	}
+}
