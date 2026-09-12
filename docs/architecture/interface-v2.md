@@ -500,24 +500,27 @@ append duplicate semantic history; backward reads and epoch changes rebuild it.
 
 Kind 41 (`transport_capabilities`, 40 bytes) reports independent resource,
 circle-animation, draw and voice versions (currently 1). `flags=1` means the draw
-producer is circle-only; `voice_command_mask=1` enables only one-shot production.
-Bits 1/2/3 of that mask are reserved for loop-start/loop-stop/parameter-ramp
-producers and remain clear. `max_draw_instances=1000000`; reserved fields are
+producer is circle-only; `voice_command_mask=15` exposes one-shot, loop-start,
+loop-stop and parameter-ramp production. The full journal is opt-in through
+kind-42 flag 1; flag zero preserves the legacy one-shot projection. `max_draw_instances=1000000`; reserved fields are
 zero. These declarations do not enable aggregate Play or claim full A22/H11.
 
 `oe_session_voice_reserve` accepts kind 42 (32 bytes): `arena_bytes` is a u64 byte
-quota and `command_capacity` a u32 count; flags/reserved must be zero. Zero count
+quota and `command_capacity` a u32 count; flag 1 requests the authoritative
+journal, flag zero the legacy projection; reserved must be zero. Zero count
 queries kind 43 (32 bytes), containing requested/required counts, required arena
-bytes and session epoch. The current producer's count derives from one-shot
-sample capacity. Loop/ramp production must add an input-derived capacity bound
-before enabling its capability bits; object/sample counts alone cannot bound it.
-Actual reserve requires READY or PAUSED. Draw and voice storage jointly count
+bytes and session epoch. Legacy count derives from one-shot sample capacity.
+The authoritative count includes input/pause capacity, maximum concurrent loop
+samples and scheduled transitions; its byte count also includes journal, loop
+state and indexed deadlines. Legacy reserve requires READY or PAUSED; enabling
+or replacing authoritative storage requires READY. Draw and voice storage jointly count
 against the engine's session arena quota. Candidate failure preserves prior
 storage. Counts above 1,000,000 and non-WASM32 byte sizes return typed quota errors.
 
 `oe_session_voice_output` writes kind 44 (64 bytes) plus a relative, aligned span
 of kind-45 records. The header contains epoch, committed map time, latest batch
-token, command offset/count/stride and total bytes; flags/reserved are zero.
+token, command offset/count/stride and total bytes; flag 1 identifies an
+authoritative journal, flag zero a legacy projection; reserved is zero.
 Insufficient capacity returns OUTPUT_REQUIRED and kind 43 without overwriting the
 previous voice frame. No gameplay advancement, allocation or memory growth occurs.
 
@@ -534,10 +537,12 @@ Kind 45 (`voice_command`, 112 bytes) contains:
 | object_id, component_id | Existing stable source identities; all-ones component denotes the parent |
 | flags, reserved | Flag 1 means missing asset/explicit silence and requires asset ID zero; otherwise asset ID is nonzero. Reserved is zero |
 
-The writer, validator and reader cover all four command shapes. The current
-production exporter translates the existing immutable one-shot journal; it does
-not synthesize loops or ramps from frame reads. Its immediate late policy remains
-provisional pending broader H11. Legacy kind-27 output remains unchanged.
+The writer, validator and reader cover all four command shapes. The opt-in
+producer records semantic commands in Odin; frame reads only serialize retained
+commands. The default exporter translates the existing one-shot journal. The
+immediate late policy remains provisional pending broader H11. Legacy kind-27
+output remains unchanged. Loop sample bindings use component `0xfffffffe` with
+the prepared auxiliary sample ordinal; auxiliary tail copies are excluded.
 
 Voice frames own a separate output lifetime: gameplay/draw/result reads do not
 overwrite them. Another successful voice read, reserve replacement or session
@@ -554,3 +559,6 @@ clock mapping for the same engine epoch and restores retained nominal times once
 Reset/replacement/failure cancel instead. Loop suspension is explicitly unsupported
 until its producer/executor contract is enabled. The full player lifecycle remains
 W07 work.
+
+See [W05 audio execution](adr-004-audio.md#w05-opt-in-audio-execution) for allocation,
+asset availability, separate journal sequences and pause reconstruction rules.

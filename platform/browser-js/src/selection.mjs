@@ -1,10 +1,12 @@
 import { Archive_Assets, Loose_Assets, ASSET_LIMITS, normalize_asset_path } from './archive.mjs';
 import { require_condition } from './errors.mjs';
 import { Audio_Decoder } from './audio-decoder.mjs';
+import { load_sample_assets } from './sample-assets.mjs';
 
 export class Selection_Controller {
-  constructor(engine, { decode_audio = null, on_change = () => {}, limits = ASSET_LIMITS } = {}) {
+  constructor(engine, { decode_audio = null, on_change = () => {}, limits = ASSET_LIMITS, fallback_assets = new Map() } = {}) {
     this.engine = engine;
+    this.fallback_assets = fallback_assets;
     this.audio_decoder = decode_audio ? new Audio_Decoder(decode_audio) : null;
     this.decode_audio = this.audio_decoder ? bytes => this.audio_decoder.decode(bytes) : null;
     this.on_change = on_change;
@@ -100,8 +102,13 @@ export class Selection_Controller {
       if (generation !== this.generation || this.disposed) {
         return;
       }
+      const samples = this.decode_audio && candidate.prepared_map.descriptor.sample_candidates ?
+        await load_sample_assets(candidate.prepared_map.descriptor, source, filename, this.decode_audio, {
+          fallback_assets: this.fallback_assets, cancelled: () => generation !== this.generation || this.disposed,
+        }) : null;
+      if (generation !== this.generation || this.disposed) return;
       const previous = this.active;
-      this.active = { source, filename, ...candidate.prepared_map, music_buffer, music_error,
+      this.active = { source, filename, ...candidate.prepared_map, music_buffer, music_error, samples,
         music_status: music_buffer ? 'decoded' : audio_bytes ? 'available' : 'missing' };
       candidate.prepared_map = null;
       this.state = 'prepared';

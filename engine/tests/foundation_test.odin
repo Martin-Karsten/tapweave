@@ -7,6 +7,8 @@ import core_types "../core_types"
 import beatmap_decode "../beatmap_decode"
 import engine_runtime "../runtime"
 import trace_support "../trace_support"
+import simulation "../simulation"
+import prepared "../prepared"
 
 @(test)
 versions_defaults_and_owned_text :: proc(test: ^testing.T) {
@@ -447,4 +449,32 @@ trace_buffers_preserve_owned_state_on_failure :: proc(test: ^testing.T) {
 	// Empty inboxes retain an allocation so the exported address signals success.
 	testing.expect(test, trace_support.reserve_inbox(&buffers, 0, 0) != 0)
 	testing.expect_value(test, len(buffers.inbox), 0)
+}
+
+@(test)
+voice_budget_tracks_overlap_instead_of_total_map_length :: proc(test: ^testing.T) {
+	object_count :: 64
+	objects: [object_count]prepared.Object
+	events: [2 * object_count]simulation.Event
+	inputs: [128]core_types.Input_Snapshot
+	samples := [1]prepared.Sample{{name = "sliderslide"}}
+	prepared_map := prepared.Map{objects = objects[:]}
+	session := simulation.Session{prepared_map = &prepared_map, events = {storage = events[:]}, inputs = {storage = inputs[:]}}
+	for &object, object_index in objects {
+		object.kind = .SLIDER
+		object.time_ms = f64(object_index) * 100
+		object.end_time_ms = object.time_ms + 50
+		object.auxiliary_samples = samples[:]
+	}
+	context.allocator = mem.panic_allocator()
+	simulation.measure_voice_overlap(&session)
+	testing.expect_value(test, session.maximum_voice_overlap, 1)
+	sparse_capacity := simulation.voice_command_capacity(&session)
+	for &object in objects {
+		object.time_ms = 0
+		object.end_time_ms = 100
+	}
+	simulation.measure_voice_overlap(&session)
+	testing.expect_value(test, session.maximum_voice_overlap, object_count)
+	testing.expect(test, simulation.voice_command_capacity(&session) > sparse_capacity)
 }

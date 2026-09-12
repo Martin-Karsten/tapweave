@@ -31,7 +31,7 @@ test('voice production reserve, overflow, acknowledgement retry and legacy admis
   const engine = await Engine_Bridge.create(wasm);
   try {
     assert.equal(engine.transport_capabilities.voice_version, 1);
-    assert.equal(engine.transport_capabilities.voice_command_mask, 1);
+    assert.equal(engine.transport_capabilities.voice_command_mask, 15);
     assert.equal(engine.capabilities.gameplay, 0);
     const prepared = engine.prepare_map(map);
     const session = engine.create_session(prepared.map_handle, { input_capacity: 8, batch_capacity: 3 });

@@ -498,3 +498,60 @@ draw_reserve_failure_preserves_previous_capacity :: proc(test: ^testing.T) {
 	_, overflow_status := engine_runtime.draw_required_bytes(max(u64))
 	testing.expect_value(test, overflow_status, core_types.Status.QUOTA_EXCEEDED)
 }
+
+@(test)
+authoritative_slider_voice_journal_is_reserved_and_deterministic :: proc(test: ^testing.T) {
+	map_text :: "osu file format v14\n[Difficulty]\nHPDrainRate:0\nSliderMultiplier:1.4\n[TimingPoints]\n0,500\n[HitObjects]\n256,192,1000,2,0,L|396:192,1,140\n256,192,2500,1,0\n"
+	instance, _ := engine_runtime.instance_create()
+	defer engine_runtime.instance_destroy(&instance)
+	engine, _ := engine_runtime.engine_create(&instance)
+	defer engine_runtime.engine_release(&instance, engine)
+	map_handle, preparation_error := engine_runtime.map_prepare(&instance, engine, map_text, true)
+	testing.expect_value(test, preparation_error.status, core_types.Status.OK)
+	session_handle, created := engine_runtime.session_create(&instance, engine, map_handle, 65536, 0, true, 8)
+	testing.expect_value(test, created, core_types.Status.OK)
+	session, _ := engine_runtime.session_get(&instance, engine, session_handle)
+	capacity := simulation.voice_command_capacity(&session.simulation)
+	required_bytes, _ := engine_runtime.voice_storage_bytes(session, capacity, true)
+	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, capacity, required_bytes - 1, true), core_types.Status.QUOTA_EXCEEDED)
+	testing.expect_value(test, len(session.simulation.voices.commands), 0)
+	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, capacity, required_bytes, true), core_types.Status.OK)
+	previous_storage := raw_data(session.voice_storage.arena.bytes)
+	original_allocator := instance.allocator
+	instance.allocator = mem.Allocator{procedure = reject_allocations}
+	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, capacity, required_bytes, true), core_types.Status.OUT_OF_MEMORY)
+	instance.allocator = original_allocator
+	testing.expect_value(test, raw_data(session.voice_storage.arena.bytes), previous_storage)
+	for &binding in session.simulation.sample_bindings {
+		binding.asset_id = 7
+	}
+	inputs := []core_types.Input_Snapshot{
+		input_frame(1, 1000, 256, 192, 1), input_frame(2, 1150, 298, 192, 0),
+		input_frame(3, 1250, 326, 192, 1), input_frame(4, 1500, 396, 192, 1),
+	}
+	context.allocator = mem.panic_allocator()
+	testing.expect_value(test, simulation.submit_inputs(&session.simulation, inputs), core_types.Status.OK)
+	testing.expect_value(test, simulation.advance_session(&session.simulation, 1600), core_types.Status.OK)
+	start_count, stop_count := 0, 0
+	for command, command_index in session.simulation.voices.commands[:session.simulation.voices.count] {
+		testing.expect(test, audio_protocol.valid_command(command))
+		testing.expect_value(test, command.sequence, u64(command_index + 1))
+		if command.command_kind == .LOOP_START {
+			start_count += 1
+			testing.expect_value(test, command.time_ms, start_count == 1 ? 1000 : 1250)
+		}
+		if command.command_kind == .LOOP_STOP {
+			stop_count += 1
+		}
+	}
+	testing.expect_value(test, start_count, 2)
+	testing.expect_value(test, stop_count, 2)
+	command_count := session.simulation.voices.count
+	testing.expect_value(test, simulation.advance_session(&session.simulation, 1600), core_types.Status.OK)
+	testing.expect_value(test, session.simulation.voices.count, command_count)
+	testing.expect_value(test, simulation.reset_session(&session.simulation, 0), core_types.Status.OK)
+	testing.expect_value(test, session.simulation.voices.count, 0)
+	for voice in session.simulation.voices.states {
+		testing.expect_value(test, voice.voice_id, 0)
+	}
+}

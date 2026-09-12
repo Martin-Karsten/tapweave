@@ -26,6 +26,7 @@
     "test:gameplay:workloads": "node scripts/test-gameplay.mjs --workloads",
     "compare:circle-feedback": "node scripts/compare-circle-feedback.mjs",
     "analyze:scenario-audio": "node scripts/analyze-scenario-audio.mjs",
-    "measure:input-cost": "node scripts/measure-input-cost.mjs"
+    "measure:input-cost": "node scripts/measure-input-cost.mjs",
+    "compare:voice-intent": "node scripts/compare-voice-intent.mjs"
   }
 }

@@ -141,6 +141,7 @@ gameplay_snapshot :: proc(session: ^Session, presentation_ms: f64, include_objec
 	session.output_token += 1
 	session.output_judgement_count = simulation_state.journal_count
 	session.output_audio_count = simulation_state.audio_count
+	session.output_voice_count = simulation_state.voices.acknowledged
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_AUDIO_OFFSET_OFFSET, u32(audio_offset))
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_AUDIO_COUNT_OFFSET, u32(audio_count))
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_AUDIO_STRIDE_OFFSET, ABI_AUDIO_EVENT_SIZE)
@@ -228,6 +229,7 @@ oe_session_acknowledge :: proc "c" (engine, session_handle: core_types.Handle, t
 	}
 	session.simulation.acknowledged_count = session.output_judgement_count
 	session.simulation.acknowledged_audio_count = session.output_audio_count
+	session.simulation.voices.acknowledged = session.output_voice_count
 	return abi_status(.OK)
 }
 

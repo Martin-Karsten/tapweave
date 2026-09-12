@@ -74,15 +74,6 @@ export class WebGL_Resources {
       summary.atlas_width <= RESOURCE_LIMITS.atlas_dimension && summary.atlas_height <= RESOURCE_LIMITS.atlas_dimension &&
       summary.vertex_shader_count <= RESOURCE_LIMITS.shader_bytes && summary.fragment_shader_count <= RESOURCE_LIMITS.shader_bytes,
     'QUOTA_EXCEEDED', 'Render attachment exceeds GPU admission limits.');
-    try {
-      const decoder = new TextDecoder('utf-8', { fatal: true });
-      for (const span_name of ['vertex_shader', 'fragment_shader']) {
-        decoder.decode(resources.bytes.subarray(summary[span_name + '_offset'],
-          summary[span_name + '_offset'] + summary[span_name + '_count']));
-      }
-    } catch {
-      require_condition(false, 'INVALID_RESOURCE', 'Invalid shader UTF-8.');
-    }
     const view = new DataView(resources.bytes.buffer);
     for (let coordinate_index = 0; coordinate_index < summary.vertices_count * 2; coordinate_index++) {
       require_condition(Number.isFinite(Math.fround(view.getFloat64(summary.vertices_offset + coordinate_index * 8, true))),
@@ -90,8 +81,27 @@ export class WebGL_Resources {
     }
   }
 
+  #shader_sources(resources) {
+    const summary = resources.summary;
+    try {
+      const decoder = new TextDecoder('utf-8', { fatal: true });
+      return ['vertex_shader', 'fragment_shader'].map(span_name => ({
+        span_name,
+        source: decoder.decode(resources.bytes.subarray(summary[span_name + '_offset'],
+          summary[span_name + '_offset'] + summary[span_name + '_count'])),
+      }));
+    } catch {
+      require_condition(false, 'INVALID_RESOURCE', 'Invalid shader UTF-8.');
+    }
+  }
+
   #destroy(candidate) {
     const context = this.#gl;
+    // Deletion is deferred while a program is current. Preserve a different
+    // published program when destroying a failed replacement candidate.
+    if (candidate.program && context.getParameter(context.CURRENT_PROGRAM) === candidate.program) {
+      context.useProgram(null);
+    }
     for (const shader of candidate.shaders) context.deleteShader(shader);
     context.deleteProgram(candidate.program);
     context.deleteBuffer(candidate.vertices);
@@ -103,6 +113,7 @@ export class WebGL_Resources {
   #upload(resources) {
     const context = this.#gl;
     const summary = resources.summary;
+    const shader_sources = this.#shader_sources(resources);
     const candidate = { shaders: [], program: null, vertices: null, indices: null, atlas: null, vertex_array: null };
     const create = (resource) => {
       require_condition(resource, 'RENDER_RESOURCE_FAILED', 'WebGL resource allocation failed.');
@@ -113,20 +124,24 @@ export class WebGL_Resources {
       require_condition(summary.atlas_width <= context.getParameter(context.MAX_TEXTURE_SIZE) &&
         summary.atlas_height <= context.getParameter(context.MAX_TEXTURE_SIZE),
       'CAP_RENDER_UNAVAILABLE', 'Atlas exceeds the context texture limit.');
-      const decoder = new TextDecoder('utf-8', { fatal: true });
-      for (const [span_name, shader_type] of [['vertex_shader', context.VERTEX_SHADER], ['fragment_shader', context.FRAGMENT_SHADER]]) {
+      for (const { span_name, source } of shader_sources) {
+        const shader_type = span_name === 'vertex_shader' ? context.VERTEX_SHADER : context.FRAGMENT_SHADER;
         const shader = create(context.createShader(shader_type));
         candidate.shaders.push(shader);
-        const source = decoder.decode(resources.bytes.subarray(summary[span_name + '_offset'],
-          summary[span_name + '_offset'] + summary[span_name + '_count']));
         context.shaderSource(shader, source);
         context.compileShader(shader);
-        require_condition(context.getShaderParameter(shader, context.COMPILE_STATUS), 'RENDER_RESOURCE_FAILED', 'Render shader compilation failed.');
+        if (!context.getShaderParameter(shader, context.COMPILE_STATUS)) {
+          require_condition(false, 'RENDER_RESOURCE_FAILED', 'Render shader compilation failed.',
+            { stage: span_name, info_log: context.getShaderInfoLog(shader) ?? '' });
+        }
       }
       candidate.program = create(context.createProgram());
       for (const shader of candidate.shaders) context.attachShader(candidate.program, shader);
       context.linkProgram(candidate.program);
-      require_condition(context.getProgramParameter(candidate.program, context.LINK_STATUS), 'RENDER_RESOURCE_FAILED', 'Render program linking failed.');
+      if (!context.getProgramParameter(candidate.program, context.LINK_STATUS)) {
+        require_condition(false, 'RENDER_RESOURCE_FAILED', 'Render program linking failed.',
+          { stage: 'link', info_log: context.getProgramInfoLog(candidate.program) ?? '' });
+      }
       candidate.vertex_array = create(context.createVertexArray());
       candidate.vertices = create(context.createBuffer());
       candidate.indices = create(context.createBuffer());

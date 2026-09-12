@@ -67,3 +67,46 @@ test('real Odin attachment uploads once, renders a diagnostic quad and recovers 
   expect(result.memory_unchanged).toBe(true);
   await page.locator('img').screenshot({ path: test_info.outputPath('resource-quad.png') });
 });
+
+test('bound programs and shaders are released on replacement and disposal', async ({ page }) => {
+  await page.goto('/');
+  const result = await page.evaluate(async () => {
+    const { Engine_Bridge } = await import('/platform/browser-js/src/engine-bridge.mjs');
+    const { WebGL_Resources } = await import('/platform/browser-js/src/webgl-resources.mjs');
+    const engine = await Engine_Bridge.create(await (await fetch('/tapweave.wasm')).arrayBuffer());
+    const canvas = document.createElement('canvas');
+    const gpu = new WebGL_Resources(canvas);
+    const context = canvas.getContext('webgl2');
+    try {
+      const map = engine.prepare_map(new TextEncoder().encode('osu file format v14\n[HitObjects]\n256,192,1000,1,0'));
+      const resources = engine.render_resources(map.map_handle);
+      gpu.publish(resources);
+      gpu.bind(gpu.generation, resources.summary.resource_id);
+      const original_program = context.getParameter(context.CURRENT_PROGRAM);
+      const original_shaders = context.getAttachedShaders(original_program);
+      const invalid = { bytes: resources.bytes.slice() };
+      invalid.bytes[resources.summary.vertex_shader_offset] = 33;
+      let failure_code;
+      try { gpu.publish(invalid); } catch (error) { failure_code = error.code; }
+      const rollback_preserved_program = context.getParameter(context.CURRENT_PROGRAM) === original_program &&
+        context.isProgram(original_program) && original_shaders.every(shader => context.isShader(shader));
+      const replacement = { bytes: resources.bytes.slice() };
+      replacement.bytes[resources.summary.atlas_offset] = 0;
+      gpu.publish(replacement);
+      const replacement_released_program = !context.isProgram(original_program) &&
+        original_shaders.every(shader => !context.isShader(shader));
+      gpu.bind(gpu.generation, resources.summary.resource_id);
+      const replacement_program = context.getParameter(context.CURRENT_PROGRAM);
+      const replacement_shaders = context.getAttachedShaders(replacement_program);
+      gpu.dispose();
+      gpu.dispose();
+      return { failure_code, rollback_preserved_program, replacement_released_program,
+        disposal_released_program: !context.isProgram(replacement_program) &&
+          replacement_shaders.every(shader => !context.isShader(shader)),
+        no_current_program: context.getParameter(context.CURRENT_PROGRAM) === null,
+        error: context.getError() };
+    } finally { gpu.dispose(); engine.dispose(); }
+  });
+  expect(result).toEqual({ failure_code: 'RENDER_RESOURCE_FAILED', rollback_preserved_program: true,
+    replacement_released_program: true, disposal_released_program: true, no_current_program: true, error: 0 });
+});

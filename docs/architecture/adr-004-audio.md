@@ -125,3 +125,66 @@ sequence validation resets on browser epoch change, including cancellation befor
 new admission. Tests use actual production WASM output. The provisional immediate
 late policy and allocating JS staging are explicitly diagnostic; H11, bounded
 voice records, the full executor and integrated playback remain open.
+
+## W05 opt-in audio execution
+
+Kind-42 flag `1` enables the semantic voice journal in a READY session; flag zero
+retains the legacy one-shot projection. Kind-44 flag `1` identifies that journal.
+Consumers must use voice admission exclusively for an enabled session: its
+sequence includes loops and ramps, unlike the legacy one-shot sequence. Compact
+acknowledgement cannot erase unread voice commands; voice acknowledgement cannot
+erase unread judgements. Voice IDs are never reused within a journal, including
+across pause/resume. Reset clears both journals and changes the engine epoch.
+
+Reserve counts the complete journal before enabling it. A creation-time sweep
+measures maximum concurrent auxiliary samples; the input-derived bound uses that
+maximum, accepted input/pause capacity and each object's scheduled transitions.
+It does not multiply every input by the total map object count. All arithmetic
+is checked; the one-million-command and shared arena limits reject oversized
+configurations before publication. The runtime owns journal/state/deadline/output
+storage; simulation only borrows it. Replacement while an authoritative session
+is paused is rejected, preserving retained commands and live ramp state.
+
+Slider slide/whistle samples use auxiliary sample ordinals and component identity
+`0xfffffffe`. Tail copies in the auxiliary list are excluded. Odin emits starts,
+tracking-loss stops and rounded balance using the default positional level 0.2.
+Spinner intent retains a single requested voice while replacing gain ramps
+(300 ms toward sample volume, 240 ms toward zero), uses frequency 0.5 plus clamped
+progress and retires the voice 240 ms after end. The pinned disc's 0.99/ms damping
+and ten-degree motion threshold are projected continuously between semantic
+inputs. A bounded inversion and indexed deadline handle decay without further
+input or RAF. This is an event-driven interpretation: update-quantised upstream
+motion and drawable expiry still require H11 comparisons; differences are not
+accepted divergences. No render read produces commands.
+
+Pause first releases input at the exact engine boundary. It then retires remaining
+loop resource identities while retaining requested state and beatmap-relative gain
+ramps. Resume emits fresh starts with the sampled gain and the remaining ramp
+duration. Browser pause discards queued loop commands and cancels loop nodes;
+future one-shots retain their original map times. The resumed journal supplies
+loop reconstruction. Reset/replacement/dispatch failure cancel everything.
+
+`sample-assets.mjs` loads every prepared candidate independently and binds its
+availability before start. It does not select the winning ordinal. Beatmap lookup
+uses exact names, then wav/mp3/ogg in pinned SampleStore/Skin order; bank-zero
+samples skip beatmap resources. The original Tapweave fallback generator supplies
+nine small mono buffers at the final unbanked candidates. Missing individual
+samples warn and bind silence. Loading shares selection's two-decode/128 MiB
+encoded admission and source decode cache with music. Reads are sequential;
+4,096 unique candidate resolutions and 1,000,000 bindings bound staging. Decoded
+source quotas also cover hitsounds. Browser decoder internal peak memory remains
+outside these accounting limits.
+
+Admission and executor queues reserve reusable command objects. Complete batches
+are validated before enqueue; sequence watermarks survive acknowledgement failure
+and dispatch cancellation. Node creation/configuration failure disconnects partial
+resources as well as active/retiring voices. The existing immediate late policy
+remains source-based and provisional; future nominal tails are never retimed.
+
+`Audio_Playback` joins the production session, sample bindings, generated voice
+reader, admission, music and one AudioContext anchor. It freezes the same pause
+coordinate in music/engine/clock, guards pending gesture resumes with a generation
+and exposes explicit recovery after execution failure. It is usable by developer
+fixtures; W06/W07 still own DOM/frame/product lifecycle integration and Play.
+Chromium offline rendering verifies actual Web Audio output and cleanup. It does
+not certify physical audible output or close H11/A21.

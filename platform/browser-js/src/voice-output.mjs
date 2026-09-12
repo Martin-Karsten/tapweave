@@ -14,7 +14,7 @@ export class Voice_Output {
     this.view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
     readRecordInto(this.view, 0, 44, this.summary);
     const frame = this.summary;
-    require_condition(frame.epoch > 0 && frame.flags === 0 && frame.reserved === 0 && frame.reserved_tail === 0n &&
+    require_condition(frame.epoch > 0 && frame.flags <= 1 && frame.reserved === 0 && frame.reserved_tail === 0n &&
       frame.batch_token > 0n && Number.isFinite(frame.committed_ms) && frame.total_bytes === BigInt(bytes.byteLength) &&
       this.view.getUint32(schema.transport.record_header.byte_size, true) === 64 && frame.commands_offset >= 64 && frame.commands_stride === 112 &&
       frame.commands_offset + frame.commands_count * frame.commands_stride === bytes.byteLength,

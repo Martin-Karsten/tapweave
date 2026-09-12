@@ -1,6 +1,6 @@
 import { require_condition } from './errors.mjs';
 
-// Independent execution service. Production event ingestion remains M2-gated.
+// Executes generated engine intent on the shared browser audio clock.
 export class Audio_Service {
   constructor(audio_context, clock, { maximum_voices = 256, maximum_pending = 4096, lookahead_ms = 25 } = {}) {
     require_condition(Number.isSafeInteger(maximum_voices) && maximum_voices > 0 &&
@@ -16,6 +16,7 @@ export class Audio_Service {
     this.voices = new Map();
     this.retiring_voices = new Set();
     this.pending = [];
+    this.available_events = Array.from({ length: maximum_pending }, () => ({}));
     this.suspended_pending = [];
     this.suspended = false;
     this.last_sequence = 0n;
@@ -61,7 +62,7 @@ export class Audio_Service {
     }
     for (const event of events) {
       if (event.epoch === this.clock.epoch) {
-        this.pending.push({ ...event });
+        this.pending.push(Object.assign(this.available_events.pop(), event));
       } else {
         this.metrics.stale++;
       }
@@ -103,6 +104,9 @@ export class Audio_Service {
       throw error;
     } finally {
       // Compact once per dispatch batch; repeated shift() makes dense batches quadratic.
+      for (let event_index = 0; event_index < Math.min(processed_count, this.pending.length); event_index++) {
+        this.available_events.push(this.pending[event_index]);
+      }
       this.pending.splice(0, processed_count);
     }
   }
@@ -137,58 +141,68 @@ export class Audio_Service {
     }
     require_condition(!this.voices.has(event.voice_id), 'INVALID_AUDIO_EVENT', 'Voice ID is already active.');
     require_condition(this.voices.size + this.retiring_voices.size < this.maximum_voices, 'QUOTA_EXCEEDED', 'Audio voice quota exceeded.');
-    const source = this.context.createBufferSource();
-    const gain = this.context.createGain();
-    const panner = this.context.createStereoPanner();
-    const voice = { source, gain, panner, stopping: false, event, when_seconds };
-    source.buffer = buffer;
-    source.loop = event.kind === 'loop_start';
-    source.playbackRate.setValueAtTime(event.rate, when_seconds);
-    gain.gain.setValueAtTime(event.volume, when_seconds);
-    panner.pan.setValueAtTime(event.pan, when_seconds);
-    source.connect(gain);
-    gain.connect(panner);
-    panner.connect(this.context.destination);
-    source.onended = () => {
-      this.retiring_voices.delete(voice);
-      source.disconnect();
-      gain.disconnect();
-      panner.disconnect();
-      if (this.voices.get(event.voice_id) === voice) {
-        this.voices.delete(event.voice_id);
-      }
-    };
+    const voice = { source: null, gain: null, panner: null, stopping: false, event: { ...event }, when_seconds };
     try {
+      voice.source = this.context.createBufferSource();
+      voice.gain = this.context.createGain();
+      voice.panner = this.context.createStereoPanner();
+      const { source, gain, panner } = voice;
+      source.buffer = buffer;
+      source.loop = event.kind === 'loop_start';
+      source.playbackRate.setValueAtTime(event.rate, when_seconds);
+      gain.gain.setValueAtTime(event.volume, when_seconds);
+      panner.pan.setValueAtTime(event.pan, when_seconds);
+      source.connect(gain);
+      gain.connect(panner);
+      panner.connect(this.context.destination);
+      source.onended = () => this.release_voice(voice, false);
       source.start(when_seconds);
       this.voices.set(event.voice_id, voice);
       this.metrics.dispatched++;
     } catch (error) {
-      this.retiring_voices.delete(voice);
-      source.disconnect();
-      gain.disconnect();
-      panner.disconnect();
+      this.release_voice(voice);
       throw error;
     }
+  }
+
+  release_voice(voice, stop = true) {
+    if (voice.source) {
+      voice.source.onended = null;
+      if (stop) {
+        try { voice.source.stop(); } catch { /* An unstarted source has nothing to cancel. */ }
+      }
+    }
+    for (const node of [voice.source, voice.gain, voice.panner]) node?.disconnect();
+    this.retiring_voices.delete(voice);
+    if (this.voices.get(voice.event.voice_id) === voice) this.voices.delete(voice.event.voice_id);
   }
 
   suspend_one_shots() {
     require_condition(this.clock.anchor === null && !this.suspended,
       'INVALID_STATE', 'Pause the clock once before suspending audio.');
-    require_condition(this.pending.every(event => event.kind === 'one_shot') &&
-      [...this.voices.values(), ...this.retiring_voices].every(voice => voice.event.kind === 'one_shot'),
-    'UNSUPPORTED', 'Loop suspension requires the complete voice executor.');
+    // The engine pause boundary releases input and retires its loop identities.
+    // Resume recreates loops only in response to fresh authoritative starts.
+    let retained_count = 0;
+    for (const event of this.pending) {
+      if (event.kind === 'one_shot') this.pending[retained_count++] = event;
+      else this.available_events.push(event);
+    }
+    this.pending.length = retained_count;
+    for (const voice of [...this.voices.values(), ...this.retiring_voices]) {
+      if (voice.event.kind !== 'loop_start') continue;
+      this.release_voice(voice);
+    }
     const future_voices = [...this.voices.values()].filter(voice => voice.when_seconds > this.context.currentTime);
     require_condition(this.pending.length + future_voices.length <= this.maximum_pending,
       'QUOTA_EXCEEDED', 'Suspended future one-shots exceed retention capacity.');
-    this.suspended_pending.push(...this.pending, ...future_voices.map(voice => voice.event));
+    for (const event of this.pending) this.suspended_pending.push(event);
+    for (const voice of future_voices) {
+      this.suspended_pending.push(Object.assign(this.available_events.pop(), voice.event));
+    }
     this.suspended_pending.sort((left, right) => left.sequence < right.sequence ? -1 : 1);
     this.pending.length = 0;
     for (const voice of future_voices) {
-      voice.source.stop();
-      voice.source.disconnect();
-      voice.gain.disconnect();
-      voice.panner.disconnect();
-      this.voices.delete(voice.event.voice_id);
+      this.release_voice(voice);
     }
     // Already-started non-looping samples finish naturally, matching the pinned
     // PausableSkinnableSound policy. Future requests retain nominal map times.
@@ -200,12 +214,16 @@ export class Audio_Service {
   resume_one_shots() {
     require_condition(this.suspended && this.clock.anchor !== null,
       'INVALID_STATE', 'Resume the clock before restoring future one-shots.');
-    const retained = this.suspended_pending.map(event => ({ ...event, epoch: this.clock.epoch }));
     this.suspended = false;
     this.epoch = this.clock.epoch;
     this.last_sequence = 0n;
-    this.enqueue(retained);
+    for (const event of this.suspended_pending) {
+      event.epoch = this.clock.epoch;
+      this.pending.push(event);
+      this.last_sequence = event.sequence > this.last_sequence ? event.sequence : this.last_sequence;
+    }
     this.suspended_pending.length = 0;
+    this.pending.sort((left, right) => left.beatmap_time_ms - right.beatmap_time_ms || (left.sequence < right.sequence ? -1 : 1));
   }
 
   cancel() {
@@ -213,15 +231,14 @@ export class Audio_Service {
       this.last_sequence = 0n;
     }
     this.epoch = this.clock.epoch;
+    for (const event of this.pending) this.available_events.push(event);
+    for (const event of this.suspended_pending) this.available_events.push(event);
     this.pending.length = 0;
     this.suspended_pending.length = 0;
     this.suspended = false;
     for (const voice of [...this.voices.values(), ...this.retiring_voices]) {
       // stop() may replace a future stop; disconnect cancels audible output now.
-      voice.source.stop();
-      voice.source.disconnect();
-      voice.gain.disconnect();
-      voice.panner.disconnect();
+      this.release_voice(voice);
     }
     this.voices.clear();
     this.retiring_voices.clear();

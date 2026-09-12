@@ -276,3 +276,12 @@ or integrated context-loss pause/recovery. No upstream oracle was executed for
 this original graphics resource policy. W03, W04 and A22 remain incomplete; Play
 stays disabled. The tiny/dense/long-overlap/10,000-object/three-minute **rendering**
 matrix remains open; existing session schedules are not rendering evidence.
+
+The resource-service review fix unbinds a current program before deletion on
+replacement or disposal, allowing its attached shaders to be released. A focused
+Chromium regression verifies both cleanup paths and preservation of the bound
+program after failed replacement. Shader sources decode once per upload attempt;
+compile/link failures retain their stage and driver info log in error details.
+The review checks passed all 58 browser service tests, the browser build and both
+Chromium resource scenarios. These are local lifecycle checks; the remaining W04
+graphics and upstream acceptance gates are unchanged.

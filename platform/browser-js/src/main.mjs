@@ -1,5 +1,6 @@
 import { Engine_Bridge } from './engine-bridge.mjs';
 import { Selection_Controller } from './selection.mjs';
+import { create_fallback_audio } from './fallback-audio.mjs';
 
 const element = identifier => document.getElementById(identifier);
 const diagnostics = { scope: 'M3 independent browser foundation', upstream_verified: false, gameplay: false,
@@ -54,10 +55,15 @@ try {
   diagnostics.engine = engine.capabilities;
   diagnostics.preparation = engine.preparation_capabilities;
   // A future gameplay bit alone cannot enable a player without all M3 protocols.
+  const fallback_assets = new Map();
   selection = new Selection_Controller(engine, {
+    fallback_assets,
     on_change: update,
     decode_audio: async bytes => {
       audio_context ??= new AudioContext();
+      if (fallback_assets.size === 0) {
+        for (const [name, buffer] of create_fallback_audio(audio_context)) fallback_assets.set(name, buffer);
+      }
       return audio_context.decodeAudioData(bytes);
     },
   });

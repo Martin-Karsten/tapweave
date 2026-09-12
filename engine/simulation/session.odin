@@ -71,6 +71,8 @@ Session :: struct {
 	head_candidates, blocking_candidates, tracking_candidates: Candidate_Index,
 	audio: []audio_protocol.Event,
 	audio_count, acknowledged_audio_count: int,
+	voices: Voice_Journal,
+	maximum_voice_overlap: u64,
 	state: Session_Status,
 	committed_ms, lead_in_ms, health_time_ms, drain_start_ms, drain_end_ms, drain_rate: f64,
 	live_input_capacity, submitted_input_count, pause_count, completed_objects: int,
@@ -135,9 +137,26 @@ sample_count :: proc(prepared_map: ^prepared.Map) -> u64 {
 	return count
 }
 
+binding_count :: proc(prepared_map: ^prepared.Map) -> u64 {
+	count := sample_count(prepared_map)
+	for &object in prepared_map.objects {
+		for sample in object.auxiliary_samples {
+			if loop_sample(sample) {
+				count += 1
+			}
+		}
+	}
+	return count
+}
+
 candidate_count :: proc(prepared_map: ^prepared.Map) -> u64 {
 	count: u64
 	for &object in prepared_map.objects {
+		for sample in object.auxiliary_samples {
+			if loop_sample(sample) {
+				count += u64(len(sample.candidates))
+			}
+		}
 		if object.kind != .SLIDER {
 			for sample in object.samples {
 				count += u64(len(sample.candidates))
@@ -177,7 +196,7 @@ required_bytes :: proc(prepared_map: ^prepared.Map, input_capacity: u64) -> (u64
 	   !size_add(&total, prepared.Break, u64(len(prepared_map.breaks))) ||
 	   !size_add(&total, Sample_Range, u64(len(prepared_map.objects))) ||
 	   !size_add(&total, f64, 3 * candidate_slots(len(prepared_map.objects))) ||
-	   !size_add(&total, Sample_Binding, sample_count(prepared_map)) ||
+	   !size_add(&total, Sample_Binding, binding_count(prepared_map)) ||
 	   !size_add(&total, audio_protocol.Event, sample_count(prepared_map)) ||
 	   !size_add(&total, u64, candidate_count(prepared_map)) {
 		return 0, .QUOTA_EXCEEDED
@@ -207,7 +226,7 @@ initialize :: proc(session: ^Session, prepared_map: ^prepared.Map, arena: ^core_
 	session.head_candidates.minimum_reveal, _ = core_types.arena_take(arena, f64, candidate_slots(len(prepared_map.objects)))
 	session.blocking_candidates.minimum_reveal, _ = core_types.arena_take(arena, f64, candidate_slots(len(prepared_map.objects)))
 	session.tracking_candidates.minimum_reveal, _ = core_types.arena_take(arena, f64, candidate_slots(len(prepared_map.objects)))
-	session.sample_bindings, _ = core_types.arena_take(arena, Sample_Binding, sample_count(prepared_map))
+	session.sample_bindings, _ = core_types.arena_take(arena, Sample_Binding, binding_count(prepared_map))
 	session.audio, _ = core_types.arena_take(arena, audio_protocol.Event, sample_count(prepared_map))
 	binding_index := 0
 	for &object, object_index in prepared_map.objects {
@@ -224,6 +243,12 @@ initialize :: proc(session: ^Session, prepared_map: ^prepared.Map, arena: ^core_
 			}
 			for &sample, sample_index in component_samples(&object, &component) {
 				session.sample_bindings[binding_index] = {object.id, component.id, u32(sample_index), &sample, 0, nil}
+				binding_index += 1
+			}
+		}
+		for &sample, sample_index in object.auxiliary_samples {
+			if loop_sample(sample) {
+				session.sample_bindings[binding_index] = {object.id, LOOP_COMPONENT_ID, u32(sample_index), &sample, 0, nil}
 				binding_index += 1
 			}
 		}
@@ -314,6 +339,7 @@ initialize :: proc(session: ^Session, prepared_map: ^prepared.Map, arena: ^core_
 		}
 	}
 	session.no_drain = session.no_drain[:merged_count]
+	measure_voice_overlap(session)
 	return reset_session(session, lead_in_ms)
 }
 
@@ -338,6 +364,7 @@ reset_session :: proc(session: ^Session, lead_in_ms: f64) -> core_types.Status {
 	session.recording_count = 0
 	session.journal_count = 0
 	session.acknowledged_count = 0
+	reset_voices(session)
 	session.audio_count = 0
 	session.acknowledged_audio_count = 0
 	session.state = .READY
@@ -485,6 +512,7 @@ emit_judgement :: proc(session: ^Session, object_index, component_index: int, re
 				sample_index = binding.sample_index, asset_id = binding.asset_id,
 				volume = f64(binding.sample.volume) / 100, missing = binding.asset_id == 0,
 			}
+			emit_voice_one_shot(session, session.audio[session.audio_count])
 			session.audio_count += 1
 		}
 	}
@@ -543,6 +571,7 @@ judge_slider :: proc(session: ^Session, object_index: int, time_ms: f64, catch_u
 	} else {
 		rules.update_tracking(object, object_state, session.cursor, time_ms)
 	}
+	update_voice_object(session, object_index, time_ms)
 	previous_children_judged := true
 	for component, component_index in object.components {
 		if component.kind == .Head || component.kind == .LegacyLastTick {
@@ -669,6 +698,7 @@ apply_input :: proc(session: ^Session, input: core_types.Input_Snapshot) {
 				emit_judgement(session, object_index, component_index, rules.maximum_result(object, component_index), .SPINNER, input.effective_time_ms)
 			}
 		}
+		update_voice_object(session, object_index, input.effective_time_ms)
 	}
 }
 
@@ -742,10 +772,15 @@ advance_session :: proc(session: ^Session, target_ms: f64, pause_at_target := fa
 	for !terminal(session) {
 		event, has_event := peek(&session.events)
 		input, has_input := peek_input(&session.inputs)
-		if has_input && input.effective_time_ms <= target_ms && (!has_event || input.effective_time_ms <= event.key.time_ms) {
+		voice_time_ms := next_voice_time(session)
+		if has_input && input.effective_time_ms <= voice_time_ms && input.effective_time_ms <= target_ms && (!has_event || input.effective_time_ms <= event.key.time_ms) {
 			consume_input(&session.inputs)
 			apply_input(session, input)
 			// Equal-time snapshots all precede scheduled transitions.
+			continue
+		}
+		if voice_time_ms <= target_ms && (!has_event || voice_time_ms < event.key.time_ms) {
+			advance_voice_deadline(session, voice_time_ms)
 			continue
 		}
 		if !has_event || event.key.time_ms > target_ms {
@@ -774,6 +809,10 @@ advance_session :: proc(session: ^Session, target_ms: f64, pause_at_target := fa
 			}
 			emit_judgement(session, object_index, -1, rules.spinner_result(object, object_state), .DEADLINE, time_ms)
 		}
+		update_voice_object(session, object_index, time_ms)
+	}
+	if terminal(session) {
+		stop_voice_objects(session, session.terminal_ms)
 	}
 	if !terminal(session) && !release_applied {
 		release_actions(session, target_ms)
@@ -801,6 +840,7 @@ pause_session :: proc(session: ^Session, time_ms: f64) -> core_types.Status {
 	}
 	// Pause participates at the requested timestamp, before its scheduled
 	// judgement phase. Future timestamped inputs remain queued (ADR-002).
+	pause_voices(session, time_ms)
 	session.state = .PAUSED
 	session.epoch += 1
 	session.pause_count += 1
@@ -819,6 +859,7 @@ resume_session :: proc(session: ^Session, beatmap_ms: f64) -> core_types.Status 
 	}
 	session.state = .RUNNING
 	session.epoch += 1
+	resume_voices(session, beatmap_ms)
 	return .OK
 }
 

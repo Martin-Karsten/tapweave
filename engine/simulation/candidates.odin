@@ -17,11 +17,15 @@ candidate_slots :: proc(object_count: int) -> u64 {
 }
 
 candidate_remove :: proc(candidate_index: ^Candidate_Index, object_index: int) {
+	candidate_set(candidate_index, object_index, math.inf_f64(1))
+}
+
+candidate_set :: proc(candidate_index: ^Candidate_Index, object_index: int, reveal_ms: f64) {
 	if len(candidate_index.minimum_reveal) == 0 {
 		return
 	}
 	node_index := len(candidate_index.minimum_reveal) / 2 + object_index
-	candidate_index.minimum_reveal[node_index] = math.inf_f64(1)
+	candidate_index.minimum_reveal[node_index] = reveal_ms
 	for node_index > 1 {
 		node_index /= 2
 		candidate_index.minimum_reveal[node_index] = min(candidate_index.minimum_reveal[node_index * 2], candidate_index.minimum_reveal[node_index * 2 + 1])

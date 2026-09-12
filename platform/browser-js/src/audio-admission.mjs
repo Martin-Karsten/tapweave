@@ -13,11 +13,15 @@ export class Audio_Admission {
     this.admitted_sequence = 0n;
     this.audio_record = {};
     this.events = [];
+    this.staging = Array.from({ length: audio_service.maximum_pending }, () => ({}));
+    this.format = null;
   }
 
   admit(output) {
     require_condition(output instanceof Gameplay_Output && output.valid,
       'INVALID_ARGUMENT', 'A valid compact gameplay output is required.');
+    require_condition(this.format !== 'authoritative', 'INVALID_STATE', 'Authoritative voice sessions require voice admission exclusively.');
+    this.format = 'legacy';
     const engine_epoch = output.summary.epoch;
     const browser_epoch = this.audio_service.clock.mapped_epoch(this.session_handle, engine_epoch);
     const anchor = this.audio_service.clock.anchor;
@@ -42,10 +46,10 @@ export class Audio_Admission {
       }
       require_condition(this.events.length < this.audio_service.maximum_pending,
         'QUOTA_EXCEEDED', 'Production audio batch exceeds admission capacity.');
-      this.events.push({ sequence: event.sequence, epoch: browser_epoch, kind: 'one_shot',
+      this.events.push(Object.assign(this.staging[this.events.length], { sequence: event.sequence, epoch: browser_epoch, kind: 'one_shot',
         policy: 'immediate', beatmap_time_ms: event.time_ms, voice_id: event.sequence,
         asset_id: event.asset_id, volume: event.volume, pan: 0, rate: 1,
-        duration_ms: 0, lateness_threshold_ms: 0 });
+        duration_ms: 0, lateness_threshold_ms: 0 }));
     }
     // enqueue validates the complete batch before changing the executor queue.
     // Save the watermark before acknowledgement, whose token may have expired.
@@ -59,6 +63,9 @@ export class Audio_Admission {
   admit_voice(output) {
     require_condition(output instanceof Voice_Output && output.valid,
       'INVALID_ARGUMENT', 'A valid voice output is required.');
+    const format = output.summary.flags === 1 ? 'authoritative' : 'legacy';
+    require_condition(this.format === null || this.format === format, 'INVALID_STATE', 'Do not mix legacy and authoritative audio journals.');
+    this.format = format;
     const engine_epoch = output.summary.epoch;
     const browser_epoch = this.audio_service.clock.mapped_epoch(this.session_handle, engine_epoch);
     const anchor = this.audio_service.clock.anchor;
@@ -77,11 +84,11 @@ export class Audio_Admission {
       if (command.sequence <= retained_sequence) continue;
       require_condition(this.events.length < this.audio_service.maximum_pending,
         'QUOTA_EXCEEDED', 'Voice batch exceeds admission capacity.');
-      this.events.push({ sequence: command.sequence, epoch: browser_epoch,
+      this.events.push(Object.assign(this.staging[this.events.length], { sequence: command.sequence, epoch: browser_epoch,
         kind: kinds[command.command_kind - 1], policy: command.late_policy === 1 ? 'immediate' : 'drop',
         beatmap_time_ms: command.time_ms, voice_id: command.voice_id, asset_id: command.asset_id,
         volume: command.volume, pan: command.pan, rate: command.rate, duration_ms: command.duration_ms,
-        parameter_mask: command.parameter_mask, lateness_threshold_ms: command.lateness_threshold_ms });
+        parameter_mask: command.parameter_mask, lateness_threshold_ms: command.lateness_threshold_ms }));
       previous_sequence = command.sequence;
     }
     this.audio_service.enqueue(this.events);

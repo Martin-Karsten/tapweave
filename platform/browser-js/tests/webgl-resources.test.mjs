@@ -18,6 +18,8 @@ function fake_canvas() {
     getParameter() { return 4096; },
     getShaderParameter() { return this.compile; },
     getProgramParameter() { return this.link; },
+    getShaderInfoLog() { return 'shader diagnostic'; },
+    getProgramInfoLog() { return 'link diagnostic'; },
     bufferData() { this.uploads++; if (this.upload_error) this.error = 1285; },
   };
   for (const resource_name of ['Shader', 'Program', 'Buffer', 'Texture', 'VertexArray']) {
@@ -111,7 +113,15 @@ test('compile, link and upload failures roll back and allow retry', async () => 
       const replacement = { bytes: resources.bytes.slice() };
       replacement.bytes[resources.summary.atlas_offset] = 0;
       canvas.context[failure] = failure === 'upload_error';
-      assert.throws(() => gpu.publish(replacement), { code: 'RENDER_RESOURCE_FAILED' });
+      assert.throws(() => gpu.publish(replacement), error => {
+        assert.equal(error.code, 'RENDER_RESOURCE_FAILED');
+        if (failure !== 'upload_error') {
+          assert.deepEqual(error.details, failure === 'compile'
+            ? { stage: 'vertex_shader', info_log: 'shader diagnostic' }
+            : { stage: 'link', info_log: 'link diagnostic' });
+        }
+        return true;
+      });
       assert.equal(canvas.live.size, 7);
       assert.equal(gpu.upload_count, 1);
       canvas.context[failure] = failure !== 'upload_error';

@@ -47,6 +47,7 @@ Session :: struct {
 	output_token: u64,
 	output_judgement_count: int,
 	output_audio_count: int,
+	output_voice_count: int,
 }
 
 instance_create :: proc(
@@ -375,6 +376,7 @@ session_reset :: proc(
 		session_state.output_token += 1
 		session_state.output_judgement_count = 0
 		session_state.output_audio_count = 0
+		session_state.output_voice_count = 0
 	} else {
 		core_types.arena_reset(&session_state.arena)
 	}

@@ -58,7 +58,7 @@ export class Engine_Bridge {
       this.transport_capabilities = readRecord(this.view(), this.read_span().address, 41);
       const transport = this.transport_capabilities;
       require_condition(transport.resource_version === 1 && transport.circle_animation_version === 1 &&
-        transport.draw_version === 1 && transport.voice_version === 1 && transport.voice_command_mask === 1 &&
+        transport.draw_version === 1 && transport.voice_version === 1 && (transport.voice_command_mask & 1) === 1 && (transport.voice_command_mask & ~15) === 0 &&
         transport.flags === 1 && transport.reserved === 0 && transport.max_draw_instances > 0,
       'UNSUPPORTED', 'Unsupported resource/draw/voice transport capabilities.');
     } catch (error) {
@@ -177,8 +177,8 @@ export class Engine_Bridge {
     return readRecord(this.view(), this.read_span().address, 37);
   }
 
-  voice_reserve(session_handle, command_capacity = 0, arena_bytes = 0n) {
-    this.write_creation(42, { command_capacity, arena_bytes });
+  voice_reserve(session_handle, command_capacity = 0, arena_bytes = 0n, flags = 0) {
+    this.write_creation(42, { command_capacity, arena_bytes, flags });
     this.check_status(this.wasm.oe_session_voice_reserve(this.engine_handle, session_handle,
       this.mailbox_address, this.result_address), false);
     return readRecord(this.view(), this.read_span().address, 43);
@@ -529,6 +529,36 @@ export class Prepared_Description {
     require_condition(playback_span.count === 1, 'INVALID_SPAN', 'Expected one playback record.');
     this.playback = readRecord(this.view, playback_span.offset, 17);
     this.audio_filename = this.text(this.playback, 'audio_filename');
+  }
+
+  *records(parent, field_name, kind) {
+    const span = this.array_span(parent, field_name, RECORDS.get(kind).size);
+    for (let record_index = 0; record_index < span.count; record_index++) {
+      yield readRecord(this.view, span.offset + record_index * span.stride, kind);
+    }
+  }
+
+  *sample_candidates() {
+    const samples = function* (descriptor, parent, field, object_id, component_id, loops_only = false) {
+      let sample_index = 0;
+      for (const sample of descriptor.records(parent, field, 11)) {
+        const name = descriptor.text(sample, 'name');
+        if (!loops_only || ['sliderslide', 'sliderwhistle', 'spinnerspin'].includes(name)) {
+          yield { object_id, component_id, sample_index, name, use_beatmap: sample.use_beatmap !== 0,
+            candidates: [...descriptor.records(sample, 'candidates', 12)].map(candidate => descriptor.text(candidate, 'name')) };
+        }
+        sample_index++;
+      }
+    };
+    for (const object of this.records(this.summary, 'objects', 9)) {
+      if (object.kind !== 2) yield* samples(this, object, 'samples', object.id, 0xffffffff);
+      for (const component of this.records(object, 'components', 10)) {
+        if (component.kind === 4) continue;
+        yield* samples(this, component.kind === 3 ? object : component,
+          component.kind === 3 ? 'tail_samples' : 'samples', object.id, component.id);
+      }
+      yield* samples(this, object, 'auxiliary_samples', object.id, 0xfffffffe, true);
+    }
   }
 
   array_span(record, field_name, minimum_stride) {
