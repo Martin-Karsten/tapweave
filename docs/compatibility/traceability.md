@@ -64,3 +64,11 @@ H06 window predicates are not circle/note-lock dispatch acceptance; H08 history
 is not complete spinner judgement; H09 calibration is not player failure.
 The `unsupported` gameplay entries above describe production capabilities;
 independent component evidence does not advertise simulation support.
+
+## Independent M3 observations
+
+The [M3 report](../implementation/m3.md) records local production-ABI browser
+loading, archive/resource and input/audio service checks plus initial native/WASM
+viewport values. A12 remains open until the transform is integrated with real
+browser gameplay input. A21/A22 and H11 remain unsupported/unexecuted; fake audio
+contexts and a preparation shell are not evidence of audio-backed gameplay.

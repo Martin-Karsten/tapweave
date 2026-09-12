@@ -9,6 +9,9 @@
 !/.github/
 !/docs/
 !/engine/
+!/platform/
+/platform/*
+!/platform/browser-js/
 
 # Historical regression tooling is local-only.
 /engine/scripts/test-spike.mjs

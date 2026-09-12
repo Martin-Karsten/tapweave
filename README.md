@@ -33,6 +33,9 @@ Tests verify upstream source hashes, run allocation-tracked Odin and native C AB
 - `docs/`: implementation specification, decisions, and roadmap.
 - `.github/workflows/`: automated validation.
 
+The [browser foundation](platform/browser-js/README.md) can load and prepare local
+beatmap sets. Gameplay remains unavailable pending M2 integration.
+
 Exploratory spikes, downloaded toolchains, caches, generated binaries, and game assets are not distributed in this repository.
 
 ## Licence

@@ -1,7 +1,6 @@
 package simulation_trace
 import "core:encoding/json"
-import "core:io"
-import "core:strconv"
+import trace_support "../trace_support"
 import core_types "../core_types"
 import scoring "../scoring"
 import rules "../osu_rules"
@@ -80,27 +79,6 @@ write_observation :: proc(output: ^[dynamic]byte, fixture: Fixture, values: $T) 
 // which is insufficient as exact evidence. These test-only serializers emit
 // round-trippable f64 decimals; f32 is widened exactly before serialization.
 // This transport is single-threaded, separate from production engine exports.
-marshal_float :: proc(writer: io.Writer, value: any, options: ^json.Marshal_Options) -> json.Marshal_Error {
-	number_value: f64
-	switch typed_number in value {
-	case f64:
-		
-		number_value = typed_number
-	case f32:
-		
-		number_value = f64(typed_number)
-	case:
-		
-		return json.Marshal_Data_Error.Unsupported_Type
-	}
-	buffer: [64]byte
-	text := strconv.write_float(buffer[:], number_value, 'g', -1, 64)
-	if len(text) > 0 && text[0] == '+' {
-		text = text[1:]
-	}
-	_, error := io.write_string(writer, text)
-	return error
-}
 run :: proc(input: []byte) -> ([]byte, bool) {
 	marshalers := make(map[typeid]json.User_Marshaler)
 	defer delete(marshalers)
@@ -109,8 +87,8 @@ run :: proc(input: []byte) -> ([]byte, bool) {
 	defer {
 		json._user_marshalers = previous_marshalers
 	}
-	json.register_user_marshaler(f64, marshal_float)
-	json.register_user_marshaler(f32, marshal_float)
+	json.register_user_marshaler(f64, trace_support.marshal_float)
+	json.register_user_marshaler(f32, trace_support.marshal_float)
 	fixtures: []Fixture
 	error := json.unmarshal(input, &fixtures)
 	defer {

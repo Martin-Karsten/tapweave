@@ -60,3 +60,16 @@ JSON. A dedicated protocol writer and fixed golden protect identity from private
 Odin field names/order and serializer implementation changes. This deliberately
 changes the preparation profile; it does not claim new gameplay compatibility.
 See the [binary contract](interface-v2.md#m1-prepared-map-transport).
+
+## M3 browser foundation refinement
+
+The schema now also names the existing bootstrap mailbox and auxiliary ByteSpan
+transport offsets. These values do not change the ABI. The generator emits one
+executable JavaScript implementation, a TypeScript re-export with declarations,
+and existing Odin/C bindings. Browser and Node consumers share checked record
+reads/writes; unsupported values reject before writes begin. Retained descriptions
+are copied by the browser bridge, and all WASM views are reacquired after calls.
+
+A thin production browser entrypoint links only `oe_*` engine exports; test trace
+transports remain separate. This increment adds no gameplay, audio or presentation
+capability bits. Its independent browser service objects are not ABI records.

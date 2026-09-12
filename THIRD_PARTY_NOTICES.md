@@ -12,3 +12,15 @@ Original copyright headers remain intact. The reference-host project uses upstre
 Odin compiler downloads are development tools, not committed source or distributed game assets. Their original notices remain in the downloaded release. osu! names and branding are not licensed by Tapweave's MIT licence. Music, community beatmap packs, skins and game art are not included. The source manifest identifies the included synthetic upstream `.osu` test fixtures under the upstream repository MIT licence.
 
 M2 result properties, scoring, hit-window, drain-calibration and forward spinner-history primitives also follow the pinned upstream components listed in the source manifest. Their original copyright and licence notices are retained.
+
+## Browser package dependencies
+
+The separate `platform/browser-js` package pins **fflate 0.8.3** (MIT,
+Copyright (c) 2026 Arjun Barrett), from <https://github.com/101arrowz/fflate>.
+Browser assembly copies its installed licence beside the locally served module.
+
+**Playwright Test 1.63.0** and its Playwright dependencies are development-only
+browser automation tooling, licensed under Apache-2.0; see
+<https://github.com/microsoft/playwright>. Exact packages and integrity hashes are
+recorded in the browser package lockfile. These dependencies do not grant rights
+to beatmap music, osu! branding, or other game assets.

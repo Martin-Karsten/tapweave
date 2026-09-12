@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node scripts/verify-sources.mjs && node scripts/test.mjs && node scripts/test-geometry.mjs && node scripts/test-prepared.mjs && node scripts/test-simulation.mjs",
+    "test": "node scripts/verify-sources.mjs && node scripts/test.mjs && node scripts/test-geometry.mjs && node scripts/test-prepared.mjs && node scripts/test-simulation.mjs && node scripts/test-presentation.mjs",
     "test:geometry": "node scripts/test-geometry.mjs",
     "test:geometry:upstream": "node scripts/test-geometry.mjs --upstream",
     "verify:sources": "node scripts/verify-sources.mjs",
@@ -15,6 +15,7 @@
     "test:prepared": "node scripts/test-prepared.mjs",
     "test:prepared:upstream": "node scripts/test-prepared.mjs --upstream",
     "test:simulation": "node scripts/test-simulation.mjs",
-    "test:simulation:upstream": "node scripts/test-simulation.mjs --upstream"
+    "test:simulation:upstream": "node scripts/test-simulation.mjs --upstream",
+    "test:presentation": "node scripts/test-presentation.mjs"
   }
 }

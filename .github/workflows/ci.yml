@@ -115,3 +115,33 @@ jobs:
         with:
           name: simulation-comparisons
           path: engine/artifacts/simulation/
+
+  browser-foundation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install linkers and pinned Odin
+        run: |
+          sudo apt-get update && sudo apt-get install -y clang lld
+          npm --prefix engine run setup
+      - name: Build production browser engine
+        run: npm --prefix engine run build
+      - name: Install pinned browser dependencies
+        run: npm --prefix platform/browser-js ci
+      - name: Test browser services and assemble player
+        run: |
+          npm --prefix platform/browser-js test
+          npm --prefix platform/browser-js run build
+      - name: Install browser engines
+        run: npm exec --prefix platform/browser-js -- playwright install --with-deps chromium firefox webkit
+      - name: Test browser foundation
+        run: npm --prefix platform/browser-js run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-foundation
+          path: platform/browser-js/artifacts/browser-results*

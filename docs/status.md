@@ -84,6 +84,19 @@ machines, health/failure, sample intent, sessions and replay recording/checkpoin
 M1 is complete; integration with its final contracts remains M2 work. No complete
 A13–A20 or A23 acceptance gate is claimed from these component subsets.
 
+## M3: independent browser foundation
+
+The [M3 increment](implementation/m3.md) adds a production-only browser WASM
+transport, shared generated JavaScript/TypeScript bindings, local archive/loose
+asset loading, transactional difficulty selection, decoded music reuse and a
+validation shell. Independent input/audio services and Odin viewport transforms
+have local regression coverage. The browser Play control stays disabled.
+
+Full M2 sessions, object presentation, WebGL2, integrated music/input/lifecycle,
+results and H11 remain open. This increment does not complete A12/A21/A22, does
+not advertise gameplay capabilities, and does not claim upstream or release-
+browser audio acceptance. See the [M3 plan](implementation/m3-plan.md).
+
 ## Resource contract and limits
 
 Preparation counts output before allocating, builds candidates transactionally,

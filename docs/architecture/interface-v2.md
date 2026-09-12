@@ -213,3 +213,12 @@ Preparation counts and allocates a separate candidate; failed creation does not
 replace or mutate previous maps. The combined raw/control-point/prepared/description
 storage respects the engine quota. Reacquire WASM views after allocating calls,
 even when preparation fails. Describing an already published map does not allocate.
+
+## Browser foundation bindings
+
+The existing mailbox and auxiliary ByteSpan offsets are also named under
+`transport` in the ABI schema. `records.mjs` is the shared executable binding;
+`records.ts` re-exports it with generated `records.d.mts` declarations. Generated
+writers validate complete scalar input before modifying a record. The browser
+bridge copies retained map descriptions and reacquires views after WASM calls.
+This transport refinement changes no offsets, record kinds or capability bits.
