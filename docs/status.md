@@ -4,8 +4,9 @@ M0 (compatibility foundation) and M1 (beatmap preparation) are implemented for
 unmodded osu!standard against osu!lazer **2026.804.2**, commit
 `3c1c96f742e7aae2ff67a7361e058fe91ca3b955`, and framework **2026.731.0**, commit
 `f02756c5aa5032e6d04729922702b8d56c4bc2eb`. Tapweave is not yet playable.
-M2 has independent primitives for deterministic input, scoring, health calibration
-and replay; complete gameplay sessions remain the next implementation step.
+M2 now connects those primitives to prepared maps through headless gameplay sessions.
+[Session integration](implementation/m2-sessions.md) is locally validated; full
+upstream M2 acceptance and browser gameplay remain open.
 
 ## M0: foundation
 
@@ -75,17 +76,19 @@ disposal and stale handles. The existing 50-cycle/four-session lifecycle matrix,
 The M2 worktree has been integrated into main. It adds explicit result properties,
 standalone scoring and drain calibration, hit-window and forward spinner-history
 primitives, bounded event/input queues, and replay validation/interpolation/codec.
-These packages are not yet connected to prepared maps or production gameplay ABI.
+They are now connected to prepared maps and the production gameplay ABI by the
+[headless session integration](implementation/m2-sessions.md).
 
-The [M2 report](implementation/m2.md) records 100 native/WASM primitive fixtures,
-including 67 exact pinned component comparisons, with source/fixture/lock hashes.
-Four local review regressions extend the original 96-fixture evidence, covering
-transactional buffer-overlap rejection and interpolation at finite extremes.
+The [M2 report](implementation/m2.md) records 104 native/WASM primitive fixtures,
+including 72 exact pinned component comparisons, with source/fixture/lock hashes.
+The suite includes transactional buffer-overlap rejection, framework f32 replay
+interpolation and repeated-slider position probes. Overflowing replay intervals
+are rejected before state publication.
 The 14 allocation-tracked M2 test groups also exercise checksummed malformed
 replay payloads and unchanged destinations on rejection.
 The [M2 plan](implementation/m2-plan.md) describes remaining full object state
 machines, health/failure, sample intent, sessions and replay recording/checkpoints.
-M1 is complete; integration with its final contracts remains M2 work. No complete
+M1 is complete and its final contracts are consumed by headless sessions. No complete
 A13–A20 or A23 acceptance gate is claimed from these component subsets.
 
 ## Resource contract and limits
@@ -111,9 +114,10 @@ judgement. Disabled tick distance is encoded as `0` with `generate_ticks=false`.
 The schedule describes prepared arrivals/components; M2 will define simulation
 phases and judgement deadlines.
 
-Production simulation, score/health sessions, replay execution, rendering and
-audio playback remain unsupported. Sessions currently establish ownership and
-reusable storage.
+Explicit kind-18 gameplay sessions support production simulation, score/health,
+replay execution, snapshots and one-shot sample intent. Foundation kind-3 sessions
+retain their original ownership-only behavior. Browser rendering and audio playback
+remain unsupported. See the [session report](implementation/m2-sessions.md) for limits.
 Dynamic-library packaging and browser asset/context-loss handling are not claimed.
 Validation was executed locally on macOS arm64 with native and WASM builds; CI
 results are not implied by this report.

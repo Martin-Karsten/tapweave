@@ -52,7 +52,7 @@ validate_frames :: proc(frames: []core_types.Input_Snapshot) -> (core_types.Stat
 		if frame.raw_time_ms != frame.effective_time_ms {
 			return .INVALID_ARGUMENT, frame_index
 		}
-		if frame_index > 0 && frame.effective_time_ms < previous_time_ms {
+		if frame_index > 0 && (frame.effective_time_ms < previous_time_ms || !core_types.finite(f64(f32(frame.effective_time_ms - previous_time_ms)))) {
 			return .INVALID_ARGUMENT, frame_index
 		}
 		previous_time_ms = frame.effective_time_ms
@@ -89,10 +89,14 @@ sample :: proc(
 	}
 	if lower_index == 0 {
 		sampled_frame := frames[0]
+		sampled_frame.x = f64(f32(sampled_frame.x))
+		sampled_frame.y = f64(f32(sampled_frame.y))
 		sampled_frame.action_bits = 0
 		return sampled_frame, .OK
 	}
 	sampled_frame := frames[lower_index - 1]
+	sampled_frame.x = f64(f32(sampled_frame.x))
+	sampled_frame.y = f64(f32(sampled_frame.y))
 	if lower_index == len(frames) {
 		return sampled_frame, .OK
 	}
@@ -100,16 +104,18 @@ sample :: proc(
 	if time_ms == sampled_frame.effective_time_ms {
 		return sampled_frame, .OK
 	}
-	// Preserve subnormal differences. Scale only when the finite endpoints span
-	// a duration outside f64's range; that interval cannot underflow.
-	duration_ms := next_frame.effective_time_ms - sampled_frame.effective_time_ms
-	elapsed_ms := time_ms - sampled_frame.effective_time_ms
-	if !core_types.finite(duration_ms) {
-		duration_ms = next_frame.effective_time_ms / 2 - sampled_frame.effective_time_ms / 2
-		elapsed_ms = time_ms / 2 - sampled_frame.effective_time_ms / 2
+	// Framework Interpolation.ValueAt(Vector2) narrows elapsed time and duration
+	// before division, then performs vector subtraction/multiply/add in f32.
+	elapsed_ms := f32(time_ms - sampled_frame.effective_time_ms)
+	duration_ms := f32(next_frame.effective_time_ms - sampled_frame.effective_time_ms)
+	if duration_ms == 0 || elapsed_ms == 0 {
+		return sampled_frame, .OK
+	}
+	if !core_types.finite(f64(duration_ms)) || !core_types.finite(f64(elapsed_ms)) {
+		return {}, .INVALID_ARGUMENT
 	}
 	interpolation_fraction := elapsed_ms / duration_ms
-	sampled_frame.x = (1 - interpolation_fraction) * sampled_frame.x + interpolation_fraction * next_frame.x
-	sampled_frame.y = (1 - interpolation_fraction) * sampled_frame.y + interpolation_fraction * next_frame.y
+	sampled_frame.x = f64(f32(sampled_frame.x) + interpolation_fraction * (f32(next_frame.x) - f32(sampled_frame.x)))
+	sampled_frame.y = f64(f32(sampled_frame.y) + interpolation_fraction * (f32(next_frame.y) - f32(sampled_frame.y)))
 	return sampled_frame, .OK
 }

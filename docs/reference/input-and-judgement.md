@@ -40,7 +40,9 @@ A slider consists of a timed head circle, zero or more ticks/repeats, a tail cir
 
 - a valid held osu! action;
 - the cursor in the follow area around the ball/current child;
-- action-lock rules that prevent switching fingers without first releasing all keys.
+- the pinned head-action restriction for overlapping held keys. The other key
+  becomes valid after it was released in a prior tracking sample; this is not a
+  blanket requirement to release both keys.
 
 Tracking may be acquired after a successful head, lost, and recovered. The expanded follow radius while already tracking and the special head/tick-range checks are implemented by [`SliderInputManager`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Objects/Drawables/SliderInputManager.cs). Each nested drawable judges at its scheduled time from current tracking; [`DrawableSliderTick`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Objects/Drawables/DrawableSliderTick.cs), [`DrawableSliderRepeat`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Objects/Drawables/DrawableSliderRepeat.cs), and [`DrawableSliderTail`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Objects/Drawables/DrawableSliderTail.cs) define result types.
 
@@ -74,7 +76,8 @@ All top-level and scoring nested components must reach terminal results; then sc
 
 - Two circles at 1000 ms can both be hit by two equal-time press edges in sequence order.
 - A 1000 ms circle still pending when a hittable 1100 ms circle is hit at 1100 ms is force-missed first under default note lock.
-- Moving outside a slider follow circle after one tick, then returning with the original action still held, allows later recovery; switching left→right without an all-released sample does not.
+- Moving outside a slider follow circle after one tick, then returning with the original action still held, allows later recovery; an already-held other key cannot take over until the pinned action restriction
+  has been lifted by an earlier released-other-key tracking sample.
 - A 2000 ms spinner at OD5 requires `trunc(150/60×2+0.0001)=5` spins.
 
 Pinned tests: [`TestSceneStartTimeOrderedHitPolicy`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/TestSceneStartTimeOrderedHitPolicy.cs), [`TestSceneSliderInput`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs), [`TestSceneSliderFollowCircleInput`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/TestSceneSliderFollowCircleInput.cs), [`TestSceneSpinnerJudgement`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerJudgement.cs), and [`SpinnerSpinHistoryTest`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/SpinnerSpinHistoryTest.cs).

@@ -14,7 +14,7 @@ compile(['test', 'tests', '-out:artifacts/foundation-tests']);
 const bytes = readFileSync(resolve(root, 'artifacts/decode.wasm'));
 let memory;
 const { instance } = await WebAssembly.instantiate(bytes, { odin_env: {
-  sin: Math.sin, cos: Math.cos,
+  sin: Math.sin, cos: Math.cos, pow: Math.pow,
   write(fd, ptr, count) {
     const value = new Uint8Array(memory.buffer, ptr, count);
     (fd === 2 ? process.stderr : process.stdout).write(value);

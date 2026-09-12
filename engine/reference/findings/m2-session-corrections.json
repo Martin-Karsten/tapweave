@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "compiler": "/Users/martin/stuff/osu-web/engine/.toolchain/odin/odin version dev-2026-09-nightly:a2fb372",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "lockSha256": "a6cf520b8e80b0e7c06da2bb4493db9173ba20a734433348fe0df54dc4ff7e8a",
+  "upstreamExecuted": true,
+  "m2Complete": false,
+  "scope": "Pinned component evidence for session corrections: result minima, repeated-slider positions and framework replay interpolation. Full drawable/player integration remains unverified.",
+  "records": [
+    {
+      "fixture": "result-properties",
+      "sha256": "a03461b0b5ffcd0c2e426510b1ae170dd3048e87863f365ffb3f711db19cf277",
+      "acceptance": [
+        "A17"
+      ],
+      "experiment": "H10-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "36b3d05d8727ded438e9f9473e3eeceaeb98668393429b40038407e69e24a4a0",
+      "difference": null
+    },
+    {
+      "fixture": "slider-position-1",
+      "sha256": "42724fcbe1e53da1323ccfb16fb46cd99704e899f06062ecb0a21a4c6f8631b5",
+      "acceptance": [
+        "A14",
+        "A15"
+      ],
+      "experiment": "H07-position-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "e0a008688b1f95f4ec135f65dab8e3a6f8b6026eb2c8f7c0280f2637aafd6c59",
+      "difference": null
+    },
+    {
+      "fixture": "slider-position-2",
+      "sha256": "839ed5a70fa1bdeaede9381a5e660049a206b4f976309e4feca36f1ad39b955d",
+      "acceptance": [
+        "A14",
+        "A15"
+      ],
+      "experiment": "H07-position-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "adadbe86e065993ddd3e0c90c55e443fdcc1496b347c9c7034c1dadb1445d2fd",
+      "difference": null
+    },
+    {
+      "fixture": "slider-position-3",
+      "sha256": "bc2af30d29921dc7996ace76d63dc7413aeb5de67989fa55e9d2f537865481d7",
+      "acceptance": [
+        "A14",
+        "A15"
+      ],
+      "experiment": "H07-position-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "72bb37ecfe310e8c0ca45f5ddca8e76d8708530bbd230a53db238a4e73a22d9e",
+      "difference": null
+    },
+    {
+      "fixture": "slider-position-5",
+      "sha256": "9d5f4b739b91e9ba52637305c5a841ae084463d2e5a93a18b99119c23a9dfe35",
+      "acceptance": [
+        "A14",
+        "A15"
+      ],
+      "experiment": "H07-position-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "de48fdf3244c6a801a0b0ee44584c787073814fbcd6ffac492cf0eb896232063",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-replay-interpolation",
+      "sha256": "12ed7791f5319b8976bb2e8bc9822dd1fb8e1f6d229951dc3e75b0640078eba1",
+      "acceptance": [
+        "A23"
+      ],
+      "experiment": "H11-cursor-subset",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "64c57001fc1b4387759fd93250cdcb61f9bac8462c8c34bb8dfc49b7ebec936a",
+      "difference": null
+    }
+  ],
+  "sourceFiles": {
+    "osu.Game/Rulesets/Judgements/Judgement.cs": "0c87779a441e794ee146dc326beb8c4cb869abc8bea41eb28a92eaafddffa82e",
+    "osu.Game/Rulesets/Objects/Types/IHasPathWithRepeats.cs": "d619e4384204f20d5cbb9138e54e4c85b6e5248b0984c2a61d894423f36b76bc",
+    "osu.Game/Rulesets/Objects/SliderPath.cs": "8a8f2150c1ab876c7b66e10cd0ebe923d87e19e2378815426d1692da3560c894",
+    "osu.Game.Rulesets.Osu/Replays/OsuFramedReplayInputHandler.cs": "d059969c91f9a4ce2cd75f988ecb809a0b7c23a9e4db9b0e6ff0671c1b901cf0",
+    "osu.Framework/Utils/Interpolation.cs": "e31de9de411f76e1155d85130978f65b8adf20f2066df9e368a26b6ad924d107"
+  }
+}

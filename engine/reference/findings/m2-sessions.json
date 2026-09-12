@@ -1,0 +1,44 @@
+{
+  "oracle": "local-contract-tests",
+  "upstreamVerified": false,
+  "fullAcceptance": false,
+  "acceptance": [
+    "A13",
+    "A14",
+    "A15",
+    "A16",
+    "A17",
+    "A18",
+    "A19",
+    "A20",
+    "A23",
+    "A24",
+    "A25"
+  ],
+  "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "mapSHA256": "2d1adbfc823d313706def128013ad9c887e06f290d0c51591599317b5708cb32",
+  "inputSHA256": "9549bf3521445828387819f70b781f80ec7a2cef9687e44ce6fce6242e9b5830",
+  "finalRecordSHA256": "ecf721022207698f311b044ba70a69dc727d6b2de3a224e8dcc91dc5af4d18e6",
+  "schedules": [
+    "direct",
+    "30Hz",
+    "60Hz",
+    "120Hz",
+    "144Hz"
+  ],
+  "checks": [
+    "native/WASM final bytes",
+    "snapshot non-mutation",
+    "pause/resume/reset",
+    "retained map lifetime",
+    "stale handles/tokens",
+    "output acknowledgement",
+    "sample availability",
+    "replay checksum rejection",
+    "record/export/import",
+    "initial checkpoint seek",
+    "no hot-path WASM growth"
+  ],
+  "reproduce": "ODIN_WASM_LD_DIR=/opt/homebrew/opt/lld@20/bin npm --prefix engine test"
+}

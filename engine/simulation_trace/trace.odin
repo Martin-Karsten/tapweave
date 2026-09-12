@@ -8,9 +8,11 @@ import scoring "../scoring"
 import rules "../osu_rules"
 import simulation "../simulation"
 import replay "../replay"
+import prepared "../prepared"
 
 Fixture :: struct {
 	id, kind: string,
+	spans: u32,
 	maximum, actual: []core_types.Hit_Result,
 	failed_before: []bool,
 	difficulty, drain_start_ms, committed_ms: f64,
@@ -34,7 +36,7 @@ Score_Value :: struct {
 }
 
 Property_Value :: struct {
-	result: u16,
+	result, minimum: u16,
 	base_score: u32,
 	hit, miss, scorable, accuracy, increases_combo, breaks_combo, tick, bonus: bool,
 }
@@ -173,6 +175,7 @@ run :: proc(input: []byte) -> ([]byte, bool) {
 				properties := core_types.result_properties(result)
 				values[u16(result)] = {
 					u16(result),
+					u16(rules.minimum_result(result)),
 					properties.base_score,
 					properties.hit,
 					properties.miss,
@@ -401,6 +404,19 @@ run :: proc(input: []byte) -> ([]byte, bool) {
 			values := []Input_Value {
 				{input_status, record_index, input_queue.count},
 				{event_status, written_count, event_queue.count},
+			}
+			if !write_observation(&output, fixture, values) {
+				return nil, false
+			}
+		case "slider_position":
+			vertices := []prepared.Position{{0, 0}, {100, 0}}
+			cumulative := []f64{0, 100}
+			object := prepared.Object{spans = fixture.spans, span_duration = 1, end_time_ms = f64(fixture.spans), vertices = vertices, cumulative = cumulative, path_distance = 100}
+			values := make([]Replay_Value, len(fixture.targets))
+			defer delete(values)
+			for target, target_index in fixture.targets {
+				position := rules.slider_position(&object, target)
+				values[target_index] = {position[0], position[1], 0}
 			}
 			if !write_observation(&output, fixture, values) {
 				return nil, false

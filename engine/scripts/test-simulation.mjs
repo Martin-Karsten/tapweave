@@ -106,7 +106,7 @@ assert.deepEqual(
   [[0, 0], [0, 0], [50, 0], [100, 2], [150, 2], [200, 2], [200, 2]],
 );
 for (const [fixtureId, expectedPosition] of [
-  ['replay-subnormal-positive', 100], ['replay-subnormal-negative', 100], ['replay-extreme-endpoints', 150],
+  ['replay-subnormal-positive', 0], ['replay-subnormal-negative', 0],
 ]) {
   assert.deepEqual(
     actual.find(observation => observation.id === fixtureId).values,
@@ -165,11 +165,11 @@ if (process.argv.includes('--upstream')) {
 const manifest = JSON.parse(readFileSync(resolve(root, 'reference/source-manifest.json')));
 const acceptanceByKind = {
   score: ['A17', 'A18'], drain: ['A19'], properties: ['A17'], windows: ['A13'], spin: ['A16'],
-  round: ['A18'], events: ['A23'], inputs: ['A23'], replay: ['A23'], codec: ['A23'], queue_overlap: ['A23'],
+  slider_position: ['A14', 'A15'], round: ['A18'], events: ['A23'], inputs: ['A23'], replay: ['A23'], codec: ['A23'], queue_overlap: ['A23'],
 };
 const experimentByKind = {
   score: 'H10-subset', drain: 'H09-calibration-subset', properties: 'H10-subset',
-  windows: 'H06-windows-subset', spin: 'H08-history-subset', round: 'H10-subset',
+  slider_position: 'H07-position-subset', replay: 'H11-cursor-subset', windows: 'H06-windows-subset', spin: 'H08-history-subset', round: 'H10-subset',
 };
 const records = fixtures.map((fixture, fixtureIndex) => {
   const expected = upstream?.find(observation => observation.id === fixture.id);
@@ -190,7 +190,7 @@ const report = {
   sourceCommit: manifest.osu.commit, frameworkCommit: manifest.framework.commit,
   lockSha256: hash(readFileSync(resolve(root, 'reference-host/packages.lock.json'))),
   upstreamExecuted: Boolean(upstream), m2Complete: false,
-  scope: 'Independent result/scoring, hit-window, forward spin and drain-calibration primitives; local event/input and replay codec primitives. No prepared-map gameplay or production ABI.',
+  scope: 'Independent result/scoring, hit-window, forward spin, drain-calibration, repeated-slider position and replay cursor components; local event/input and replay codec primitives. No whole-drawable or production-session oracle.',
   records,
 };
 writeFileSync(resolve(directory, 'acceptance.json'), JSON.stringify(report, null, 2) + '\n');

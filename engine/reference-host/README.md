@@ -68,3 +68,8 @@ The H06/H08/H09/H10 subsets do not exercise drawable input selection, slider
 tracking, spinner cursor sampling, player failure, or full replay sessions.
 M2's local event/replay fixtures are never submitted as upstream observations.
 See [M2 status](../../docs/implementation/m2.md).
+
+The simulation adapter also invokes the real `OsuFramedReplayInputHandler` and
+`Slider.CurvePositionAt` for cursor interpolation and repeated-slider endpoints.
+`Judgement.MinResult` is compared for every result type. These probes execute
+pinned classes; they do not constitute complete drawable/player acceptance.

@@ -1,7 +1,8 @@
 # M2 — Complete unmodded simulation and scoring
 
-Status: independent primitives implemented and imported into main; M1 is now complete. See
-[M2 implementation status](m2.md) for executed evidence and blocked integration.
+Status: independent primitives and [headless session integration](m2-sessions.md)
+are implemented; M1 is complete. Whole-scenario upstream acceptance remains open.
+See [M2 component evidence](m2.md) and the session report for exact coverage.
 
 ## Objective and dependency gates
 

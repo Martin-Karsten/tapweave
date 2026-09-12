@@ -2,7 +2,8 @@
 
 The Odin engine implements decoding, control points, immutable beatmap preparation
 and ABI v2 map/session ownership. See [status and evidence](../docs/status.md).
-Gameplay, rendering and audio playback remain unsupported.
+Explicit gameplay sessions implement headless rules, scoring/health, replay and
+snapshots. Browser rendering and audio playback remain unsupported.
 
 ## Build and test
 
@@ -68,13 +69,14 @@ zeroes reusable storage without allocation. Calls are confined to one thread.
 Create engines/sessions with foundation flag `1`. Map flag `1` requests M0 raw
 storage; map flag `2` requests M1 preparation. `oe_preparation_capabilities`
 advertises preparation separately. `oe_map_describe` returns kind `5` for foundation
-maps or kind `8` for complete prepared descriptions. All later gameplay operations
-return `UNSUPPORTED`. Read the [ABI contract](../docs/architecture/interface-v2.md)
+maps or kind `8` for complete prepared descriptions. Foundation sessions return
+`UNSUPPORTED` for gameplay operations. Kind `18`/flag `2` creates a headless gameplay
+session; discover it with `oe_simulation_capabilities`. Read the [ABI contract](../docs/architecture/interface-v2.md)
 and [preparation API](osu_prepare/README.md).
 
 Reacquire WASM views after operations that can allocate, including failed
 candidates. Production WASM requires the Odin host imports `sin`, `cos`,
-`rand_bytes` and `write`; test timing additionally uses `tick_now`. Test JSON is not
+`pow`, `rand_bytes` and `write`; test timing additionally uses `tick_now`. Test JSON is not
 the production ABI. Preparation version 2 appends breaks/control points/playback
 records to the description and uses explicit canonical binary identity (`prepared-v2`).
 The shared preparation work budget rejects excessive work without reducing accuracy. Native ABI conformance links the generated C consumer into an
@@ -99,11 +101,11 @@ constants/bindings from `abi/records.json`; writers use its named field offsets.
 
 The [M2 increment](../docs/implementation/m2.md) adds result/scoring, hit-window,
 forward spinner-history and drain-calibration primitives, bounded [event/input
-queues](simulation/README.md), and [replay validation/serialization](replay/README.md). These consume
-explicit inputs and do not expose production gameplay or replay capabilities.
+queues](simulation/README.md), and [replay validation/serialization](replay/README.md). These consume explicit inputs; the [session integration](../docs/implementation/m2-sessions.md)
+connects them to production gameplay and replay APIs.
 
 `npm test` includes allocation-tracked primitive tests and native/WASM traces.
 `npm --prefix engine run test:simulation:upstream` uses the same clean pinned
 checkouts and .NET setup as the reference host for component comparisons.
-Integration with the completed M1 interfaces, complete sessions and whole-scenario
-M2 acceptance remain open.
+Integration with M1 and headless sessions is implemented; whole-scenario upstream
+M2 acceptance remains open.

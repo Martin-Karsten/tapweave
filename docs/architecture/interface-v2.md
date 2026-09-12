@@ -213,3 +213,93 @@ Preparation counts and allocates a separate candidate; failed creation does not
 replace or mutate previous maps. The combined raw/control-point/prepared/description
 storage respects the engine quota. Reacquire WASM views after allocating calls,
 even when preparation fails. Describing an already published map does not allocate.
+
+## M2 headless session transport
+
+Discover `oe_simulation_capabilities(engine, out_span)`: kind 25 reports session
+version 1, recording/rules version 1, flags 1 (headless sessions), and the maximum
+live input capacity. The legacy kind-4 gameplay field remains 0 because it denotes
+the full gameplay/presentation/browser capability set. Existing foundation
+sessions continue returning `UNSUPPORTED` for simulation calls.
+
+Create a gameplay session by putting kind 18/version 1/size 40 in the bootstrap
+input slot and calling `oe_session_create`. Fields are flags=2, reserved=0,
+`arena_bytes:u64`, finite `lead_in_ms:f64`, `input_capacity:u32`, reserved=0.
+The map must have been prepared with flag 2 and contain at least one object.
+Lead-in cannot exceed the first object's start. Capacity bounds total accepted live input. Recording/input storage also reserves
+important judgement and pause frames. Creation requires
+`2 * input_capacity + maximum_judgements + 2 <= 1,000,000`, subject to memory quotas.
+The arena budget includes all mutable state, complete result/audio journals,
+recording frames, candidate availability and reusable serialization buffers.
+No advance, snapshot, pause, resume, reset, replay export or seek allocates.
+
+The concrete records are generated from `engine/abi/records.json`:
+
+| Kind | Meaning |
+|---|---|
+| 18 | Explicit gameplay session creation |
+| 19 | Committed HUD/status, presentation time, object/judgement/audio spans, batch token |
+| 20 | Object identity, parent/head outcomes and times, tracking, rotation and sampled position |
+| 21 | Ordered judgement, cause, timing offset, score/combo/health before and after |
+| 22 | Resume beatmap/audio anchor, rate=1, flags/reserved=0 |
+| 23 | Input snapshot; source/focus epoch packed into one u32, flags/reserved=0 |
+| 24 | Terminal reason/time, score/rank/health, counts, raw/prepared/judgement digests, profile and clock settings |
+| 25 | Headless session capabilities |
+| 26 | Actual and maximum counts for each stable result ID |
+| 27 | One-shot audio intent; asset 0/flags 1 explicitly indicates missing sample |
+| 28 | Candidate asset availability by object/component/sample/candidate ordinal |
+
+States are READY=0, RUNNING=1, PAUSED=2, PASSED=3, FAILED=4. The first advance
+starts a READY session. Time is finite and monotonic; pause freezes advancement;
+terminal sessions retain their terminal time/results. Snapshot accepts any finite
+presentation time but never judges or advances health. It samples committed object
+state and slider position, not a WebGL presentation batch. Object IDs remain source
+IDs; component ID `0xffffffff` means the parent. Result IDs retain `Hit_Result`
+values 0–16. Causes are input=0, deadline=1, note-lock=2, tracking=3, spinner=4.
+
+All output pointers must be the mailbox span slot at offset 256. Snapshots own
+session-backed relative spans; copy retained bytes before the next output call.
+`oe_session_acknowledge(engine, session, batch_token)` acknowledges the events
+included in that snapshot. Repeated snapshots keep pending events until ack.
+Tokens are nonzero, scoped to the session, and invalidated by reset/new snapshots.
+Acknowledging the same current token twice is safe. Final results are available
+only after pass/failure, remain immutable, and include a SHA-256 over the prepared
+identity followed by canonical kind-21 judgement bytes. Output buffers are sized
+at creation for the entire bounded journal, so there is no mid-transition loss.
+
+Copy an array of exact 64-byte kind-23 records into the reserved inbox, then call
+`oe_session_inputs_from_reserved(engine, session, token, record_count, error)`.
+`oe_session_inputs` alternatively accepts a ByteSpan at mailbox offset 0 naming
+that same inbox address, byte count and token. Unknown records, bits, non-finite
+values, sequence/time disorder, stale tokens and late inputs reject the whole
+batch. Coordinates are logical osu! pixels; raw and effective time must match.
+Rate=1 and all four offsets=0 are the current clock profile. Future inputs stay
+queued. Once an advance closes a timestamp, later input at that time is late.
+
+`oe_session_bind_sample(engine, session, mailbox)` consumes kind 28 before start.
+Each call reports availability of one prepared candidate (`asset_id=0` removes
+it). Odin chooses the first nonzero candidate in prepared order. A successful
+reset retains the availability table and reopens READY configuration. Tail hits
+request their sample at nominal tail time even when judgement happened early.
+Missing candidates emit diagnostic silence; no browser audio resource is owned.
+
+Replay extensions use the same checked engine inbox and output span:
+
+```c
+uint32_t oe_session_replay_load(oe_handle engine, oe_handle session, uint64_t token, uint32_t bytes);
+uint32_t oe_session_replay_export(oe_handle engine, oe_handle session, uintptr_t output);
+uint32_t oe_session_replay_seek(oe_handle engine, oe_handle session, double time_ms, uintptr_t output);
+```
+
+Load requires a fresh READY session with no queued/recorded input. It validates
+checksum, complete profile/raw/prepared identity and every frame before publishing.
+Export requires terminal state and writes replay v2 with rules version 1.
+All frames have flags=0 and represent actual input/judgement/pause times. The recorded final digest is metadata for consumers to compare with
+recomputed results, not an authenticity claim. Seek restores the READY checkpoint
+and resimulates; it suppresses historical output and increments the output epoch.
+Seek cost is proportional to events before the target, not elapsed milliseconds.
+
+The WASM host must now provide `odin_env.pow` alongside the existing math/import
+functions, because production scoring is linked. Browser rendering, audio loops,
+asset loading and synchronized playback remain M3. Whole-scenario upstream gates
+are tracked separately in the [M2 integration report](../implementation/m2-sessions.md).

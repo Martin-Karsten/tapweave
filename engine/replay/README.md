@@ -1,8 +1,8 @@
 # Independent replay primitives
 
-These internal Odin APIs accept explicit typed inputs; they do not advertise a
-production replay capability or implement gameplay recording/checkpoints yet.
-M1 prepared identity and the complete M2 session must be integrated first.
+These Odin APIs accept explicit typed inputs. The [M2 session transport](../../docs/implementation/m2-sessions.md)
+now connects them to prepared identity, recording, playback and initial-checkpoint
+resimulation. Rules version 1 is shared by primitive and session APIs.
 
 `validate_identity` requires supported version/profile/coordinate fields, rate 1,
 finite offsets and exact expected identity. Ruleset is fixed to osu and mods are
@@ -14,8 +14,10 @@ actions/flags. Offsets are metadata and never reapplied to stored frames.
 last equal-time frame, interpolates position only and holds actions. Before the
 first frame position uses that frame with released actions; after the last it
 holds position/actions. Dispatch each equal-time edge independently of sampling.
-Interpolation preserves subnormal timestamp differences and scales timestamps
-only when the interval between finite endpoints would overflow f64.
+Interpolation uses the pinned framework Vector2 operation order: elapsed time
+and duration narrow to f32 before division, and vector arithmetic remains f32.
+Subnormal durations can therefore become zero. Frame intervals that overflow f32
+are rejected transactionally rather than generating non-finite gameplay positions.
 
 ## Internal v2 serialization
 
@@ -45,6 +47,11 @@ writing destination records. Both borrow buffers and allocate nothing. Failed
 decode returns an empty view and leaves the destination unchanged. Limits are
 1,000,000 frames plus checked WASM32 size arithmetic.
 
-The final digest is supplied metadata until integrated simulation recomputes it;
-a checksum protects corruption, not authenticity. No legacy `.osr`, player,
-prepared-map adapter, verified gameplay playback, or checkpoint support is claimed.
+The final digest is supplied metadata; the integrated session computes its own
+judgement digest for comparison. A checksum protects corruption, not authenticity.
+No legacy `.osr` or upstream-certified whole-gameplay compatibility is claimed.
+
+Session recording stores ordinary frames at actual input and judgement timestamps,
+including exact-time pause release. Flags remain zero. No synthetic interpolation
+anchors are inserted. Complete recorder cadence/angular subdivision is still an
+acceptance gate.

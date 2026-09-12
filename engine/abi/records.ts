@@ -907,6 +907,555 @@ export const schema = {
           "u32"
         ]
       }
+    },
+    {
+      "name": "gameplay_create",
+      "kind": 18,
+      "size": 40,
+      "fields": {
+        "flags": [
+          8,
+          "u32"
+        ],
+        "reserved": [
+          12,
+          "u32"
+        ],
+        "arena_bytes": [
+          16,
+          "u64"
+        ],
+        "lead_in_ms": [
+          24,
+          "f64"
+        ],
+        "input_capacity": [
+          32,
+          "u32"
+        ],
+        "reserved_36": [
+          36,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "session_snapshot",
+      "kind": 19,
+      "size": 120,
+      "fields": {
+        "state": [
+          8,
+          "u32"
+        ],
+        "epoch": [
+          12,
+          "u32"
+        ],
+        "committed_ms": [
+          16,
+          "f64"
+        ],
+        "presentation_ms": [
+          24,
+          "f64"
+        ],
+        "score": [
+          32,
+          "u64"
+        ],
+        "accuracy": [
+          40,
+          "f64"
+        ],
+        "health": [
+          48,
+          "f64"
+        ],
+        "combo": [
+          56,
+          "u32"
+        ],
+        "highest_combo": [
+          60,
+          "u32"
+        ],
+        "objects_offset": [
+          64,
+          "u32"
+        ],
+        "objects_count": [
+          68,
+          "u32"
+        ],
+        "objects_stride": [
+          72,
+          "u32"
+        ],
+        "judgements_offset": [
+          76,
+          "u32"
+        ],
+        "judgements_count": [
+          80,
+          "u32"
+        ],
+        "judgements_stride": [
+          84,
+          "u32"
+        ],
+        "batch_token": [
+          88,
+          "u64"
+        ],
+        "total_bytes": [
+          96,
+          "u64"
+        ],
+        "audio_offset": [
+          104,
+          "u32"
+        ],
+        "audio_count": [
+          108,
+          "u32"
+        ],
+        "audio_stride": [
+          112,
+          "u32"
+        ],
+        "reserved": [
+          116,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "session_object",
+      "kind": 20,
+      "size": 64,
+      "fields": {
+        "object_id": [
+          8,
+          "u32"
+        ],
+        "result": [
+          12,
+          "u32"
+        ],
+        "head_result": [
+          16,
+          "u32"
+        ],
+        "tracking": [
+          20,
+          "u32"
+        ],
+        "result_time_ms": [
+          24,
+          "f64"
+        ],
+        "head_time_ms": [
+          32,
+          "f64"
+        ],
+        "rotation": [
+          40,
+          "f64"
+        ],
+        "position_x": [
+          48,
+          "f64"
+        ],
+        "position_y": [
+          56,
+          "f64"
+        ]
+      }
+    },
+    {
+      "name": "judgement",
+      "kind": 21,
+      "size": 80,
+      "fields": {
+        "sequence": [
+          8,
+          "u64"
+        ],
+        "time_ms": [
+          16,
+          "f64"
+        ],
+        "object_id": [
+          24,
+          "u32"
+        ],
+        "component_id": [
+          28,
+          "u32"
+        ],
+        "result": [
+          32,
+          "u32"
+        ],
+        "cause": [
+          36,
+          "u32"
+        ],
+        "offset_ms": [
+          40,
+          "f64"
+        ],
+        "combo_before": [
+          48,
+          "u32"
+        ],
+        "combo_after": [
+          52,
+          "u32"
+        ],
+        "health_before": [
+          56,
+          "f64"
+        ],
+        "health_after": [
+          64,
+          "f64"
+        ],
+        "score_after": [
+          72,
+          "u64"
+        ]
+      }
+    },
+    {
+      "name": "clock_anchor",
+      "kind": 22,
+      "size": 40,
+      "fields": {
+        "beatmap_ms": [
+          8,
+          "f64"
+        ],
+        "audio_seconds": [
+          16,
+          "f64"
+        ],
+        "rate": [
+          24,
+          "f64"
+        ],
+        "flags": [
+          32,
+          "u32"
+        ],
+        "reserved": [
+          36,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "input_snapshot",
+      "kind": 23,
+      "size": 64,
+      "fields": {
+        "sequence": [
+          8,
+          "u64"
+        ],
+        "raw_time_ms": [
+          16,
+          "f64"
+        ],
+        "effective_time_ms": [
+          24,
+          "f64"
+        ],
+        "x": [
+          32,
+          "f64"
+        ],
+        "y": [
+          40,
+          "f64"
+        ],
+        "action_bits": [
+          48,
+          "u32"
+        ],
+        "source_focus": [
+          52,
+          "u32"
+        ],
+        "flags": [
+          56,
+          "u32"
+        ],
+        "reserved": [
+          60,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "final_result",
+      "kind": 24,
+      "size": 232,
+      "fields": {
+        "state": [
+          8,
+          "u32"
+        ],
+        "rank": [
+          12,
+          "u32"
+        ],
+        "terminal_ms": [
+          16,
+          "f64"
+        ],
+        "score": [
+          24,
+          "u64"
+        ],
+        "accuracy": [
+          32,
+          "f64"
+        ],
+        "health": [
+          40,
+          "f64"
+        ],
+        "numerator": [
+          48,
+          "u64"
+        ],
+        "denominator": [
+          56,
+          "u64"
+        ],
+        "combo": [
+          64,
+          "u32"
+        ],
+        "highest_combo": [
+          68,
+          "u32"
+        ],
+        "raw_digest_0": [
+          72,
+          "u64"
+        ],
+        "raw_digest_1": [
+          80,
+          "u64"
+        ],
+        "raw_digest_2": [
+          88,
+          "u64"
+        ],
+        "raw_digest_3": [
+          96,
+          "u64"
+        ],
+        "prepared_digest_0": [
+          104,
+          "u64"
+        ],
+        "prepared_digest_1": [
+          112,
+          "u64"
+        ],
+        "prepared_digest_2": [
+          120,
+          "u64"
+        ],
+        "prepared_digest_3": [
+          128,
+          "u64"
+        ],
+        "judgement_digest_0": [
+          136,
+          "u64"
+        ],
+        "judgement_digest_1": [
+          144,
+          "u64"
+        ],
+        "judgement_digest_2": [
+          152,
+          "u64"
+        ],
+        "judgement_digest_3": [
+          160,
+          "u64"
+        ],
+        "counts_offset": [
+          168,
+          "u32"
+        ],
+        "counts_count": [
+          172,
+          "u32"
+        ],
+        "counts_stride": [
+          176,
+          "u32"
+        ],
+        "behavior_id": [
+          180,
+          "u32"
+        ],
+        "rules_version": [
+          184,
+          "u32"
+        ],
+        "abi_major": [
+          188,
+          "u32"
+        ],
+        "rate": [
+          192,
+          "f64"
+        ],
+        "offset_0": [
+          200,
+          "f64"
+        ],
+        "offset_1": [
+          208,
+          "f64"
+        ],
+        "offset_2": [
+          216,
+          "f64"
+        ],
+        "offset_3": [
+          224,
+          "f64"
+        ]
+      }
+    },
+    {
+      "name": "simulation_capabilities",
+      "kind": 25,
+      "size": 24,
+      "fields": {
+        "simulation_version": [
+          8,
+          "u32"
+        ],
+        "rules_version": [
+          12,
+          "u32"
+        ],
+        "flags": [
+          16,
+          "u32"
+        ],
+        "max_inputs": [
+          20,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "result_count",
+      "kind": 26,
+      "size": 24,
+      "fields": {
+        "result": [
+          8,
+          "u32"
+        ],
+        "actual": [
+          12,
+          "u32"
+        ],
+        "maximum": [
+          16,
+          "u32"
+        ],
+        "reserved": [
+          20,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "audio_event",
+      "kind": 27,
+      "size": 64,
+      "fields": {
+        "sequence": [
+          8,
+          "u64"
+        ],
+        "epoch": [
+          16,
+          "u32"
+        ],
+        "flags": [
+          20,
+          "u32"
+        ],
+        "time_ms": [
+          24,
+          "f64"
+        ],
+        "asset_id": [
+          32,
+          "u64"
+        ],
+        "volume": [
+          40,
+          "f64"
+        ],
+        "object_id": [
+          48,
+          "u32"
+        ],
+        "component_id": [
+          52,
+          "u32"
+        ],
+        "sample_index": [
+          56,
+          "u32"
+        ],
+        "kind": [
+          60,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "sample_binding",
+      "kind": 28,
+      "size": 32,
+      "fields": {
+        "object_id": [
+          8,
+          "u32"
+        ],
+        "component_id": [
+          12,
+          "u32"
+        ],
+        "sample_index": [
+          16,
+          "u32"
+        ],
+        "candidate_index": [
+          20,
+          "u32"
+        ],
+        "asset_id": [
+          24,
+          "u64"
+        ]
+      }
     }
   ]
 } as const;

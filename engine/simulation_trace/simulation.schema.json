@@ -30,7 +30,8 @@
           "codec",
           "drain",
           "inputs",
-          "queue_overlap"
+          "queue_overlap",
+          "slider_position"
         ]
       },
       "values": {
@@ -235,6 +236,24 @@
             }
           }
         }
+      },
+      {
+        "if": {
+          "properties": {
+            "kind": {
+              "const": "slider_position"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "values": {
+              "items": {
+                "$ref": "#/$defs/replay"
+              }
+            }
+          }
+        }
       }
     ]
   },
@@ -251,7 +270,8 @@
         "increases_combo",
         "breaks_combo",
         "tick",
-        "bonus"
+        "bonus",
+        "minimum"
       ],
       "additionalProperties": false,
       "properties": {
@@ -284,6 +304,9 @@
         },
         "bonus": {
           "type": "boolean"
+        },
+        "minimum": {
+          "type": "number"
         }
       }
     },
@@ -512,7 +535,8 @@
       "increases_combo": "boolean",
       "breaks_combo": "boolean",
       "tick": "boolean",
-      "bonus": "boolean"
+      "bonus": "boolean",
+      "minimum": "number"
     },
     "score": {
       "total": "number",
@@ -561,6 +585,11 @@
       "status": "string",
       "record_index": "number",
       "queued_count": "number"
+    },
+    "slider_position": {
+      "x": "number",
+      "y": "number",
+      "action_bits": "number"
     }
   }
 }

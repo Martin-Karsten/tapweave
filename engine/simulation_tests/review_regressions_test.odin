@@ -108,7 +108,7 @@ event_overlap_rejection_preserves_heap_and_outputs :: proc(test: ^testing.T) {
 }
 
 @(test)
-replay_interpolation_preserves_subnormal_and_extreme_intervals :: proc(test: ^testing.T) {
+replay_interpolation_uses_framework_float_time :: proc(test: ^testing.T) {
 	smallest_positive := transmute(f64)u64(1)
 	largest_finite := transmute(f64)u64(0x7fef_ffff_ffff_ffff)
 	intervals := [][2]f64 {
@@ -120,7 +120,7 @@ replay_interpolation_preserves_subnormal_and_extreme_intervals :: proc(test: ^te
 	}
 	sample_times := []f64{smallest_positive, -2 * smallest_positive, 0, 0, 200}
 
-	expected_positions := []f64{100, 100, 150, 150, 100}
+	expected_positions := []f64{0, 0, 0, 0, 100}
 
 	for interval, interval_index in intervals {
 		frames := []core_types.Input_Snapshot {
@@ -130,6 +130,10 @@ replay_interpolation_preserves_subnormal_and_extreme_intervals :: proc(test: ^te
 		frames[1].x = 300
 		frames[1].y = -300
 		status, _ := replay.validate_frames(frames)
+		if interval_index == 3 {
+			testing.expect_value(test, status, core_types.Status.INVALID_ARGUMENT)
+			continue
+		}
 		testing.expect_value(test, status, core_types.Status.OK)
 		sampled_frame: core_types.Input_Snapshot
 		{

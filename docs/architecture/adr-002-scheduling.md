@@ -35,3 +35,23 @@ Native/WASM and rendering rates can match exactly. Some slider tracking transiti
 ## Acceptance
 
 Run every replay at direct-final advance, 30/60/120/144 Hz and with 50/100/250 ms stalls. Judgement/audio-intent/final digests are byte-identical within Odin. Equal-time and late-input fixtures prove phase order and no mutation on rejection.
+
+## M2 session implementation
+
+The implementation must follow the decisions above. Input equal to committed time
+is admitted; only earlier input is late. Pause releases actions at the requested
+time before scheduled judgements and retains queued future inputs. It must not
+shift input to adjacent floating-point timestamps or change replay interpolation
+to make live/replay comparisons pass.
+
+The session recorder stores ordinary frames at actual input and judgement times,
+with release-all at pause time. Replay positions use the pinned framework's
+`Vector2` interpolation precision. Full recorder sampling/subdivision and
+whole-drawable schedule comparisons remain acceptance gates; local round trips
+are not evidence of upstream compatibility.
+
+Circle miss deadlines encode the strict hit-window comparison using the first
+representable timestamp outside the window. Health integration and slider/spinner
+sampling follow the event-driven design above, but their whole-session agreement
+with the pinned player remains unverified. These are implementation claims to
+validate, not additional gameplay rules or accepted compatibility divergences.

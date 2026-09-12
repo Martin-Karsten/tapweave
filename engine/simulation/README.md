@@ -16,3 +16,10 @@ are reused, while the last accepted sequence/time remain the admission boundary.
 Future records stay queued. Event drains pop only complete events that fit;
 `OUTPUT_REQUIRED` retains the remaining events for a retry. The session must
 dispatch all events through its target before committing that target time.
+
+## Integrated sessions
+
+`session.odin` consumes immutable prepared maps and owns no browser resources.
+Its mutable slices borrow the runtime-owned creation arena; sessions must not be
+copied. See the [M2 session report](../../docs/implementation/m2-sessions.md) for
+production APIs, event/recording policy, tests and remaining acceptance gates.

@@ -71,7 +71,7 @@ Exit criteria: A08–A11 pass on generated and upstream corpus; H03/H04 resolved
 
 ### M2 — Complete unmodded simulation and scoring
 
-Status: [independent primitives implemented](implementation/m2.md); full gameplay remains open.
+Status: [independent primitives](implementation/m2.md) and [headless session integration](implementation/m2-sessions.md) are implemented. Full upstream M2 acceptance remains open.
 Implementation sequence: [M2 plan](implementation/m2-plan.md).
 
 Prerequisites: M1 objects/schedules and result tables.

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include "gameplay_abi.h"
 int main(void) {
     unsigned char *base=(unsigned char *)oe_abi_control();
     oe_handle *handle_output=(oe_handle *)(base+256);
@@ -67,12 +68,16 @@ int main(void) {
     assert(object->kind==1 && object->samples_count==1);
     assert(oe_session_release(engine,session)==0);
     assert(oe_engine_release(engine)==0);
+    unsigned char gameplay_result[2048];
+    uint32_t gameplay_byte_count=gameplay_native_probe(gameplay_result);
     printf("{\"capabilities\":[");
     for(unsigned value_index=0;value_index<16;value_index++)printf("%s%u",value_index?",":"",capabilities[value_index]);
     printf("],\"statuses\":[");
     for(unsigned value_index=0;value_index<status_count;value_index++)printf("%s%u",value_index?",":"",statuses[value_index]);
     printf("],\"error\":[");
     for(unsigned value_index=0;value_index<16;value_index++)printf("%s%u",value_index?",":"",error_record[value_index]);
+    printf("],\"gameplay\":[");
+    for(uint32_t byte_index=0;byte_index<gameplay_byte_count;byte_index++)printf("%s%u",byte_index?",":"",gameplay_result[byte_index]);
     puts("]}");
     return 0;
 }

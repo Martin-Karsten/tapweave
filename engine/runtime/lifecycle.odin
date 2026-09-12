@@ -4,6 +4,7 @@ import core_types "../core_types"
 import beatmap_decode "../beatmap_decode"
 import osu_prepare "../osu_prepare"
 import prepared "../prepared"
+import simulation "../simulation"
 import "core:mem"
 import "core:math"
 
@@ -33,6 +34,13 @@ Session :: struct {
 	map_storage: ^Map_Resource,
 	arena: core_types.Arena,
 	lead_in_ms: f64,
+	gameplay: bool,
+	simulation: simulation.Session,
+	output: []byte,
+	input_candidate: []core_types.Input_Snapshot,
+	output_token: u64,
+	output_judgement_count: int,
+	output_audio_count: int,
 }
 
 instance_create :: proc(
@@ -281,6 +289,8 @@ session_create :: proc(
 	engine, map_handle: core_types.Handle,
 	bytes: u64 = 4096,
 	lead_in_ms: f64 = 0,
+	gameplay: bool = false,
+	input_capacity: u64 = 4096,
 ) -> (
 	core_types.Handle,
 	core_types.Status,
@@ -313,6 +323,16 @@ session_create :: proc(
 	}
 	session_state.map_storage = map_resource
 	session_state.lead_in_ms = lead_in_ms
+	session_state.gameplay = gameplay
+	if gameplay {
+		if !map_resource.fully_prepared {
+			return 0, .INVALID_STATE
+		}
+		status = gameplay_initialize(session_state, input_capacity)
+		if status != .OK {
+			return 0, status
+		}
+	}
 	handle, inserted := insert(&instance.table, engine, .SESSION, session_state)
 	if inserted != .OK {
 		return 0, inserted
@@ -334,7 +354,20 @@ session_reset :: proc(
 	if math.is_nan(lead_in_ms) || math.is_inf(lead_in_ms) {
 		return .INVALID_ARGUMENT
 	}
-	core_types.arena_reset(&session_state.arena)
+	if session_state.gameplay {
+		if session_state.output_token == max(u64) {
+			return .QUOTA_EXCEEDED
+		}
+		status = simulation.reset_session(&session_state.simulation, lead_in_ms)
+		if status != .OK {
+			return status
+		}
+		session_state.output_token += 1
+		session_state.output_judgement_count = 0
+		session_state.output_audio_count = 0
+	} else {
+		core_types.arena_reset(&session_state.arena)
+	}
 	session_state.lead_in_ms = lead_in_ms
 	return .OK
 }

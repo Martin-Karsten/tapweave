@@ -2,6 +2,7 @@ package engine_runtime
 
 import "base:runtime"
 import core_types "../core_types"
+import simulation "../simulation"
 
 // ABI v2 M0 bootstrap mailbox: input [0,256), result [256,288), error
 // [320,384), read-only capability record [512,576). Addresses outside the
@@ -278,21 +279,30 @@ oe_session_create :: proc "c" (
 	if !abi_outputs(handle_output, error) {
 		return u32(core_types.Status.INVALID_ARGUMENT)
 	}
-	status := abi_record(creation_info, ABI_SESSION_CREATE_KIND, ABI_SESSION_CREATE_SIZE)
+	gameplay := creation_info == abi_base() && get_u32(abi_storage.bytes[:], ABI_RECORD_KIND_OFFSET) == ABI_GAMEPLAY_CREATE_KIND | 1 << 16
+	kind := gameplay ? ABI_GAMEPLAY_CREATE_KIND : ABI_SESSION_CREATE_KIND
+	size := gameplay ? ABI_GAMEPLAY_CREATE_SIZE : ABI_SESSION_CREATE_SIZE
+	status := abi_record(creation_info, u32(kind), u32(size))
 	if status != .OK {
 		return abi_status(status)
 	}
 	bytes := abi_storage.bytes[:ABI_INPUT_SIZE]
-	if get_u32(bytes, ABI_SESSION_CREATE_FLAGS_OFFSET) != 1 ||
-	   get_u32(bytes, ABI_SESSION_CREATE_RESERVED_OFFSET) != 0 {
+	expected_flags := gameplay ? u32(2) : u32(1)
+	if get_u32(bytes, ABI_SESSION_CREATE_FLAGS_OFFSET) != expected_flags || get_u32(bytes, ABI_SESSION_CREATE_RESERVED_OFFSET) != 0 {
 		return abi_status(.UNSUPPORTED)
 	}
+	input_capacity: u64 = 4096
+	if gameplay {
+		if get_u32(bytes, ABI_GAMEPLAY_CREATE_RESERVED_36_OFFSET) != 0 {
+			return abi_status(.INVALID_ARGUMENT)
+		}
+		input_capacity = u64(get_u32(bytes, ABI_GAMEPLAY_CREATE_INPUT_CAPACITY_OFFSET))
+	}
 	handle, created := session_create(
-		&abi_instance,
-		engine,
-		map_handle,
+		&abi_instance, engine, map_handle,
 		get_u64(bytes, ABI_SESSION_CREATE_ARENA_BYTES_OFFSET),
-		transmute(f64)get_u64(bytes, ABI_SESSION_CREATE_LEAD_IN_MS_OFFSET),
+		get_f64(bytes, ABI_SESSION_CREATE_LEAD_IN_MS_OFFSET),
+		gameplay, input_capacity,
 	)
 	if created == .OK {
 		put_u64(abi_storage.bytes[:], ABI_OUTPUT_OFFSET, u64(handle))
@@ -331,57 +341,132 @@ oe_session_release :: proc "c" (engine, session: core_types.Handle) -> u32 {
 }
 
 @(export)
-oe_session_inputs :: proc "c" (engine, session: core_types.Handle, records: uintptr, error: uintptr) -> u32 {
+oe_session_inputs :: proc "c" (engine, session_handle: core_types.Handle, records: uintptr, error: uintptr) -> u32 {
 	context = runtime.default_context()
-	_, status := session_get(&abi_instance, engine, session)
-	return abi_status(status == .OK ? .UNSUPPORTED : status)
+	session, status := gameplay_get(engine, session_handle)
+	if status != .OK {
+		return abi_status(status)
+	}
+	if records != abi_base() || error != abi_base() + ABI_ERROR_OFFSET {
+		return u32(core_types.Status.INVALID_ARGUMENT)
+	}
+	bytes := abi_storage.bytes[:ABI_INPUT_SIZE]
+	engine_state, _ := engine_get(&abi_instance, engine)
+	if get_u64(bytes, ABI_BYTE_SPAN_ADDRESS_OFFSET) != u64(uintptr(raw_data(engine_state.inbox.bytes))) || get_u32(bytes, ABI_BYTE_SPAN_RESERVED_OFFSET) != 0 {
+		return abi_status(.INVALID_ARGUMENT)
+	}
+	byte_count := get_u32(bytes, ABI_BYTE_SPAN_COUNT_OFFSET)
+	if byte_count % ABI_INPUT_SNAPSHOT_SIZE != 0 {
+		return abi_status(.INVALID_ARGUMENT)
+	}
+	return abi_status(gameplay_inputs(engine, session, get_u64(bytes, ABI_BYTE_SPAN_TOKEN_OFFSET), 0, byte_count / ABI_INPUT_SNAPSHOT_SIZE))
 }
 
 @(export)
-oe_session_inputs_from_reserved :: proc "c" (
-	engine, session: core_types.Handle,
-	token: u64,
-	count: u32,
-	error: uintptr,
-) -> u32 {
+oe_session_inputs_from_reserved :: proc "c" (engine, session_handle: core_types.Handle, token: u64, count: u32, error: uintptr) -> u32 {
 	context = runtime.default_context()
-	_, status := session_get(&abi_instance, engine, session)
-	return abi_status(status == .OK ? .UNSUPPORTED : status)
+	session, status := gameplay_get(engine, session_handle)
+	if status != .OK {
+		return abi_status(status)
+	}
+	if error != abi_base() + ABI_ERROR_OFFSET {
+		return u32(core_types.Status.INVALID_ARGUMENT)
+	}
+	return abi_status(gameplay_inputs(engine, session, token, 0, count))
 }
 
 @(export)
-oe_session_advance :: proc "c" (engine, session: core_types.Handle, target_ms: f64, output: uintptr) -> u32 {
+oe_session_advance :: proc "c" (engine, session_handle: core_types.Handle, time_ms: f64, output: uintptr) -> u32 {
 	context = runtime.default_context()
-	_, status := session_get(&abi_instance, engine, session)
-	return abi_status(status == .OK ? .UNSUPPORTED : status)
+	session, status := gameplay_get(engine, session_handle)
+	if status != .OK {
+		return abi_status(status)
+	}
+	if output != abi_base() + ABI_OUTPUT_OFFSET || !core_types.finite(time_ms) {
+		return abi_status(.INVALID_ARGUMENT)
+	}
+	if session.output_token == max(u64) {
+		return abi_status(.QUOTA_EXCEEDED)
+	}
+	status = simulation.advance_session(&session.simulation, time_ms)
+	if status != .OK {
+		return abi_status(status)
+	}
+	return abi_status(gameplay_snapshot(session, time_ms))
 }
 
 @(export)
-oe_session_snapshot :: proc "c" (engine, session: core_types.Handle, time_ms: f64, output: uintptr) -> u32 {
+oe_session_snapshot :: proc "c" (engine, session_handle: core_types.Handle, time_ms: f64, output: uintptr) -> u32 {
 	context = runtime.default_context()
-	_, status := session_get(&abi_instance, engine, session)
-	return abi_status(status == .OK ? .UNSUPPORTED : status)
+	session, status := gameplay_get(engine, session_handle)
+	if status != .OK {
+		return abi_status(status)
+	}
+	if output != abi_base() + ABI_OUTPUT_OFFSET || !core_types.finite(time_ms) {
+		return abi_status(.INVALID_ARGUMENT)
+	}
+	if session.output_token == max(u64) {
+		return abi_status(.QUOTA_EXCEEDED)
+	}
+	status = .OK
+	if status != .OK {
+		return abi_status(status)
+	}
+	return abi_status(gameplay_snapshot(session, time_ms))
 }
 
 @(export)
-oe_session_pause :: proc "c" (engine, session: core_types.Handle, time_ms: f64, output: uintptr) -> u32 {
+oe_session_pause :: proc "c" (engine, session_handle: core_types.Handle, time_ms: f64, output: uintptr) -> u32 {
 	context = runtime.default_context()
-	_, status := session_get(&abi_instance, engine, session)
-	return abi_status(status == .OK ? .UNSUPPORTED : status)
+	session, status := gameplay_get(engine, session_handle)
+	if status != .OK {
+		return abi_status(status)
+	}
+	if output != abi_base() + ABI_OUTPUT_OFFSET || !core_types.finite(time_ms) {
+		return abi_status(.INVALID_ARGUMENT)
+	}
+	if session.output_token == max(u64) {
+		return abi_status(.QUOTA_EXCEEDED)
+	}
+	status = simulation.pause_session(&session.simulation, time_ms)
+	if status != .OK {
+		return abi_status(status)
+	}
+	return abi_status(gameplay_snapshot(session, time_ms))
 }
 
 @(export)
-oe_session_resume :: proc "c" (engine, session: core_types.Handle, anchor: uintptr) -> u32 {
+oe_session_resume :: proc "c" (engine, session_handle: core_types.Handle, anchor: uintptr) -> u32 {
 	context = runtime.default_context()
-	_, status := session_get(&abi_instance, engine, session)
-	return abi_status(status == .OK ? .UNSUPPORTED : status)
+	session, status := gameplay_get(engine, session_handle)
+	if status != .OK {
+		return abi_status(status)
+	}
+	status = abi_record(anchor, ABI_CLOCK_ANCHOR_KIND, ABI_CLOCK_ANCHOR_SIZE)
+	if status != .OK {
+		return abi_status(status)
+	}
+	bytes := abi_storage.bytes[:ABI_INPUT_SIZE]
+	if get_f64(bytes, ABI_CLOCK_ANCHOR_RATE_OFFSET) != 1 || get_u32(bytes, ABI_CLOCK_ANCHOR_FLAGS_OFFSET) != 0 || get_u32(bytes, ABI_CLOCK_ANCHOR_RESERVED_OFFSET) != 0 {
+		return abi_status(.UNSUPPORTED)
+	}
+	if !core_types.finite(get_f64(bytes, ABI_CLOCK_ANCHOR_AUDIO_SECONDS_OFFSET)) {
+		return abi_status(.INVALID_ARGUMENT)
+	}
+	return abi_status(simulation.resume_session(&session.simulation, get_f64(bytes, ABI_CLOCK_ANCHOR_BEATMAP_MS_OFFSET)))
 }
 
 @(export)
-oe_session_result :: proc "c" (engine, session: core_types.Handle, output: uintptr) -> u32 {
+oe_session_result :: proc "c" (engine, session_handle: core_types.Handle, output: uintptr) -> u32 {
 	context = runtime.default_context()
-	_, status := session_get(&abi_instance, engine, session)
-	return abi_status(status == .OK ? .UNSUPPORTED : status)
+	session, status := gameplay_get(engine, session_handle)
+	if status != .OK {
+		return abi_status(status)
+	}
+	if output != abi_base() + ABI_OUTPUT_OFFSET {
+		return abi_status(.INVALID_ARGUMENT)
+	}
+	return abi_status(gameplay_result(session))
 }
 
 @(export)

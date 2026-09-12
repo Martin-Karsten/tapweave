@@ -13,8 +13,8 @@ behavior. Other rulesets, mods, skins, storyboards, difficulty/pp, legacy replay
 containers, accounts, networking, editing, and score submission are outside the
 current implementation scope unless the task explicitly expands it.
 
-The repository implements M0 foundation and M1 preparation; gameplay is not yet
-implemented. Read `docs/status.md` for actual coverage
+The repository implements M0 foundation, M1 preparation and headless M2 session
+integration; browser gameplay and full upstream M2 acceptance remain open. Read `docs/status.md` for actual coverage
 and remaining gates; do not treat planned packages or interfaces as implemented.
 
 ## Read before changing behavior

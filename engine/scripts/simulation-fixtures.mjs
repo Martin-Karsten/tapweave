@@ -92,6 +92,14 @@ export function simulationFixtures() {
     id: 'round-midpoints', kind: 'round',
     values: [0, 0.5, 1.5, 2.5, 3.5, 399176.5, 399177.5, 1000000.5, adjacent(.5, -1), adjacent(.5, 1)],
   });
+  for (const spans of [1, 2, 3, 5]) {
+    fixtures.push({ id: `slider-position-${spans}`, kind: 'slider_position', spans,
+      targets: [-1, 0, 1 / 3, .99, 1, 1.01, spans - .01, spans, spans + 1] });
+  }
+  fixtures.push({ id: 'upstream-replay-interpolation', kind: 'replay',
+    frames: [[1000, 1 / 3, 0], [1100, 100.1, 1], [1100, 100.1, 2], [1200, 200.2, 0]].map(([time, x, action_bits], frameIndex) => ({
+      sequence: frameIndex + 1, raw_time_ms: time, effective_time_ms: time, x, y: 0, action_bits, source: 0, focus_epoch: 0, flags: 0,
+    })), targets: [900, 1000, 1000.001, 1033.333333333, 1099.99, 1100, 1150, 1200, 1300] });
   return fixtures;
 }
 
@@ -158,7 +166,6 @@ export function localSimulationFixtures() {
   for (const [id, startTime, endTime, sampleTime] of [
     ['subnormal-positive', 0, 3 * Number.MIN_VALUE, Number.MIN_VALUE],
     ['subnormal-negative', -3 * Number.MIN_VALUE, 0, -2 * Number.MIN_VALUE],
-    ['extreme-endpoints', -Number.MAX_VALUE, Number.MAX_VALUE, 0],
   ]) {
     fixtures.push({
       id: `replay-${id}`, kind: 'replay',

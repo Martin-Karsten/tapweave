@@ -1,4 +1,12 @@
 using System.Text.Json;
+using osuTK;
+using osu.Framework.Input.StateChanges;
+using osu.Game.Replays;
+using osu.Game.Rulesets.Objects.Types;
+using osu.Game.Rulesets.Osu;
+using osu.Game.Rulesets.Osu.Objects;
+using osu.Game.Rulesets.Osu.Replays;
+using osu.Game.Rulesets.Replays;
 using System.Reflection;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Timing;
@@ -32,6 +40,7 @@ static class SimulationObservation
                             {
                                 result = (int)result,
                                 base_score = processor.GetBaseScoreForResult(result),
+                                minimum = (int)new ExplicitJudgement(result).MinResult,
                                 hit = result.IsHit(),
                                 miss = result.IsMiss(),
                                 scorable = result.IsScorable(),
@@ -113,6 +122,34 @@ static class SimulationObservation
                         values.Add(new { drain_rate = processor.DrainRate });
                     }
                     break;
+                case "slider_position":
+                    var slider = new Slider {
+                        RepeatCount = fixture.GetProperty("spans").GetInt32() - 1,
+                        Path = new SliderPath(PathType.LINEAR, new[] { Vector2.Zero, new Vector2(100, 0) })
+                    };
+                    foreach (var targetElement in fixture.GetProperty("targets").EnumerateArray())
+                    {
+                        var position = slider.CurvePositionAt(Math.Clamp(targetElement.GetDouble() / (slider.RepeatCount + 1), 0, 1));
+                        values.Add(new { x = (double)position.X, y = (double)position.Y, action_bits = 0 });
+                    }
+                    break;
+                case "replay":
+                    var replay = new Replay();
+                    foreach (var frameElement in fixture.GetProperty("frames").EnumerateArray())
+                    {
+                        int actionBits = frameElement.GetProperty("action_bits").GetInt32();
+                        var actions = new List<OsuAction>();
+                        if ((actionBits & 1) != 0) actions.Add(OsuAction.LeftButton);
+                        if ((actionBits & 2) != 0) actions.Add(OsuAction.RightButton);
+                        replay.Frames.Add(new OsuReplayFrame(frameElement.GetProperty("effective_time_ms").GetDouble(),
+                            new Vector2(frameElement.GetProperty("x").GetSingle(), frameElement.GetProperty("y").GetSingle()), actions.ToArray()));
+                    }
+                    using (var handler = new ObservedReplayHandler(replay))
+                    {
+                        foreach (var targetElement in fixture.GetProperty("targets").EnumerateArray())
+                            values.Add(handler.Sample(targetElement.GetDouble()));
+                    }
+                    break;
                 case "round":
                     foreach (var scoreElement in fixture.GetProperty("values").EnumerateArray())
                     {
@@ -124,6 +161,26 @@ static class SimulationObservation
             observations.Add(new { schema_version = 1, id = fixture.GetProperty("id").GetString(), kind, values });
         }
         Console.WriteLine(JsonSerializer.Serialize(observations));
+    }
+    sealed class ObservedReplayHandler(Replay replay) : OsuFramedReplayInputHandler(replay)
+    {
+        public object Sample(double time)
+        {
+            GamefieldToScreenSpace = position => position;
+            // SetFrameFromTime can stop at each important frame, including
+            // equal-time action edges. Consume them before sampling the target.
+            for (int step = 0; step <= Frames.Count + 1; step++)
+            {
+                SetFrameFromTime(time);
+                if (CurrentTime == time && (NextFrame == null || NextFrame.Time > time)) break;
+            }
+            var inputs = new List<IInput>();
+            CollectReplayInputs(inputs);
+            var position = inputs.OfType<MousePositionAbsoluteInput>().Single().Position;
+            var actions = inputs.OfType<ReplayState<OsuAction>>().Single().PressedActions;
+            int actionBits = (actions.Contains(OsuAction.LeftButton) ? 1 : 0) | (actions.Contains(OsuAction.RightButton) ? 2 : 0);
+            return new { x = (double)position.X, y = (double)position.Y, action_bits = actionBits };
+        }
     }
     sealed class HealthJudgement(double amount) : Judgement
     {

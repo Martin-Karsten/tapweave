@@ -30,7 +30,7 @@ No arrow points from deterministic packages toward the browser, renderer, audio 
 | `osu_prepare` | osu! objects, control points, paths, stacking, children, samples | above |
 | `osu_rules` | hit policy, circle/slider/spinner transitions | `prepared`, `core_types` |
 | `scoring` | result tables, normalized score, health/failure | prepared/rule interfaces |
-| `simulation` | event queue, session state, input, checkpoints | rules/scoring/replay types |
+| `simulation` | event queue, session state, input, checkpoints | rules/scoring/replay types, `audio_protocol` |
 | `replay` | envelopes, frame validation/interpolation, digests | `core_types` |
 | `presentation` | time-derived visual/audio intent and draw list | prepared + readonly session snapshots |
 | `render_webgl` | shader/mesh batching and backend-neutral command generation | presentation only |

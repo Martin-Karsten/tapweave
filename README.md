@@ -6,7 +6,7 @@ Tapweave is an independent project, not affiliated with or endorsed by osu! or p
 
 ## Status
 
-M0 (decoder, control points and lifecycle) and M1 (complete beatmap preparation) are implemented and tested against pinned upstream behavior. The engine prepares paths, object schedules, samples, combo and stacking, and exposes immutable maps through ABI v2. Gameplay, rendering and audio playback are next; the app is not yet playable.
+M0 (decoder, control points and lifecycle) and M1 (complete beatmap preparation) are implemented and tested against pinned upstream behavior. The engine prepares paths, object schedules, samples, combo and stacking, and exposes immutable maps through ABI v2. Headless gameplay sessions now integrate rules, score/health, replay and snapshots. Browser rendering and audio playback are next; the app is not yet playable.
 
 See [implementation status and evidence](docs/status.md), the [roadmap](docs/roadmap.md), and [architecture](docs/architecture/README.md).
 

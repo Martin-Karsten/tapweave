@@ -60,3 +60,30 @@ JSON. A dedicated protocol writer and fixed golden protect identity from private
 Odin field names/order and serializer implementation changes. This deliberately
 changes the preparation profile; it does not claim new gameplay compatibility.
 See the [binary contract](interface-v2.md#m1-prepared-map-transport).
+
+## M2 headless session transport
+
+Gameplay uses a separate `GameplayCreateV1` (kind 18, flag 2) passed to
+`oe_session_create`, requiring a fully prepared map. Kind 3/flag 1 retains its
+foundation behavior. `oe_simulation_capabilities` advertises headless session
+version 1 and recording/rules version 1 separately; the old aggregate gameplay
+field stays zero because the complete browser capability set is not available.
+Kinds 19–28 concretize snapshots, judgements, anchors, inputs, final results,
+capabilities, counts, one-shot audio intent and sample availability.
+
+Creation reserves the entire bounded judgement journal, component/object state,
+schedule, input ring, recording, sample availability, audio journal and output
+storage. `arena_bytes` is a caller-selected budget subject to the engine quota;
+insufficient space fails creation transactionally. Since each scoring component
+can produce at most one result, reserving the whole journal avoids partial
+transition/output overflow. Acknowledgement advances read cursors, not simulation.
+Snapshots return all unacknowledged events with a session-scoped batch token;
+repeated snapshots do not generate new events. Reset invalidates batch tokens.
+
+JavaScript reports candidate asset availability by prepared object/component/sample
+and candidate ordinal. Odin chooses the first available candidate in the prepared
+ordering. Availability is frozen on first advance/replay load. Zero selected asset
+means an explicit missing-sample diagnostic and silence. Browser playback, loops,
+voice rendering and WebGL command generation remain M3.
+
+See [the concrete M2 contract](interface-v2.md#m2-headless-session-transport).
