@@ -55,7 +55,7 @@ fade_in :: proc(object: ^prepared.Object, time_ms: f64) -> f64 {
 	if object.fade_in_ms <= 0 {
 		return 1
 	}
-	return clamp((time_ms - (object.time_ms - object.preempt_ms)) / object.fade_in_ms, 0, 1)
+	return f64(f32(clamp((time_ms - (object.time_ms - object.preempt_ms)) / object.fade_in_ms, 0, 1)))
 }
 
 number :: proc(builder: ^Builder, displayed_number: u64, position: prepared.Position, size: f64,
@@ -90,16 +90,22 @@ circle :: proc(builder: ^Builder, object: ^prepared.Object, result: core_types.H
 		if core_types.result_properties(result).hit {
 			// MainCirclePiece hides the circle/number after its 40 ms flash and
 			// expands to 1.5 over 400 ms with OutQuad. Drawable lifetime is separate.
+			growth := f64(clamp(f32(elapsed_ms) / f32(400), 0, 1))
+			scale := f64(f32(1) + f32(growth * (2 - growth)) * f32(0.5))
 			if elapsed_ms < 40 {
-				shape(builder, .DISC, 20, object.id, component_id, 0, position, object.radius, alpha, OBJECT_COLOUR)
+				shape(builder, .DISC, 20, object.id, component_id, 0, position, object.radius * scale, alpha, OBJECT_COLOUR)
+				shape(builder, .RING, 20, object.id, component_id, 1, position, object.radius * scale, alpha, WHITE_COLOUR)
+				number(builder, u64(max(0, object.index_in_combo) + 1), position - prepared.Position{object.radius * scale / 4, object.radius * scale / 4},
+					object.radius * scale / 2, 20, object.id, component_id, 2, WHITE_COLOUR, alpha)
 			}
-			growth := clamp(elapsed_ms / 400, 0, 1)
-			scale := 1 + 0.5 * (1 - (1 - growth) * (1 - growth))
-			feedback_alpha := elapsed_ms < 800 ? 1 - clamp((elapsed_ms - 40) / 800, 0, 1) : 0
+			feedback_alpha := elapsed_ms < 800 ? f64(f32(1 - clamp((elapsed_ms - 40) / 800, 0, 1))) * alpha : 0
 			shape(builder, .RING, 40, object.id, component_id, 0, position, object.radius * scale, feedback_alpha, WHITE_COLOUR)
 		} else {
-			alpha *= 1 - clamp(elapsed_ms / 100, 0, 1)
+			alpha *= f64(f32(1 - clamp(elapsed_ms / 100, 0, 1)))
 			shape(builder, .DISC, 20, object.id, component_id, 0, position, object.radius, alpha, MISS_COLOUR)
+			shape(builder, .RING, 20, object.id, component_id, 1, position, object.radius, alpha, WHITE_COLOUR)
+			number(builder, u64(max(0, object.index_in_combo) + 1), position - prepared.Position{object.radius / 4, object.radius / 4},
+				object.radius / 2, 20, object.id, component_id, 2, WHITE_COLOUR, alpha)
 		}
 		return
 	}

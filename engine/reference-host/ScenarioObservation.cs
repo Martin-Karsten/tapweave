@@ -27,6 +27,7 @@ using osu.Game.Rulesets.Osu.Beatmaps;
 using osu.Game.Rulesets.Osu.Objects;
 using osu.Game.Rulesets.Osu.Objects.Drawables;
 using osu.Game.Rulesets.Osu.Scoring;
+using osu.Game.Rulesets.Osu.Skinning.Default;
 using osu.Game.Rulesets.Osu.UI;
 using osu.Game.Skinning;
 using osuTK;
@@ -53,7 +54,9 @@ static class ScenarioObservation
             fixture.id,
             fixture.schedule_ms,
             adapter = "controlled-drawable-input",
+            clock_rate = game.ClockRate,
             judgements = game.Judgements,
+            audio = game.AudioEvents,
             frames = game.Frames,
             sample_requests = game.SampleRequests,
             summary = game.Summary
@@ -63,7 +66,7 @@ static class ScenarioObservation
 
 sealed record ScenarioInput(double time_ms, float x, float y, uint actions);
 sealed record ScenarioFixture(int schema_version, string id, string profile, string map,
-    double[] schedule_ms, ScenarioInput[] inputs, bool replay = false, bool capture_frames = true, bool record = false)
+    double[] schedule_ms, ScenarioInput[] inputs, bool replay = false, bool capture_frames = true, bool record = false, bool observe_audio = false)
 {
     public static ScenarioFixture Parse(byte[] bytes)
     {
@@ -92,6 +95,9 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
     public List<object> Frames { get; } = new();
     public List<object> SampleRequests { get; } = new();
     private readonly HashSet<PausableSkinnableSound> observed_sample_requests = new();
+    public object[] AudioEvents => audio_observation?.Snapshot() ?? Array.Empty<object>();
+    public double ClockRate => scenario_clock.Rate;
+    private ScenarioAudioObservation? audio_observation;
     private readonly ManualClock scenario_clock = new() { Rate = 1, IsRunning = true };
     private readonly OsuScoreProcessor score_processor = new();
     private GameplayReplaySampler? replay_sampler;
@@ -172,7 +178,7 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
             Clock = new FramedClock(scenario_clock),
             UseParentInput = false,
             ShowVisualCursorGuide = false,
-            Child = new SkinProvidingContainer(null)
+            Child = new SkinProvidingContainer(fixture.observe_audio ? audio_observation = new ScenarioAudioObservation(() => scenario_clock.CurrentTime) : null)
             {
                 Child = new OsuInputManager(new OsuRuleset().RulesetInfo)
                 {
@@ -186,6 +192,10 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
     protected override void Update()
     {
         base.Update();
+        if (audio_observation != null)
+            for (int object_index = 0; object_index < drawables.Count; object_index++)
+                foreach (var entry in drawables[object_index].ChildrenOfType<PausableSkinnableSound>().Select((sound, sound_index) => (sound, sound_index)))
+                    audio_observation.Observe(entry.sound, object_index, entry.sound_index);
         // The previous update traversed children. Record their actual properties
         // before installing the next time/input; never calculate oracle visuals.
         if (frame_pending)
@@ -212,7 +222,30 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
                     lifetime_start = drawable.LifetimeStart,
                     lifetime_end = double.IsFinite(drawable.LifetimeEnd) ? (double?)drawable.LifetimeEnd : null,
                     approach_alpha = drawable is DrawableHitCircle circle ? (float?)circle.ApproachCircle.Alpha : null,
-                    approach_scale = drawable is DrawableHitCircle approach_circle ? (float?)approach_circle.ApproachCircle.Scale.X : null
+                    approach_scale = drawable is DrawableHitCircle approach_circle ? (float?)approach_circle.ApproachCircle.Scale.X : null,
+                    circle_piece_alpha = drawable is DrawableHitCircle piece_circle ? (float?)piece_circle.CirclePiece.Alpha : null,
+                    main_circle = drawable.ChildrenOfType<MainCirclePiece>().Select(piece => new
+                    {
+                        alpha = piece.Alpha,
+                        scale = piece.Scale.X,
+                        circle_alpha = piece.ChildrenOfType<CirclePiece>().Single().Alpha,
+                        ring_alpha = piece.ChildrenOfType<RingPiece>().Single().Alpha,
+                        number_alpha = piece.ChildrenOfType<NumberPiece>().Single().Alpha,
+                        flash_alpha = piece.ChildrenOfType<FlashPiece>().Single().Alpha,
+                        explode_alpha = piece.ChildrenOfType<ExplodePiece>().Single().Alpha
+                    }).ToArray(),
+                    tracking = drawable is DrawableSlider slider ? (bool?)slider.Tracking.Value : null,
+                    spinner_progress = drawable is DrawableSpinner spinner ? (float?)spinner.Progress : null,
+                    sounds = drawable.ChildrenOfType<PausableSkinnableSound>().Select((sound, sound_index) => new
+                    {
+                        sound_index,
+                        requested_playing = sound.RequestedPlaying,
+                        looping = sound.Looping,
+                        volume = sound.Volume.Value,
+                        balance = sound.Balance.Value,
+                        frequency = sound.Frequency.Value,
+                        samples = sound.Samples.Select(sample => new { lookup_names = sample.LookupNames.ToArray(), volume = sample.Volume }).ToArray()
+                    }).ToArray()
                 }).ToArray()
             });
         }
@@ -256,6 +289,7 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
         replay_sampler?.Dispose();
         score_processor.Dispose();
         base.Dispose(is_disposing);
+        audio_observation?.Dispose();
         configuration?.Dispose();
         realm?.Dispose();
     }

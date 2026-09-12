@@ -91,15 +91,21 @@ required if a preceding component build left unwoven Realm types in cached outpu
 Do not replace the database-backed input manager to hide that failure. The host
 uses framework headless execution; it does not require a browser or display.
 
-Six bounded scenarios run at 30/60/144 Hz with 0/50/100/250 ms stalls. Live input
+Ten bounded scenarios run at 30/60/144 Hz with 0/50/100/250 ms stalls. The manual
+clock explicitly sets rate 1 and running state; the observed rate is asserted.
+Live input
 arrives at the first declared update at/after receipt. The upstream observation
 preserves that quantisation; Odin receives the original timestamped input.
 `artifacts/scenarios/` retains fixture, observation, comparison and execution logs;
 `reference/findings/m3-scenarios.json` retains their hashes and classifications.
 The runner records differences, rather than being an acceptance pass command.
 Selected comparisons cover ordered result/score/combo. Actual alpha/approach/
-lifetime fields are retained but not yet compared with Odin animation. Full
-Player health/failure, recorder/replay and sample/voice observation remain open.
+lifetime fields are retained, with separate circle comparison commands. Two audio
+families additionally use a declared first-candidate-available silent test skin.
+Actual channel play/stop and drawable-side parameter writes are retained in order;
+virtual channel aggregate adjustment snapshots are a distinct observation layer.
+Full Player health/failure, recorder/replay and sample fallback/lifecycle coverage
+remain open.
 The 72 component comparisons remain a separate command and evidence set.
 
 After generating scenario observations, `npm --prefix engine run compare:circle-draw`
@@ -113,7 +119,7 @@ open; this command does not substitute for them or rerun missing observations.
 `npm --prefix engine run compare:scenario-delivery` diagnoses input scheduling
 using the same hash-verified observations. In a separate local run it replaces
 input timestamps with the first declared upstream update at/after receipt. All
-72 runs then match ordered result/score/combo; the 36 original differences are
+120 runs then match ordered result/score/combo; the 47 original differences are
 eliminated for those selected fields. Original receipt-time comparisons remain
 unchanged. This intervention does not establish judgement-time, health, replay
 or audio equivalence and does not justify retiming production inputs. The finding
@@ -134,3 +140,25 @@ health mode in `--simulation` executes OsuHealthProcessor result sequences; the
 component suite now contains 140 local fixtures and 108 pinned comparisons.
 The existing diagnostic observations are separate and are not rewritten by the
 acceptance runner.
+
+`npm --prefix engine run compare:circle-feedback` compares effective main-piece
+alpha and scale at equal elapsed time after each implementation's actual result.
+Both requested times remain in the traces. All 60 selected early/on-time/late
+hit/miss schedules match exactly at f32 precision. This does not retime production
+judgements or compare upstream skin pixels. Expired drawable lifetime is respected
+when its retained property values remain nonzero.
+
+`npm --prefix engine run analyze:scenario-audio` validates fixture and observation
+hashes and retains 24 executed slider-toggle/spinner-motion audio schedules,
+source policies and remaining H11 gaps. The earlier zero-rate manual-clock spinner
+probe was a host defect; it was replaced by rate-1 observations rather than
+classified as an engine divergence.
+
+`npm --prefix engine run measure:input-cost` measures bounded circle input work in
+tiny/dense/sparse fixtures. Native hot calls use the panic allocator; WASM calls
+check memory growth and compare result counts/score/combo. This is preliminary
+work accounting, not full scene or W09 acceptance. The index optimisation preserves
+the existing note-lock scenarios. Equivalent tests were inspected in
+`TestSceneStartTimeOrderedHitPolicy.cs`; their custom hit windows/replay test
+infrastructure still require an exact port, so this optimisation claims existing
+regression parity rather than newly closing A14.

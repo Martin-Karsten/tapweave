@@ -6,8 +6,88 @@ import "core:mem"
 import core_types "../core_types"
 import engine_runtime "../runtime"
 import simulation "../simulation"
+import prepared "../prepared"
+import audio_protocol "../audio_protocol"
 
 GAMEPLAY_CIRCLES :: "osu file format v14\n[Difficulty]\nHPDrainRate:0\nOverallDifficulty:5\n[HitObjects]\n64,64,1000,1,0\n256,192,2000,1,0\n"
+
+@(test)
+voice_reservation_preserves_previous_candidate_and_validates_commands :: proc(test: ^testing.T) {
+	instance, _ := engine_runtime.instance_create()
+	defer engine_runtime.instance_destroy(&instance)
+	engine, _ := engine_runtime.engine_create(&instance)
+	defer engine_runtime.engine_release(&instance, engine)
+	map_handle, preparation_error := engine_runtime.map_prepare(&instance, engine, GAMEPLAY_CIRCLES, true)
+	testing.expect_value(test, preparation_error.status, core_types.Status.OK)
+	session_handle, created := engine_runtime.session_create(&instance, engine, map_handle, 65536, 0, true, 8)
+	testing.expect_value(test, created, core_types.Status.OK)
+	session, _ := engine_runtime.session_get(&instance, engine, session_handle)
+	required, _ := engine_runtime.voice_required_bytes(2)
+	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, 2, required), core_types.Status.OK)
+	previous_output := raw_data(session.voice_storage.arena.bytes)
+	original_allocator := instance.allocator
+	instance.allocator = mem.Allocator{procedure = reject_allocations}
+	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, 2, required), core_types.Status.OUT_OF_MEMORY)
+	instance.allocator = original_allocator
+	testing.expect_value(test, raw_data(session.voice_storage.arena.bytes), previous_output)
+	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, 2, required - 1), core_types.Status.QUOTA_EXCEEDED)
+	testing.expect_value(test, raw_data(session.voice_storage.arena.bytes), previous_output)
+	command_kinds := [4]audio_protocol.Command_Kind{.ONE_SHOT, .LOOP_START, .LOOP_STOP, .PARAMETER_RAMP}
+	context.allocator = mem.panic_allocator()
+	for command_kind in command_kinds {
+		command := audio_protocol.Command{sequence = 7, epoch = 2, command_kind = command_kind,
+			time_ms = 1500.25, voice_id = 9, asset_id = 4, volume = 0.5, pan = -0.2, rate = 1.25,
+			late_policy = .DROP, parameter_mask = command_kind == .PARAMETER_RAMP ? 5 : 0,
+			duration_ms = command_kind == .PARAMETER_RAMP ? 300 : 0}
+		testing.expect(test, audio_protocol.valid_command(command))
+		bytes: [engine_runtime.ABI_VOICE_COMMAND_SIZE]byte
+		engine_runtime.write_voice_command(bytes[:], command)
+		testing.expect_value(test, engine_runtime.get_u64(bytes[:], engine_runtime.ABI_VOICE_COMMAND_SEQUENCE_OFFSET), 7)
+		testing.expect_value(test, engine_runtime.get_f64(bytes[:], engine_runtime.ABI_VOICE_COMMAND_TIME_MS_OFFSET), 1500.25)
+		testing.expect_value(test, engine_runtime.get_u32(bytes[:], engine_runtime.ABI_VOICE_COMMAND_COMMAND_KIND_OFFSET), u32(command_kind))
+		testing.expect_value(test, engine_runtime.get_u32(bytes[:], engine_runtime.ABI_VOICE_COMMAND_RESERVED_OFFSET), 0)
+		command.rate = math.nan_f64()
+		testing.expect(test, !audio_protocol.valid_command(command))
+	}
+}
+
+@(test)
+candidate_indices_preserve_reverse_reveals_removal_and_blockers :: proc(test: ^testing.T) {
+	object_count :: 10_000
+	objects := make([]prepared.Object, object_count)
+	defer delete(objects)
+	storage := make([]f64, 3 * simulation.candidate_slots(object_count))
+	defer delete(storage)
+	slot_count := len(storage) / 3
+	prepared_map := prepared.Map{objects = objects}
+	session := simulation.Session{prepared_map = &prepared_map,
+		head_candidates = {minimum_reveal = storage[:slot_count]},
+		blocking_candidates = {minimum_reveal = storage[slot_count:2 * slot_count]},
+		tracking_candidates = {minimum_reveal = storage[2 * slot_count:]}}
+	for &object, object_index in objects {
+		object.kind = .CIRCLE
+		object.time_ms = f64(object_index)
+		// Adverse reveal order: the last source object is eligible first.
+		object.preempt_ms = f64(object_index * 2)
+	}
+	context.allocator = mem.panic_allocator()
+	simulation.reset_candidates(&session)
+	work: u64
+	testing.expect_value(test, simulation.candidate_find(&session.head_candidates, 0, object_count, -9999, false, &work), 9999)
+	testing.expect(test, work < 64)
+	testing.expect_value(test, simulation.candidate_find(&session.tracking_candidates, 0, object_count, 0, false, &work), -1)
+	simulation.candidate_remove(&session.head_candidates, 9999)
+	testing.expect_value(test, simulation.candidate_find(&session.head_candidates, 0, object_count, -9999, false, &work), -1)
+	// Judged receptors remain in the immutable blocker index.
+	testing.expect_value(test, simulation.candidate_find(&session.blocking_candidates, 0, object_count, -9999, true, &work), 9999)
+	simulation.reset_candidates(&session)
+	for object_index in 0 ..< object_count {
+		testing.expect_value(test, simulation.candidate_find(&session.head_candidates, 0, object_count, 0, false, &work), object_index)
+		simulation.candidate_remove(&session.head_candidates, object_index)
+	}
+	testing.expect(test, work < object_count * 64)
+	testing.expect_value(test, simulation.candidate_find(&session.head_candidates, 0, object_count, 0, false, &work), -1)
+}
 
 input_frame :: proc(sequence: u64, time_ms, x, y: f64, actions: u32) -> core_types.Input_Snapshot {
 	return {sequence = sequence, raw_time_ms = time_ms, effective_time_ms = time_ms, x = x, y = y, action_bits = actions}
@@ -349,7 +429,7 @@ gameplay_sample_ranges_and_work_counters_preserve_reset :: proc(test: ^testing.T
 	testing.expect_value(test, session.simulation.audio_count, 1)
 	testing.expect_value(test, session.simulation.work.sample_binding_visits, 1)
 	testing.expect_value(test, session.simulation.work.input_candidate_visits, 1)
-	testing.expect_value(test, session.simulation.work.tracking_visits, 2)
+	testing.expect_value(test, session.simulation.work.tracking_visits, 0)
 	testing.expect_value(test, simulation.reset_session(&session.simulation, 0), core_types.Status.OK)
 	testing.expect_value(test, session.simulation.work, simulation.Work_Counters{})
 	testing.expect_value(test, simulation.submit_inputs(&session.simulation, inputs), core_types.Status.OK)
@@ -402,10 +482,10 @@ draw_reserve_failure_preserves_previous_capacity :: proc(test: ^testing.T) {
 	testing.expect_value(test, engine_runtime.render_resource_create(&instance, engine, map_handle), core_types.Status.OK)
 	session_handle, created := engine_runtime.session_create(&instance, engine, map_handle, 65536, 0, true, 8)
 	testing.expect_value(test, created, core_types.Status.OK)
-	required, status := engine_runtime.draw_required_bytes(48)
+	session, _ := engine_runtime.session_get(&instance, engine, session_handle)
+	required, status := engine_runtime.draw_required_bytes(48, u64(len(session.simulation.journal)), u64(len(session.simulation.recording)), u64(len(session.simulation.objects)))
 	testing.expect_value(test, status, core_types.Status.OK)
 	testing.expect_value(test, engine_runtime.draw_reserve(&instance, engine, session_handle, 48, required), core_types.Status.OK)
-	session, _ := engine_runtime.session_get(&instance, engine, session_handle)
 	original_output := raw_data(session.draw_storage.output)
 	original_allocator := instance.allocator
 	instance.allocator = mem.Allocator{procedure = reject_allocations}

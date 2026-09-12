@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "command": "npm --prefix platform/browser-js run test:browser -- --project=chromium",
+  "browser": "153.0.8010.12",
+  "sampling_interval_bytes": 512,
+  "includes_collected_objects": true,
+  "profile_sha256": "c37e4899f7a4d567324c3bd1917c4ab06d63663a8d8bdcaf1a857d0d1c70867f",
+  "wasm_sha256": "7284657089a09c7134430f3acf211ae017c762d9f387cd8d6f58733a3fa8d9e8",
+  "iterations": 5000,
+  "memory_before": 18022400,
+  "memory_after": 18022400,
+  "draw_bytes": 704,
+  "voice_bytes": 64,
+  "sampled_reader_bytes": 7729284,
+  "allocations": [
+    {
+      "function": "write_creation",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 83,
+      "sampled_bytes": 416172
+    },
+    {
+      "function": "writeRecord",
+      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
+      "line": 2428,
+      "sampled_bytes": 212700
+    },
+    {
+      "function": "read_span",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 92,
+      "sampled_bytes": 647880
+    },
+    {
+      "function": "voice_output",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 187,
+      "sampled_bytes": 55344
+    },
+    {
+      "function": "read_span",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 92,
+      "sampled_bytes": 157968
+    },
+    {
+      "function": "view",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 74,
+      "sampled_bytes": 26832
+    },
+    {
+      "function": "checkedSpan",
+      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
+      "line": 2393,
+      "sampled_bytes": 46140
+    },
+    {
+      "function": "bind",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/voice-output.mjs",
+      "line": 12,
+      "sampled_bytes": 65392
+    },
+    {
+      "function": "readRecordInto",
+      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
+      "line": 2402,
+      "sampled_bytes": 68672
+    },
+    {
+      "function": "draw",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 196,
+      "sampled_bytes": 13552
+    },
+    {
+      "function": "write_creation",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 83,
+      "sampled_bytes": 91688
+    },
+    {
+      "function": "view",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 74,
+      "sampled_bytes": 24672
+    },
+    {
+      "function": "writeRecord",
+      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
+      "line": 2428,
+      "sampled_bytes": 54240
+    },
+    {
+      "function": "bind",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 428,
+      "sampled_bytes": 164208
+    },
+    {
+      "function": "bind",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 334,
+      "sampled_bytes": 89380
+    },
+    {
+      "function": "bind_array",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 364,
+      "sampled_bytes": 3840
+    },
+    {
+      "function": "readRecordInto",
+      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
+      "line": 2402,
+      "sampled_bytes": 59768
+    },
+    {
+      "function": "record_into",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 382,
+      "sampled_bytes": 2096
+    },
+    {
+      "function": "readRecordInto",
+      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
+      "line": 2402,
+      "sampled_bytes": 638092
+    },
+    {
+      "function": "record_into",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 382,
+      "sampled_bytes": 1664
+    },
+    {
+      "function": "readRecordInto",
+      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
+      "line": 2402,
+      "sampled_bytes": 250740
+    },
+    {
+      "function": "bind",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 428,
+      "sampled_bytes": 255900
+    },
+    {
+      "function": "bind",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 334,
+      "sampled_bytes": 366056
+    },
+    {
+      "function": "bind_array",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
+      "line": 364,
+      "sampled_bytes": 5120
+    },
+    {
+      "function": "readRecordInto",
+      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
+      "line": 2402,
+      "sampled_bytes": 223800
+    },
+    {
+      "function": "readRecordInto",
+      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
+      "line": 2402,
+      "sampled_bytes": 2352036
+    },
+    {
+      "function": "bind",
+      "url": "http://127.0.0.1:4173/platform/browser-js/src/voice-output.mjs",
+      "line": 12,
+      "sampled_bytes": 173808
+    },
+    {
+      "function": "readRecordInto",
+      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
+      "line": 2402,
+      "sampled_bytes": 282480
+    },
+    {
+      "function": "readRecordInto",
+      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
+      "line": 2402,
+      "sampled_bytes": 979044
+    }
+  ],
+  "timings": {
+    "p50_ns": 0,
+    "p95_ns": 99999.90463256836,
+    "p99_ns": 100000.14305114746
+  },
+  "limitations": [
+    "Statistical allocation samples include collected objects; they are not an exact allocation count",
+    "Profiling overhead and timer resolution affect timings; no W09 approval implied",
+    "Repeated single-circle draw and empty voice reads; complete scene workloads remain checkpoint 6"
+  ]
+}

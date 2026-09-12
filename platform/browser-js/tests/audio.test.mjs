@@ -29,6 +29,36 @@ function audio_event(clock, sequence, overrides = {}) {
     duration_ms: 0, lateness_threshold_ms: 50, ...overrides };
 }
 
+test('pause retains future one-shots, lets started sounds finish, and resumes nominal times once', () => {
+  const context = fake_context();
+  const clock = new Audio_Clock();
+  clock.start(10, 0);
+  const audio = new Audio_Service(context, clock);
+  audio.set_assets(new Map([[1n, {}]]));
+  audio.enqueue([audio_event(clock, 1), audio_event(clock, 2, { beatmap_time_ms: 20 }),
+    audio_event(clock, 3, { beatmap_time_ms: 500 })]);
+  audio.pump();
+  assert.equal(audio.voices.size, 2);
+  clock.pause(10);
+  audio.suspend_one_shots();
+  assert.equal(audio.voices.has(1n), true);
+  assert.equal(audio.voices.has(2n), false);
+  assert.deepEqual(audio.suspended_pending.map(event => event.beatmap_time_ms), [20, 500]);
+  assert.throws(() => audio.set_assets(new Map()), { code: 'INVALID_STATE' });
+  context.currentTime = 20;
+  clock.resume(20);
+  audio.pump();
+  assert.equal(audio.suspended_pending.length, 2);
+  audio.resume_one_shots();
+  assert.equal(audio.pending.length, 2);
+  audio.pump();
+  assert.equal(audio.pending.length, 1);
+  assert.deepEqual(context.calls.filter(call => call[0] === 'start').map(call => call[1]), [10, 10.02, 20.02]);
+  assert.throws(() => audio.resume_one_shots(), { code: 'INVALID_STATE' });
+  audio.cancel();
+  assert.equal(audio.suspended_pending.length, 0);
+});
+
 test('clock offset vector is applied once with reversible conversion', () => {
   const clock = new Audio_Clock();
   clock.start(10, -500, { global_ms: 20, device_ms: -5, beatmap_ms: 10, user_ms: -2 });

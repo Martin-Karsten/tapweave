@@ -51,6 +51,7 @@ Sample_Range :: struct {
 
 Work_Counters :: struct {
 	input_candidate_visits, predecessor_visits, tracking_visits, sample_binding_visits: u64,
+	index_node_visits: u64,
 }
 
 Session :: struct {
@@ -67,6 +68,7 @@ Session :: struct {
 	sample_bindings: []Sample_Binding,
 	sample_ranges: []Sample_Range,
 	work: Work_Counters,
+	head_candidates, blocking_candidates, tracking_candidates: Candidate_Index,
 	audio: []audio_protocol.Event,
 	audio_count, acknowledged_audio_count: int,
 	state: Session_Status,
@@ -174,6 +176,7 @@ required_bytes :: proc(prepared_map: ^prepared.Map, input_capacity: u64) -> (u64
 	   !size_add(&total, Judgement_Event, judgement_count) ||
 	   !size_add(&total, prepared.Break, u64(len(prepared_map.breaks))) ||
 	   !size_add(&total, Sample_Range, u64(len(prepared_map.objects))) ||
+	   !size_add(&total, f64, 3 * candidate_slots(len(prepared_map.objects))) ||
 	   !size_add(&total, Sample_Binding, sample_count(prepared_map)) ||
 	   !size_add(&total, audio_protocol.Event, sample_count(prepared_map)) ||
 	   !size_add(&total, u64, candidate_count(prepared_map)) {
@@ -201,6 +204,9 @@ initialize :: proc(session: ^Session, prepared_map: ^prepared.Map, arena: ^core_
 	session.journal, _ = core_types.arena_take(arena, Judgement_Event, judgement_count)
 	session.no_drain, _ = core_types.arena_take(arena, prepared.Break, u64(len(prepared_map.breaks)))
 	session.sample_ranges, _ = core_types.arena_take(arena, Sample_Range, u64(len(prepared_map.objects)))
+	session.head_candidates.minimum_reveal, _ = core_types.arena_take(arena, f64, candidate_slots(len(prepared_map.objects)))
+	session.blocking_candidates.minimum_reveal, _ = core_types.arena_take(arena, f64, candidate_slots(len(prepared_map.objects)))
+	session.tracking_candidates.minimum_reveal, _ = core_types.arena_take(arena, f64, candidate_slots(len(prepared_map.objects)))
 	session.sample_bindings, _ = core_types.arena_take(arena, Sample_Binding, sample_count(prepared_map))
 	session.audio, _ = core_types.arena_take(arena, audio_protocol.Event, sample_count(prepared_map))
 	binding_index := 0
@@ -343,6 +349,7 @@ reset_session :: proc(session: ^Session, lead_in_ms: f64) -> core_types.Status {
 	session.pause_count = 0
 	session.completed_objects = 0
 	session.work = {}
+	reset_candidates(session)
 	session.cursor = {}
 	session.health = {amount = 1}
 	session.score = scoring.create(session.score.maxima)
@@ -426,6 +433,7 @@ emit_judgement :: proc(session: ^Session, object_index, component_index: int, re
 		if component.kind == .Head {
 			object_state.head_result = result
 			object_state.head_time_ms = time_ms
+			candidate_remove(&session.head_candidates, object_index)
 		}
 	} else {
 		if object_state.result != .NONE {
@@ -434,9 +442,11 @@ emit_judgement :: proc(session: ^Session, object_index, component_index: int, re
 		session.completed_objects += 1
 		object_state.result = result
 		object_state.result_time_ms = time_ms
+		candidate_remove(&session.tracking_candidates, object_index)
 		if object.kind == .CIRCLE {
 			object_state.head_result = result
 			object_state.head_time_ms = time_ms
+			candidate_remove(&session.head_candidates, object_index)
 		}
 	}
 	session.health.amount = sample_health(session, time_ms)
@@ -569,7 +579,11 @@ judge_slider :: proc(session: ^Session, object_index: int, time_ms: f64, catch_u
 }
 
 press :: proc(session: ^Session, action, previous_actions: u32, time_ms: f64) {
-	for &object, object_index in session.prepared_map.objects {
+	object_count := len(session.prepared_map.objects)
+	for object_index := candidate_find(&session.head_candidates, 0, object_count, time_ms, false, &session.work.index_node_visits);
+	    object_index >= 0;
+	    object_index = candidate_find(&session.head_candidates, object_index + 1, object_count, time_ms, false, &session.work.index_node_visits) {
+		object := &session.prepared_map.objects[object_index]
 		session.work.input_candidate_visits += 1
 		object_state := &session.objects[object_index]
 		if object.kind == .SPINNER || object_state.head_result != .NONE || time_ms < object.time_ms - object.preempt_ms {
@@ -584,13 +598,18 @@ press :: proc(session: ^Session, action, previous_actions: u32, time_ms: f64) {
 		}
 		// StartTimeOrderedHitPolicy checks the last blocking circle, including
 		// one already judged, rather than any earlier unjudged circle.
-		blocking_index := -1
-		for &previous_object, previous_index in session.prepared_map.objects[:object_index] {
+		// Exclude the entire equal-time group using source-time lower_bound.
+		lower, upper := 0, object_index
+		for lower < upper {
+			middle := lower + (upper - lower) / 2
 			session.work.predecessor_visits += 1
-			if previous_object.time_ms < object.time_ms && previous_object.kind != .SPINNER && time_ms >= previous_object.time_ms - previous_object.preempt_ms {
-				blocking_index = previous_index
+			if session.prepared_map.objects[middle].time_ms < object.time_ms {
+				lower = middle + 1
+			} else {
+				upper = middle
 			}
 		}
+		blocking_index := candidate_find(&session.blocking_candidates, 0, lower, time_ms, true, &session.work.index_node_visits)
 		if blocking_index >= 0 && session.objects[blocking_index].head_result == .NONE && time_ms < session.prepared_map.objects[blocking_index].time_ms {
 			return
 		}
@@ -599,7 +618,10 @@ press :: proc(session: ^Session, action, previous_actions: u32, time_ms: f64) {
 		object_state.previous_actions = previous_actions
 		object_state.head_action = action
 		judge_head(session, object_index, result, .INPUT, time_ms)
-		for &previous_object, previous_index in session.prepared_map.objects[:object_index] {
+		for previous_index := candidate_find(&session.head_candidates, 0, lower, 1.7976931348623157e308, false, &session.work.index_node_visits);
+		    previous_index >= 0;
+		    previous_index = candidate_find(&session.head_candidates, previous_index + 1, lower, 1.7976931348623157e308, false, &session.work.index_node_visits) {
+			previous_object := &session.prepared_map.objects[previous_index]
 			session.work.predecessor_visits += 1
 			if previous_object.time_ms < object.time_ms && previous_object.kind != .SPINNER && session.objects[previous_index].head_result == .NONE {
 				judge_head(session, previous_index, .MISS, .NOTE_LOCK, time_ms)
@@ -626,21 +648,25 @@ apply_input :: proc(session: ^Session, input: core_types.Input_Snapshot) {
 	if pressed & core_types.RIGHT != 0 {
 		press(session, core_types.RIGHT, previous_actions, input.effective_time_ms)
 	}
-	for &object, object_index in session.prepared_map.objects {
+	object_count := len(session.prepared_map.objects)
+	for object_index := candidate_find(&session.tracking_candidates, 0, object_count, input.effective_time_ms, false, &session.work.index_node_visits);
+	    object_index >= 0;
+	    object_index = candidate_find(&session.tracking_candidates, object_index + 1, object_count, input.effective_time_ms, false, &session.work.index_node_visits) {
+		object := &session.prepared_map.objects[object_index]
 		session.work.tracking_visits += 1
 		object_state := &session.objects[object_index]
 		if object_state.result != .NONE || input.effective_time_ms < object.time_ms - object.preempt_ms {
 			continue
 		}
 		if object.kind == .SLIDER {
-			rules.update_tracking(&object, object_state, input, input.effective_time_ms)
+			rules.update_tracking(object, object_state, input, input.effective_time_ms)
 		} else if object.kind == .SPINNER {
-			rules.update_spinner(&object, object_state, input, input.effective_time_ms)
+			rules.update_spinner(object, object_state, input, input.effective_time_ms)
 			for component, component_index in object.components {
 				if u32(component_index) >= object_state.spin_history.completed {
 					break
 				}
-				emit_judgement(session, object_index, component_index, rules.maximum_result(&object, component_index), .SPINNER, input.effective_time_ms)
+				emit_judgement(session, object_index, component_index, rules.maximum_result(object, component_index), .SPINNER, input.effective_time_ms)
 			}
 		}
 	}

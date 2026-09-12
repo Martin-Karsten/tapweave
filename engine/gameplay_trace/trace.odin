@@ -64,8 +64,14 @@ run_fixture :: proc(fixture: ^Fixture, output: ^[dynamic]byte) -> bool {
 		return false
 	}
 	defer engine_runtime.map_release(&instance, engine, map_handle)
+	map_storage, _ := engine_runtime.map_get(&instance, engine, map_handle)
+	input_capacity := u64(max(32, len(fixture.inputs)))
+	required_bytes, _, _, size_status := engine_runtime.gameplay_storage_sizes(&map_storage.prepared_map, input_capacity)
+	if size_status != .OK {
+		return false
+	}
 	session_handle, session_status := engine_runtime.session_create(
-		&instance, engine, map_handle, 16 * 1024 * 1024, 0, true, u64(max(32, len(fixture.inputs))),
+		&instance, engine, map_handle, required_bytes, 0, true, input_capacity,
 	)
 	if session_status != .OK {
 		return false

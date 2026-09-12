@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "command": "npm --prefix engine run measure:input-cost",
+  "compiler": "/Users/martin/stuff/osu-web/engine/.toolchain/odin/odin version dev-2026-09-nightly:a2fb372",
+  "platform": "darwin",
+  "arch": "arm64",
+  "wasm_sha256": "7284657089a09c7134430f3acf211ae017c762d9f387cd8d6f58733a3fa8d9e8",
+  "profile": "unmodded-rate-1-zero-offset",
+  "findings": [
+    {
+      "id": "tiny",
+      "fixture_sha256": "ebbe2342dca9b92d1fc5314fdb6ab421bcadaef3cbe87666c9d8f0afd906ca76",
+      "native_observation_sha256": "1a05682671b52b23854e5d7192364c95884e872bfa5b64841526ecd28bf74f16",
+      "object_count": 10,
+      "input_count": 1000,
+      "work": {
+        "input_candidate_visits": 401,
+        "predecessor_visits": 1,
+        "tracking_visits": 0,
+        "sample_binding_visits": 1,
+        "index_node_visits": 3522
+      },
+      "index_bytes": 768,
+      "arena_bytes": 16777216,
+      "judgements": 2,
+      "audio_events": 1,
+      "score": 14252,
+      "combo": 0,
+      "terminal": false,
+      "native": {
+        "p50_ns": 42,
+        "p95_ns": 83,
+        "p99_ns": 125
+      },
+      "wasm_bridge": {
+        "p50_ns": 7958,
+        "p95_ns": 20750,
+        "p99_ns": 66584
+      },
+      "wasm_memory_growth": 0
+    },
+    {
+      "id": "dense",
+      "fixture_sha256": "49f74fbbdc582fd54248f80fa06bbc9b412548add21001d78cb31024f29a614e",
+      "native_observation_sha256": "0f3e0f0b11e2dd89c8b6a86f082d8cf44c5329498a9a47b5ff43358b8512af45",
+      "object_count": 10000,
+      "input_count": 151,
+      "work": {
+        "input_candidate_visits": 95625,
+        "predecessor_visits": 0,
+        "tracking_visits": 0,
+        "sample_binding_visits": 0,
+        "index_node_visits": 1912158
+      },
+      "index_bytes": 786432,
+      "arena_bytes": 16777216,
+      "judgements": 1,
+      "audio_events": 0,
+      "score": 0,
+      "combo": 0,
+      "terminal": true,
+      "native": {
+        "p50_ns": 2541,
+        "p95_ns": 73208,
+        "p99_ns": 74542
+      },
+      "wasm_bridge": {
+        "p50_ns": 2469166,
+        "p95_ns": 2602792,
+        "p99_ns": 3129500
+      },
+      "wasm_memory_growth": 0
+    },
+    {
+      "id": "sparse",
+      "fixture_sha256": "7a80b6cc00362a91a1c224040002e0b028d0ff74f8ef6a272243732de0434d0f",
+      "native_observation_sha256": "33c2428b77864c6e42a4705116615bf8b1682206d01ba9dd32f7bda3ff32dd5f",
+      "object_count": 10000,
+      "input_count": 1000,
+      "work": {
+        "input_candidate_visits": 401,
+        "predecessor_visits": 1,
+        "tracking_visits": 0,
+        "sample_binding_visits": 1,
+        "index_node_visits": 7572
+      },
+      "index_bytes": 786432,
+      "arena_bytes": 16777216,
+      "judgements": 2,
+      "audio_events": 1,
+      "score": 3,
+      "combo": 0,
+      "terminal": false,
+      "native": {
+        "p50_ns": 42,
+        "p95_ns": 84,
+        "p99_ns": 209
+      },
+      "wasm_bridge": {
+        "p50_ns": 2339500,
+        "p95_ns": 2503875,
+        "p99_ns": 3114167
+      },
+      "wasm_memory_growth": 0
+    }
+  ],
+  "limitations": [
+    "Preliminary input/advance measurements, not W09 performance approval",
+    "WASM timings include allocating diagnostic bridge readers; separate m3-reader-cost evidence profiles production draw/voice readers",
+    "Native hot path uses panic allocator; WASM verifies no memory growth",
+    "Circle-only input workloads; mixed/long-overlap presentation costs remain in checkpoint 6"
+  ]
+}

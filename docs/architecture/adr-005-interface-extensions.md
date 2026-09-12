@@ -137,3 +137,14 @@ and batches with generated native/WASM layouts. They add explicit exports withou
 changing kinds 1–35, existing acknowledgement semantics or identity. The current
 producer supports circles only; broad animation/draw/Play capabilities remain zero.
 The native C probe and WASM reader compare serialized circle instances exactly.
+
+## Voice transport and narrow capabilities
+
+Kinds 41–45 add independent resource/circle/draw/voice protocol versions, voice
+reserve/capacity, voice frames and typed commands. Existing kinds 1–40 retain
+their layouts. The production command mask enables only one-shots; loop/ramp
+record support does not enable those gameplay producers. Voice output borrows a
+separate reserved arena, shares the existing audio journal and latest-token
+acknowledgement, and cannot consume unseen judgement records. A single admission
+owner shares its epoch/sequence watermark across legacy and new audio readers.
+Draw and voice arenas count together against the session resource quota.

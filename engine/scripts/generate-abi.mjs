@@ -79,7 +79,11 @@ export function readRecordInto(view, offset, kind, result) {
     throw new RangeError('Truncated record');
   }
   validateSpan(view, offset, size, 1, 8);
-  for (const [field_name, [field_offset, field_type]] of fields_by_kind.get(kind)) {
+  const fields = fields_by_kind.get(kind);
+  for (let field_index = 0; field_index < fields.length; field_index++) {
+    const field_name = fields[field_index][0];
+    const field_offset = fields[field_index][1][0];
+    const field_type = fields[field_index][1][1];
     const address = offset + field_offset;
     switch (field_type) {
       case 'u32': result[field_name] = view.getUint32(address, true); break;
@@ -96,7 +100,9 @@ export function writeRecord(view, offset, kind, values = {}) {
     throw new Error('Unsupported record');
   }
   const bytes = checkedSpan(view, offset, record.size, 1, 8);
-  for (const [field_name, value] of Object.entries(values)) {
+  for (const field_name in values) {
+    if (!Object.hasOwn(values, field_name)) continue;
+    const value = values[field_name];
     const field = record.fields[field_name];
     if (!Object.hasOwn(record.fields, field_name)) {
       throw new Error('Unknown ABI field: ' + field_name);
@@ -112,8 +118,11 @@ export function writeRecord(view, offset, kind, values = {}) {
   view.setUint16(offset + RECORD_HEADER.kind, kind, true);
   view.setUint16(offset + RECORD_HEADER.version, 1, true);
   view.setUint32(offset + RECORD_HEADER.byte_size, record.size, true);
-  for (const [field_name, value] of Object.entries(values)) {
-    const [field_offset, field_type] = record.fields[field_name];
+  for (const field_name in values) {
+    if (!Object.hasOwn(values, field_name)) continue;
+    const value = values[field_name];
+    const field_offset = record.fields[field_name][0];
+    const field_type = record.fields[field_name][1];
     const address = offset + field_offset;
     switch (field_type) {
       case 'u32': view.setUint32(address, value, true); break;
@@ -169,6 +178,9 @@ uint32_t oe_map_render_resources(oe_handle, oe_handle, uintptr_t output);
 uint32_t oe_session_render_resources(oe_handle, oe_handle, uintptr_t output);
 uint32_t oe_session_render_reserve(oe_handle, oe_handle, uintptr_t request, uintptr_t output);
 uint32_t oe_session_draw(oe_handle, oe_handle, double time_ms, uintptr_t viewport, uintptr_t output);
+uint32_t oe_transport_capabilities(oe_handle, uintptr_t output);
+uint32_t oe_session_voice_reserve(oe_handle, oe_handle, uintptr_t request, uintptr_t output);
+uint32_t oe_session_voice_output(oe_handle, oe_handle, uintptr_t output);
 uint32_t oe_map_retain(oe_handle, oe_handle);
 uint32_t oe_map_release(oe_handle, oe_handle);
 uint32_t oe_session_create(oe_handle, oe_handle, const oe_session_create_v1*, oe_handle*, oe_error_v1*);

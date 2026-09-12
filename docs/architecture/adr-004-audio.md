@@ -22,7 +22,15 @@ Music and simulation share:
 beatmapMs = beatmapAnchorMs + (audioNow - audioAnchor) × 1000 × rate
 ```
 
-Offset components are immutable during a running epoch. Pause/focus loss cancels logical epoch, stops one-shots/loops/music, saves beatmap position, and suspends when appropriate. Resume after a gesture recreates sources at the saved media offset and establishes a new anchor. A bounded 25 ms default lookahead schedules one-shots; an adaptive policy may change lookahead without changing event timestamps. Late events are logged and either immediate-played or dropped by event policy.
+Offset components are immutable during a running epoch. Ordinary pause invalidates the clock mapping and saves beatmap position. Already-started one-shots may finish; queued or scheduled future one-shots retain their nominal map times for reconstruction under the resumed anchor. Reset, replacement and dispatch failure cancel all playback. Loops require stop/reconstruction when their producer is enabled. Context suspension remains browser lifecycle work. Resume after a gesture recreates music at the saved media offset and establishes a new anchor. A bounded 25 ms default lookahead schedules one-shots; an adaptive policy may change lookahead without changing event timestamps. Late events are logged and either immediate-played or dropped by event policy.
+
+The one-shot service implements this distinction explicitly with
+`suspend_after_clock_pause` and `resume_after_clock_bind` on the shared admission
+owner. Suspension retains bounded pending and not-yet-started requests; it does
+not reset the admitted sequence watermark. Resume remaps retained requests once,
+after validating the same engine epoch. Reset/replacement must call cancellation
+instead. These operations are service contracts; W07 still integrates them into
+the player lifecycle. The implementation rejects loop suspension until W05.
 
 Asset resolution happens in Odin from a JS-provided availability table so fallback order remains testable. JavaScript maps selected asset ID to decoded buffer. Missing music blocks production start; missing hitsounds warn and produce silence. Repeated load releases asset-scope buffers and object URLs.
 

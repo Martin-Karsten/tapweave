@@ -35,7 +35,8 @@ for (const scenario of scenarios.findings) {
   let local;
   try {
     const prepared = engine.prepare_map(new TextEncoder().encode(fixture.map));
-    const session = engine.create_session(prepared.map_handle, { input_capacity: 64, batch_capacity: 8 });
+    const session = engine.create_session(prepared.map_handle, {
+      input_capacity: Math.max(64, delivery.length + 8), batch_capacity: Math.max(8, delivery.length) });
     engine.submit_inputs(session, delivery.map((input, input_index) => ({
       sequence: BigInt(input_index + 1), raw_time_ms: input.delivery_time_ms,
       effective_time_ms: input.delivery_time_ms, x: input.x, y: input.y, action_bits: input.actions,

@@ -8,6 +8,26 @@ const wasm_bytes = await readFile(new URL('../../../engine/artifacts/tapweave.wa
 const map_bytes = new TextEncoder().encode('osu file format v14\n[HitObjects]\n256,192,1000,1,0');
 const viewport = { css_left: 0, css_top: 0, css_width: 512, css_height: 384, device_pixel_ratio: 1 };
 
+test('draw health follows committed drain without advancing on future presentation reads', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  try {
+    const prepared = engine.prepare_map(new TextEncoder().encode('osu file format v14\n[Difficulty]\nHPDrainRate:5\n[HitObjects]\n256,192,1000,1,0\n256,192,4000,1,0'));
+    const resources = engine.render_resources(prepared.map_handle);
+    const session = engine.create_session(prepared.map_handle, { input_capacity: 8, batch_capacity: 1 });
+    const capacity = engine.render_reserve(session);
+    engine.render_reserve(session, capacity.required_instances, capacity.required_bytes);
+    engine.submit_inputs(session, [{ sequence: 1n, raw_time_ms: 1000, effective_time_ms: 1000, x: 256, y: 192, action_bits: 1 }]);
+    const gameplay = new Gameplay_Output();
+    engine.advance_output(session, 1500, gameplay);
+    assert.ok(gameplay.summary.health < 1);
+    const draw = engine.draw(session, 2000, viewport, new Draw_Output(resources, gameplay.summary.epoch));
+    assert.equal(draw.summary.health, gameplay.summary.health);
+    assert.equal(draw.summary.committed_ms, 1500);
+    const after = engine.snapshot(session, 1500);
+    assert.equal(after.summary.health, gameplay.summary.health);
+  } finally { engine.dispose(); }
+});
+
 async function fixture() {
   const engine = await Engine_Bridge.create(wasm_bytes);
   const prepared = engine.prepare_map(map_bytes);

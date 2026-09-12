@@ -96,11 +96,15 @@ remain open. No additional aggregate rendering capability is advertised.
 
 Active projection now heap-sorts newly expanded membership, bounding reverse
 reveal bursts to O(active*log(active)) without allocation; reads with no new
-members do no ordering work. The conservative retention policy is unchanged.
+members do no ordering work. Debug projection retains its conservative policy;
+circle draw membership separately expires misses at 100 ms and hits at 800 ms.
 The borrowed simulation facade additionally exposes component results, retained
 judgement feedback, cursor and semantic recording history. These views survive
 journal acknowledgement and must be reacquired after mutation/reset/seek. They
-are inputs for W03, not completed feedback/trail animation.
+feed reserved presentation-owned history indices. Watermarks consume each source
+record once, independent of audio acknowledgement. Backward reads and epoch
+changes rebuild membership. A one-second cursor history window is storage policy,
+not an upstream trail duration or a completed trail producer.
 
 ## Reserved circle draw publication
 
@@ -113,7 +117,10 @@ slider/spinner producers exist. Complete draw capability remains unavailable.
 
 Circle approach scalar and vector interpolation preserve the pinned framework's
 different precision and operation order. The retained findings compare 36
-schedule observations exactly after f32 projection. Source-derived hit/miss
-feedback is locally tested but broader A22 feedback remains open. W04 still owns
+schedule observations exactly after f32 projection. Another 60 early/on-time/late
+hit and miss feedback comparisons match main-piece alpha/scale at equal elapsed
+time after the actual results; this isolates curves from miss-time quantisation.
+135 shared native/WASM boundary cases exercise the circle producer. Broader A22
+and upstream skin appearance remain open. W04 still owns
 original glyph/analytic shader resources and execution. See the
 [wire contract](interface-v2.md#reserved-circle-draw-transport).

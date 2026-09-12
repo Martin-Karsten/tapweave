@@ -24,9 +24,18 @@ const scenarios = [
   { id: 'circle-centre', objects: '256,192,1000,1,0', acceptance: ['H06', 'H10', 'A13', 'A22'], inputs: [{ time_ms: 1000, x: 256, y: 192, actions: 1 }] },
   { id: 'circle-miss', objects: '256,192,1000,1,0', acceptance: ['H06', 'A13', 'A22'], inputs: [] },
   { id: 'circle-great-edge', objects: '256,192,1000,1,0', acceptance: ['H06', 'A13'], inputs: [{ time_ms: 1049.5, x: 256, y: 192, actions: 1 }] },
+  { id: 'circle-early', objects: '256,192,1000,1,0', acceptance: ['H06', 'A13', 'A22'], inputs: [{ time_ms: 875, x: 256, y: 192, actions: 1 }] },
+  { id: 'circle-late', objects: '256,192,1000,1,0', acceptance: ['H06', 'A13', 'A22'], inputs: [{ time_ms: 1125, x: 256, y: 192, actions: 1 }] },
   { id: 'circle-equal-time', objects: '256,192,1000,1,0\n256,192,1000,1,0', acceptance: ['H06', 'H07', 'A14'], inputs: [{ time_ms: 1000, x: 256, y: 192, actions: 3 }] },
   { id: 'slider-held', objects: '256,192,1000,2,0,L|396:192,1,140', acceptance: ['H05', 'H07', 'A15', 'A22'], inputs: [{ time_ms: 1000, x: 256, y: 192, actions: 1 }, { time_ms: 1500, x: 396, y: 192, actions: 1 }] },
   { id: 'spinner-idle', objects: '256,192,1000,8,0,2000', acceptance: ['H08', 'A16', 'A22'], inputs: [] },
+  { id: 'slider-toggle', objects: '256,192,1000,2,0,L|396:192,1,140', acceptance: ['H05', 'H11', 'A15', 'A20', 'A22'], inputs: [
+    { time_ms: 1000, x: 256, y: 192, actions: 1 }, { time_ms: 1150, x: 298, y: 192, actions: 0 },
+    { time_ms: 1250, x: 326, y: 192, actions: 1 }, { time_ms: 1500, x: 396, y: 192, actions: 1 }] },
+  { id: 'spinner-motion', objects: '256,192,1000,8,0,2000', acceptance: ['H08', 'H11', 'A16', 'A20', 'A22'],
+    inputs: Array.from({ length: 121 }, (_, sample_index) => ({ time_ms: 1000 + sample_index * 1000 / 120,
+      x: Math.fround(256 + 100 * Math.cos(sample_index * Math.PI / 6)),
+      y: Math.fround(192 + 100 * Math.sin(sample_index * Math.PI / 6)), actions: 1 })) },
 ];
 const source_test_inventory = {
   "search_scope": [
@@ -85,7 +94,8 @@ for (const scenario of scenarios) {
         schedule_ms.push(time_ms);
       }
       const fixture = { schema_version: 1, id, profile: 'unmodded-lazer-zero-offset-rate-1',
-        map: map_header + scenario.objects, inputs: scenario.inputs, schedule_ms };
+        map: map_header + scenario.objects, inputs: scenario.inputs, schedule_ms,
+        observe_audio: scenario.id === 'slider-toggle' || scenario.id === 'spinner-motion' };
       const fixture_bytes = JSON.stringify(fixture);
       const fixture_path = path.join(artifacts, `${id}.fixture.json`);
       const observation_path = path.join(artifacts, `${id}.upstream.json`);
@@ -96,6 +106,7 @@ for (const scenario of scenarios) {
       const observation_bytes = await readFile(observation_path);
       const upstream = JSON.parse(observation_bytes);
       assert.equal(upstream.fixture_sha256, digest(fixture_bytes));
+      assert.equal(upstream.clock_rate, 1);
       assert.equal(upstream.frames.length, schedule_ms.length);
       assert.deepEqual(upstream.frames.map(frame => frame.time_ms), schedule_ms);
       assert.ok(upstream.judgements.length > 0, `${id} has no actual drawable results`);
@@ -103,7 +114,8 @@ for (const scenario of scenarios) {
       let local;
       try {
         const prepared = engine.prepare_map(new TextEncoder().encode(fixture.map));
-        const session = engine.create_session(prepared.map_handle, { input_capacity: 64, batch_capacity: 8 });
+        const session = engine.create_session(prepared.map_handle, {
+          input_capacity: Math.max(64, scenario.inputs.length + 8), batch_capacity: Math.max(8, scenario.inputs.length) });
         engine.submit_inputs(session, scenario.inputs.map((input, input_index) => ({
           sequence: BigInt(input_index + 1), raw_time_ms: input.time_ms, effective_time_ms: input.time_ms,
           x: input.x, y: input.y, action_bits: input.actions,
@@ -138,6 +150,7 @@ await writeFile(path.join(root, 'reference/findings/m3-scenarios.json'), JSON.st
   input_delivery: 'first declared update at or after receipt; live input quantisation retained',
   source_test_inventory,
   limitations: ['Player health/failure is not integrated', 'replay/recorder scenarios remain open',
-    'audio selection and voice requests are not observed', 'visual fields are observations, not yet Odin animation comparisons',
-    'six bounded scenarios do not close any whole acceptance family'], findings,
+    'sound states are sampled; slider-toggle/spinner-motion additionally record ordered virtual-channel calls and first-candidate selection, not audible mixing or asset fallback',
+    'visual fields require separate Odin animation comparisons',
+    'ten bounded scenarios do not close any whole acceptance family'], findings,
 }, null, 2) + '\n');

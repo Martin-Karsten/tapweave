@@ -186,10 +186,16 @@ circle_draw_curves_are_readonly_and_counted :: proc(test: ^testing.T) {
 	testing.expect_value(test, builder.count, 1)
 	testing.expect_value(test, instances[0].primitive, presentation.Primitive.RING)
 	testing.expect_value(test, instances[0].scale_x, 39)
-	testing.expect_value(test, instances[0].alpha, 0.925)
+	testing.expect_value(test, instances[0].alpha, f64(f32(0.925)))
+	builder.count = 0
+	presentation.circle(&builder, &object, .GREAT, 1000, math.nextafter_f64(1040, 0))
+	testing.expect_value(test, builder.count, 4)
+	builder.count = 0
+	presentation.circle(&builder, &object, .GREAT, 1000, 1040)
+	testing.expect_value(test, builder.count, 1)
 	builder.count = 0
 	presentation.circle(&builder, &object, .MISS, 1100, 1150)
-	testing.expect_value(test, builder.count, 1)
+	testing.expect_value(test, builder.count, 3)
 	testing.expect_value(test, instances[0].alpha, 0.5)
 	builder.count = 0
 	presentation.circle(&builder, &object, .GREAT, 1000, 1800)
@@ -197,4 +203,39 @@ circle_draw_curves_are_readonly_and_counted :: proc(test: ^testing.T) {
 	// Future committed outcomes are not projected as already-hit in past reads.
 	presentation.circle(&builder, &object, .GREAT, 1000, 400)
 	testing.expect_value(test, builder.count, 4)
+}
+
+@(test)
+semantic_history_expires_without_duplicates_and_rebuilds_after_seek :: proc(test: ^testing.T) {
+	feedback := [2]simulation.Judgement_Event{
+		{time_ms = 1000, object_id = 1, result = .GREAT},
+		{time_ms = 1050, object_id = 0, result = .MISS},
+	}
+	cursor := [2]core_types.Input_Snapshot{{effective_time_ms = 1000}, {effective_time_ms = 1050}}
+	feedback_indices, cursor_indices: [2]int
+	miss_durations := [2]f64{100, 100}
+	history := presentation.Semantic_History{feedback_indices = feedback_indices[:], cursor_indices = cursor_indices[:],
+		miss_durations_by_id = miss_durations[:]}
+	projection := simulation.Projection{feedback = feedback[:], cursor_history = cursor[:]}
+	context.allocator = mem.panic_allocator()
+	presentation.refresh_history(&history, projection, 1060, 1)
+	testing.expect_value(test, history.feedback_count, 2)
+	testing.expect_value(test, history.cursor_count, 2)
+	presentation.refresh_history(&history, projection, 1060, 1)
+	testing.expect_value(test, history.feedback_count, 2)
+	testing.expect_value(test, history.next_feedback, 2)
+	presentation.refresh_history(&history, projection, 1150, 1)
+	testing.expect_value(test, history.feedback_count, 1)
+	testing.expect_value(test, history.feedback_indices[0], 0)
+	presentation.refresh_history(&history, projection, 2051, 1)
+	testing.expect_value(test, history.feedback_count, 0)
+	testing.expect_value(test, history.cursor_count, 0)
+	presentation.refresh_history(&history, projection, 1050, 1)
+	testing.expect_value(test, history.feedback_count, 2)
+	projection.feedback = feedback[:0]
+	projection.cursor_history = cursor[:0]
+	presentation.refresh_history(&history, projection, 0, 2)
+	testing.expect_value(test, history.feedback_count, 0)
+	testing.expect_value(test, history.next_feedback, 0)
+	testing.expect_value(test, history.cursor_count, 0)
 }

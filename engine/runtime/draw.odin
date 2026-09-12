@@ -13,15 +13,18 @@ Draw_Storage :: struct {
 	arena: core_types.Arena,
 	instances: []presentation.Instance,
 	output: []byte,
+	history: presentation.Semantic_History,
 }
 
-draw_required_bytes :: proc(instance_count: u64) -> (u64, core_types.Status) {
+draw_required_bytes :: proc(instance_count: u64, feedback_capacity: u64 = 0, cursor_capacity: u64 = 0, object_count: u64 = 0) -> (u64, core_types.Status) {
 	if instance_count > u64(max(u32)) {
 		return 0, .QUOTA_EXCEEDED
 	}
 	total: u64
 	if !simulation.size_add(&total, presentation.Instance, instance_count) ||
 	   !simulation.size_add(&total, u64, (ABI_DRAW_FRAME_SIZE + instance_count * (ABI_DRAW_INSTANCE_SIZE + ABI_DRAW_BATCH_SIZE) + 7) / 8) ||
+	   !simulation.size_add(&total, int, feedback_capacity) || !simulation.size_add(&total, int, cursor_capacity) ||
+	   !simulation.size_add(&total, f64, object_count) ||
 	   total > u64(max(u32)) {
 		return 0, .QUOTA_EXCEEDED
 	}
@@ -54,12 +57,15 @@ draw_reserve :: proc(instance: ^Instance, engine, session_handle: core_types.Han
 			return .UNSUPPORTED
 		}
 	}
-	required_bytes, count_status := draw_required_bytes(instance_count)
+	feedback_capacity := u64(len(session.simulation.journal))
+	cursor_capacity := u64(len(session.simulation.recording))
+	object_count := u64(len(session.simulation.objects))
+	required_bytes, count_status := draw_required_bytes(instance_count, feedback_capacity, cursor_capacity, object_count)
 	if count_status != .OK {
 		return count_status
 	}
 	engine_state, _ := engine_get(instance, engine)
-	used := u64(len(session.arena.bytes))
+	used := u64(len(session.arena.bytes)) + u64(len(session.voice_storage.arena.bytes))
 	if instance_count == 0 || instance_count > MAX_DRAW_INSTANCES || arena_bytes < required_bytes || arena_bytes > u64(max(u32)) ||
 	   used > engine_state.quotas.arena_bytes || arena_bytes > engine_state.quotas.arena_bytes - used {
 		return .QUOTA_EXCEEDED
@@ -73,6 +79,12 @@ draw_reserve :: proc(instance: ^Instance, engine, session_handle: core_types.Han
 	word_count := (ABI_DRAW_FRAME_SIZE + instance_count * (ABI_DRAW_INSTANCE_SIZE + ABI_DRAW_BATCH_SIZE) + 7) / 8
 	words, _ := core_types.arena_take(&candidate.arena, u64, word_count)
 	candidate.output = mem.slice_ptr(cast(^byte)raw_data(words), len(words) * 8)
+	candidate.history.feedback_indices, _ = core_types.arena_take(&candidate.arena, int, feedback_capacity)
+	candidate.history.cursor_indices, _ = core_types.arena_take(&candidate.arena, int, cursor_capacity)
+	candidate.history.miss_durations_by_id, _ = core_types.arena_take(&candidate.arena, f64, object_count)
+	for object in session.map_storage.prepared_map.objects {
+		candidate.history.miss_durations_by_id[object.id] = object.kind == .CIRCLE ? 100 : presentation.FEEDBACK_RETENTION_MS
+	}
 	core_types.arena_destroy(&session.draw_storage.arena)
 	// Sole ownership transfer: candidate is not accessed after publication.
 	session.draw_storage = candidate
@@ -104,7 +116,7 @@ oe_session_render_reserve :: proc "c" (engine, session_handle: core_types.Handle
 	// Conservative count for the currently implemented circle producer. It is
 	// not a final slider/spinner capacity declaration or an animation capability.
 	required := u32(len(session.map_storage.prepared_map.objects)) * 24
-	required_bytes, _ := draw_required_bytes(u64(required))
+	required_bytes, _ := draw_required_bytes(u64(required), u64(len(session.simulation.journal)), u64(len(session.simulation.recording)), u64(len(session.simulation.objects)))
 	if requested == 0 {
 		write_render_capacity(session, requested, required, required_bytes)
 		return abi_status(.OK)
@@ -167,17 +179,18 @@ oe_session_draw :: proc "c" (engine, session_handle: core_types.Handle, time_ms:
 	}
 	simulation_state := &session.simulation
 	projection := simulation.project(simulation_state)
-	status = presentation.refresh_active(&session.active_presentation, projection, time_ms, simulation_state.epoch)
+	status = presentation.refresh_active(&session.active_presentation, projection, time_ms, simulation_state.epoch, true)
 	if status != .OK {
 		return abi_status(status)
 	}
 	counter: presentation.Builder
 	presentation.build_objects(&counter, &session.active_presentation, projection, time_ms)
 	if counter.count > len(session.draw_storage.instances) {
-		required_bytes, _ := draw_required_bytes(u64(counter.count))
+		required_bytes, _ := draw_required_bytes(u64(counter.count), u64(len(session.simulation.journal)), u64(len(session.simulation.recording)), u64(len(session.simulation.objects)))
 		write_render_capacity(session, u32(len(session.draw_storage.instances)), u32(counter.count), required_bytes)
 		return abi_status(.OUTPUT_REQUIRED)
 	}
+	presentation.refresh_history(&session.draw_storage.history, projection, time_ms, simulation_state.epoch)
 	builder := presentation.Builder{instances = session.draw_storage.instances}
 	presentation.build_objects(&builder, &session.active_presentation, projection, time_ms)
 	instances := builder.instances[:builder.count]
@@ -214,7 +227,7 @@ oe_session_draw :: proc "c" (engine, session_handle: core_types.Handle, time_ms:
 	put_f64(bytes, ABI_DRAW_FRAME_CLIENT_TOP_OFFSET, transform.client_top)
 	put_u64(bytes, ABI_DRAW_FRAME_SCORE_OFFSET, u64(simulation_state.score.total))
 	put_f64(bytes, ABI_DRAW_FRAME_ACCURACY_OFFSET, simulation_state.score.accuracy)
-	put_f64(bytes, ABI_DRAW_FRAME_HEALTH_OFFSET, simulation_state.health.amount)
+	put_f64(bytes, ABI_DRAW_FRAME_HEALTH_OFFSET, simulation.sample_health(simulation_state, simulation_state.committed_ms))
 	put_u32(bytes, ABI_DRAW_FRAME_COMBO_OFFSET, simulation_state.score.accumulator.combo)
 	put_u32(bytes, ABI_DRAW_FRAME_HIGHEST_COMBO_OFFSET, simulation_state.score.accumulator.highest_combo)
 	put_relative_span(bytes, ABI_DRAW_FRAME_INSTANCES_OFFSET_OFFSET, instance_offset, len(instances), ABI_DRAW_INSTANCE_SIZE)

@@ -30,7 +30,7 @@ project :: proc(session: ^Session) -> Projection {
 		paused = session.state == .PAUSED,
 		components = session.components,
 		feedback = session.journal[:session.journal_count],
-		cursor_history = session.recording[:session.recording_count],
+		cursor_history = session.replay_mode ? session.replay_frames : session.recording[:session.recording_count],
 		cursor = session.cursor,
 	}
 }

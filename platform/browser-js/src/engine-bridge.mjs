@@ -1,4 +1,6 @@
 import { Render_Resources } from './render-resources.mjs';
+import { Voice_Output } from './voice-output.mjs';
+export { Voice_Output } from './voice-output.mjs';
 import { schema, checkedSpan, validateSpan, readRecord, readRecordInto, writeRecord } from '../../../engine/abi/records.mjs';
 import { Browser_Error, require_condition } from './errors.mjs';
 
@@ -52,6 +54,13 @@ export class Engine_Bridge {
       this.simulation_capabilities = readRecord(this.view(), this.read_span().address, 25);
       this.check_status(this.wasm.oe_output_capabilities(this.engine_handle, this.result_address), false);
       this.output_capabilities = readRecord(this.view(), this.read_span().address, 34);
+      this.check_status(this.wasm.oe_transport_capabilities(this.engine_handle, this.result_address), false);
+      this.transport_capabilities = readRecord(this.view(), this.read_span().address, 41);
+      const transport = this.transport_capabilities;
+      require_condition(transport.resource_version === 1 && transport.circle_animation_version === 1 &&
+        transport.draw_version === 1 && transport.voice_version === 1 && transport.voice_command_mask === 1 &&
+        transport.flags === 1 && transport.reserved === 0 && transport.max_draw_instances > 0,
+      'UNSUPPORTED', 'Unsupported resource/draw/voice transport capabilities.');
     } catch (error) {
       this.dispose();
       throw error;
@@ -166,6 +175,22 @@ export class Engine_Bridge {
     this.check_status(this.wasm.oe_session_render_reserve(this.engine_handle, session_handle,
       this.mailbox_address, this.result_address), false);
     return readRecord(this.view(), this.read_span().address, 37);
+  }
+
+  voice_reserve(session_handle, command_capacity = 0, arena_bytes = 0n) {
+    this.write_creation(42, { command_capacity, arena_bytes });
+    this.check_status(this.wasm.oe_session_voice_reserve(this.engine_handle, session_handle,
+      this.mailbox_address, this.result_address), false);
+    return readRecord(this.view(), this.read_span().address, 43);
+  }
+
+  voice_output(session_handle, output) {
+    require_condition(output instanceof Voice_Output, 'INVALID_ARGUMENT', 'Reusable voice output is required.');
+    const status = this.wasm.oe_session_voice_output(this.engine_handle, session_handle, this.result_address);
+    if (status === 8) readRecordInto(this.view(), this.read_span().address, 43, output.required);
+    this.check_status(status, false);
+    const span = this.read_span();
+    return output.bind(new Uint8Array(this.wasm.memory.buffer, span.address, span.count));
   }
 
   draw(session_handle, time_ms, viewport, output) {

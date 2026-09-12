@@ -136,8 +136,10 @@ ZIP descriptors and audio dispatch recovery.
 
 The runtime exposes compact gameplay output and an arena-backed active projection
 with independent output lifetime (kinds 31–34). This is partial W01 and the W03
-foundation; object animation, full static resource generation, WebGL2, voice/loop intent and
-integrated input/music/lifecycle/results remain work in the [browser gameplay plan](browser-gameplay.md).
+foundation. The checkpoint additions below extend it with circle animation,
+minimal shared resources and one-shot voice transport. Complete scene resources,
+slider/spinner animation, WebGL2, loop/ramp production and integrated
+input/music/lifecycle/results remain work in the [browser gameplay plan](browser-gameplay.md).
 Play stays disabled; no aggregate gameplay capability is advertised.
 
 The [browser session findings](../engine/reference/findings/m3-browser-sessions.json)
@@ -197,32 +199,55 @@ indices retain evidence without committing build products.
 
 ## Current W01–W03 implementation additions
 
-A controlled pinned drawable host now executes six bounded scenarios over 72
+A controlled pinned drawable host now executes ten bounded scenarios over 120
 cadence/stall runs through actual input, playfield policy, drawable judgement and
 score processing. The [scenario findings](../engine/reference/findings/m3-scenarios.json)
-record 36 selected result/score/combo matches and 36 differences, retaining actual
+record 73 selected result/score/combo matches and 47 differences, retaining actual
 update schedules and live-input quantisation. This is additional drawable evidence,
 not full Player, replay, health/failure or audio acceptance; W02 remains open.
 The separate [delivery diagnostic](../engine/reference/findings/m3-scenario-delivery.json)
-matches selected result/score/combo fields in all 72 runs when Odin inputs use the
-host's delivery times. This eliminates the original 36 differences for those
+matches selected result/score/combo fields in all 120 runs when Odin inputs use the
+host's delivery times. This eliminates the original 47 differences for those
 fields under that intervention; original timestamped comparisons and production
 input policy remain unchanged. It does not establish full session equivalence.
+The host explicitly runs ManualClock at rate 1; the earlier spinner-motion run
+at its default rate 0 was a host setup defect and has been replaced by verified
+rate-1 observations. Twenty-four schedules additionally retain actual silent
+channel play/stop calls and drawable-side sound parameter writes in the
+[audio findings](../engine/reference/findings/m3-audio-observations.json).
 
 W01 adds a minimal immutable kind-35 render attachment shared by map/session
 owners, transactional publication, native/generated browser validation and
-production one-shot admission with acknowledgement retry watermarks. Circle-only dynamic reserve and ordered draw transport are also implemented;
-complete draw/voice contracts remain open. The browser admission path still
-allocates staging/executor objects, and its late policy is provisional pending H11.
+production one-shot admission with acknowledgement retry watermarks. Kinds 41–45
+add narrow capabilities, transactional voice reserve, independent voice output and
+validated one-shot/loop/ramp record shapes. Production enables only one-shots;
+loop/ramp producers and full H11 remain open. Ordinary one-shot pause retains
+future nominal requests, lets started samples finish and resumes retained requests
+once. The browser admission path still allocates staging/executor objects, and
+its immediate late policy is provisional pending H11.
 
 Simulation exposes component and semantic cursor/feedback history independently
 of acknowledgement. Per-object sample ranges avoid scanning unrelated objects'
 samples on each judgement. Work counters retain input-candidate, predecessor,
-tracking and sample-binding visits; input/tracking scans remain to be addressed.
+tracking and sample-binding visits. Creation-time minimum-reveal indices replace
+full-map candidate/tracking/predecessor scans while retaining judged note-lock
+blockers and equal-time ordering. The [input cost findings](../engine/reference/findings/m3-input-cost.json)
+measure tiny/dense/sparse workloads, actual visit counts and native/WASM timing;
+the dense fixture reaches failure after 151 inputs rather than claiming 1,000.
 Active projection uses allocation-free heap sorting for adverse reveal bursts.
 Kinds 36–40 now reserve and publish ordered circle draw instances/batches with
 independent output lifetime and readonly hit/miss feedback. The [circle findings](../engine/reference/findings/m3-circle-draw.json)
 retain 36 exact f32 approach alpha/scale comparisons against pinned drawable
-observations. Full feedback acceptance, slider/spinner draws, cursor/trail, follow
-points and HUD glyphs remain open. Circle-only draw reserve rejects mixed maps;
-complete W01/W02/W03 capability and Play stay off.
+observations. The [feedback findings](../engine/reference/findings/m3-circle-feedback.json)
+retain 60 exact comparisons at equal elapsed time after each implementation's
+result. There are 135 shared native/WASM circle boundary cases. Reserved semantic
+history uses independent watermarks and expiry; epoch/backward reads rebuild it.
+Debug projection keeps its existing conservative retention contract.
+The [Chromium reader profile](../engine/reference/findings/m3-reader-cost.json)
+measures collected as well as live allocations over 5,000 reads and confirms no
+WASM growth; reusable readers are not allocation-free.
+
+Full A22 acceptance, slider/spinner draws, cursor/trail, follow points and HUD
+glyphs remain open in checkpoints 5–6. Circle-only draw reserve rejects mixed
+maps. Full W01/W02/W03 milestones and aggregate Play remain open; the delivered
+checkpoint contracts do not imply complete browser gameplay or H11 acceptance.

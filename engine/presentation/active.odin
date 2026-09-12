@@ -9,6 +9,28 @@ import simulation "../simulation"
 // This bounds traversal; it is not a substitute for A22 animation observations.
 FEEDBACK_RETENTION_MS :: 800.0
 
+feedback_duration :: proc(projection: simulation.Projection, object_index: int, result: core_types.Hit_Result) -> f64 {
+	if projection.prepared_objects[object_index].kind == .CIRCLE && result == .MISS {
+		return 100
+	}
+	return FEEDBACK_RETENTION_MS
+}
+
+feedback_expired :: proc(projection: simulation.Projection, object_index: int, time_ms: f64, circle_policy: bool) -> bool {
+	outcome := &projection.outcomes[object_index]
+	if outcome.result == .NONE {
+		return false
+	}
+	if circle_policy && projection.prepared_objects[object_index].kind == .CIRCLE {
+		// DrawableHitCircle fades a miss over 100 ms and cuts a hit at 800 ms.
+		// Actual drawable observations verify these separately from skin styling.
+		duration_ms := feedback_duration(projection, object_index, outcome.result)
+		return time_ms >= outcome.result_time_ms + duration_ms
+	}
+	// Non-circle draw producers have not yet replaced conservative membership.
+	return time_ms > outcome.result_time_ms + FEEDBACK_RETENTION_MS
+}
+
 Reveal :: struct {
 	time_ms: f64,
 	object_index: int,
@@ -22,6 +44,7 @@ Active_Set :: struct {
 	previous_ms: f64,
 	epoch: u32,
 	initialized: bool,
+	circle_policy: bool,
 	// Per-read work counters, including rebuilds after backwards diagnostic reads.
 	visited_count, revealed_count, ordering_work: u64,
 }
@@ -58,11 +81,11 @@ initialize_active :: proc(active_set: ^Active_Set, prepared_map: ^prepared.Map, 
 	return .OK
 }
 
-refresh_active :: proc(active_set: ^Active_Set, projection: simulation.Projection, time_ms: f64, epoch: u32) -> core_types.Status {
+refresh_active :: proc(active_set: ^Active_Set, projection: simulation.Projection, time_ms: f64, epoch: u32, circle_policy := false) -> core_types.Status {
 	if !core_types.finite(time_ms) {
 		return .INVALID_ARGUMENT
 	}
-	if !active_set.initialized || epoch != active_set.epoch || time_ms < active_set.previous_ms {
+	if !active_set.initialized || epoch != active_set.epoch || time_ms < active_set.previous_ms || circle_policy != active_set.circle_policy {
 		active_set.count = 0
 		active_set.next_reveal = 0
 	}
@@ -72,9 +95,8 @@ refresh_active :: proc(active_set: ^Active_Set, projection: simulation.Projectio
 	// Compact in source order; feedback survives journal acknowledgement.
 	retained_count := 0
 	for object_index in active_set.indices[:active_set.count] {
-		outcome := simulation.project_object(projection, object_index, time_ms)
 		active_set.visited_count += 1
-		if outcome.result != .NONE && time_ms > outcome.result_time_ms + FEEDBACK_RETENTION_MS {
+		if feedback_expired(projection, object_index, time_ms, circle_policy) {
 			continue
 		}
 		active_set.indices[retained_count] = object_index
@@ -85,8 +107,7 @@ refresh_active :: proc(active_set: ^Active_Set, projection: simulation.Projectio
 		object_index := active_set.reveals[active_set.next_reveal].object_index
 		active_set.next_reveal += 1
 		active_set.revealed_count += 1
-		outcome := simulation.project_object(projection, object_index, time_ms)
-		if outcome.result != .NONE && time_ms > outcome.result_time_ms + FEEDBACK_RETENTION_MS {
+		if feedback_expired(projection, object_index, time_ms, circle_policy) {
 			continue
 		}
 		active_set.indices[active_set.count] = object_index
@@ -106,6 +127,7 @@ refresh_active :: proc(active_set: ^Active_Set, projection: simulation.Projectio
 	active_set.previous_ms = time_ms
 	active_set.epoch = epoch
 	active_set.initialized = true
+	active_set.circle_policy = circle_policy
 	return .OK
 }
 

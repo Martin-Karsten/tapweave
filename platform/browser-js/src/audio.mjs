@@ -16,18 +16,21 @@ export class Audio_Service {
     this.voices = new Map();
     this.retiring_voices = new Set();
     this.pending = [];
+    this.suspended_pending = [];
+    this.suspended = false;
     this.last_sequence = 0n;
     this.epoch = clock.epoch;
     this.metrics = { dispatched: 0, dropped: 0, stale: 0, maximum_lateness_ms: 0 };
   }
 
   set_assets(assets) {
-    require_condition(this.voices.size === 0 && this.retiring_voices.size === 0 && this.pending.length === 0,
+    require_condition(this.voices.size === 0 && this.retiring_voices.size === 0 && this.pending.length === 0 && !this.suspended,
       'INVALID_STATE', 'Cancel audio before replacing assets.');
     this.assets = new Map(assets);
   }
 
   enqueue(events) {
+    require_condition(!this.suspended, 'INVALID_STATE', 'Resume suspended audio before admitting more events.');
     let current_epoch_event_count = 0;
     let previous_sequence = this.clock.epoch === this.epoch ? this.last_sequence : 0n;
     for (const event of events) {
@@ -40,6 +43,7 @@ export class Audio_Service {
         [event.beatmap_time_ms, event.volume, event.pan, event.rate, event.duration_ms].every(Number.isFinite) &&
         event.volume >= 0 && event.volume <= 1 && event.pan >= -1 && event.pan <= 1 &&
         event.rate > 0 && event.duration_ms >= 0 &&
+        (event.parameter_mask === undefined || Number.isInteger(event.parameter_mask) && event.parameter_mask >= 0 && event.parameter_mask <= 7) &&
         Number.isFinite(event.lateness_threshold_ms) && event.lateness_threshold_ms >= 0,
         'INVALID_AUDIO_EVENT', 'Malformed audio event.');
       previous_sequence = event.sequence;
@@ -48,7 +52,9 @@ export class Audio_Service {
       }
     }
     const retained_event_count = this.clock.epoch === this.epoch ? this.pending.length : 0;
-    require_condition(current_epoch_event_count <= this.maximum_pending - retained_event_count,
+    const scheduled_future_count = this.clock.epoch === this.epoch ?
+      [...this.voices.values()].filter(voice => voice.when_seconds > this.context.currentTime).length : 0;
+    require_condition(current_epoch_event_count <= this.maximum_pending - retained_event_count - scheduled_future_count,
       'QUOTA_EXCEEDED', 'Audio event queue is full.');
     if (this.clock.epoch !== this.epoch) {
       this.cancel();
@@ -66,6 +72,7 @@ export class Audio_Service {
   }
 
   pump() {
+    if (this.suspended) return;
     if (this.clock.epoch !== this.epoch) {
       this.cancel();
     }
@@ -115,7 +122,8 @@ export class Audio_Service {
       const voice = this.voices.get(event.voice_id);
       if (voice) {
         const until_seconds = when_seconds + event.duration_ms / 1000;
-        for (const [parameter, target] of [[voice.gain.gain, event.volume], [voice.panner.pan, event.pan], [voice.source.playbackRate, event.rate]]) {
+        for (const [parameter, target, mask] of [[voice.gain.gain, event.volume, 1], [voice.panner.pan, event.pan, 2], [voice.source.playbackRate, event.rate, 4]]) {
+          if (((event.parameter_mask ?? 7) & mask) === 0) continue;
           parameter.cancelAndHoldAtTime(when_seconds);
           parameter.linearRampToValueAtTime(target, until_seconds);
         }
@@ -132,7 +140,7 @@ export class Audio_Service {
     const source = this.context.createBufferSource();
     const gain = this.context.createGain();
     const panner = this.context.createStereoPanner();
-    const voice = { source, gain, panner, stopping: false };
+    const voice = { source, gain, panner, stopping: false, event, when_seconds };
     source.buffer = buffer;
     source.loop = event.kind === 'loop_start';
     source.playbackRate.setValueAtTime(event.rate, when_seconds);
@@ -163,12 +171,51 @@ export class Audio_Service {
     }
   }
 
+  suspend_one_shots() {
+    require_condition(this.clock.anchor === null && !this.suspended,
+      'INVALID_STATE', 'Pause the clock once before suspending audio.');
+    require_condition(this.pending.every(event => event.kind === 'one_shot') &&
+      [...this.voices.values(), ...this.retiring_voices].every(voice => voice.event.kind === 'one_shot'),
+    'UNSUPPORTED', 'Loop suspension requires the complete voice executor.');
+    const future_voices = [...this.voices.values()].filter(voice => voice.when_seconds > this.context.currentTime);
+    require_condition(this.pending.length + future_voices.length <= this.maximum_pending,
+      'QUOTA_EXCEEDED', 'Suspended future one-shots exceed retention capacity.');
+    this.suspended_pending.push(...this.pending, ...future_voices.map(voice => voice.event));
+    this.suspended_pending.sort((left, right) => left.sequence < right.sequence ? -1 : 1);
+    this.pending.length = 0;
+    for (const voice of future_voices) {
+      voice.source.stop();
+      voice.source.disconnect();
+      voice.gain.disconnect();
+      voice.panner.disconnect();
+      this.voices.delete(voice.event.voice_id);
+    }
+    // Already-started non-looping samples finish naturally, matching the pinned
+    // PausableSkinnableSound policy. Future requests retain nominal map times.
+    this.suspended = true;
+    this.epoch = this.clock.epoch;
+    this.last_sequence = 0n;
+  }
+
+  resume_one_shots() {
+    require_condition(this.suspended && this.clock.anchor !== null,
+      'INVALID_STATE', 'Resume the clock before restoring future one-shots.');
+    const retained = this.suspended_pending.map(event => ({ ...event, epoch: this.clock.epoch }));
+    this.suspended = false;
+    this.epoch = this.clock.epoch;
+    this.last_sequence = 0n;
+    this.enqueue(retained);
+    this.suspended_pending.length = 0;
+  }
+
   cancel() {
     if (this.epoch !== this.clock.epoch) {
       this.last_sequence = 0n;
     }
     this.epoch = this.clock.epoch;
     this.pending.length = 0;
+    this.suspended_pending.length = 0;
+    this.suspended = false;
     for (const voice of [...this.voices.values(), ...this.retiring_voices]) {
       // stop() may replace a future stop; disconnect cancels audible output now.
       voice.source.stop();

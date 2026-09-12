@@ -284,7 +284,11 @@ active set as absent. No W01–W03 unit is complete. Completing these units supp
 contracts, executable reference evidence and Odin presentation for W04–W07;
 it does not itself produce the playable MVP.
 
-### Current implementation and gaps
+### Entry baseline before checkpoint implementation
+
+This table records the starting point for the breakdown below. Current delivery
+is recorded in [checkpoint 1–4 delivery](#checkpoint-14-delivery) and
+[implementation status](status.md#current-w01w03-implementation-additions).
 
 | Responsibility | Reuse | Still required |
 |---|---|---|
@@ -575,3 +579,25 @@ The final W01–W03 handoff contains usable transports, actual pinned scenario
 observations, complete Odin draw intent and precise open findings. W04 graphics,
 W05 browser audio, W06 physical input/frame integration and W07 lifecycle/results
 still lead to the playable validation MVP; W08–W10 close full M3 acceptance.
+
+### Checkpoint 1–4 delivery
+
+| Checkpoint | Executable delivery and evidence |
+|---|---|
+| 1 | Cleanup reconciliation; generated resource/draw/voice records; declared fixture/profile/schedule; actual pinned input → playfield → drawable → score host with explicit rate-1 clock |
+| 2 | Shared immutable attachment; transactional draw/voice reserve and independent publications; malformed/quota/allocation-failure checks; one admission watermark across legacy/voice output; acknowledgement retries and bounded future one-shot retention across pause/resume |
+| 3 | 120 upstream schedules and separate receipt/delivery-time comparisons; 24 actual audio observation schedules plus source-grounded loop/ramp/pause policies; narrow producer capability masks; component/cursor/feedback access; creation-time input indices and measured native/WASM work; Chromium allocation sampling; exact runtime-sized storage for the 10,000-circle and ten-minute replay regressions |
+| 4 | Circle/number/approach/hit/miss draw intent; presentation-owned history watermarks, expiry and backward/epoch rebuilds; 36 exact approach and 60 result-relative feedback comparisons; 135 shared native/WASM circle boundary cases and readonly/output-lifetime tests |
+
+These are bounded implementation checkpoints, not whole acceptance-family passes.
+The voice writer/reader contract covers one-shot, loop-start, loop-stop and masked
+ramps; the production command mask enables **only one-shots**. Loop/ramp gameplay
+generation and full audible/lifecycle validation remain W05/H11 work. The broad
+W02 Player, recorder/replay, fallback and lifecycle matrix remains checkpoint 6.
+Exact ports still missing from the pinned test projects are identified in the
+finding indices; analogous fixtures are not labelled exact test ports.
+
+Checkpoint 5 still supplies complete slider/spinner draw intent. Checkpoint 6
+supplies cursor/trail/follow points/HUD, full scene batches and the complete scene
+workload/evidence matrix. Full W01/W02/W03 acceptance and aggregate Play remain
+open until their respective exit requirements are met.

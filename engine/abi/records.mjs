@@ -2140,6 +2140,217 @@ export const schema = {
           "u64"
         ]
       }
+    },
+    {
+      "name": "transport_capabilities",
+      "kind": 41,
+      "size": 40,
+      "fields": {
+        "resource_version": [
+          8,
+          "u32"
+        ],
+        "circle_animation_version": [
+          12,
+          "u32"
+        ],
+        "draw_version": [
+          16,
+          "u32"
+        ],
+        "voice_version": [
+          20,
+          "u32"
+        ],
+        "voice_command_mask": [
+          24,
+          "u32"
+        ],
+        "flags": [
+          28,
+          "u32"
+        ],
+        "max_draw_instances": [
+          32,
+          "u32"
+        ],
+        "reserved": [
+          36,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "voice_reserve",
+      "kind": 42,
+      "size": 32,
+      "fields": {
+        "arena_bytes": [
+          8,
+          "u64"
+        ],
+        "command_capacity": [
+          16,
+          "u32"
+        ],
+        "flags": [
+          20,
+          "u32"
+        ],
+        "reserved": [
+          24,
+          "u64"
+        ]
+      }
+    },
+    {
+      "name": "voice_capacity",
+      "kind": 43,
+      "size": 32,
+      "fields": {
+        "requested_commands": [
+          8,
+          "u32"
+        ],
+        "required_commands": [
+          12,
+          "u32"
+        ],
+        "required_bytes": [
+          16,
+          "u64"
+        ],
+        "epoch": [
+          24,
+          "u32"
+        ],
+        "flags": [
+          28,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "voice_frame",
+      "kind": 44,
+      "size": 64,
+      "fields": {
+        "epoch": [
+          8,
+          "u32"
+        ],
+        "flags": [
+          12,
+          "u32"
+        ],
+        "batch_token": [
+          16,
+          "u64"
+        ],
+        "committed_ms": [
+          24,
+          "f64"
+        ],
+        "commands_offset": [
+          32,
+          "u32"
+        ],
+        "commands_count": [
+          36,
+          "u32"
+        ],
+        "commands_stride": [
+          40,
+          "u32"
+        ],
+        "reserved": [
+          44,
+          "u32"
+        ],
+        "total_bytes": [
+          48,
+          "u64"
+        ],
+        "reserved_tail": [
+          56,
+          "u64"
+        ]
+      }
+    },
+    {
+      "name": "voice_command",
+      "kind": 45,
+      "size": 112,
+      "fields": {
+        "sequence": [
+          8,
+          "u64"
+        ],
+        "epoch": [
+          16,
+          "u32"
+        ],
+        "command_kind": [
+          20,
+          "u32"
+        ],
+        "time_ms": [
+          24,
+          "f64"
+        ],
+        "voice_id": [
+          32,
+          "u64"
+        ],
+        "asset_id": [
+          40,
+          "u64"
+        ],
+        "volume": [
+          48,
+          "f64"
+        ],
+        "pan": [
+          56,
+          "f64"
+        ],
+        "rate": [
+          64,
+          "f64"
+        ],
+        "duration_ms": [
+          72,
+          "f64"
+        ],
+        "lateness_threshold_ms": [
+          80,
+          "f64"
+        ],
+        "parameter_mask": [
+          88,
+          "u32"
+        ],
+        "late_policy": [
+          92,
+          "u32"
+        ],
+        "object_id": [
+          96,
+          "u32"
+        ],
+        "component_id": [
+          100,
+          "u32"
+        ],
+        "flags": [
+          104,
+          "u32"
+        ],
+        "reserved": [
+          108,
+          "u32"
+        ]
+      }
     }
   ],
   "transport": {
@@ -2199,7 +2410,11 @@ export function readRecordInto(view, offset, kind, result) {
     throw new RangeError('Truncated record');
   }
   validateSpan(view, offset, size, 1, 8);
-  for (const [field_name, [field_offset, field_type]] of fields_by_kind.get(kind)) {
+  const fields = fields_by_kind.get(kind);
+  for (let field_index = 0; field_index < fields.length; field_index++) {
+    const field_name = fields[field_index][0];
+    const field_offset = fields[field_index][1][0];
+    const field_type = fields[field_index][1][1];
     const address = offset + field_offset;
     switch (field_type) {
       case 'u32': result[field_name] = view.getUint32(address, true); break;
@@ -2216,7 +2431,9 @@ export function writeRecord(view, offset, kind, values = {}) {
     throw new Error('Unsupported record');
   }
   const bytes = checkedSpan(view, offset, record.size, 1, 8);
-  for (const [field_name, value] of Object.entries(values)) {
+  for (const field_name in values) {
+    if (!Object.hasOwn(values, field_name)) continue;
+    const value = values[field_name];
     const field = record.fields[field_name];
     if (!Object.hasOwn(record.fields, field_name)) {
       throw new Error('Unknown ABI field: ' + field_name);
@@ -2232,8 +2449,11 @@ export function writeRecord(view, offset, kind, values = {}) {
   view.setUint16(offset + RECORD_HEADER.kind, kind, true);
   view.setUint16(offset + RECORD_HEADER.version, 1, true);
   view.setUint32(offset + RECORD_HEADER.byte_size, record.size, true);
-  for (const [field_name, value] of Object.entries(values)) {
-    const [field_offset, field_type] = record.fields[field_name];
+  for (const field_name in values) {
+    if (!Object.hasOwn(values, field_name)) continue;
+    const value = values[field_name];
+    const field_offset = record.fields[field_name][0];
+    const field_type = record.fields[field_name][1];
     const address = offset + field_offset;
     switch (field_type) {
       case 'u32': view.setUint32(address, value, true); break;

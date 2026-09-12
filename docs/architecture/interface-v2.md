@@ -491,4 +491,66 @@ distinct f64/f32 interpolation paths. The count/fill producer preserves readonly
 past reads and hit feedback after journal acknowledgement. Its source-derived
 40 ms hide, 400 ms expansion, hit lifetime and 100 ms miss fade are separate
 policies; the active set's 800 ms conservative retention is not used as a generic
-animation duration. Broader feedback observations remain open.
+animation duration. Sixty feedback observations match selected alpha/scale curves
+at equal elapsed time after results; full A22 remains open. Draw reserve includes
+feedback/cursor membership indices and source-ID-indexed expiry policy, with
+watermarks separate from gameplay/audio acknowledgement. Repeated reads cannot
+append duplicate semantic history; backward reads and epoch changes rebuild it.
+## Voice transport and narrow capabilities
+
+Kind 41 (`transport_capabilities`, 40 bytes) reports independent resource,
+circle-animation, draw and voice versions (currently 1). `flags=1` means the draw
+producer is circle-only; `voice_command_mask=1` enables only one-shot production.
+Bits 1/2/3 of that mask are reserved for loop-start/loop-stop/parameter-ramp
+producers and remain clear. `max_draw_instances=1000000`; reserved fields are
+zero. These declarations do not enable aggregate Play or claim full A22/H11.
+
+`oe_session_voice_reserve` accepts kind 42 (32 bytes): `arena_bytes` is a u64 byte
+quota and `command_capacity` a u32 count; flags/reserved must be zero. Zero count
+queries kind 43 (32 bytes), containing requested/required counts, required arena
+bytes and session epoch. The current producer's count derives from one-shot
+sample capacity. Loop/ramp production must add an input-derived capacity bound
+before enabling its capability bits; object/sample counts alone cannot bound it.
+Actual reserve requires READY or PAUSED. Draw and voice storage jointly count
+against the engine's session arena quota. Candidate failure preserves prior
+storage. Counts above 1,000,000 and non-WASM32 byte sizes return typed quota errors.
+
+`oe_session_voice_output` writes kind 44 (64 bytes) plus a relative, aligned span
+of kind-45 records. The header contains epoch, committed map time, latest batch
+token, command offset/count/stride and total bytes; flags/reserved are zero.
+Insufficient capacity returns OUTPUT_REQUIRED and kind 43 without overwriting the
+previous voice frame. No gameplay advancement, allocation or memory growth occurs.
+
+Kind 45 (`voice_command`, 112 bytes) contains:
+
+| Fields | Semantics |
+|---|---|
+| sequence, epoch, voice_id | Positive sequence/epoch and nonzero u64 logical voice identity |
+| command_kind | 1 one-shot, 2 loop-start, 3 loop-stop, 4 parameter-ramp |
+| time_ms, asset_id | Finite nominal beatmap time and host-owned asset ID; time is never clamped |
+| volume, pan, rate | Finite volume 0–1, pan −1–1 and positive playback rate |
+| duration_ms, parameter_mask | Nonnegative ramp duration; mask bits 0/1/2 select volume/pan/rate. Ramps require a nonzero mask; other commands require zero mask/duration |
+| late_policy, lateness_threshold_ms | 1 immediate or 2 drop; finite nonnegative threshold in milliseconds |
+| object_id, component_id | Existing stable source identities; all-ones component denotes the parent |
+| flags, reserved | Flag 1 means missing asset/explicit silence and requires asset ID zero; otherwise asset ID is nonzero. Reserved is zero |
+
+The writer, validator and reader cover all four command shapes. The current
+production exporter translates the existing immutable one-shot journal; it does
+not synthesize loops or ramps from frame reads. Its immediate late policy remains
+provisional pending broader H11. Legacy kind-27 output remains unchanged.
+
+Voice frames own a separate output lifetime: gameplay/draw/result reads do not
+overwrite them. Another successful voice read, reserve replacement or session
+release invalidates the borrowed frame; reset/seek require a fresh epoch binding.
+Gameplay and voice reads share latest-token acknowledgement, so either can make
+the other's token stale. Voice-only acknowledgement consumes audio, not unseen
+judgements. All audio consumers for a session use the same `Audio_Admission`
+watermark, admitting a complete suffix before acknowledgement. Admission rejection
+retains pending output; an acknowledgement retry cannot enqueue it twice.
+
+Ordinary pause preserves queued and scheduled future one-shots under a bounded
+retention limit and lets already-started one-shots finish. Resume requires a fresh
+clock mapping for the same engine epoch and restores retained nominal times once.
+Reset/replacement/failure cancel instead. Loop suspension is explicitly unsupported
+until its producer/executor contract is enabled. The full player lifecycle remains
+W07 work.

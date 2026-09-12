@@ -16,7 +16,7 @@ const wasm_values = native_values.map((_case_values, case_index) =>
 assert.deepEqual(wasm_values, native_values);
 assert.deepEqual(native_values[0], [1, 0, 0, 1, 0, 0, 1, -0, -0]);
 writeFileSync(resolve(root, 'artifacts/presentation.json'), JSON.stringify({
-  oracle: 'local-contract-only', acceptance: ['A12'], complete: false, values: native_values,
+  oracle: 'local-contract-only', acceptance: ['A12', 'A22'], complete: false, values: native_values,
   compiler: verifyCompiler(),
 }, null, 2) + '\n');
-console.log('4 viewport fixtures: exact native/WASM values. A12 browser integration remains open.');
+console.log(`4 viewport and ${native_values.length - 4} circle boundary fixtures: exact native/WASM values. Full A12/A22 remain open.`);

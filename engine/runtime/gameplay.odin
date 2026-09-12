@@ -6,6 +6,7 @@ import "core:mem"
 import core_types "../core_types"
 import simulation "../simulation"
 import presentation "../presentation"
+import prepared "../prepared"
 import replay "../replay"
 
 put_f64 :: proc(bytes: []byte, byte_offset: int, number: f64) {
@@ -17,31 +18,45 @@ get_f64 :: proc(bytes: []byte, byte_offset: int) -> f64 {
 	return transmute(f64)get_u64(bytes, byte_offset)
 }
 
-gameplay_initialize :: proc(session: ^Session, input_capacity: u64) -> core_types.Status {
-	prepared_map := &session.map_storage.prepared_map
-	simulation_bytes, status := simulation.required_bytes(prepared_map, input_capacity)
+// Share checked reservation sizes with test transports and preflight callers.
+// Keep allocation layouts in the runtime, not duplicated in fixture runners.
+gameplay_storage_sizes :: proc(prepared_map: ^prepared.Map, input_capacity: u64) -> (required_bytes, output_bytes, presentation_bytes: u64, status: core_types.Status) {
+	simulation_bytes: u64
+	simulation_bytes, status = simulation.required_bytes(prepared_map, input_capacity)
 	if status != .OK {
-		return status
+		return 0, 0, 0, status
 	}
 	_, judgement_count, _ := simulation.counts(prepared_map)
-	output_bytes := u64(ABI_SESSION_SNAPSHOT_SIZE)
+	output_bytes = u64(ABI_SESSION_SNAPSHOT_SIZE)
 	if !simulation.size_add(&output_bytes, [ABI_SESSION_OBJECT_SIZE]byte, u64(len(prepared_map.objects))) ||
 	   !simulation.size_add(&output_bytes, [ABI_JUDGEMENT_SIZE]byte, judgement_count) ||
 	   !simulation.size_add(&output_bytes, [ABI_AUDIO_EVENT_SIZE]byte, simulation.sample_count(prepared_map)) {
-		return .QUOTA_EXCEEDED
+		return 0, 0, 0, .QUOTA_EXCEEDED
 	}
 	replay_bytes, _ := replay.encoded_size(simulation.recording_capacity(prepared_map, input_capacity))
 	output_bytes = max(output_bytes, replay_bytes, ABI_FINAL_RESULT_SIZE + 17 * ABI_RESULT_COUNT_SIZE)
-	presentation_bytes := u64(ABI_PRESENTATION_FRAME_SIZE)
+	presentation_bytes = u64(ABI_PRESENTATION_FRAME_SIZE)
 	if !simulation.size_add(&presentation_bytes, [ABI_PRESENTATION_OBJECT_SIZE]byte, u64(len(prepared_map.objects))) {
-		return .QUOTA_EXCEEDED
+		return 0, 0, 0, .QUOTA_EXCEEDED
 	}
-	required := simulation_bytes
-	if !simulation.size_add(&required, core_types.Input_Snapshot, simulation.recording_capacity(prepared_map, input_capacity)) ||
-	   !simulation.size_add(&required, presentation.Reveal, u64(len(prepared_map.objects))) ||
-	   !simulation.size_add(&required, int, u64(len(prepared_map.objects))) ||
-	   !simulation.size_add(&required, u64, (presentation_bytes + 7) / 8) ||
-	   !simulation.size_add(&required, u64, (output_bytes + 7) / 8) || required > u64(len(session.arena.bytes)) {
+	required_bytes = simulation_bytes
+	if !simulation.size_add(&required_bytes, core_types.Input_Snapshot, simulation.recording_capacity(prepared_map, input_capacity)) ||
+	   !simulation.size_add(&required_bytes, presentation.Reveal, u64(len(prepared_map.objects))) ||
+	   !simulation.size_add(&required_bytes, int, u64(len(prepared_map.objects))) ||
+	   !simulation.size_add(&required_bytes, u64, (presentation_bytes + 7) / 8) ||
+	   !simulation.size_add(&required_bytes, u64, (output_bytes + 7) / 8) {
+		return 0, 0, 0, .QUOTA_EXCEEDED
+	}
+	return required_bytes, output_bytes, presentation_bytes, .OK
+}
+
+gameplay_initialize :: proc(session: ^Session, input_capacity: u64) -> core_types.Status {
+	prepared_map := &session.map_storage.prepared_map
+	required_bytes, output_bytes, presentation_bytes, status := gameplay_storage_sizes(prepared_map, input_capacity)
+	if status != .OK {
+		return status
+	}
+	if required_bytes > u64(len(session.arena.bytes)) {
 		return .QUOTA_EXCEEDED
 	}
 	status = simulation.initialize(&session.simulation, prepared_map, &session.arena, input_capacity, session.lead_in_ms)
