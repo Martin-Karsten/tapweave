@@ -79,16 +79,10 @@ render_resource_create :: proc(instance: ^Instance, engine, map_handle: core_typ
 	return .OK
 }
 
-put_relative_span :: proc(bytes: []byte, field_offset, payload_offset, count, stride: int) {
-	put_u32(bytes, field_offset, u32(payload_offset))
-	put_u32(bytes, field_offset + 4, u32(count))
-	put_u32(bytes, field_offset + 8, u32(stride))
-}
-
 @(export)
 oe_map_render_resources :: proc "c" (engine, map_handle: core_types.Handle, span_output: uintptr) -> u32 {
 	context = runtime.default_context()
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
+	if !output_span_valid(span_output) {
 		return abi_status(.INVALID_ARGUMENT)
 	}
 	status := render_resource_create(&abi_instance, engine, map_handle)
@@ -104,12 +98,9 @@ oe_map_render_resources :: proc "c" (engine, map_handle: core_types.Handle, span
 @(export)
 oe_session_render_resources :: proc "c" (engine, session_handle: core_types.Handle, span_output: uintptr) -> u32 {
 	context = runtime.default_context()
-	session, status := gameplay_get(engine, session_handle)
+	session, status := gameplay_output_get(engine, session_handle, span_output)
 	if status != .OK {
 		return abi_status(status)
-	}
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
-		return abi_status(.INVALID_ARGUMENT)
 	}
 	bytes := session.map_storage.render_attachment.bytes
 	if len(bytes) == 0 {

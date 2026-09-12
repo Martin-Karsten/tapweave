@@ -14,6 +14,12 @@ Semantic_History :: struct {
 	visited_records: u64,
 }
 
+// Hit feedback fades with the shared retention window; misses use the
+// per-object duration captured at reserve time.
+feedback_duration_ms :: proc(history: ^Semantic_History, event: simulation.Judgement_Event) -> f64 {
+	return event.result == .MISS ? history.miss_durations_by_id[event.object_id] : FEEDBACK_RETENTION_MS
+}
+
 refresh_history :: proc(history: ^Semantic_History, projection: simulation.Projection, time_ms: f64, epoch: u32) {
 	if !history.initialized || history.epoch != epoch || time_ms < history.previous_ms {
 		history.feedback_count, history.cursor_count = 0, 0
@@ -24,8 +30,7 @@ refresh_history :: proc(history: ^Semantic_History, projection: simulation.Proje
 	for record_index in history.feedback_indices[:history.feedback_count] {
 		history.visited_records += 1
 		event := projection.feedback[record_index]
-		duration_ms := event.result == .MISS ? history.miss_durations_by_id[event.object_id] : FEEDBACK_RETENTION_MS
-		if time_ms < event.time_ms + duration_ms {
+		if time_ms < event.time_ms + feedback_duration_ms(history, event) {
 			history.feedback_indices[retained_count] = record_index
 			retained_count += 1
 		}
@@ -34,8 +39,7 @@ refresh_history :: proc(history: ^Semantic_History, projection: simulation.Proje
 	for history.next_feedback < len(projection.feedback) && projection.feedback[history.next_feedback].time_ms <= time_ms {
 		event := projection.feedback[history.next_feedback]
 		history.visited_records += 1
-		duration_ms := event.result == .MISS ? history.miss_durations_by_id[event.object_id] : FEEDBACK_RETENTION_MS
-		if time_ms < event.time_ms + duration_ms {
+		if time_ms < event.time_ms + feedback_duration_ms(history, event) {
 			history.feedback_indices[history.feedback_count] = history.next_feedback
 			history.feedback_count += 1
 		}

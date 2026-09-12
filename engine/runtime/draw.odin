@@ -82,8 +82,8 @@ draw_reserve :: proc(instance: ^Instance, engine, session_handle: core_types.Han
 	candidate.history.feedback_indices, _ = core_types.arena_take(&candidate.arena, int, feedback_capacity)
 	candidate.history.cursor_indices, _ = core_types.arena_take(&candidate.arena, int, cursor_capacity)
 	candidate.history.miss_durations_by_id, _ = core_types.arena_take(&candidate.arena, f64, object_count)
-	for object in session.map_storage.prepared_map.objects {
-		candidate.history.miss_durations_by_id[object.id] = object.kind == .CIRCLE ? 100 : presentation.FEEDBACK_RETENTION_MS
+	for &object in session.map_storage.prepared_map.objects {
+		candidate.history.miss_durations_by_id[object.id] = presentation.miss_duration_ms(&object)
 	}
 	core_types.arena_destroy(&session.draw_storage.arena)
 	// Sole ownership transfer: candidate is not accessed after publication.
@@ -94,12 +94,9 @@ draw_reserve :: proc(instance: ^Instance, engine, session_handle: core_types.Han
 @(export)
 oe_session_render_reserve :: proc "c" (engine, session_handle: core_types.Handle, request_address, span_output: uintptr) -> u32 {
 	context = runtime.default_context()
-	session, status := gameplay_get(engine, session_handle)
+	session, status := gameplay_output_get(engine, session_handle, span_output)
 	if status != .OK {
 		return abi_status(status)
-	}
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
-		return abi_status(.INVALID_ARGUMENT)
 	}
 	if len(session.map_storage.render_attachment.bytes) == 0 {
 		return abi_status(.INVALID_STATE)
@@ -154,28 +151,19 @@ write_draw_instance :: proc(bytes: []byte, instance: presentation.Instance) {
 @(export)
 oe_session_draw :: proc "c" (engine, session_handle: core_types.Handle, time_ms: f64, viewport_address, span_output: uintptr) -> u32 {
 	context = runtime.default_context()
-	session, status := gameplay_get(engine, session_handle)
+	session, status := gameplay_output_get(engine, session_handle, span_output)
 	if status != .OK {
 		return abi_status(status)
 	}
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET || !core_types.finite(time_ms) {
+	if !core_types.finite(time_ms) {
 		return abi_status(.INVALID_ARGUMENT)
 	}
 	if len(session.draw_storage.output) == 0 || len(session.map_storage.render_attachment.bytes) == 0 {
 		return abi_status(.INVALID_STATE)
 	}
-	status = abi_record(viewport_address, ABI_VIEWPORT_KIND, ABI_VIEWPORT_SIZE)
-	if status != .OK {
-		return abi_status(status)
-	}
-	viewport_bytes := abi_storage.bytes[:ABI_INPUT_SIZE]
-	transform, valid := presentation.make_playfield_transform({
-		get_f64(viewport_bytes, ABI_VIEWPORT_CSS_LEFT_OFFSET), get_f64(viewport_bytes, ABI_VIEWPORT_CSS_TOP_OFFSET),
-		get_f64(viewport_bytes, ABI_VIEWPORT_CSS_WIDTH_OFFSET), get_f64(viewport_bytes, ABI_VIEWPORT_CSS_HEIGHT_OFFSET),
-		get_f64(viewport_bytes, ABI_VIEWPORT_DEVICE_PIXEL_RATIO_OFFSET),
-	})
-	if !valid {
-		return abi_status(.INVALID_ARGUMENT)
+	transform, transform_status := read_viewport_transform(viewport_address)
+	if transform_status != .OK {
+		return abi_status(transform_status)
 	}
 	simulation_state := &session.simulation
 	projection := simulation.project(simulation_state)
@@ -201,7 +189,7 @@ oe_session_draw :: proc "c" (engine, session_handle: core_types.Handle, time_ms:
 	batch_count := 0
 	for instance, instance_index in instances {
 		write_draw_instance(bytes[instance_offset + instance_index * ABI_DRAW_INSTANCE_SIZE:], instance)
-		if instance_index == 0 || instance.layer != instances[instance_index - 1].layer || instance.primitive != instances[instance_index - 1].primitive {
+		if instance_index == 0 || presentation.starts_batch(instance, instances[instance_index - 1]) {
 			record := bytes[batch_offset + batch_count * ABI_DRAW_BATCH_SIZE:]
 			put_header(record, ABI_DRAW_BATCH_KIND, ABI_DRAW_BATCH_SIZE)
 			put_u32(record, ABI_DRAW_BATCH_LAYER_OFFSET, instance.layer)
@@ -225,11 +213,12 @@ oe_session_draw :: proc "c" (engine, session_handle: core_types.Handle, time_ms:
 	put_f64(bytes, ABI_DRAW_FRAME_SCALE_OFFSET, transform.scale)
 	put_f64(bytes, ABI_DRAW_FRAME_CLIENT_LEFT_OFFSET, transform.client_left)
 	put_f64(bytes, ABI_DRAW_FRAME_CLIENT_TOP_OFFSET, transform.client_top)
-	put_u64(bytes, ABI_DRAW_FRAME_SCORE_OFFSET, u64(simulation_state.score.total))
-	put_f64(bytes, ABI_DRAW_FRAME_ACCURACY_OFFSET, simulation_state.score.accuracy)
-	put_f64(bytes, ABI_DRAW_FRAME_HEALTH_OFFSET, simulation.sample_health(simulation_state, simulation_state.committed_ms))
-	put_u32(bytes, ABI_DRAW_FRAME_COMBO_OFFSET, simulation_state.score.accumulator.combo)
-	put_u32(bytes, ABI_DRAW_FRAME_HIGHEST_COMBO_OFFSET, simulation_state.score.accumulator.highest_combo)
+	summary := simulation.score_summary(simulation_state, simulation_state.committed_ms)
+	put_u64(bytes, ABI_DRAW_FRAME_SCORE_OFFSET, u64(summary.score))
+	put_f64(bytes, ABI_DRAW_FRAME_ACCURACY_OFFSET, summary.accuracy)
+	put_f64(bytes, ABI_DRAW_FRAME_HEALTH_OFFSET, summary.health)
+	put_u32(bytes, ABI_DRAW_FRAME_COMBO_OFFSET, summary.combo)
+	put_u32(bytes, ABI_DRAW_FRAME_HIGHEST_COMBO_OFFSET, summary.highest_combo)
 	put_relative_span(bytes, ABI_DRAW_FRAME_INSTANCES_OFFSET_OFFSET, instance_offset, len(instances), ABI_DRAW_INSTANCE_SIZE)
 	put_relative_span(bytes, ABI_DRAW_FRAME_BATCHES_OFFSET_OFFSET, batch_offset, batch_count, ABI_DRAW_BATCH_SIZE)
 	put_u64(bytes, ABI_DRAW_FRAME_TOTAL_BYTES_OFFSET, u64(total_bytes))

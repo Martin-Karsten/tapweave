@@ -157,3 +157,15 @@ order_instances :: proc(instances: []Instance) {
 		return left.ordinal < right.ordinal
 	})
 }
+
+// Ordered instances start a new batch wherever the run of equal layer and
+// primitive ends. The transport starts the first batch itself.
+starts_batch :: proc(current, previous: Instance) -> bool {
+	return current.layer != previous.layer || current.primitive != previous.primitive
+}
+
+// Miss feedback duration: circles fade over the pinned 100 ms miss window,
+// other families use the shared retention window.
+miss_duration_ms :: proc(object: ^prepared.Object) -> f64 {
+	return object.kind == .CIRCLE ? 100 : FEEDBACK_RETENTION_MS
+}

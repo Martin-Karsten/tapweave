@@ -32,6 +32,41 @@ Map_Resource :: struct {
 	references, external_references: u32,
 }
 
+// One published output batch: the token the host acknowledges and the
+// per-stream counts that acknowledgement settles.
+Session_Outputs :: struct {
+	token: u64,
+	judgement_count, audio_count, voice_count: int,
+}
+
+outputs_exhausted :: proc(outputs: ^Session_Outputs) -> bool {
+	return outputs.token == max(u64)
+}
+
+outputs_publish :: proc(outputs: ^Session_Outputs, judgement_count, audio_count, voice_count: int) -> core_types.Status {
+	if outputs_exhausted(outputs) {
+		return .QUOTA_EXCEEDED
+	}
+	outputs.token += 1
+	outputs.judgement_count = judgement_count
+	outputs.audio_count = audio_count
+	outputs.voice_count = voice_count
+	return .OK
+}
+
+// Reset replaces the batch so a stale acknowledgement token cannot settle a
+// fresh session's streams.
+outputs_reset :: proc(outputs: ^Session_Outputs) -> core_types.Status {
+	if outputs_exhausted(outputs) {
+		return .QUOTA_EXCEEDED
+	}
+	outputs.token += 1
+	outputs.judgement_count = 0
+	outputs.audio_count = 0
+	outputs.voice_count = 0
+	return .OK
+}
+
 Session :: struct {
 	map_storage: ^Map_Resource,
 	arena: core_types.Arena,
@@ -44,10 +79,7 @@ Session :: struct {
 	draw_storage: Draw_Storage,
 	voice_storage: Voice_Storage,
 	input_candidate: []core_types.Input_Snapshot,
-	output_token: u64,
-	output_judgement_count: int,
-	output_audio_count: int,
-	output_voice_count: int,
+	outputs: Session_Outputs,
 }
 
 instance_create :: proc(
@@ -366,17 +398,17 @@ session_reset :: proc(
 		return .INVALID_ARGUMENT
 	}
 	if session_state.gameplay {
-		if session_state.output_token == max(u64) {
+		if outputs_exhausted(&session_state.outputs) {
 			return .QUOTA_EXCEEDED
 		}
 		status = simulation.reset_session(&session_state.simulation, lead_in_ms)
 		if status != .OK {
 			return status
 		}
-		session_state.output_token += 1
-		session_state.output_judgement_count = 0
-		session_state.output_audio_count = 0
-		session_state.output_voice_count = 0
+		status = outputs_reset(&session_state.outputs)
+		if status != .OK {
+			return status
+		}
 	} else {
 		core_types.arena_reset(&session_state.arena)
 	}

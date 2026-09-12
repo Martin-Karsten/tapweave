@@ -10,7 +10,6 @@ Voice_Storage :: struct {
 	capacity: u32,
 }
 ABI_VOICE_CAPACITY_OUTPUT :: 880
-ABI_TRANSPORT_CAPABILITIES_OUTPUT :: 920
 MAX_VOICE_COMMANDS :: 1_000_000
 
 voice_required_bytes :: proc(command_count: u64) -> (u64, core_types.Status) {
@@ -90,12 +89,9 @@ write_voice_capacity :: proc(session: ^Session, requested, required: u32) {
 @(export)
 oe_session_voice_reserve :: proc "c" (engine, session_handle: core_types.Handle, request_address, span_output: uintptr) -> u32 {
 	context = runtime.default_context()
-	session, status := gameplay_get(engine, session_handle)
+	session, status := gameplay_output_get(engine, session_handle, span_output)
 	if status != .OK {
 		return abi_status(status)
-	}
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
-		return abi_status(.INVALID_ARGUMENT)
 	}
 	status = abi_record(request_address, ABI_VOICE_RESERVE_KIND, ABI_VOICE_RESERVE_SIZE)
 	if status != .OK {
@@ -149,12 +145,9 @@ write_voice_command :: proc(bytes: []byte, command: audio_protocol.Command) {
 @(export)
 oe_session_voice_output :: proc "c" (engine, session_handle: core_types.Handle, span_output: uintptr) -> u32 {
 	context = runtime.default_context()
-	session, status := gameplay_get(engine, session_handle)
+	session, status := gameplay_output_get(engine, session_handle, span_output)
 	if status != .OK {
 		return abi_status(status)
-	}
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
-		return abi_status(.INVALID_ARGUMENT)
 	}
 	if len(session.voice_storage.arena.bytes) == 0 {
 		return abi_status(.INVALID_STATE)
@@ -165,7 +158,7 @@ oe_session_voice_output :: proc "c" (engine, session_handle: core_types.Handle, 
 		write_voice_capacity(session, session.voice_storage.capacity, u32(command_count))
 		return abi_status(.OUTPUT_REQUIRED)
 	}
-	if session.output_token == max(u64) {
+	if outputs_exhausted(&session.outputs) {
 		return abi_status(.QUOTA_EXCEEDED)
 	}
 	bytes := session.voice_storage.arena.bytes
@@ -173,45 +166,18 @@ oe_session_voice_output :: proc "c" (engine, session_handle: core_types.Handle, 
 		write_voice_command(bytes[ABI_VOICE_FRAME_SIZE + command_index * ABI_VOICE_COMMAND_SIZE:],
 			simulation_state.voices.commands[simulation_state.voices.acknowledged + command_index])
 	}
-	session.output_token += 1
 	// A voice-only read never consumes unseen gameplay judgement records.
-	session.output_judgement_count = simulation_state.acknowledged_count
-	session.output_audio_count = simulation_state.audio_count
-	session.output_voice_count = simulation_state.voices.count
+	outputs_publish(&session.outputs, simulation_state.acknowledged_count, simulation_state.audio_count, simulation_state.voices.count)
 	put_header(bytes, ABI_VOICE_FRAME_KIND, ABI_VOICE_FRAME_SIZE)
 	put_u32(bytes, ABI_VOICE_FRAME_EPOCH_OFFSET, simulation_state.epoch)
 	put_u32(bytes, ABI_VOICE_FRAME_FLAGS_OFFSET, 1)
-	put_u64(bytes, ABI_VOICE_FRAME_BATCH_TOKEN_OFFSET, session.output_token)
+	put_u64(bytes, ABI_VOICE_FRAME_BATCH_TOKEN_OFFSET, session.outputs.token)
 	put_f64(bytes, ABI_VOICE_FRAME_COMMITTED_MS_OFFSET, simulation_state.committed_ms)
 	put_relative_span(bytes, ABI_VOICE_FRAME_COMMANDS_OFFSET_OFFSET, ABI_VOICE_FRAME_SIZE, command_count, ABI_VOICE_COMMAND_SIZE)
 	put_u32(bytes, ABI_VOICE_FRAME_RESERVED_OFFSET, 0)
 	total_bytes := ABI_VOICE_FRAME_SIZE + command_count * ABI_VOICE_COMMAND_SIZE
 	put_u64(bytes, ABI_VOICE_FRAME_TOTAL_BYTES_OFFSET, u64(total_bytes))
 	put_u64(bytes, ABI_VOICE_FRAME_RESERVED_TAIL_OFFSET, 0)
-	abi_span(uintptr(raw_data(bytes)), u32(total_bytes), session.output_token)
-	return abi_status(.OK)
-}
-
-@(export)
-oe_transport_capabilities :: proc "c" (engine: core_types.Handle, span_output: uintptr) -> u32 {
-	context = runtime.default_context()
-	_, status := engine_get(&abi_instance, engine)
-	if status != .OK {
-		return abi_status(status)
-	}
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
-		return abi_status(.INVALID_ARGUMENT)
-	}
-	bytes := abi_storage.bytes[ABI_TRANSPORT_CAPABILITIES_OUTPUT:ABI_TRANSPORT_CAPABILITIES_OUTPUT + ABI_TRANSPORT_CAPABILITIES_SIZE]
-	put_header(bytes, ABI_TRANSPORT_CAPABILITIES_KIND, ABI_TRANSPORT_CAPABILITIES_SIZE)
-	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_RESOURCE_VERSION_OFFSET, 1)
-	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_CIRCLE_ANIMATION_VERSION_OFFSET, 1)
-	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_DRAW_VERSION_OFFSET, 1)
-	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_VOICE_VERSION_OFFSET, 2)
-	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_VOICE_COMMAND_MASK_OFFSET, 15) // Authoritative journal emits all four command families.
-	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_FLAGS_OFFSET, 1) // Circle-only draw producer.
-	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_MAX_DRAW_INSTANCES_OFFSET, MAX_DRAW_INSTANCES)
-	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_RESERVED_OFFSET, 0)
-	abi_span(uintptr(raw_data(bytes)), ABI_TRANSPORT_CAPABILITIES_SIZE)
+	abi_span(uintptr(raw_data(bytes)), u32(total_bytes), session.outputs.token)
 	return abi_status(.OK)
 }

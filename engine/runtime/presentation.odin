@@ -7,20 +7,12 @@ import simulation "../simulation"
 
 ABI_TRANSFORM_OUTPUT_OFFSET :: 672
 
-// Independent coordinate capability; this does not advertise object rendering.
-@(export)
-oe_playfield_transform :: proc "c" (engine: core_types.Handle, viewport_address, span_output: uintptr) -> u32 {
-	context = runtime.default_context()
-	_, status := engine_get(&abi_instance, engine)
+// One viewport reader: the playfield transport and the draw transport decode
+// the same input record through the same path.
+read_viewport_transform :: proc(viewport_address: uintptr) -> (presentation.Playfield_Transform, core_types.Status) {
+	status := abi_record(viewport_address, ABI_VIEWPORT_KIND, ABI_VIEWPORT_SIZE)
 	if status != .OK {
-		return abi_status(status)
-	}
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
-		return abi_status(.INVALID_ARGUMENT)
-	}
-	status = abi_record(viewport_address, ABI_VIEWPORT_KIND, ABI_VIEWPORT_SIZE)
-	if status != .OK {
-		return abi_status(status)
+		return {}, status
 	}
 	input_bytes := abi_storage.bytes[:ABI_INPUT_SIZE]
 	transform, valid := presentation.make_playfield_transform({
@@ -31,7 +23,25 @@ oe_playfield_transform :: proc "c" (engine: core_types.Handle, viewport_address,
 		device_pixel_ratio = get_f64(input_bytes, ABI_VIEWPORT_DEVICE_PIXEL_RATIO_OFFSET),
 	})
 	if !valid {
+		return {}, .INVALID_ARGUMENT
+	}
+	return transform, .OK
+}
+
+// Independent coordinate capability; this does not advertise object rendering.
+@(export)
+oe_playfield_transform :: proc "c" (engine: core_types.Handle, viewport_address, span_output: uintptr) -> u32 {
+	context = runtime.default_context()
+	_, status := engine_get(&abi_instance, engine)
+	if status != .OK {
+		return abi_status(status)
+	}
+	if !output_span_valid(span_output) {
 		return abi_status(.INVALID_ARGUMENT)
+	}
+	transform, transform_status := read_viewport_transform(viewport_address)
+	if transform_status != .OK {
+		return abi_status(transform_status)
 	}
 	bytes := abi_storage.bytes[ABI_TRANSFORM_OUTPUT_OFFSET:ABI_TRANSFORM_OUTPUT_OFFSET + ABI_PLAYFIELD_TRANSFORM_SIZE]
 	put_header(bytes, ABI_PLAYFIELD_TRANSFORM_KIND, ABI_PLAYFIELD_TRANSFORM_SIZE)
@@ -53,11 +63,11 @@ oe_playfield_transform :: proc "c" (engine: core_types.Handle, viewport_address,
 @(export)
 oe_session_presentation :: proc "c" (engine, session_handle: core_types.Handle, time_ms: f64, span_output: uintptr) -> u32 {
 	context = runtime.default_context()
-	session, status := gameplay_get(engine, session_handle)
+	session, status := gameplay_output_get(engine, session_handle, span_output)
 	if status != .OK {
 		return abi_status(status)
 	}
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET || !core_types.finite(time_ms) {
+	if !core_types.finite(time_ms) {
 		return abi_status(.INVALID_ARGUMENT)
 	}
 	simulation_state := &session.simulation
@@ -117,7 +127,7 @@ oe_output_capabilities :: proc "c" (engine: core_types.Handle, span_output: uint
 	if status != .OK {
 		return abi_status(status)
 	}
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
+	if !output_span_valid(span_output) {
 		return abi_status(.INVALID_ARGUMENT)
 	}
 	bytes := abi_storage.bytes[ABI_OUTPUT_CAPABILITIES_OFFSET:ABI_OUTPUT_CAPABILITIES_OFFSET + ABI_OUTPUT_CAPABILITIES_SIZE]

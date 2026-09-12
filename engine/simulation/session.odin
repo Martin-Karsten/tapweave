@@ -427,6 +427,24 @@ sample_health :: proc(session: ^Session, time_ms: f64) -> f64 {
 	return clamp(session.health.amount - max(f64(0), duration_ms) * session.drain_rate, 0, 1)
 }
 
+Score_Summary :: struct {
+	score: i64,
+	accuracy, health: f64,
+	combo, highest_combo: u32,
+}
+
+// The summary quintet every transport serializes. Health is sampled at the
+// caller's committed instant so presentation cadence cannot change it.
+score_summary :: proc(session: ^Session, time_ms: f64) -> Score_Summary {
+	return {
+		score = session.score.total,
+		accuracy = session.score.accuracy,
+		health = sample_health(session, time_ms),
+		combo = session.score.accumulator.combo,
+		highest_combo = session.score.accumulator.highest_combo,
+	}
+}
+
 terminal :: proc(session: ^Session) -> bool {
 	return session.state == .PASSED || session.state == .FAILED
 }

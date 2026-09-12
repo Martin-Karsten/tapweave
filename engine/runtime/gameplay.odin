@@ -9,15 +9,6 @@ import presentation "../presentation"
 import prepared "../prepared"
 import replay "../replay"
 
-put_f64 :: proc(bytes: []byte, byte_offset: int, number: f64) {
-	canonical := number == 0 ? f64(0) : number
-	put_u64(bytes, byte_offset, transmute(u64)canonical)
-}
-
-get_f64 :: proc(bytes: []byte, byte_offset: int) -> f64 {
-	return transmute(f64)get_u64(bytes, byte_offset)
-}
-
 // Share checked reservation sizes with test transports and preflight callers.
 // Keep allocation layouts in the runtime, not duplicated in fixture runners.
 gameplay_storage_sizes :: proc(prepared_map: ^prepared.Map, input_capacity: u64) -> (required_bytes, output_bytes, presentation_bytes: u64, status: core_types.Status) {
@@ -109,7 +100,7 @@ gameplay_snapshot :: proc(session: ^Session, presentation_ms: f64, include_objec
 	if !core_types.finite(presentation_ms) {
 		return .INVALID_ARGUMENT
 	}
-	if session.output_token == max(u64) {
+	if outputs_exhausted(&session.outputs) {
 		return .QUOTA_EXCEEDED
 	}
 	simulation_state := &session.simulation
@@ -122,31 +113,29 @@ gameplay_snapshot :: proc(session: ^Session, presentation_ms: f64, include_objec
 	audio_count := simulation_state.audio_count - simulation_state.acknowledged_audio_count
 	total_bytes := audio_offset + audio_count * ABI_AUDIO_EVENT_SIZE
 	// Kinds 19 and 31 intentionally share the generated summary layout.
+	summary := simulation.score_summary(simulation_state, simulation_state.committed_ms)
 	put_header(bytes, include_objects ? ABI_SESSION_SNAPSHOT_KIND : ABI_GAMEPLAY_OUTPUT_KIND, ABI_SESSION_SNAPSHOT_SIZE)
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_STATE_OFFSET, u32(simulation_state.state))
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_EPOCH_OFFSET, simulation_state.epoch)
 	put_f64(bytes, ABI_SESSION_SNAPSHOT_COMMITTED_MS_OFFSET, simulation_state.committed_ms)
 	put_f64(bytes, ABI_SESSION_SNAPSHOT_PRESENTATION_MS_OFFSET, presentation_ms)
-	put_u64(bytes, ABI_SESSION_SNAPSHOT_SCORE_OFFSET, u64(simulation_state.score.total))
-	put_f64(bytes, ABI_SESSION_SNAPSHOT_ACCURACY_OFFSET, simulation_state.score.accuracy)
-	put_f64(bytes, ABI_SESSION_SNAPSHOT_HEALTH_OFFSET, simulation.sample_health(simulation_state, simulation_state.committed_ms))
-	put_u32(bytes, ABI_SESSION_SNAPSHOT_COMBO_OFFSET, simulation_state.score.accumulator.combo)
-	put_u32(bytes, ABI_SESSION_SNAPSHOT_HIGHEST_COMBO_OFFSET, simulation_state.score.accumulator.highest_combo)
+	put_u64(bytes, ABI_SESSION_SNAPSHOT_SCORE_OFFSET, u64(summary.score))
+	put_f64(bytes, ABI_SESSION_SNAPSHOT_ACCURACY_OFFSET, summary.accuracy)
+	put_f64(bytes, ABI_SESSION_SNAPSHOT_HEALTH_OFFSET, summary.health)
+	put_u32(bytes, ABI_SESSION_SNAPSHOT_COMBO_OFFSET, summary.combo)
+	put_u32(bytes, ABI_SESSION_SNAPSHOT_HIGHEST_COMBO_OFFSET, summary.highest_combo)
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_OBJECTS_OFFSET_OFFSET, u32(object_offset))
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_OBJECTS_COUNT_OFFSET, u32(object_count))
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_OBJECTS_STRIDE_OFFSET, ABI_SESSION_OBJECT_SIZE)
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_JUDGEMENTS_OFFSET_OFFSET, u32(judgement_offset))
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_JUDGEMENTS_COUNT_OFFSET, u32(judgement_count))
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_JUDGEMENTS_STRIDE_OFFSET, ABI_JUDGEMENT_SIZE)
-	session.output_token += 1
-	session.output_judgement_count = simulation_state.journal_count
-	session.output_audio_count = simulation_state.audio_count
-	session.output_voice_count = simulation_state.voices.acknowledged
+	outputs_publish(&session.outputs, simulation_state.journal_count, simulation_state.audio_count, simulation_state.voices.acknowledged)
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_AUDIO_OFFSET_OFFSET, u32(audio_offset))
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_AUDIO_COUNT_OFFSET, u32(audio_count))
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_AUDIO_STRIDE_OFFSET, ABI_AUDIO_EVENT_SIZE)
 	put_u32(bytes, ABI_SESSION_SNAPSHOT_RESERVED_OFFSET, 0)
-	put_u64(bytes, ABI_SESSION_SNAPSHOT_BATCH_TOKEN_OFFSET, session.output_token)
+	put_u64(bytes, ABI_SESSION_SNAPSHOT_BATCH_TOKEN_OFFSET, session.outputs.token)
 	put_u64(bytes, ABI_SESSION_SNAPSHOT_TOTAL_BYTES_OFFSET, u64(total_bytes))
 	projection := simulation.project(simulation_state)
 	for object_index in 0 ..< object_count {
@@ -182,7 +171,7 @@ gameplay_snapshot :: proc(session: ^Session, presentation_ms: f64, include_objec
 		put_u32(record, ABI_AUDIO_EVENT_SAMPLE_INDEX_OFFSET, event.sample_index)
 		put_u32(record, ABI_AUDIO_EVENT_KIND_OFFSET, 1)
 	}
-	abi_span(uintptr(raw_data(bytes)), u32(total_bytes), session.output_token)
+	abi_span(uintptr(raw_data(bytes)), u32(total_bytes), session.outputs.token)
 	return .OK
 }
 
@@ -204,7 +193,7 @@ oe_simulation_capabilities :: proc "c" (engine: core_types.Handle, span_output: 
 	if status != .OK {
 		return abi_status(status)
 	}
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
+	if !output_span_valid(span_output) {
 		return abi_status(.INVALID_ARGUMENT)
 	}
 	bytes := abi_storage.bytes[640:640 + ABI_SIMULATION_CAPABILITIES_SIZE]
@@ -224,12 +213,12 @@ oe_session_acknowledge :: proc "c" (engine, session_handle: core_types.Handle, t
 	if status != .OK {
 		return abi_status(status)
 	}
-	if token == 0 || token != session.output_token {
+	if token == 0 || token != session.outputs.token {
 		return abi_status(.INVALID_ARGUMENT)
 	}
-	session.simulation.acknowledged_count = session.output_judgement_count
-	session.simulation.acknowledged_audio_count = session.output_audio_count
-	session.simulation.voices.acknowledged = session.output_voice_count
+	session.simulation.acknowledged_count = session.outputs.judgement_count
+	session.simulation.acknowledged_audio_count = session.outputs.audio_count
+	session.simulation.voices.acknowledged = session.outputs.voice_count
 	return abi_status(.OK)
 }
 
@@ -274,17 +263,18 @@ gameplay_result :: proc(session: ^Session) -> core_types.Status {
 		return .INVALID_STATE
 	}
 	bytes := session.output
+	summary := simulation.score_summary(simulation_state, simulation_state.terminal_ms)
 	put_header(bytes, ABI_FINAL_RESULT_KIND, ABI_FINAL_RESULT_SIZE)
 	put_u32(bytes, ABI_FINAL_RESULT_STATE_OFFSET, u32(simulation_state.state))
 	put_u32(bytes, ABI_FINAL_RESULT_RANK_OFFSET, u32(simulation_state.score.rank))
 	put_f64(bytes, ABI_FINAL_RESULT_TERMINAL_MS_OFFSET, simulation_state.terminal_ms)
-	put_u64(bytes, ABI_FINAL_RESULT_SCORE_OFFSET, u64(simulation_state.score.total))
-	put_f64(bytes, ABI_FINAL_RESULT_ACCURACY_OFFSET, simulation_state.score.accuracy)
-	put_f64(bytes, ABI_FINAL_RESULT_HEALTH_OFFSET, simulation.sample_health(simulation_state, simulation_state.terminal_ms))
+	put_u64(bytes, ABI_FINAL_RESULT_SCORE_OFFSET, u64(summary.score))
+	put_f64(bytes, ABI_FINAL_RESULT_ACCURACY_OFFSET, summary.accuracy)
+	put_f64(bytes, ABI_FINAL_RESULT_HEALTH_OFFSET, summary.health)
 	put_u64(bytes, ABI_FINAL_RESULT_NUMERATOR_OFFSET, simulation_state.score.accumulator.numerator)
 	put_u64(bytes, ABI_FINAL_RESULT_DENOMINATOR_OFFSET, simulation_state.score.accumulator.denominator)
-	put_u32(bytes, ABI_FINAL_RESULT_COMBO_OFFSET, simulation_state.score.accumulator.combo)
-	put_u32(bytes, ABI_FINAL_RESULT_HIGHEST_COMBO_OFFSET, simulation_state.score.accumulator.highest_combo)
+	put_u32(bytes, ABI_FINAL_RESULT_COMBO_OFFSET, summary.combo)
+	put_u32(bytes, ABI_FINAL_RESULT_HIGHEST_COMBO_OFFSET, summary.highest_combo)
 	digest := gameplay_digest(session)
 	copy(bytes[ABI_FINAL_RESULT_RAW_DIGEST_0_OFFSET:], simulation_state.prepared_map.raw_digest[:])
 	copy(bytes[ABI_FINAL_RESULT_PREPARED_DIGEST_0_OFFSET:], simulation_state.prepared_map.prepared_digest[:])
@@ -357,12 +347,9 @@ oe_session_replay_load :: proc "c" (engine, session_handle: core_types.Handle, t
 @(export)
 oe_session_replay_export :: proc "c" (engine, session_handle: core_types.Handle, span_output: uintptr) -> u32 {
 	context = runtime.default_context()
-	session, status := gameplay_get(engine, session_handle)
+	session, status := gameplay_output_get(engine, session_handle, span_output)
 	if status != .OK {
 		return abi_status(status)
-	}
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
-		return abi_status(.INVALID_ARGUMENT)
 	}
 	if !simulation.terminal(&session.simulation) {
 		return abi_status(.INVALID_STATE)
@@ -385,10 +372,10 @@ oe_session_replay_seek :: proc "c" (engine, session_handle: core_types.Handle, t
 	if !simulation_state.replay_mode {
 		return abi_status(.INVALID_STATE)
 	}
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET || !core_types.finite(time_ms) || time_ms < simulation_state.lead_in_ms {
+	if !output_span_valid(span_output) || !core_types.finite(time_ms) || time_ms < simulation_state.lead_in_ms {
 		return abi_status(.INVALID_ARGUMENT)
 	}
-	if simulation_state.epoch == max(u32) || session.output_token == max(u64) {
+	if simulation_state.epoch == max(u32) || session.outputs.token == max(u64) {
 		return abi_status(.QUOTA_EXCEEDED)
 	}
 	// The immutable READY simulation_state is the initial checkpoint. Reset reconstructs

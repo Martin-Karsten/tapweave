@@ -24,34 +24,6 @@ ABI_Mailbox :: struct #align (16) {
 abi_storage: ABI_Mailbox
 abi_instance: Instance
 abi_ready: bool
-get_u32 :: proc(bytes: []byte, byte_offset: int) -> u32 {
-	return(
-		u32(bytes[byte_offset]) |
-		u32(bytes[byte_offset + 1]) << 8 |
-		u32(bytes[byte_offset + 2]) << 16 |
-		u32(bytes[byte_offset + 3]) << 24 \
-	)
-}
-
-get_u64 :: proc(bytes: []byte, byte_offset: int) -> u64 {
-	return u64(get_u32(bytes, byte_offset)) | u64(get_u32(bytes, byte_offset + 4)) << 32
-}
-
-put_u32 :: proc(bytes: []byte, byte_offset: int, value: u32) {
-	for byte_index in 0 ..< 4 {
-		bytes[byte_offset + byte_index] = byte(value >> u32(byte_index * 8))
-	}
-}
-
-put_u64 :: proc(bytes: []byte, byte_offset: int, value: u64) {
-	put_u32(bytes, byte_offset, u32(value))
-	put_u32(bytes, byte_offset + 4, u32(value >> 32))
-}
-
-put_header :: proc(bytes: []byte, kind, size: u32) {
-	put_u32(bytes, ABI_RECORD_KIND_OFFSET, kind | 1 << 16)
-	put_u32(bytes, ABI_RECORD_BYTE_SIZE_OFFSET, size)
-}
 
 abi_base :: proc() -> uintptr {
 	return uintptr(&abi_storage.bytes[0])
@@ -152,7 +124,7 @@ oe_engine_create :: proc "c" (creation_info, handle_output, error: uintptr) -> u
 @(export)
 oe_engine_capabilities :: proc "c" (engine: core_types.Handle, span_output: uintptr) -> u32 {
 	context = runtime.default_context()
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
+	if !output_span_valid(span_output) {
 		return u32(core_types.Status.INVALID_ARGUMENT)
 	}
 	engine_state, status := engine_get(&abi_instance, engine)
@@ -184,7 +156,7 @@ oe_buffer_reserve :: proc "c" (
 	span_output: uintptr,
 ) -> u32 {
 	context = runtime.default_context()
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
+	if !output_span_valid(span_output) {
 		return u32(core_types.Status.INVALID_ARGUMENT)
 	}
 	if kind != 1 {
@@ -243,7 +215,7 @@ oe_map_prepare :: proc "c" (engine: core_types.Handle, creation_info, handle_out
 @(export)
 oe_map_describe :: proc "c" (engine, map_handle: core_types.Handle, span_output: uintptr) -> u32 {
 	context = runtime.default_context()
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
+	if !output_span_valid(span_output) {
 		return u32(core_types.Status.INVALID_ARGUMENT)
 	}
 	map_resource, status := map_get(&abi_instance, engine, map_handle)
@@ -392,10 +364,10 @@ session_advance_output :: proc(engine, session_handle: core_types.Handle, time_m
 	if status != .OK {
 		return abi_status(status)
 	}
-	if output != abi_base() + ABI_OUTPUT_OFFSET || !core_types.finite(time_ms) {
+	if !output_span_valid(output) || !core_types.finite(time_ms) {
 		return abi_status(.INVALID_ARGUMENT)
 	}
-	if session.output_token == max(u64) {
+	if session.outputs.token == max(u64) {
 		return abi_status(.QUOTA_EXCEEDED)
 	}
 	status = simulation.advance_session(&session.simulation, time_ms)
@@ -412,10 +384,10 @@ oe_session_snapshot :: proc "c" (engine, session_handle: core_types.Handle, time
 	if status != .OK {
 		return abi_status(status)
 	}
-	if output != abi_base() + ABI_OUTPUT_OFFSET || !core_types.finite(time_ms) {
+	if !output_span_valid(output) || !core_types.finite(time_ms) {
 		return abi_status(.INVALID_ARGUMENT)
 	}
-	if session.output_token == max(u64) {
+	if session.outputs.token == max(u64) {
 		return abi_status(.QUOTA_EXCEEDED)
 	}
 	status = .OK
@@ -432,10 +404,10 @@ oe_session_pause :: proc "c" (engine, session_handle: core_types.Handle, time_ms
 	if status != .OK {
 		return abi_status(status)
 	}
-	if output != abi_base() + ABI_OUTPUT_OFFSET || !core_types.finite(time_ms) {
+	if !output_span_valid(output) || !core_types.finite(time_ms) {
 		return abi_status(.INVALID_ARGUMENT)
 	}
-	if session.output_token == max(u64) {
+	if session.outputs.token == max(u64) {
 		return abi_status(.QUOTA_EXCEEDED)
 	}
 	status = simulation.pause_session(&session.simulation, time_ms)
@@ -473,7 +445,7 @@ oe_session_result :: proc "c" (engine, session_handle: core_types.Handle, output
 	if status != .OK {
 		return abi_status(status)
 	}
-	if output != abi_base() + ABI_OUTPUT_OFFSET {
+	if !output_span_valid(output) {
 		return abi_status(.INVALID_ARGUMENT)
 	}
 	return abi_status(gameplay_result(session))
@@ -482,7 +454,7 @@ oe_session_result :: proc "c" (engine, session_handle: core_types.Handle, output
 @(export)
 oe_preparation_capabilities :: proc "c" (engine: core_types.Handle, span_output: uintptr) -> u32 {
 	context = runtime.default_context()
-	if span_output != abi_base() + ABI_OUTPUT_OFFSET {
+	if !output_span_valid(span_output) {
 		return u32(core_types.Status.INVALID_ARGUMENT)
 	}
 	_, status := engine_get(&abi_instance, engine)
@@ -497,5 +469,33 @@ oe_preparation_capabilities :: proc "c" (engine: core_types.Handle, span_output:
 	put_u32(bytes, ABI_PREPARATION_CAPABILITIES_NUMERIC_MODE_OFFSET, 3)
 	put_u32(bytes, ABI_PREPARATION_CAPABILITIES_RESERVED_OFFSET, 0)
 	abi_span(abi_base() + ABI_PREPARATION_CAPABILITIES_OFFSET, ABI_PREPARATION_CAPABILITIES_SIZE)
+	return abi_status(.OK)
+}
+
+// Engine-level transport capability export: resource, animation, draw and
+// voice versions in one place rather than beside one feature's transport.
+ABI_TRANSPORT_CAPABILITIES_OUTPUT :: 920
+
+@(export)
+oe_transport_capabilities :: proc "c" (engine: core_types.Handle, span_output: uintptr) -> u32 {
+	context = runtime.default_context()
+	_, status := engine_get(&abi_instance, engine)
+	if status != .OK {
+		return abi_status(status)
+	}
+	if !output_span_valid(span_output) {
+		return abi_status(.INVALID_ARGUMENT)
+	}
+	bytes := abi_storage.bytes[ABI_TRANSPORT_CAPABILITIES_OUTPUT:ABI_TRANSPORT_CAPABILITIES_OUTPUT + ABI_TRANSPORT_CAPABILITIES_SIZE]
+	put_header(bytes, ABI_TRANSPORT_CAPABILITIES_KIND, ABI_TRANSPORT_CAPABILITIES_SIZE)
+	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_RESOURCE_VERSION_OFFSET, 1)
+	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_CIRCLE_ANIMATION_VERSION_OFFSET, 1)
+	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_DRAW_VERSION_OFFSET, 1)
+	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_VOICE_VERSION_OFFSET, 2)
+	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_VOICE_COMMAND_MASK_OFFSET, 15) // Authoritative journal emits all four command families.
+	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_FLAGS_OFFSET, 1) // Circle-only draw producer.
+	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_MAX_DRAW_INSTANCES_OFFSET, MAX_DRAW_INSTANCES)
+	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_RESERVED_OFFSET, 0)
+	abi_span(uintptr(raw_data(bytes)), ABI_TRANSPORT_CAPABILITIES_SIZE)
 	return abi_status(.OK)
 }
