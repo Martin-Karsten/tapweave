@@ -73,3 +73,31 @@ The simulation adapter also invokes the real `OsuFramedReplayInputHandler` and
 `Slider.CurvePositionAt` for cursor interpolation and repeated-slider endpoints.
 `Judgement.MinResult` is compared for every result type. These probes execute
 pinned classes; they do not constitute complete drawable/player acceptance.
+
+
+## Controlled drawable scenarios
+
+`npm --prefix engine run test:scenarios:upstream` extends this host with
+`--scenario fixture.json observation.json`. The version-1 fixture declares inline
+map text, zero-offset/rate-1 unmodded profile, timestamped cursor/actions and every
+update time. It loads real `OsuInputManager`, `OsuPlayfield`, circle/slider/spinner
+drawables and `OsuScoreProcessor` with a manual clock, empty isolated Realm input
+database, default configuration and pinned shader/texture resources. Input is
+queued through the framework manual input handler and reaches the real key
+bindings; no private judgement method is called by the adapter.
+
+The runner uses locked restore and rebuilds with one MSBuild node. Rebuild is
+required if a preceding component build left unwoven Realm types in cached output.
+Do not replace the database-backed input manager to hide that failure. The host
+uses framework headless execution; it does not require a browser or display.
+
+Six bounded scenarios run at 30/60/144 Hz with 0/50/100/250 ms stalls. Live input
+arrives at the first declared update at/after receipt. The upstream observation
+preserves that quantisation; Odin receives the original timestamped input.
+`artifacts/scenarios/` retains fixture, observation, comparison and execution logs;
+`reference/findings/m3-scenarios.json` retains their hashes and classifications.
+The runner records differences, rather than being an acceptance pass command.
+Selected comparisons cover ordered result/score/combo. Actual alpha/approach/
+lifetime fields are retained but not yet compared with Odin animation. Full
+Player health/failure, recorder/replay and sample/voice observation remain open.
+The 72 component comparisons remain a separate command and evidence set.

@@ -1,0 +1,1588 @@
+{
+  "schema_version": 1,
+  "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "lock_sha256": "a6cf520b8e80b0e7c06da2bb4493db9173ba20a734433348fe0df54dc4ff7e8a",
+  "command": "npm --prefix engine run test:scenarios:upstream",
+  "adapter": "controlled-drawable-input",
+  "profile": "unmodded-lazer-zero-offset-rate-1",
+  "input_delivery": "first declared update at or after receipt; live input quantisation retained",
+  "limitations": [
+    "Player health/failure is not integrated",
+    "replay/recorder scenarios remain open",
+    "audio selection and voice requests are not observed",
+    "visual fields are observations, not yet Odin animation comparisons",
+    "six bounded scenarios do not close any whole acceptance family"
+  ],
+  "findings": [
+    {
+      "id": "circle-centre-30hz-stall-0",
+      "acceptance": [
+        "H06",
+        "H10",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 0,
+      "fixture_sha256": "fab8c22d5858a1a49f7ab2c80ef861478f141a13456898319e296930d6a8f56b",
+      "observation_sha256": "42a51939292cdaae3f3fdbae755142db4aa489c0b530e556ee780f47f224e10f",
+      "comparison_sha256": "b0a44f2e5c9537ae74920e272dd0e8601615925564e8017cfe65b6752edc11a7",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 91
+    },
+    {
+      "id": "circle-centre-30hz-stall-50",
+      "acceptance": [
+        "H06",
+        "H10",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 50,
+      "fixture_sha256": "77296905cc6f37415a834a888080df0e6d12a0e55939f4873a3e7757b0ee4ba3",
+      "observation_sha256": "75e47c793b55267e9958517c5fd439931a2b28a68971c3f29d34cab4653a0c97",
+      "comparison_sha256": "2f5f8a6057ae22fd0cf4b2b0887d2a9f84a926e550807587cb0ac236e2267732",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 89
+    },
+    {
+      "id": "circle-centre-30hz-stall-100",
+      "acceptance": [
+        "H06",
+        "H10",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 100,
+      "fixture_sha256": "4531e9e3c356c2af3991513f6b41dd0fd8dfad59b40e793e19fcc15d6014f2dd",
+      "observation_sha256": "8f754167c451d079d324bd6f5b20f91a92eb35b0517cdd0e165bde2b5a4de575",
+      "comparison_sha256": "7ff7fff795533bc569c6d56ad6e7642bfa36fb69c6dc132d7966d8c2cf7691ef",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 88
+    },
+    {
+      "id": "circle-centre-30hz-stall-250",
+      "acceptance": [
+        "H06",
+        "H10",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 250,
+      "fixture_sha256": "ce277d1199c8d80b4857cb480c47bea24aeef228bcb13fa7ff2167e7db2de180",
+      "observation_sha256": "520f686e8efb7d0e24d6963d2044f3a470f484bb2745e13d8ba3abe78207533a",
+      "comparison_sha256": "c2c1db3f256dd51ae9f1908db61224c444f79b85f0f86a92c0b410eda4b18195",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 83
+    },
+    {
+      "id": "circle-centre-60hz-stall-0",
+      "acceptance": [
+        "H06",
+        "H10",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 0,
+      "fixture_sha256": "6a47aca215b0218550fd73fb536f7d11cc6dd755af12391983e5c9d30db1ee3a",
+      "observation_sha256": "35935a8d32be982acd4f0f2f5678672e24cf5a6bf87079f37dce14177d217c26",
+      "comparison_sha256": "b0a44f2e5c9537ae74920e272dd0e8601615925564e8017cfe65b6752edc11a7",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 181
+    },
+    {
+      "id": "circle-centre-60hz-stall-50",
+      "acceptance": [
+        "H06",
+        "H10",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 50,
+      "fixture_sha256": "91f6aeef5c4c572c20f8607f1e4e2fede884e21d778e65ffada1cd88e3c47330",
+      "observation_sha256": "644b6dd6f5d92116940e2cd4b807043a6a53111e01639f5076b114286fc3c0c8",
+      "comparison_sha256": "2f5f8a6057ae22fd0cf4b2b0887d2a9f84a926e550807587cb0ac236e2267732",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 178
+    },
+    {
+      "id": "circle-centre-60hz-stall-100",
+      "acceptance": [
+        "H06",
+        "H10",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 100,
+      "fixture_sha256": "4bc8924d9b0456047b113cde47acb3babda71a75f060312a9de5de844837e18c",
+      "observation_sha256": "b9ef7cc01bf4a91c95d997f3ab482165e09d414e76e6dd108db9a12636885f01",
+      "comparison_sha256": "7ff7fff795533bc569c6d56ad6e7642bfa36fb69c6dc132d7966d8c2cf7691ef",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 175
+    },
+    {
+      "id": "circle-centre-60hz-stall-250",
+      "acceptance": [
+        "H06",
+        "H10",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 250,
+      "fixture_sha256": "159c6090c037f3f2f0f438906e2f78acfd1040d4c8de7e5ea210ab37fdb17057",
+      "observation_sha256": "416a17502fd4c076c599d44deb7470eb3c9be3b336fd7d7367399a83bb111e8d",
+      "comparison_sha256": "c2c1db3f256dd51ae9f1908db61224c444f79b85f0f86a92c0b410eda4b18195",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 166
+    },
+    {
+      "id": "circle-centre-144hz-stall-0",
+      "acceptance": [
+        "H06",
+        "H10",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 0,
+      "fixture_sha256": "4e7db5e4debd8c4c37634486ca3134576aa947caa087f561828a0c58c3166025",
+      "observation_sha256": "a09d77b0a66ecc0acec7bbeff07a9059f10496c67e8911554caef70c46be4997",
+      "comparison_sha256": "b0a44f2e5c9537ae74920e272dd0e8601615925564e8017cfe65b6752edc11a7",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 433
+    },
+    {
+      "id": "circle-centre-144hz-stall-50",
+      "acceptance": [
+        "H06",
+        "H10",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 50,
+      "fixture_sha256": "3a43e960c50144ca078ce5556178c1f3b9206336e378358646cae111203a15ff",
+      "observation_sha256": "036c71dfb13b87cf86e7af18bdd7ba53cf2ba2d9ff6accd0123cafea867828f5",
+      "comparison_sha256": "b0a44f2e5c9537ae74920e272dd0e8601615925564e8017cfe65b6752edc11a7",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 426
+    },
+    {
+      "id": "circle-centre-144hz-stall-100",
+      "acceptance": [
+        "H06",
+        "H10",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 100,
+      "fixture_sha256": "9014482adb55246866c6998f4b99c25d0ccf0bbb659b80d56774debce1260fe1",
+      "observation_sha256": "2e5a90f71f14b65d547ed5fecdfe5fc460912a112a0a443e930a70a299856228",
+      "comparison_sha256": "2f5f8a6057ae22fd0cf4b2b0887d2a9f84a926e550807587cb0ac236e2267732",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 419
+    },
+    {
+      "id": "circle-centre-144hz-stall-250",
+      "acceptance": [
+        "H06",
+        "H10",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 250,
+      "fixture_sha256": "9d6aa76a119bf38f0b4623228cc1ece08797cd8f566a11967e85267e782cfada",
+      "observation_sha256": "b8475e8ea97880a026686efbb935361ad3748478b6168d925479452ea4a535df",
+      "comparison_sha256": "c2c1db3f256dd51ae9f1908db61224c444f79b85f0f86a92c0b410eda4b18195",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 397
+    },
+    {
+      "id": "circle-miss-30hz-stall-0",
+      "acceptance": [
+        "H06",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 0,
+      "fixture_sha256": "4f1ee28e831c98e35fb5b8a459db037839d31e164173e33b77366fdf5fb1000c",
+      "observation_sha256": "fd0e03630841bbdf113f4cf135c27406a651012acd3b17d4ee8964ff68cb1883",
+      "comparison_sha256": "c78af5e4ed3fd92b7f6dd273a3123d3cdb58cb6bd6cee389e78d9659c4006c2d",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 91
+    },
+    {
+      "id": "circle-miss-30hz-stall-50",
+      "acceptance": [
+        "H06",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 50,
+      "fixture_sha256": "40687f74f6ec7c853d089fd05e52e6243ad731b762dfebe6fc26a0b309afe05b",
+      "observation_sha256": "84d0002a99972883b61ffc13d6937b1300ef678876d1da37f129d031f699f8e0",
+      "comparison_sha256": "c78af5e4ed3fd92b7f6dd273a3123d3cdb58cb6bd6cee389e78d9659c4006c2d",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 89
+    },
+    {
+      "id": "circle-miss-30hz-stall-100",
+      "acceptance": [
+        "H06",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 100,
+      "fixture_sha256": "034c7b55fd8241fa4b10c065a10d64ccb825382933c4741ce0c25acd912500a2",
+      "observation_sha256": "16fb796f3c9c10fe78297aed1b1ec4dd041288959218db91154528cbcd1a0deb",
+      "comparison_sha256": "c78af5e4ed3fd92b7f6dd273a3123d3cdb58cb6bd6cee389e78d9659c4006c2d",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 88
+    },
+    {
+      "id": "circle-miss-30hz-stall-250",
+      "acceptance": [
+        "H06",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 250,
+      "fixture_sha256": "8702a5bb02a1927f11d1ae8a814ec2cd1d029de00cd0027e183c06f84418a35f",
+      "observation_sha256": "3d996fd32760d3b583a9c33f02380a827caa5d66258cae4a2ac9066fd6b1e6ad",
+      "comparison_sha256": "c78af5e4ed3fd92b7f6dd273a3123d3cdb58cb6bd6cee389e78d9659c4006c2d",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 83
+    },
+    {
+      "id": "circle-miss-60hz-stall-0",
+      "acceptance": [
+        "H06",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 0,
+      "fixture_sha256": "1a8f8abdcbaeda819726831703c31b1682240897cdb4ee46f0e01d0993b621f1",
+      "observation_sha256": "036e4315c43feb97739e5c2552b2964e0dfb0e04672b6af01db3470ae498679e",
+      "comparison_sha256": "c78af5e4ed3fd92b7f6dd273a3123d3cdb58cb6bd6cee389e78d9659c4006c2d",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 181
+    },
+    {
+      "id": "circle-miss-60hz-stall-50",
+      "acceptance": [
+        "H06",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 50,
+      "fixture_sha256": "7fcbef59d33f7d3a688d7e6c88d6aafad2fb94fb84d5bb238837b59e62780b67",
+      "observation_sha256": "445513f39dd2d078d5ad5231aebb9cf424e7b4368dc67dc415534d59e7c824af",
+      "comparison_sha256": "c78af5e4ed3fd92b7f6dd273a3123d3cdb58cb6bd6cee389e78d9659c4006c2d",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 178
+    },
+    {
+      "id": "circle-miss-60hz-stall-100",
+      "acceptance": [
+        "H06",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 100,
+      "fixture_sha256": "c857b18ce685e0ae14b0d795dfa5f7aff1f4a6abc75460bfe2af34a0d7dcba2f",
+      "observation_sha256": "f264066cb9c1fa81aadd4a740762532a2ec546441a2099e44f363f548b5023d5",
+      "comparison_sha256": "c78af5e4ed3fd92b7f6dd273a3123d3cdb58cb6bd6cee389e78d9659c4006c2d",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 175
+    },
+    {
+      "id": "circle-miss-60hz-stall-250",
+      "acceptance": [
+        "H06",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 250,
+      "fixture_sha256": "4999ff171c6c9cf88bc6bb4b32e7bfa5a2672de6c3cc429d7077188f600e8207",
+      "observation_sha256": "8276ab1ae6a378777671d3ff13979d38974e85720371b25dd57dd8f4fc2a20a1",
+      "comparison_sha256": "c78af5e4ed3fd92b7f6dd273a3123d3cdb58cb6bd6cee389e78d9659c4006c2d",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 166
+    },
+    {
+      "id": "circle-miss-144hz-stall-0",
+      "acceptance": [
+        "H06",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 0,
+      "fixture_sha256": "e8b8454e4a6192d90c06d28cd2633f9dcfcf32b83bae77e59f9d5943995faeab",
+      "observation_sha256": "cb1bc4055194e83e7c02099715b1352dc503a833494987d76cd2167b06875667",
+      "comparison_sha256": "c78af5e4ed3fd92b7f6dd273a3123d3cdb58cb6bd6cee389e78d9659c4006c2d",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 433
+    },
+    {
+      "id": "circle-miss-144hz-stall-50",
+      "acceptance": [
+        "H06",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 50,
+      "fixture_sha256": "a593a74f1b064ad7be902c955fbb635d040d81554a253630ddd1784d56074009",
+      "observation_sha256": "2372e434fb1561a24aa680a3efbd7fac8128b64bc9cac4524fb725e15e0f903a",
+      "comparison_sha256": "c78af5e4ed3fd92b7f6dd273a3123d3cdb58cb6bd6cee389e78d9659c4006c2d",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 426
+    },
+    {
+      "id": "circle-miss-144hz-stall-100",
+      "acceptance": [
+        "H06",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 100,
+      "fixture_sha256": "9a1f9176d261948807de49598062d192a8074b5dc24447940aae53928f0dfd95",
+      "observation_sha256": "f5f4636bc8a455c871c1d4976ced71daf3af13835fab33d77f8342d97535570e",
+      "comparison_sha256": "c78af5e4ed3fd92b7f6dd273a3123d3cdb58cb6bd6cee389e78d9659c4006c2d",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 419
+    },
+    {
+      "id": "circle-miss-144hz-stall-250",
+      "acceptance": [
+        "H06",
+        "A13",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 250,
+      "fixture_sha256": "c972ecb554dc1f57b58b150fd79ccfd7dde006052148774c9f7b108fef73e724",
+      "observation_sha256": "5cd50a82d8fb45f670ebe8522a6538cf4ab670e613132540e868c5a97ea80a8e",
+      "comparison_sha256": "c78af5e4ed3fd92b7f6dd273a3123d3cdb58cb6bd6cee389e78d9659c4006c2d",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 397
+    },
+    {
+      "id": "circle-great-edge-30hz-stall-0",
+      "acceptance": [
+        "H06",
+        "A13"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 0,
+      "fixture_sha256": "f54c9604554d9af1a92c8520c37b02243af3f112c148ec442cd0de35b20ce923",
+      "observation_sha256": "9dab8c29eb3027705cbd626552d127d2ea334ae9963aa8cf7a6c24d9a977eb94",
+      "comparison_sha256": "2f5f8a6057ae22fd0cf4b2b0887d2a9f84a926e550807587cb0ac236e2267732",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 91
+    },
+    {
+      "id": "circle-great-edge-30hz-stall-50",
+      "acceptance": [
+        "H06",
+        "A13"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 50,
+      "fixture_sha256": "d7fc50e220f0f233345fa1f45b3d0b6c48f904eb8428a92bce717b2632099d65",
+      "observation_sha256": "b614cdb4611bb8723be7563e821f10ad705a0a98e4d3ea8bab9dcc14073fb491",
+      "comparison_sha256": "2f5f8a6057ae22fd0cf4b2b0887d2a9f84a926e550807587cb0ac236e2267732",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 89
+    },
+    {
+      "id": "circle-great-edge-30hz-stall-100",
+      "acceptance": [
+        "H06",
+        "A13"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 100,
+      "fixture_sha256": "f01c77ba795553d74159ebae00475462950a1ee19c5008355aa45b0c04f1b371",
+      "observation_sha256": "045ac908ef168175843215e95e33c7c557a1e860a90ea5c568a6254ecb417ab0",
+      "comparison_sha256": "7ff7fff795533bc569c6d56ad6e7642bfa36fb69c6dc132d7966d8c2cf7691ef",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 88
+    },
+    {
+      "id": "circle-great-edge-30hz-stall-250",
+      "acceptance": [
+        "H06",
+        "A13"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 250,
+      "fixture_sha256": "f9e1753de86ffdd9ad3748af245e3061b3da9824ac3d75dfd8a45eac57f54e6d",
+      "observation_sha256": "a5edacfa4f344084067c08d1f23848dc9cb93f560de377ce3d4b32ac5ae62bba",
+      "comparison_sha256": "c2c1db3f256dd51ae9f1908db61224c444f79b85f0f86a92c0b410eda4b18195",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 83
+    },
+    {
+      "id": "circle-great-edge-60hz-stall-0",
+      "acceptance": [
+        "H06",
+        "A13"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 0,
+      "fixture_sha256": "d087d0adbb3b864881b35ec31f5b3c4e139d9efecbca8a6bb0be18af27489be1",
+      "observation_sha256": "1ceee852fb07eee54c2b35f08ff2507f04a337e94c0e796bf73dbd98ca0ad99f",
+      "comparison_sha256": "2f5f8a6057ae22fd0cf4b2b0887d2a9f84a926e550807587cb0ac236e2267732",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 181
+    },
+    {
+      "id": "circle-great-edge-60hz-stall-50",
+      "acceptance": [
+        "H06",
+        "A13"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 50,
+      "fixture_sha256": "1bc405025058ff8aa16c286824d4861959df14da8d3c59ae7719b639bd694fa8",
+      "observation_sha256": "9a572f7fae4eb67d383bc620dc25723f37b32fb3234078c5efe78f418c7cd7f0",
+      "comparison_sha256": "2f5f8a6057ae22fd0cf4b2b0887d2a9f84a926e550807587cb0ac236e2267732",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 178
+    },
+    {
+      "id": "circle-great-edge-60hz-stall-100",
+      "acceptance": [
+        "H06",
+        "A13"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 100,
+      "fixture_sha256": "a9b4de98bf2df995a0985867368d15b1391566ae3939bd90596fe0c866fb554d",
+      "observation_sha256": "9074413aceb69dd24dbed34b640ce0a2712d3476f06e715f35c1da7ed5e0bfff",
+      "comparison_sha256": "7ff7fff795533bc569c6d56ad6e7642bfa36fb69c6dc132d7966d8c2cf7691ef",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 175
+    },
+    {
+      "id": "circle-great-edge-60hz-stall-250",
+      "acceptance": [
+        "H06",
+        "A13"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 250,
+      "fixture_sha256": "c87300561370cae2432f32d4dcb9d61d03faf53cb69ce86fdf4f90db463fc4c3",
+      "observation_sha256": "9686cca45c797f439e19b74367e26b375f546c75cc5c99f622f513e194c91bde",
+      "comparison_sha256": "c2c1db3f256dd51ae9f1908db61224c444f79b85f0f86a92c0b410eda4b18195",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 166
+    },
+    {
+      "id": "circle-great-edge-144hz-stall-0",
+      "acceptance": [
+        "H06",
+        "A13"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 0,
+      "fixture_sha256": "02999e57f6729473eb93ec3adda52479df72373940df331af589dd6c556e764c",
+      "observation_sha256": "a8bb32318f89f177db5c656935d720ab040b754f624454068a17f3bc00da330c",
+      "comparison_sha256": "2f5f8a6057ae22fd0cf4b2b0887d2a9f84a926e550807587cb0ac236e2267732",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 433
+    },
+    {
+      "id": "circle-great-edge-144hz-stall-50",
+      "acceptance": [
+        "H06",
+        "A13"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 50,
+      "fixture_sha256": "aba1010bf9c7a549211b5c3d2060c9fd528344dbca5571294b3baebd97386d5f",
+      "observation_sha256": "1ec3d1b96d2646c00f921f5c1579f0995b84924f4de26b7236c28fae26572fba",
+      "comparison_sha256": "2f5f8a6057ae22fd0cf4b2b0887d2a9f84a926e550807587cb0ac236e2267732",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 426
+    },
+    {
+      "id": "circle-great-edge-144hz-stall-100",
+      "acceptance": [
+        "H06",
+        "A13"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 100,
+      "fixture_sha256": "d769652a99586dc3fdca7230f8ae8c1a7fc0a1907af64a3d8e8b07810bf41ab7",
+      "observation_sha256": "26a4f656dcfa39104c52dd4343873a64aecebdd6ae49a2d7edff3043b3ed06c9",
+      "comparison_sha256": "2f5f8a6057ae22fd0cf4b2b0887d2a9f84a926e550807587cb0ac236e2267732",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 419
+    },
+    {
+      "id": "circle-great-edge-144hz-stall-250",
+      "acceptance": [
+        "H06",
+        "A13"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 250,
+      "fixture_sha256": "d11c11111de6977db2b67b40a36a8abb829e19440291cb9b64e4fe769175c89f",
+      "observation_sha256": "9f94d0c9953f0f32422cccec650c470965d7bf5d1cc802f8d2fcab93418792fe",
+      "comparison_sha256": "c2c1db3f256dd51ae9f1908db61224c444f79b85f0f86a92c0b410eda4b18195",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 1,
+      "frame_count": 397
+    },
+    {
+      "id": "circle-equal-time-30hz-stall-0",
+      "acceptance": [
+        "H06",
+        "H07",
+        "A14"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 0,
+      "fixture_sha256": "fa67285259bfcbf35c21d1aab838cef616f7f51bdfd24a99c84f60b82209b648",
+      "observation_sha256": "2c80b4a79043babbf97bd5c99c9e25e2b4b704730db1f8bd092fdce0bfc1ae45",
+      "comparison_sha256": "67d78b551a38a12ed3f628c60c96646b9b999737803d663c468ef7dccc0d1401",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 2,
+      "frame_count": 91
+    },
+    {
+      "id": "circle-equal-time-30hz-stall-50",
+      "acceptance": [
+        "H06",
+        "H07",
+        "A14"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 50,
+      "fixture_sha256": "39de984fe86cfc7c856809e7385015ca4550e15207a4aa2e1c86941621e8971c",
+      "observation_sha256": "f10405babc57c40448de63bd89d8a49bd83bb2388f5dd57eb50076ef74f54688",
+      "comparison_sha256": "9fa9a60e602a37a4f327169fbf7510dec6492873308b626d1d27b994098212cb",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 2,
+      "frame_count": 89
+    },
+    {
+      "id": "circle-equal-time-30hz-stall-100",
+      "acceptance": [
+        "H06",
+        "H07",
+        "A14"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 100,
+      "fixture_sha256": "0ba96524954fe78dd809483139f05a67cf44630c7b3dcac958aaee4bac98b568",
+      "observation_sha256": "3cb392c2e2fb357435a0cdea11ba82234284bfa28f492f8207011aca3c9c501f",
+      "comparison_sha256": "b2eebad03c0f221e0895565f8ae28e007d67c0d7a94894780380f7d0b8f5fee8",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 2,
+      "frame_count": 88
+    },
+    {
+      "id": "circle-equal-time-30hz-stall-250",
+      "acceptance": [
+        "H06",
+        "H07",
+        "A14"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 250,
+      "fixture_sha256": "b65e9f1869445f1bc3e691548b119b5fe83cb0c5edd9c42c28ee1d43454ae246",
+      "observation_sha256": "acd580b678118209efaa38e4db075e91a104b9e2c9ce77ee0e4f8ea35dd2337f",
+      "comparison_sha256": "2ae7755915d6f33a8004cd02cfc95b2972df69b9f50dc819ae3713842b076720",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 2,
+      "frame_count": 83
+    },
+    {
+      "id": "circle-equal-time-60hz-stall-0",
+      "acceptance": [
+        "H06",
+        "H07",
+        "A14"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 0,
+      "fixture_sha256": "6620b0e3da0f1f2e7631ce73b8681506a2e73c7380699d7c67988b4a4753a4d1",
+      "observation_sha256": "56f97d28a3e469c3ff628aaa582ff0f0cfa090738f33ba87bd94876b3371eeef",
+      "comparison_sha256": "67d78b551a38a12ed3f628c60c96646b9b999737803d663c468ef7dccc0d1401",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 2,
+      "frame_count": 181
+    },
+    {
+      "id": "circle-equal-time-60hz-stall-50",
+      "acceptance": [
+        "H06",
+        "H07",
+        "A14"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 50,
+      "fixture_sha256": "3ef12057bd5a9cd40650713398433f96f3a864ffe4a567b6844de84b45c13128",
+      "observation_sha256": "55235f98ffa8c71427c25646b618892908e6d51b492fd2e0d567b7fc7dc3f348",
+      "comparison_sha256": "9fa9a60e602a37a4f327169fbf7510dec6492873308b626d1d27b994098212cb",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 2,
+      "frame_count": 178
+    },
+    {
+      "id": "circle-equal-time-60hz-stall-100",
+      "acceptance": [
+        "H06",
+        "H07",
+        "A14"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 100,
+      "fixture_sha256": "b843d5ca2c8fb9925328e12d3c7ab9ed063252d86e2f3ac056dc7e9d65738227",
+      "observation_sha256": "825896d360955b804732d054060d6c3176f35f66cc4c778b947ef2d64a56a38d",
+      "comparison_sha256": "b2eebad03c0f221e0895565f8ae28e007d67c0d7a94894780380f7d0b8f5fee8",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 2,
+      "frame_count": 175
+    },
+    {
+      "id": "circle-equal-time-60hz-stall-250",
+      "acceptance": [
+        "H06",
+        "H07",
+        "A14"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 250,
+      "fixture_sha256": "e9e06540c72a611a88ef5deb7cbdfee446bcbb367b32be62019972986bab7b5c",
+      "observation_sha256": "520dc441ee83300614f0343cae4c58ba5806821c668b018afac1ec0304bde679",
+      "comparison_sha256": "2ae7755915d6f33a8004cd02cfc95b2972df69b9f50dc819ae3713842b076720",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 2,
+      "frame_count": 166
+    },
+    {
+      "id": "circle-equal-time-144hz-stall-0",
+      "acceptance": [
+        "H06",
+        "H07",
+        "A14"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 0,
+      "fixture_sha256": "4be27a6c19c5aef11292dc29e8e752edd79f6af50dc7d7a964368bc19154ee26",
+      "observation_sha256": "68cb556282877949e010e67423161d2bde6c2513999c5d344406e2431f42ac92",
+      "comparison_sha256": "67d78b551a38a12ed3f628c60c96646b9b999737803d663c468ef7dccc0d1401",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 2,
+      "frame_count": 433
+    },
+    {
+      "id": "circle-equal-time-144hz-stall-50",
+      "acceptance": [
+        "H06",
+        "H07",
+        "A14"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 50,
+      "fixture_sha256": "810de579eb39b85d8a7aa0017d518571c3e37440e9492d4d09d58d40485e710a",
+      "observation_sha256": "bba85c7d0275a5902ccc40ba5bca9d1894c53f553a56fa5a4db318a8da7c0adc",
+      "comparison_sha256": "67d78b551a38a12ed3f628c60c96646b9b999737803d663c468ef7dccc0d1401",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 2,
+      "frame_count": 426
+    },
+    {
+      "id": "circle-equal-time-144hz-stall-100",
+      "acceptance": [
+        "H06",
+        "H07",
+        "A14"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 100,
+      "fixture_sha256": "24013e14528f350deb1ecf2c1baab6dc558f5fdd56375cdd0aadc604490973a8",
+      "observation_sha256": "1b5a7410439b2936aba31a6f6296ad71a86172bca528955c336c417337b06831",
+      "comparison_sha256": "9fa9a60e602a37a4f327169fbf7510dec6492873308b626d1d27b994098212cb",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 2,
+      "frame_count": 419
+    },
+    {
+      "id": "circle-equal-time-144hz-stall-250",
+      "acceptance": [
+        "H06",
+        "H07",
+        "A14"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 250,
+      "fixture_sha256": "ee4a689ffa59388cd743041d4c4736b7fef2bdb0d8a040d98e6f780a38713825",
+      "observation_sha256": "34de5616e88a5e1e4676d2508ad9a5ea23d7212dae28ac226a9b25e23197f166",
+      "comparison_sha256": "2ae7755915d6f33a8004cd02cfc95b2972df69b9f50dc819ae3713842b076720",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 2,
+      "frame_count": 397
+    },
+    {
+      "id": "slider-held-30hz-stall-0",
+      "acceptance": [
+        "H05",
+        "H07",
+        "A15",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 0,
+      "fixture_sha256": "8ebd08e7e1c7111b2c46744ab959581b9cf091c3d16fe8cdb01622e6c8cb8a85",
+      "observation_sha256": "39f128248dce17dfc247529af28aa7695eaa85b55717e0a4a241ce0ccb02bc83",
+      "comparison_sha256": "2f9f24237de1f990b3f14327968baadd1f2c6450d0c6939b9723a5c67d771b18",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 3,
+      "frame_count": 91
+    },
+    {
+      "id": "slider-held-30hz-stall-50",
+      "acceptance": [
+        "H05",
+        "H07",
+        "A15",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 50,
+      "fixture_sha256": "f52dc8b92f2776eab48de5cd76a32be0b90749f54d765b03c828c4d491662a84",
+      "observation_sha256": "e5163bd9d2cc1e2cf7644102ef89598aa36b0c0c96ae61ada4e1215841a843f6",
+      "comparison_sha256": "7441dca73b8eea8e8f67d7fe3834cb9aeeebe2e853589fcf8248f09d244b8ac2",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 3,
+      "frame_count": 89
+    },
+    {
+      "id": "slider-held-30hz-stall-100",
+      "acceptance": [
+        "H05",
+        "H07",
+        "A15",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 100,
+      "fixture_sha256": "320eb216c02216a725b4737920a6d6a8c613dc92c9814c4b6141d713d51350da",
+      "observation_sha256": "3ef5a228fd87119fb0ee244eb93d62d7a14936611125ff72a2e1a1f38d747651",
+      "comparison_sha256": "06a55c334049c4f51092c24c16c5b580ddfffacef5df43f19753ead5438ddc7a",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 3,
+      "frame_count": 88
+    },
+    {
+      "id": "slider-held-30hz-stall-250",
+      "acceptance": [
+        "H05",
+        "H07",
+        "A15",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 250,
+      "fixture_sha256": "f82519ee35877ae75de3ef7e179eb829ef5f2d2ddd9ba740be955c0684e0897e",
+      "observation_sha256": "725771a9f763caba63c468955df15e5844cee94cf57977cf1970fdd8e853469a",
+      "comparison_sha256": "5239b616154fdb86d9a95060aea87046d19ece69fc43b7eaf1bcf0ab2566bab9",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 3,
+      "frame_count": 83
+    },
+    {
+      "id": "slider-held-60hz-stall-0",
+      "acceptance": [
+        "H05",
+        "H07",
+        "A15",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 0,
+      "fixture_sha256": "daa57b245c5823eb36a6f8420f11dd81b903174a2f0c6549f7dcaba0abdd2dcb",
+      "observation_sha256": "105a270e87b372674d6ff993e90a56fadaa0aec20c24b1106b3a54faa6ccf235",
+      "comparison_sha256": "2f9f24237de1f990b3f14327968baadd1f2c6450d0c6939b9723a5c67d771b18",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 3,
+      "frame_count": 181
+    },
+    {
+      "id": "slider-held-60hz-stall-50",
+      "acceptance": [
+        "H05",
+        "H07",
+        "A15",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 50,
+      "fixture_sha256": "288c97e34de75084daeb33bf728f9a18898c7e9b0a4a3053393cf44fb752bb5f",
+      "observation_sha256": "398e69ea19484a976c1a22ebcda9ca114e179a7e6d242e9ed9edcb63a7714021",
+      "comparison_sha256": "7441dca73b8eea8e8f67d7fe3834cb9aeeebe2e853589fcf8248f09d244b8ac2",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 3,
+      "frame_count": 178
+    },
+    {
+      "id": "slider-held-60hz-stall-100",
+      "acceptance": [
+        "H05",
+        "H07",
+        "A15",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 100,
+      "fixture_sha256": "3684230db7021bf60d1a4732c46b9db8e396185cd6c39fac8816975c889d6919",
+      "observation_sha256": "5d5be1e4f85eaf3486fbcc0c4a524c559d7b8ace4a9d57caf0b5aed714934aba",
+      "comparison_sha256": "06a55c334049c4f51092c24c16c5b580ddfffacef5df43f19753ead5438ddc7a",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 3,
+      "frame_count": 175
+    },
+    {
+      "id": "slider-held-60hz-stall-250",
+      "acceptance": [
+        "H05",
+        "H07",
+        "A15",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 250,
+      "fixture_sha256": "a689d95ff4ecd5de9761d60ae4408c4e73380243555d8e0e79dbe714aff9c096",
+      "observation_sha256": "84655bcf796a45065f47acde8058e097747a63423cb0053abcb036ed80b08a39",
+      "comparison_sha256": "5239b616154fdb86d9a95060aea87046d19ece69fc43b7eaf1bcf0ab2566bab9",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 3,
+      "frame_count": 166
+    },
+    {
+      "id": "slider-held-144hz-stall-0",
+      "acceptance": [
+        "H05",
+        "H07",
+        "A15",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 0,
+      "fixture_sha256": "879a6cc9a4f6363d1cca9d540af2e96f5f59a0d8bebd76d98bb9b0633b0f4f57",
+      "observation_sha256": "389c7cf32b8835a2efd2639e6466cf500bf9a04d4883a0bcc5d8a800b45d8ad0",
+      "comparison_sha256": "2f9f24237de1f990b3f14327968baadd1f2c6450d0c6939b9723a5c67d771b18",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 3,
+      "frame_count": 433
+    },
+    {
+      "id": "slider-held-144hz-stall-50",
+      "acceptance": [
+        "H05",
+        "H07",
+        "A15",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 50,
+      "fixture_sha256": "887e4e02fdbd3f33a87aebc53d5cfbc28a05e5cf2b8e45df9f1b8dc003ddc595",
+      "observation_sha256": "a831641a0f73701aa1ede1ca05beb0531de360b10e42d12020c11420a10beda4",
+      "comparison_sha256": "2f9f24237de1f990b3f14327968baadd1f2c6450d0c6939b9723a5c67d771b18",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 3,
+      "frame_count": 426
+    },
+    {
+      "id": "slider-held-144hz-stall-100",
+      "acceptance": [
+        "H05",
+        "H07",
+        "A15",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 100,
+      "fixture_sha256": "e95d40e33214a236314a8fa76c1d7c570ff70e3914c9f4fb8dae6b4f47ca849b",
+      "observation_sha256": "b8c3e8d76d27817f7615bbf229d0f071c69d3096a01945290e2bae050fd422ea",
+      "comparison_sha256": "7441dca73b8eea8e8f67d7fe3834cb9aeeebe2e853589fcf8248f09d244b8ac2",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 3,
+      "frame_count": 419
+    },
+    {
+      "id": "slider-held-144hz-stall-250",
+      "acceptance": [
+        "H05",
+        "H07",
+        "A15",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 250,
+      "fixture_sha256": "0805825492e8a3f0eaba6da79776da1f2fced90c6c04f3b1e737a46c697f4f75",
+      "observation_sha256": "0c4bd80efe91739858748c84d473fe3d5ce1f8801bcfeee8b7acd0b5a49b47dc",
+      "comparison_sha256": "5239b616154fdb86d9a95060aea87046d19ece69fc43b7eaf1bcf0ab2566bab9",
+      "classification": "executed-different",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 3,
+      "frame_count": 397
+    },
+    {
+      "id": "spinner-idle-30hz-stall-0",
+      "acceptance": [
+        "H08",
+        "A16",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 0,
+      "fixture_sha256": "0f79a67893e1c4abf1bbadc06a560a26b5103fceae5b6efbf2b831677b28bf4c",
+      "observation_sha256": "5e0588a7970d559606941e96160b73930f87226db4e7efb693552a6a474a9e88",
+      "comparison_sha256": "1adaf4c56c6aec8587a64778be34c5ad05416502ea53c33e1d2db8f794d6dc2a",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 7,
+      "frame_count": 91
+    },
+    {
+      "id": "spinner-idle-30hz-stall-50",
+      "acceptance": [
+        "H08",
+        "A16",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 50,
+      "fixture_sha256": "389dc06fbbf8c16ff082bce1bc0e4d2f08d82a6a4811b2838b52ad4de391971e",
+      "observation_sha256": "118f40ab7bbd7444faca80d001ecafcfdcab4d6104c6e325bba9602ae4ef466e",
+      "comparison_sha256": "1adaf4c56c6aec8587a64778be34c5ad05416502ea53c33e1d2db8f794d6dc2a",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 7,
+      "frame_count": 89
+    },
+    {
+      "id": "spinner-idle-30hz-stall-100",
+      "acceptance": [
+        "H08",
+        "A16",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 100,
+      "fixture_sha256": "b5ffd95a32bc2bbdf235e4fb714049e79655e33232fc244d29bf0a336531b3e0",
+      "observation_sha256": "2c518f9e60ecb03fb2377707cdaf600fb5919c9e8c06eb8ca38a77af22d566ec",
+      "comparison_sha256": "1adaf4c56c6aec8587a64778be34c5ad05416502ea53c33e1d2db8f794d6dc2a",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 7,
+      "frame_count": 88
+    },
+    {
+      "id": "spinner-idle-30hz-stall-250",
+      "acceptance": [
+        "H08",
+        "A16",
+        "A22"
+      ],
+      "cadence_hz": 30,
+      "stall_ms": 250,
+      "fixture_sha256": "e05f51d9d8c9e3e2975cc3e0b12d6cad155f54e24b3d1c3c9b30b30f599b815c",
+      "observation_sha256": "792a6eb9f3a8f87bca551b843363518d14251b84001eff47cf92c5013d2a4033",
+      "comparison_sha256": "1adaf4c56c6aec8587a64778be34c5ad05416502ea53c33e1d2db8f794d6dc2a",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 7,
+      "frame_count": 83
+    },
+    {
+      "id": "spinner-idle-60hz-stall-0",
+      "acceptance": [
+        "H08",
+        "A16",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 0,
+      "fixture_sha256": "95d6ec44b91f12c737eb3ba8d7bf5ea5294dfd786bc50acbdff836ba420b5c51",
+      "observation_sha256": "02dafddcef5929ca6e7fa4851d692252da6d9c77554116fc6721ca06ad682b2d",
+      "comparison_sha256": "1adaf4c56c6aec8587a64778be34c5ad05416502ea53c33e1d2db8f794d6dc2a",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 7,
+      "frame_count": 181
+    },
+    {
+      "id": "spinner-idle-60hz-stall-50",
+      "acceptance": [
+        "H08",
+        "A16",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 50,
+      "fixture_sha256": "0508b4233d46034e745f1ef6476baaa8147553f4361c5cd0676ee2fabf725028",
+      "observation_sha256": "e0c122f597f22cc6602a0020aa8557ada37e00ca918b030d0644ac360abfe4cf",
+      "comparison_sha256": "1adaf4c56c6aec8587a64778be34c5ad05416502ea53c33e1d2db8f794d6dc2a",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 7,
+      "frame_count": 178
+    },
+    {
+      "id": "spinner-idle-60hz-stall-100",
+      "acceptance": [
+        "H08",
+        "A16",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 100,
+      "fixture_sha256": "c8b3a01aaacae3beb629e08e0fb5b54f50de47e8a173aff8a5cbb7362bb27484",
+      "observation_sha256": "25eebc362b10253b68d9d74d572b15c6029e660e60b32cac7038c9a1f4c3e6f6",
+      "comparison_sha256": "1adaf4c56c6aec8587a64778be34c5ad05416502ea53c33e1d2db8f794d6dc2a",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 7,
+      "frame_count": 175
+    },
+    {
+      "id": "spinner-idle-60hz-stall-250",
+      "acceptance": [
+        "H08",
+        "A16",
+        "A22"
+      ],
+      "cadence_hz": 60,
+      "stall_ms": 250,
+      "fixture_sha256": "e9d783c9fa3223960d02028d92b24188603e609682deb0362de621bc1cfa23f5",
+      "observation_sha256": "e47f1261d552589f59f8b8c0872c5d7e47afceb6646245835531d72a857993da",
+      "comparison_sha256": "1adaf4c56c6aec8587a64778be34c5ad05416502ea53c33e1d2db8f794d6dc2a",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 7,
+      "frame_count": 166
+    },
+    {
+      "id": "spinner-idle-144hz-stall-0",
+      "acceptance": [
+        "H08",
+        "A16",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 0,
+      "fixture_sha256": "21726741e1a496f83466662f3c5c9e0156c14d4560aa67026192f8e751fc88eb",
+      "observation_sha256": "3ff342ada8c4b02e0ed7f81309d7db99441554aa5dcae814139a2cf6642839e2",
+      "comparison_sha256": "1adaf4c56c6aec8587a64778be34c5ad05416502ea53c33e1d2db8f794d6dc2a",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 7,
+      "frame_count": 433
+    },
+    {
+      "id": "spinner-idle-144hz-stall-50",
+      "acceptance": [
+        "H08",
+        "A16",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 50,
+      "fixture_sha256": "f73bee5013db28f1db0995f49e0b9afd5c83467983fd5ef08d45953562d7918c",
+      "observation_sha256": "1018662b6cc269d63c3d6c6db6c2d490a376f2bfb6769588f6d3b19a3293cbbb",
+      "comparison_sha256": "1adaf4c56c6aec8587a64778be34c5ad05416502ea53c33e1d2db8f794d6dc2a",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 7,
+      "frame_count": 426
+    },
+    {
+      "id": "spinner-idle-144hz-stall-100",
+      "acceptance": [
+        "H08",
+        "A16",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 100,
+      "fixture_sha256": "4491e39bd4da7272751a7728c21d127a4d8d76663adae14fb332f5c5f349e270",
+      "observation_sha256": "4fe47c4f3d9710c483c299cd0b633abcaa84ada3fb33c6921eaf7257f16c9b12",
+      "comparison_sha256": "1adaf4c56c6aec8587a64778be34c5ad05416502ea53c33e1d2db8f794d6dc2a",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 7,
+      "frame_count": 419
+    },
+    {
+      "id": "spinner-idle-144hz-stall-250",
+      "acceptance": [
+        "H08",
+        "A16",
+        "A22"
+      ],
+      "cadence_hz": 144,
+      "stall_ms": 250,
+      "fixture_sha256": "52fb8bc021427cd4a5981cf39192f85b9d03ce03664c28a2aa1d07e018da8d11",
+      "observation_sha256": "9e0cac828cb6569a77ef167716eec8572c65c5d470b5002b9b317bd2dd4301de",
+      "comparison_sha256": "1adaf4c56c6aec8587a64778be34c5ad05416502ea53c33e1d2db8f794d6dc2a",
+      "classification": "executed-and-matched",
+      "compared_fields": [
+        "ordered result",
+        "score",
+        "combo"
+      ],
+      "judgement_count": 7,
+      "frame_count": 397
+    }
+  ],
+  "source_test_inventory": {
+    "search_scope": [
+      "osu.Game.Rulesets.Osu.Tests/TestSceneHitCircle*.cs",
+      "osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerJudgement.cs",
+      "osu.Game.Rulesets.Osu.Tests/TestSceneOsuHitObjectSamples.cs",
+      "osu.Game.Tests/Visual/Gameplay/TestSceneGameplaySamplePlayback.cs",
+      "osu.Framework/Testing/Input/ManualInputManager.cs"
+    ],
+    "cases": [
+      {
+        "upstream_test": "osu.Game.Rulesets.Osu.Tests/TestSceneHitCircleArea.cs::TestCircleHitCentre",
+        "local_fixture": "circle-centre-*",
+        "status": "analogous-centre-input-scenario; exact setup/parameter port remains open",
+        "acceptance": [
+          "A13"
+        ]
+      },
+      {
+        "upstream_test": "osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerJudgement.cs::TestHitNothing",
+        "local_fixture": "spinner-idle-*",
+        "status": "analogous-minimum-results scenario; Player/replay setup not ported",
+        "acceptance": [
+          "A16",
+          "A23"
+        ]
+      },
+      {
+        "upstream_test": "osu.Game.Rulesets.Osu.Tests/TestSceneOsuHitObjectSamples.cs",
+        "status": "unported; sample lookup observer remains to implement",
+        "acceptance": [
+          "A20",
+          "H11"
+        ]
+      },
+      {
+        "upstream_test": "osu.Game.Tests/Visual/Gameplay/TestSceneGameplaySamplePlayback.cs::TestAllSamplesStopDuringSeek",
+        "status": "unported; upstream test is marked Ignore at pinned revision; no sample/seek acceptance claimed",
+        "acceptance": [
+          "A21",
+          "H11"
+        ]
+      }
+    ],
+    "licence": "Upstream tests/framework are copyright ppy Pty Ltd, MIT; see THIRD_PARTY_NOTICES.md. No upstream test source or assets copied into this increment."
+  }
+}

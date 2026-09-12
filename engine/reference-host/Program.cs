@@ -8,6 +8,12 @@ using osu.Game.IO;
 using osu.Game.Rulesets.Objects.Types;
 using osu.Game.Rulesets.Objects.Legacy;
 
+if (args.Length == 3 && args[0] == "--scenario")
+{
+    ScenarioObservation.Run(args[1], args[2]);
+    return;
+}
+
 if (args.Length > 0 && args[0] == "--simulation")
 {
     SimulationObservation.Run(args[1]);

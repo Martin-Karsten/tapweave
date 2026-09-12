@@ -16,6 +16,7 @@
     "test:prepared:upstream": "node scripts/test-prepared.mjs --upstream",
     "test:simulation": "node scripts/test-simulation.mjs",
     "test:simulation:upstream": "node scripts/test-simulation.mjs --upstream",
-    "test:presentation": "node scripts/test-presentation.mjs"
+    "test:presentation": "node scripts/test-presentation.mjs",
+    "test:scenarios:upstream": "node scripts/test-scenarios.mjs"
   }
 }
