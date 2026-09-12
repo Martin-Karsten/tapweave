@@ -106,7 +106,7 @@ Actual channel play/stop and drawable-side parameter writes are retained in orde
 virtual channel aggregate adjustment snapshots are a distinct observation layer.
 Full Player health/failure, recorder/replay and sample fallback/lifecycle coverage
 remain open.
-The 72 component comparisons remain a separate command and evidence set.
+The 108 component comparisons remain a separate command and evidence set.
 
 After generating scenario observations, `npm --prefix engine run compare:circle-draw`
 validates their source/fixture/observation/lock hashes and compares Odin's emitted
