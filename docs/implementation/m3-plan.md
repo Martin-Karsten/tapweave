@@ -1,174 +1,248 @@
-# M3 — Odin presentation and browser runtime
+# M3 completion plan — Odin presentation and browser runtime
 
-Status: independent browser foundations are in progress; see [execution report](m3.md).
-This plan preserves the approved M2 acceptance gate. Main now includes locally
-validated headless sessions; full upstream M2 acceptance and browser integration
-remain open.
+Status: planned work after browser foundation review fixes at `3062eee`.
+Updated 2026-09-12. M3 is not complete; Play remains disabled.
+See [current evidence](m3.md), [implementation status](../status.md), and
+[headless M2](m2-sessions.md). This plan supersedes the initial foundation task
+list without relaxing its acceptance gates.
 
-## Objective and defaults
+## Target and scope
 
-Deliver a Tapweave validation player for the pinned unmodded lazer osu!standard
-profile: local archive/map loading, difficulty selection, synchronized play,
-pause/resume, retry, results and diagnostics. Production rate is 1.
+Deliver a playable Tapweave validation player for pinned, unmodded lazer
+osu!standard: local map-set loading, difficulty selection, synchronized play,
+pause/resume, retry, results and diagnostics. Production rate is 1. Use the
+revisions in `engine/reference/source-manifest.json`, never upstream HEAD.
 
-Use Odin for presentation and audio intent, WebGL2 for rendering, one Web Audio
-clock, and a thin JavaScript browser executor. Use a separate browser package
-with exact fflate/Playwright dependencies, a lockfile, plain modules/HTML/CSS,
-local dependency assets and Node 24 tooling. Keep engine tooling dependency-free.
+Odin owns deterministic gameplay, presentation, sample selection and audio intent.
+JavaScript owns browser resources and executes generated ABI commands. Use WebGL2,
+one Web Audio clock, plain modules and the existing browser package. Preserve
+Tapweave naming and third-party attribution. No new framework or npm dependency
+without a concrete requirement.
 
-Persistent libraries, accounts, network features, editing, submissions, skins,
-storyboards, mods, mobile certification and M4's large corpus/soak work are deferred.
+Mods, other rulesets, skins, storyboards, accounts, networking, editing, score
+submission, legacy replay containers, difficulty/pp and mobile certification are
+out of scope. M4 retains the 10,000-map corpus and eight-hour soak; M3 still needs
+its bounded workload, lifecycle and release-browser validation below.
 
-## Maintainability requirements
+## Baseline: reuse rather than rebuild
 
-- Follow the existing acyclic package dependency table and accepted ADRs.
-- Generate Odin/C/TypeScript/executable JavaScript ABI bindings from one schema.
-  Do not duplicate byte offsets or serialization policy in browser consumers.
-- Centralize playfield transforms, clock conversion, lifecycle transitions,
-  browser asset ownership, input aggregation and output acknowledgement.
-- Odin selects prepared sample candidates; JavaScript reports availability and
-  executes selected asset IDs. Rendering cannot judge or emit duplicate audio.
-- Reuse prepared paths, immutable meshes, decoded assets and reserved storage.
-  Ordinary frame cost scales with active objects, not the entire map or duration.
-- Extract abstractions around actual shared responsibilities. Avoid generic
-  managers, plugin systems and speculative deferred-ruleset hooks.
-- Use expressive names in handwritten Odin, JavaScript, shaders and tests.
-  Include units and role-specific loop indices. No abbreviated state/resource
-  identifiers; use `presentation_time_ms`, `audio_anchor_seconds`,
-  `slider_vertex_index`, `available_output_bytes` and similar explicit names.
-- Preserve existing public names and upstream reference identifiers where required.
+| Area | Implemented | Remaining |
+|---|---|---|
+| Engine | M0/M1 preparation and explicit headless M2 sessions | Whole-scenario M2 upstream acceptance |
+| ABI | Production WASM, kinds 1–28, generated Odin/C/JS/TS, checked bridge | Session bridge, presentation/resources and loop/voice contracts |
+| Assets | Local ZIP/loose loading, difficulty replacement, music cache, descriptor validation, immediate candidate cleanup | Hitsounds/default assets, availability binding, GPU ownership, decode concurrency limits |
+| Presentation | Odin viewport transform with local native/WASM tests | Object animation, active set, HUD, meshes and draw batches |
+| Input/audio | Independent buffers, clock and executor; failure/epoch regressions | DOM listeners, music transport and production session integration |
+| Evidence | Full local engine suite, 26 browser service tests, three Chromium checks | H11/A12/A21/A22, full browser matrix, real audio/input and performance |
 
-## Ordered implementation
+Do not replace M2 rules/replay/scoring with browser logic. The existing kind-27
+record is one-shot intent; the JS executor's fixture objects are not production
+loop/ramp records. A headless capability does not establish playable-browser
+support or upstream compatibility.
 
-### 1. Contracts and M2 gates
+## Delivery order
 
-Verify production start/advance/pause/resume/reset/terminal transitions; readonly
-committed object outcomes/timestamps, tracking, spinner and HUD state; durable
-sequence/epoch/voice audio output; frozen availability; retained output drain/ack;
-immutable final results; and allocation-free snapshot/advance.
+Each numbered step is a reviewable increment with its own tests and status update.
+Steps 2–4 may develop against explicit fixtures after step 1 defines their
+contracts. Step 5 consumes steps 2–4; step 6 consumes step 5; step 7 closes the
+milestone. M2 acceptance work starts in step 1 and continues alongside independent
+M3 work, but must finish before an integrated compatibility claim or M3 completion.
+No elapsed-time estimate substitutes for an exit gate.
 
-Require M2 A13–A20/A23 and H05–H10 acceptance before integrated gameplay claims.
-Independent presentation fixtures must supply explicit snapshots, never substitute
-simulation. M2 remains responsible for authoritative sample eligibility and
-transition timing. Odin derives presentation and loop envelopes independently of
-snapshot cadence; repeated snapshots cannot duplicate events.
+### 1. Confirm session prerequisites and specify missing contracts
 
-### 2. Browser package and ABI bridge
+Primary areas: `engine/runtime/`, `engine/audio_protocol/`, `engine/abi/`,
+`docs/architecture/`, and the existing reference hosts.
 
-Create `platform/browser-js` with narrowly allowlisted root inclusion. Provide
-static assembly/loopback serving, pinned dependency installation and automated
-browser tests. Ship a production WASM transport without test trace exports.
+- Audit all existing session calls: create, input, advance, snapshot, acknowledge,
+  pause/resume, reset, result, replay and sample binding. Record which fields are
+  sufficient for presentation and which need append-only extensions. Preserve all
+  existing record layouts, exports, prepared identity and foundation behavior.
+- Specify versioned presentation batches, static resources, transforms, texture
+  availability and explicit audio voice/loop/ramp records. Specify quotas,
+  reserve paths, lifetimes, failure behavior, capabilities and acknowledgement.
+  Keep old kind-27 readers valid; do not reinterpret one-shot records.
+- Define one mapping between engine output epochs and browser clock anchors.
+  Browser pause/start currently increments its own clock epoch; numeric equality
+  with session epochs must not be assumed. Freeze offset components once and
+  distinguish DOM receipt time, effective beatmap time and media offset.
+- Resolve how presentation consumes readonly session data without importing
+  runtime and creating a cycle. Follow the package dependency table; update the
+  relevant ADR before changing ownership, scheduling or public contracts.
+- Establish the remaining M2 acceptance matrix: H05–H10 with complete
+  circle/note-lock, slider tracking, spinner, score/health/failure and replay
+  observations; A13–A20/A23 remain open until their full scenarios are verified.
+  Include recorder cadence/angular subdivision gaps from the M2 session report.
 
-Centralize capability negotiation, structured errors, tokenized reserve/copy,
-lossless u64 identities, generated readers/writers, output lifetime copying and
-view reacquisition after every potentially growing call, including failures.
+Exit: reviewed ABI/ADR definitions, generated-binding conformance tests, an
+explicit dependency/acceptance matrix and executable reference fixture entry
+points. No acceptance row closes on schema work or local parity alone.
 
-### 3. Pinned evidence
+### 2. Build pinned presentation and audio evidence
 
-Extend the verified reference host with A22 preempt/fade, approach state, hit/miss
-feedback, slider head/body/ball/repeat/follow, spinner and pause observations.
-Complete H11 for sample requests, loops/ramps, missing assets, rapid toggles and
-future nominal tails. Use the manifest-pinned checkouts and controlled schedules.
+Primary areas: existing reference hosts, `engine/reference/findings/`, reference
+chapters and compatibility traceability.
 
-Retain source/fixture/lock hashes and acceptance IDs. Preserve frame-dependent
-classifications and numeric envelopes. Do not promote a local implementation or
-single upstream cadence into an oracle.
+- Execute A22 observations for preempt/fade boundaries, approach circles,
+  hit/miss feedback, slider head/body/ball/repeats/follow and spinner states.
+- Execute H11 for sample resolution, missing candidates, nominal future tails,
+  slider tracking loss/recovery, spinner ramps, rapid toggles and pause/resume.
+- Run relevant drawable schedules at 30/60/144 Hz and with stalls. Preserve exact
+  discrete expectations and explicit frame-dependent envelopes; never choose one
+  cadence as universal behavior. Resolve conflicts at the strongest evidence level.
+- Retain source revisions, fixture hashes, lock hashes, observation hashes,
+  acceptance IDs, comparison commands and unresolved classifications. Use real
+  pinned source/locked restore; do not fabricate oracle output or refresh goldens
+  merely to make comparisons pass.
 
-### 4. Odin presentation
+Exit: reproducible evidence for the presentation and audio policies to implement,
+with any unresolved cases explicitly blocking the affected acceptance rows.
 
-Build readonly time-derived circle/slider/spinner visuals, approach circles,
-feedback, cursor/trail, follow points and HUD. Reuse prepared geometry and committed
-transition timestamps, maintain a bounded active set and stable alpha ordering,
-and fully reset reusable state. Use original Tapweave graphics with Odin-owned
-palette/atlas/shader intent and a fixed HUD glyph atlas. Attribute fallback sounds.
+### 3. Implement Odin presentation and WebGL2 execution
 
-### 5. Meshes and WebGL2
+Primary areas: `engine/presentation/`, a new `engine/render_webgl/` package,
+runtime/ABI transport and the browser renderer.
 
-Construct static slider meshes with checked count/fill and work limits during
-resource creation. Upload once per map/context generation; frame data contains
-compact instances and uniforms. Generate versioned resource and draw batches in
-Odin. Validate whole command groups before executing browser resource publication.
+- Derive circle, slider and spinner presentation from prepared data and committed
+  outcomes at requested presentation times. Implement approach/fade/feedback,
+  cursor/trail, follow points and HUD. Snapshot calls cannot judge, advance health
+  or duplicate audio intent.
+- Maintain a bounded active set with stable draw order. Ordinary frame work must
+  scale with active objects; avoid serializing or scanning every map object on
+  each frame. Reset reusable state and preserve source IDs.
+- Count/validate/reserve slider meshes and static resources before publication.
+  Reuse prepared paths; use checked u64 arithmetic and WASM32 bounds. Handle
+  degenerate paths, reversals and dense overlapping geometry.
+- Generate original Tapweave atlas/palette/shader intent in Odin. Implement a thin
+  JS WebGL2 executor with validated commands, resource generations and bounded
+  uploads. Upload static meshes once per map/context generation; no per-hit-object
+  JS state, hot-path allocation/growth, shader compilation or static rebuilds.
 
-Use keyed WebGL resource tables, bounded uploads and adjacent compatible batching
-without order changes. No per-hit-object JavaScript state, per-frame static
-rebuilds or shader compilation. Context absence reports render-unavailable;
-context loss uses shared pause/release/rebuild/resume.
+Exit: native/WASM presentation traces, A22 comparisons, allocation-failure and
+quota tests, stable draw-order/mesh tests, browser command checks and inspected
+rendered scenes. Unsupported WebGL2 returns an explicit unavailable state.
 
-### 6. Archives and assets
+### 4. Complete assets and authoritative audio intent
 
-Support one local `.osz` or `.osu` plus loose assets. Normalize paths and reject
-unsafe/ambiguous entries, unsupported archive features and malformed structure.
-Bound compressed/actual extracted bytes, entry count, decoded audio and GPU assets.
-Use streaming decompression and validate checksums. Decode only selected assets.
+Primary areas: `engine/audio_protocol/`, Odin intent producers, ABI, browser
+assets/audio/clock services and third-party notices.
 
-Use stable IDs and frozen Odin availability. Missing music blocks production start;
-explicit diagnostic mode may be silent. Missing hitsounds resolve through Odin's
-ordered candidates to silence with diagnostics. Resource scopes share decoded
-assets across sessions/difficulties, publish transactionally, cancel stale loads
-and clean every node, image, GPU resource, buffer and object URL.
+- Decode selected music/hitsound assets and provide stable availability IDs to
+  `oe_session_bind_sample` before start. Odin chooses candidates in prepared
+  order. Missing music blocks production start; missing hitsounds warn and resolve
+  through Odin to silence. Supply original or properly licensed fallback assets.
+- Extend Odin intent with explicit voice identities, loop transitions, parameter
+  ramps and late policies following step 2. Derive them from semantic transitions,
+  not RAF sampling; preserve ordered retained output and acknowledgement semantics.
+- Consume production events through generated readers. Define queue admission and
+  acknowledgement so retries cannot double-play audio and failed admission does
+  not lose unacknowledged intent. Preserve future nominal-end timestamps.
+- Add music start/seek/pause/resume to the same AudioContext and anchor used by
+  simulation. Apply offsets exactly once; freeze position while paused; recreate
+  one-shot nodes on resume. On dispatch failure cancel playback and enter explicit
+  recovery, following ADR-004.
+- Bound concurrent reads/decodes and retained resources. Reuse in-flight decoding
+  for the same asset where needed; keep candidate cancellation independent of
+  uninterruptible browser decoding. Document internal decoder peak-memory limits.
 
-### 7. Input and clock/audio execution
+Exit: H11 intent comparisons, A21 scheduling/offset/epoch fixtures, missing-asset
+behavior, voice/ramp cleanup and queue-retry tests, plus real audible music and
+hitsound checks. Mock audio alone cannot close this step's output validation.
 
-Use the ADR-004 audio anchor and immutable offsets once per running epoch. Capture
-DOM receipt time/action state/inverse transform, flush before advance, preserve
-future timestamps and reject late input without clamping. RAF never judges.
+### 5. Integrate gameplay input, session bridge and frame scheduling
 
-Default controls: Z/primary mouse -> left; X/secondary mouse -> right; Escape ->
-pause; primary touch -> cursor/left. Additional touches do not create gameplay
-cursors. Aggregate physical sources, suppress key repeats and release on cancel
-or focus loss. DPR changes framebuffer resolution, not logical input coordinates.
+Primary areas: `platform/browser-js/src/engine-bridge.mjs`, input/clock services,
+controller, runtime snapshot/output transport and browser integration tests.
 
-Execute one-shot, loop-start/stop and ramp intent with an initial 25 ms lookahead,
-explicit late policies, voice accounting and epoch cancellation. Schedule only
-known events; do not simulate into the future. Recreate music/source nodes on
-resume and keep replay timestamps beatmap-relative.
+- Add generated-record session operations without duplicating ABI offsets.
+  Reacquire WASM views after every potentially growing call, including failures;
+  copy retained spans before invalidation and validate all output bounds.
+- Wire Z/primary mouse to left, X/secondary mouse to right, Escape to pause and
+  primary touch to cursor/left. Aggregate physical bindings, suppress repeats,
+  prevent relevant browser defaults and release on cancel/focus loss. Additional
+  touches do not create gameplay cursors.
+- Snapshot Odin's inverse transform and receipt time at each event. Account for
+  canvas placement, resize and DPR. Map DOM time into the immutable audio anchor
+  explicitly; preserve input sequence and future timestamps without clamping.
+- Use one frame driver: drain accepted input before advancing to audio time,
+  consume/acknowledge durable outputs exactly once, then request presentation and
+  execute rendering/audio. RAF cadence must never determine judgement policy.
+- Handle quota, late-input, stale-handle and output failures as explicit states.
+  Retain rejected input for recovery; do not silently discard or retime it.
 
-### 8. Lifecycle and validation UI
+Exit: A12 round-trip error <=1e-6, real input release tests, and identical canonical
+judgement/audio-intent/final digests under direct advance, 30/60/120/144 Hz and
+50/100/250 ms stalls. Browser results must agree with the same headless fixtures.
 
-One controller coordinates loading, ready, running, paused, recovering, terminal
-and disposed browser states around engine authority. Pause drains accepted input
-to the boundary, releases actions, invalidates audio and saves position. Resume
-requires a gesture, running audio, valid graphics and the engine resume gate.
+### 6. Complete lifecycle, results and playable validation UI
 
-Provide loading/difficulty/error flows, start/resume, canvas/HUD, pause/retry/back,
-FinalResultV1-based results and collapsible exportable diagnostics. Use semantic
-DOM controls and Tapweave visual identity. Keep internal diagnostics outside play.
+Primary areas: one browser lifecycle controller, main UI and resource owners.
 
-## Public contracts and memory
+- Coordinate loading, ready, running, paused, recovering, terminal and disposed
+  states around engine authority. Preserve a valid selection on failed replacement.
+- Pause by draining input to the boundary, releasing actions, invoking engine
+  pause, invalidating audio and saving media position. Preserve queued future
+  input according to the existing M2 contract. Resume requires a gesture, running
+  audio, valid graphics and a valid engine anchor.
+- Route focus loss, context suspension/loss, audio execution failure and map
+  replacement through consistent cleanup/recovery. Rebuild GPU resources from
+  owned immutable data after restoration. Invalidate stale asynchronous callbacks.
+- Implement retry/reset, back/difficulty navigation and terminal results directly
+  from the engine final-result record. Keep diagnostics separate from gameplay;
+  expose actionable missing-resource/recovery messages.
+- Enable Play only after required engine/browser capabilities, frozen assets and
+  integrated lifecycle are ready. Until integrated gates pass, keep experiments
+  in explicit test/diagnostic fixtures and make no compatible-player claim.
 
-Concretize PresentationBatchV1, versioned static resource batches, viewport/DPR
-submission, asset availability/readiness, audio sequence/epoch/voice/policy records
-and capability versions. Reuse M2 lifecycle and acknowledgement APIs. Extend ABI
-v2 append-only, updating ADRs, schema and generated bindings together.
+Exit: complete circle/slider/spinner playthroughs, pass/fail results, repeated
+retry/pause/resume and recoverable context loss with no stale nodes, handles,
+inputs or output playback. Keyboard navigation and error flows remain usable.
 
-Validate checked spans, opaque handles, versions and capacities transactionally.
-Allocate only in creation/reserve, retain unacknowledged outputs, and never silently
-truncate. Keep session/map/frame/browser lifetimes explicit. Report live arenas
-separately from WASM pages and decoded/GPU assets.
+### 7. Close acceptance, resource and performance gates
 
-## Validation and exit gates
+- Run full engine checks with Node 24 and checksum-pinned Odin. Run browser service
+  and Playwright Chromium/Firefox/WebKit tests in CI and locally where available.
+  A missing browser executable or download timeout is an unexecuted gate.
+- Validate actual desktop Chrome/Firefox/Safari, audible playback and applicable
+  physical mouse/keyboard/touch inputs. Record OS/browser/hardware, commands and
+  measured results. Playwright WebKit is not Safari release certification.
+- Exercise fifty alternating small/large loads, four sessions sharing a map,
+  repeated resets/disposals, cancelled decodes, failed replacement, memory growth,
+  output overflow and context/audio recovery. Track live ownership independently
+  of committed WASM pages; require no retained-resource growth after release.
+- Measure tiny/dense/long maps, a 10,000-object fixture and a three-minute mixed
+  replay. Separate prepare/decode, simulation, presentation, tessellation, bridge,
+  upload, JS submission, GPU where available, frame pacing, audio lateness/drift,
+  arenas/pages/heaps/assets and queue high water. Record p50/p95/p99 where relevant.
+- Propose and approve numeric performance thresholds from recorded hardware and
+  workload baselines before closing performance gates. The required measurements
+  are known; threshold values are not yet established and must not be invented.
+- Close M2 A13–A20/A23 and M3 A12/A21/A22 with appropriate pinned evidence and H11
+  resolution/classification. Update findings, traceability, status and the M3
+  report together. Local parity and screenshots alone never close upstream gates.
 
-- A12: corner/centre/outside coordinates, aspect/DPR and resize-after-receipt;
-  round-trip error <=1e-6.
-- A22: boundary visual states, degeneracy/reversal, feedback, spinner and ordering.
-- A21/H11: offsets, missing assets, future tails, loops/ramps, epochs and suspension.
-- ABI: invalid records/spans/versions, stale handles/generations, growth and retries.
-- Assets: malformed/oversized archives, decode failure, cancellation/replacement.
-- Lifecycle: fifty alternating loads, four shared sessions, repeated reset/dispose,
-  context recovery and no leaked live resources.
-- Exact gameplay traces under direct advance, 30/60/120/144 Hz and 50/100/250 ms stalls.
+Exit: a playable browser milestone with all required acceptance rows supported,
+no unresolved resource/lifecycle failures, and approved performance results.
+Only then mark M3 complete and advertise its implemented capabilities.
 
-Run allocation-tracked Odin tests, native/WASM traces, browser service tests and
-Playwright Chromium/Firefox/WebKit checks. Actual desktop Chrome/Firefox/Safari,
-audible playback and real applicable input require separate recorded validation.
-Screenshots aid visual review; state/command evidence governs compatibility.
+## Standards and verification for every increment
 
-Measure cold/warm loading, prepare/decode, simulation, presentation, tessellation,
-bridge/upload, JS submission, GPU where available, frame pacing, audio lateness/drift,
-arenas/pages/heaps/assets and queues separately. Use tiny, dense, long, 10,000-object
-and three-minute replay fixtures. Record hardware/browser/fixture details; approve
-an initial numeric baseline before making regression claims.
+Follow AGENTS.md and ADR-001 through ADR-005. Keep deterministic packages acyclic
+and browser-independent. Use descriptive snake_case names and role-specific loop
+indices, Title_Case Odin types and UPPER_SNAKE_CASE constants; preserve serialized
+and retained upstream identifiers. Keep procedure/control-flow bodies multiline.
+Do not copy owning maps, arenas, storage or handle tables after ownership begins.
+Construct candidates transactionally; reserve before hot paths and make cleanup
+explicit. Review handwritten fixtures and test transports to the same standard.
 
-M3 completes only after M2 prerequisites, A12/A21/A22, H11 resolution/classification,
-real browser play, cadence-independent gameplay, lifecycle recovery and approved
-performance gates pass. Capabilities and status must reflect executed coverage.
+Use `npm --prefix engine test` for engine/tooling changes, browser service tests
+for each browser change, and browser assembly/integration checks for affected
+flows. Add targeted failure, quota, lifecycle, native/WASM and ordering regressions
+rather than tests that merely repeat implementation. Use the existing reference
+commands and add reproducible new adapter commands with their implementation.
+Document the checks actually run and distinguish local, upstream and release-
+browser evidence. Do not claim completion from partial fixtures.
+
+The next implementation action is step 1: audit the real M2 exports and specify
+missing presentation/audio contracts and reference fixtures. Do not restart the
+completed archive/package foundation or begin by enabling Play.
