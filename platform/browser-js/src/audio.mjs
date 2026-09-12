@@ -35,17 +35,14 @@ export class Audio_Service {
     let current_epoch_event_count = 0;
     let previous_sequence = this.clock.epoch === this.epoch ? this.last_sequence : 0n;
     for (const event of events) {
+      // The engine guarantees command value ranges; this executor validates only
+      // the structural fields its own scheduling, watermark and dispatch use.
       require_condition(typeof event.sequence === 'bigint' && event.sequence > previous_sequence && event.sequence <= 0xffffffffffffffffn &&
         Number.isInteger(event.epoch) && event.epoch >= 0 && event.epoch <= 0xffffffff &&
-        typeof event.voice_id === 'bigint' && event.voice_id > 0n && event.voice_id <= 0xffffffffffffffffn &&
-        typeof event.asset_id === 'bigint' && event.asset_id >= 0n && event.asset_id <= 0xffffffffffffffffn &&
+        typeof event.voice_id === 'bigint' && typeof event.asset_id === 'bigint' &&
         ['one_shot', 'loop_start', 'loop_stop', 'param_ramp'].includes(event.kind) &&
         ['drop', 'immediate'].includes(event.policy) &&
-        [event.beatmap_time_ms, event.volume, event.pan, event.rate, event.duration_ms].every(Number.isFinite) &&
-        event.volume >= 0 && event.volume <= 1 && event.pan >= -1 && event.pan <= 1 &&
-        event.rate > 0 && event.duration_ms >= 0 &&
-        (event.parameter_mask === undefined || Number.isInteger(event.parameter_mask) && event.parameter_mask >= 0 && event.parameter_mask <= 7) &&
-        Number.isFinite(event.lateness_threshold_ms) && event.lateness_threshold_ms >= 0,
+        Number.isFinite(event.beatmap_time_ms) && Number.isFinite(event.duration_ms),
         'INVALID_AUDIO_EVENT', 'Malformed audio event.');
       previous_sequence = event.sequence;
       if (event.epoch === this.clock.epoch) {

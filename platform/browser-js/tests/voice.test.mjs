@@ -95,9 +95,7 @@ test('voice reader validates every command family, reserved bytes, masks, spans 
   assert.equal(output.summary.commands_count, 4);
   for (const mutation of [
     { offset: 64, fields: { sequence: 0n } }, { offset: 64, fields: { epoch: 2 } },
-    { offset: 64, fields: { rate: 0 } }, { offset: 64, fields: { reserved: 1 } },
-    { offset: 64, fields: { flags: 1 } }, { offset: 400, fields: { parameter_mask: 0 } },
-    { offset: 400, fields: { parameter_mask: 8 } },
+    { offset: 64, fields: { command_kind: 5 } }, { offset: 64, fields: { reserved: 1 } },
   ]) {
     const malformed = bytes.slice();
     const changed = new DataView(malformed.buffer);

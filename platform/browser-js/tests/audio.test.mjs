@@ -126,7 +126,7 @@ test('malformed batch rejects transactionally; new epoch retains new events', ()
   clock.start(10, 0);
   const audio = new Audio_Service(context, clock);
   audio.set_assets(new Map([[1n, {}]]));
-  assert.throws(() => audio.enqueue([audio_event(clock, 1), audio_event(clock, 2, { volume: NaN })]), { code: 'INVALID_AUDIO_EVENT' });
+  assert.throws(() => audio.enqueue([audio_event(clock, 1), audio_event(clock, 2, { beatmap_time_ms: NaN })]), { code: 'INVALID_AUDIO_EVENT' });
   assert.equal(audio.pending.length, 0);
   assert.equal(audio.last_sequence, 0n);
   const stale = audio_event(clock, 1);
@@ -173,7 +173,7 @@ test('epoch replacement counts only surviving events and validates before cancel
   const stale_event = audio_event(clock, 2);
   clock.pause(10);
   clock.resume(10);
-  assert.throws(() => audio.enqueue([audio_event(clock, 2, { volume: NaN })]), { code: 'INVALID_AUDIO_EVENT' });
+  assert.throws(() => audio.enqueue([audio_event(clock, 2, { beatmap_time_ms: NaN })]), { code: 'INVALID_AUDIO_EVENT' });
   assert.throws(() => audio.enqueue([audio_event(clock, 2), audio_event(clock, 3)]), { code: 'QUOTA_EXCEEDED' });
   assert.deepEqual(audio.pending, previous_pending);
   assert.equal(audio.last_sequence, 1n);
