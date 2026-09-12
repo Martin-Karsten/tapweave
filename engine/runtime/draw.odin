@@ -183,16 +183,16 @@ oe_session_draw :: proc "c" (engine, session_handle: core_types.Handle, time_ms:
 	if status != .OK {
 		return abi_status(status)
 	}
-	counter: presentation.Builder
-	presentation.build_objects(&counter, &session.active_presentation, projection, time_ms)
-	if counter.count > len(session.draw_storage.instances) {
-		required_bytes, _ := draw_required_bytes(u64(counter.count), u64(len(session.simulation.journal)), u64(len(session.simulation.recording)), u64(len(session.simulation.objects)))
-		write_render_capacity(session, u32(len(session.draw_storage.instances)), u32(counter.count), required_bytes)
+	// One build: the builder counts past capacity without writing, so the
+	// same pass yields both the required-count check and the instances.
+	builder := presentation.Builder{instances = session.draw_storage.instances}
+	presentation.build_objects(&builder, &session.active_presentation, projection, time_ms)
+	if builder.count > len(session.draw_storage.instances) {
+		required_bytes, _ := draw_required_bytes(u64(builder.count), u64(len(session.simulation.journal)), u64(len(session.simulation.recording)), u64(len(session.simulation.objects)))
+		write_render_capacity(session, u32(len(session.draw_storage.instances)), u32(builder.count), required_bytes)
 		return abi_status(.OUTPUT_REQUIRED)
 	}
 	presentation.refresh_history(&session.draw_storage.history, projection, time_ms, simulation_state.epoch)
-	builder := presentation.Builder{instances = session.draw_storage.instances}
-	presentation.build_objects(&builder, &session.active_presentation, projection, time_ms)
 	instances := builder.instances[:builder.count]
 	presentation.order_instances(instances)
 	bytes := session.draw_storage.output
