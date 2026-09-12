@@ -15,7 +15,8 @@ test('voice acknowledgement leaves unread judgements pending', async () => {
   try {
     const prepared = engine.prepare_map(map);
     const session = engine.create_session(prepared.map_handle, { input_capacity: 8, batch_capacity: 1 });
-    engine.voice_reserve(session, 2, 288n);
+    const required = engine.voice_reserve(session);
+    engine.voice_reserve(session, required.required_commands, required.required_bytes);
     engine.submit_inputs(session, [{ sequence: 1n, raw_time_ms: 1000, effective_time_ms: 1000, x: 256, y: 192, action_bits: 1 }]);
     const compact = new Gameplay_Output();
     engine.advance_output(session, 1000, compact);
@@ -27,17 +28,19 @@ test('voice acknowledgement leaves unread judgements pending', async () => {
   } finally { engine.dispose(); }
 });
 
-test('voice production reserve, overflow, acknowledgement retry and legacy admission share one watermark', async () => {
+test('voice production reserve, acknowledgement retry and admission share one watermark', async () => {
   const engine = await Engine_Bridge.create(wasm);
   try {
-    assert.equal(engine.transport_capabilities.voice_version, 1);
+    assert.equal(engine.transport_capabilities.voice_version, 2);
     assert.equal(engine.transport_capabilities.voice_command_mask, 15);
     assert.equal(engine.capabilities.gameplay, 0);
     const prepared = engine.prepare_map(map);
     const session = engine.create_session(prepared.map_handle, { input_capacity: 8, batch_capacity: 3 });
     const required = engine.voice_reserve(session);
     assert.equal(required.required_commands, 2);
-    engine.voice_reserve(session, 1, 176n);
+    assert.throws(() => engine.voice_reserve(session, required.required_commands, required.required_bytes - 1n), /status 4/);
+    assert.throws(() => engine.voice_reserve(session, 1, required.required_bytes), /status 4/);
+    engine.voice_reserve(session, required.required_commands, required.required_bytes);
     engine.submit_inputs(session, [
       { sequence: 1n, raw_time_ms: 1000, effective_time_ms: 1000, x: 256, y: 192, action_bits: 1 },
       { sequence: 2n, raw_time_ms: 1500, effective_time_ms: 1500, x: 256, y: 192, action_bits: 0 },
@@ -50,7 +53,6 @@ test('voice production reserve, overflow, acknowledgement retry and legacy admis
     const command = voice.record_into(0, {});
     assert.equal(command.time_ms, 1000);
     assert.equal(command.voice_id, 1n);
-    const old_bytes = new Uint8Array(voice.view.buffer, voice.view.byteOffset, voice.view.byteLength).slice();
     const clock = new Audio_Clock();
     clock.start(10, 1000);
     clock.bind_session(session, voice.summary.epoch, 0, 10);
@@ -58,28 +60,26 @@ test('voice production reserve, overflow, acknowledgement retry and legacy admis
     const admission = new Audio_Admission(engine, session, audio);
     const acknowledge = engine.acknowledge.bind(engine);
     engine.acknowledge = () => { throw new Error('ack failure'); };
-    assert.throws(() => admission.admit_voice(voice), /ack failure/);
+    assert.throws(() => admission.admit(voice), /ack failure/);
     assert.equal(audio.pending.length, 1);
     engine.advance_output(session, 2000, compact);
-    assert.throws(() => engine.voice_output(session, voice), /status 8/);
-    assert.equal(voice.required.required_commands, 2);
-    assert.deepEqual(new Uint8Array(voice.view.buffer, voice.view.byteOffset, voice.view.byteLength), old_bytes);
+    const refreshed = engine.voice_output(session, voice);
+    assert.equal(refreshed.summary.commands_count, 2);
+    assert.deepEqual([refreshed.record_into(0, {}).sequence, refreshed.record_into(1, {}).sequence], [1n, 2n]);
     engine.acknowledge = acknowledge;
-    admission.admit(compact);
+    admission.admit(refreshed);
     assert.equal(audio.pending.length, 2);
     assert.equal(admission.admitted_sequence, 2n);
-    engine.voice_output(session, voice);
-    assert.equal(voice.summary.commands_count, 0);
-    assert.throws(() => engine.voice_reserve(session, 2, required.required_bytes), /status 2/);
+    assert.equal(engine.voice_output(session, voice).summary.commands_count, 0);
+    assert.throws(() => engine.voice_reserve(session, required.required_commands, required.required_bytes), /status 2/);
     engine.reset_session(session, 0);
-    engine.voice_reserve(session, 2, required.required_bytes);
+    engine.voice_reserve(session, required.required_commands, required.required_bytes);
     const memory_bytes = engine.wasm.memory.buffer.byteLength;
     engine.voice_output(session, voice);
     assert.equal(voice.summary.epoch, 2);
     assert.equal(engine.wasm.memory.buffer.byteLength, memory_bytes);
   } finally { engine.dispose(); }
 });
-
 test('voice reader validates every command family, reserved bytes, masks, spans and order', () => {
   const bytes = new Uint8Array(64 + 4 * 112);
   const view = new DataView(bytes.buffer);

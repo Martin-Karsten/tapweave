@@ -22,7 +22,7 @@ voice_reservation_preserves_previous_candidate_and_validates_commands :: proc(te
 	session_handle, created := engine_runtime.session_create(&instance, engine, map_handle, 65536, 0, true, 8)
 	testing.expect_value(test, created, core_types.Status.OK)
 	session, _ := engine_runtime.session_get(&instance, engine, session_handle)
-	required, _ := engine_runtime.voice_required_bytes(2)
+	required, _ := engine_runtime.voice_storage_bytes(session, 2)
 	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, 2, required), core_types.Status.OK)
 	previous_output := raw_data(session.voice_storage.arena.bytes)
 	original_allocator := instance.allocator
@@ -512,14 +512,14 @@ authoritative_slider_voice_journal_is_reserved_and_deterministic :: proc(test: ^
 	testing.expect_value(test, created, core_types.Status.OK)
 	session, _ := engine_runtime.session_get(&instance, engine, session_handle)
 	capacity := simulation.voice_command_capacity(&session.simulation)
-	required_bytes, _ := engine_runtime.voice_storage_bytes(session, capacity, true)
-	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, capacity, required_bytes - 1, true), core_types.Status.QUOTA_EXCEEDED)
+	required_bytes, _ := engine_runtime.voice_storage_bytes(session, capacity)
+	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, capacity, required_bytes - 1), core_types.Status.QUOTA_EXCEEDED)
 	testing.expect_value(test, len(session.simulation.voices.commands), 0)
-	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, capacity, required_bytes, true), core_types.Status.OK)
+	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, capacity, required_bytes), core_types.Status.OK)
 	previous_storage := raw_data(session.voice_storage.arena.bytes)
 	original_allocator := instance.allocator
 	instance.allocator = mem.Allocator{procedure = reject_allocations}
-	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, capacity, required_bytes, true), core_types.Status.OUT_OF_MEMORY)
+	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, capacity, required_bytes), core_types.Status.OUT_OF_MEMORY)
 	instance.allocator = original_allocator
 	testing.expect_value(test, raw_data(session.voice_storage.arena.bytes), previous_storage)
 	for &binding in session.simulation.sample_bindings {

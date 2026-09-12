@@ -13,7 +13,8 @@ test('measure reusable production readers with Chromium heap sampling', async ({
     const session = engine.create_session(prepared.map_handle, { input_capacity: 8, batch_capacity: 8 });
     const capacity = engine.render_reserve(session);
     engine.render_reserve(session, capacity.required_instances, capacity.required_bytes);
-    engine.voice_reserve(session, 1, 176n);
+    const voice_capacity = engine.voice_reserve(session);
+    engine.voice_reserve(session, voice_capacity.required_commands, voice_capacity.required_bytes);
     window.reader_measurement = { engine, session, draw: new Draw_Output(resources, 1), voice: new Voice_Output(),
       viewport: { css_left: 0, css_top: 0, css_width: 512, css_height: 384, device_pixel_ratio: 1 }, record: {} };
   });

@@ -23,8 +23,8 @@ export class Audio_Playback {
     this.state = 'ready';
     this.error = null;
     this.generation = 0;
-    const capacity = engine.voice_reserve(session_handle, 0, 0n, 1);
-    engine.voice_reserve(session_handle, capacity.required_commands, capacity.required_bytes, 1);
+    const capacity = engine.voice_reserve(session_handle);
+    engine.voice_reserve(session_handle, capacity.required_commands, capacity.required_bytes);
     bind_sample_assets(engine, session_handle, selection.samples);
     this.audio.set_assets(selection.samples.assets);
     this.music.set_buffer(selection.music_buffer);
@@ -69,7 +69,7 @@ export class Audio_Playback {
       const time_ms = this.clock.beatmap_time(audio_seconds);
       this.engine.advance_output(this.session_handle, time_ms, this.gameplay_output);
       this.engine.voice_output(this.session_handle, this.voice_output);
-      this.admission.admit_voice(this.voice_output);
+      this.admission.admit(this.voice_output);
       this.audio.pump();
       // Voice output changes the acknowledgement token. Reacquire compact output
       // before consuming its judgements; the returned borrowed records remain

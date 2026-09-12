@@ -26,8 +26,8 @@ test('real Web Audio renders Odin one-shots, slider loops and shared music with 
       const samples = await load_sample_assets(map.descriptor, { async read() { return null; } }, 'map.osu', async () => {},
         { fallback_assets: create_fallback_audio(context) });
       const session = engine.create_session(map.map_handle, { input_capacity: 8, batch_capacity: 8 });
-      const capacity = engine.voice_reserve(session, 0, 0n, 1);
-      engine.voice_reserve(session, capacity.required_commands, capacity.required_bytes, 1);
+      const capacity = engine.voice_reserve(session);
+      engine.voice_reserve(session, capacity.required_commands, capacity.required_bytes);
       bind_sample_assets(engine, session, samples);
       engine.submit_inputs(session, [
         { sequence: 1n, raw_time_ms: 1000, effective_time_ms: 1000, x: 256, y: 192, action_bits: 1 },
@@ -39,7 +39,7 @@ test('real Web Audio renders Odin one-shots, slider loops and shared music with 
       clock.bind_session(session, output.summary.epoch, 0, 0);
       audio.set_assets(samples.assets);
       const admission = new Audio_Admission(engine, session, audio);
-      admission.admit_voice(output);
+      admission.admit(output);
       const music_buffer = offline.createBuffer(1, 24000, 24000);
       const music_samples = music_buffer.getChannelData(0);
       for (let sample_index = 0; sample_index < music_samples.length; sample_index++) {

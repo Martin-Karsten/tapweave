@@ -58,7 +58,7 @@ export class Engine_Bridge {
       this.transport_capabilities = readRecord(this.view(), this.read_span().address, 41);
       const transport = this.transport_capabilities;
       require_condition(transport.resource_version === 1 && transport.circle_animation_version === 1 &&
-        transport.draw_version === 1 && transport.voice_version === 1 && (transport.voice_command_mask & 1) === 1 && (transport.voice_command_mask & ~15) === 0 &&
+        transport.draw_version === 1 && transport.voice_version === 2 && (transport.voice_command_mask & 1) === 1 && (transport.voice_command_mask & ~15) === 0 &&
         transport.flags === 1 && transport.reserved === 0 && transport.max_draw_instances > 0,
       'UNSUPPORTED', 'Unsupported resource/draw/voice transport capabilities.');
     } catch (error) {
@@ -177,8 +177,8 @@ export class Engine_Bridge {
     return readRecord(this.view(), this.read_span().address, 37);
   }
 
-  voice_reserve(session_handle, command_capacity = 0, arena_bytes = 0n, flags = 0) {
-    this.write_creation(42, { command_capacity, arena_bytes, flags });
+  voice_reserve(session_handle, command_capacity = 0, arena_bytes = 0n) {
+    this.write_creation(42, { command_capacity, arena_bytes, flags: 1 });
     this.check_status(this.wasm.oe_session_voice_reserve(this.engine_handle, session_handle,
       this.mailbox_address, this.result_address), false);
     return readRecord(this.view(), this.read_span().address, 43);

@@ -26,7 +26,9 @@ export class Voice_Output {
       require_condition(this.view.getUint32(command_offset + schema.transport.record_header.byte_size, true) === frame.commands_stride,
         'INVALID_VOICE_OUTPUT', 'Invalid voice command header size.');
       const command = this.record_into(command_index, this.command);
-      require_condition(command.sequence > previous_sequence && command.epoch === frame.epoch && command.voice_id > 0n &&
+      // Commands may legitimately carry an earlier epoch than the frame: pause
+      // stops reference voices created before the pause bumped the epoch.
+      require_condition(command.sequence > previous_sequence && command.epoch > 0 && command.epoch <= frame.epoch && command.voice_id > 0n &&
         command.command_kind >= 1 && command.command_kind <= 4 && command.late_policy >= 1 && command.late_policy <= 2 &&
         command.flags <= 1 && command.reserved === 0 && (command.asset_id === 0n) === (command.flags === 1) &&
         command.parameter_mask <= 7 && (command.command_kind === 4 ? command.parameter_mask > 0 : command.parameter_mask === 0 && command.duration_ms === 0) &&

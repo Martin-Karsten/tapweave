@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { Engine_Bridge, Gameplay_Output, Presentation_Output } from '../src/engine-bridge.mjs';
+import { Engine_Bridge, Gameplay_Output, Presentation_Output, Voice_Output } from '../src/engine-bridge.mjs';
 import { Audio_Admission } from '../src/audio-admission.mjs';
 import { Audio_Clock } from '../src/clock.mjs';
 import { Audio_Service } from '../src/audio.mjs';
@@ -13,6 +13,8 @@ async function fixture(maximum_pending = 8) {
   const engine = await Engine_Bridge.create(wasm_bytes);
   const prepared = engine.prepare_map(map_bytes);
   const session = engine.create_session(prepared.map_handle, { input_capacity: 64, batch_capacity: 8 });
+  const capacity = engine.voice_reserve(session);
+  engine.voice_reserve(session, capacity.required_commands, capacity.required_bytes);
   for (const object_id of [0, 1]) {
     engine.bind_sample(session, { object_id, component_id: 0xffffffff, sample_index: 0, candidate_index: 0, asset_id: 7n });
   }
@@ -21,17 +23,18 @@ async function fixture(maximum_pending = 8) {
     { sequence: 2n, raw_time_ms: 1500, effective_time_ms: 1500, x: 256, y: 192, action_bits: 0 },
     { sequence: 3n, raw_time_ms: 2000, effective_time_ms: 2000, x: 256, y: 192, action_bits: 1 },
   ]);
-  const output = new Gameplay_Output();
-  engine.advance_output(session, 1000, output);
+  const compact = new Gameplay_Output();
+  engine.advance_output(session, 1000, compact);
+  const output = engine.voice_output(session, new Voice_Output());
   const clock = new Audio_Clock();
   clock.start(10, 1000);
   clock.bind_session(session, output.summary.epoch, 0, 10);
   const audio = new Audio_Service({ currentTime: 10, state: 'running' }, clock, { maximum_pending });
-  return { engine, session, output, clock, audio, admission: new Audio_Admission(engine, session, audio) };
+  return { engine, session, compact, output, clock, audio, admission: new Audio_Admission(engine, session, audio) };
 }
 
 test('production admission retries latest token without duplicating admitted sounds', async () => {
-  const { engine, session, output, audio, admission } = await fixture();
+  const { engine, session, compact, output, audio, admission } = await fixture();
   try {
     const acknowledge = engine.acknowledge.bind(engine);
     engine.acknowledge = () => { throw new Error('injected acknowledgement failure'); };
@@ -41,15 +44,15 @@ test('production admission retries latest token without duplicating admitted sou
     engine.presentation(session, 1050, new Presentation_Output());
     engine.snapshot(session, 1050);
     engine.acknowledge = acknowledge;
-    engine.advance_output(session, 2000, output);
+    engine.advance_output(session, 2000, compact);
+    engine.voice_output(session, output);
     admission.admit(output);
     assert.deepEqual(audio.pending.map(event => event.sequence), [1n, 2n]);
     assert.deepEqual(audio.pending.map(event => event.beatmap_time_ms), [1000, 2000]);
     admission.admit(output);
     assert.equal(audio.pending.length, 2);
-    engine.advance_output(session, 2000, output);
-    assert.equal(output.audio.count, 0);
-    admission.admit(output);
+    engine.advance_output(session, 2000, compact);
+    assert.equal(engine.voice_output(session, output).summary.commands_count, 0);
     assert.equal(admission.admitted_sequence, 2n);
   } finally {
     engine.dispose();
@@ -57,21 +60,23 @@ test('production admission retries latest token without duplicating admitted sou
 });
 
 test('queue rejection preserves pending engine events and admission watermark', async () => {
-  const { engine, session, output, audio, admission } = await fixture(1);
+  const { engine, session, compact, output, audio, admission } = await fixture(1);
   try {
-    engine.advance_output(session, 2000, output);
+    engine.advance_output(session, 2000, compact);
+    engine.voice_output(session, output);
+    assert.equal(output.summary.commands_count, 2);
     assert.throws(() => admission.admit(output), { code: 'QUOTA_EXCEEDED' });
     assert.equal(admission.admitted_sequence, 0n);
     assert.equal(audio.pending.length, 0);
-    engine.advance_output(session, 2000, output);
-    assert.equal(output.audio.count, 2);
+    engine.advance_output(session, 2000, compact);
+    assert.equal(engine.voice_output(session, output).summary.commands_count, 2);
   } finally {
     engine.dispose();
   }
 });
 
 test('dispatch cancellation keeps admitted watermark; new engine epoch accepts restarted sequences', async () => {
-  const { engine, session, output, clock, audio, admission } = await fixture();
+  const { engine, session, compact, output, clock, audio, admission } = await fixture();
   try {
     const acknowledge = engine.acknowledge.bind(engine);
     engine.acknowledge = () => { throw new Error('injected'); };
@@ -83,7 +88,8 @@ test('dispatch cancellation keeps admitted watermark; new engine epoch accepts r
     clock.pause(10);
     engine.reset_session(session);
     engine.submit_inputs(session, [{ sequence: 1n, raw_time_ms: 1000, effective_time_ms: 1000, x: 256, y: 192, action_bits: 1 }]);
-    engine.advance_output(session, 1000, output);
+    engine.advance_output(session, 1000, compact);
+    engine.voice_output(session, output);
     assert.throws(() => admission.admit(output), { code: 'INVALID_CLOCK' });
     clock.start(11, 1000);
     clock.bind_session(session, output.summary.epoch, 1000, 11);
@@ -97,7 +103,7 @@ test('dispatch cancellation keeps admitted watermark; new engine epoch accepts r
 });
 
 test('production admission rejects offset vectors even when the independent clock can map them', async () => {
-  const { engine, session, output, clock, audio, admission } = await fixture();
+  const { engine, session, compact, output, clock, audio, admission } = await fixture();
   try {
     clock.pause(10);
     clock.start(11, 1000, { global_ms: 20, device_ms: -20 });
@@ -105,8 +111,8 @@ test('production admission rejects offset vectors even when the independent cloc
     assert.throws(() => admission.admit(output), { code: 'UNSUPPORTED_CLOCK_PROFILE' });
     assert.equal(audio.pending.length, 0);
     assert.equal(admission.admitted_sequence, 0n);
-    engine.advance_output(session, 1000, output);
-    assert.equal(output.audio.count, 1);
+    engine.advance_output(session, 1000, compact);
+    assert.equal(engine.voice_output(session, output).summary.commands_count, 1);
   } finally {
     engine.dispose();
   }
