@@ -1,28 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import { Engine_Bridge, Gameplay_Output, Presentation_Output, Voice_Output } from '../src/engine-bridge.mjs';
 import { Audio_Admission } from '../src/audio-admission.mjs';
 import { Audio_Clock } from '../src/clock.mjs';
 import { Audio_Service } from '../src/audio.mjs';
-
-const wasm_bytes = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));
-const map_bytes = new TextEncoder().encode('osu file format v14\n[HitObjects]\n256,192,1000,1,0\n256,192,2000,1,0');
+import { create_engine, two_circle_map as map_bytes, two_circle_inputs, voice_session } from './helpers.mjs';
 
 async function fixture(maximum_pending = 8) {
-  const engine = await Engine_Bridge.create(wasm_bytes);
-  const prepared = engine.prepare_map(map_bytes);
-  const session = engine.create_session(prepared.map_handle, { input_capacity: 64, batch_capacity: 8 });
-  const capacity = engine.voice_reserve(session);
-  engine.voice_reserve(session, capacity.required_commands, capacity.required_bytes);
+  const engine = await create_engine();
+  const session = await voice_session(engine, map_bytes, { input_capacity: 64, batch_capacity: 8 });
   for (const object_id of [0, 1]) {
     engine.bind_sample(session, { object_id, component_id: 0xffffffff, sample_index: 0, candidate_index: 0, asset_id: 7n });
   }
-  engine.submit_inputs(session, [
-    { sequence: 1n, raw_time_ms: 1000, effective_time_ms: 1000, x: 256, y: 192, action_bits: 1 },
-    { sequence: 2n, raw_time_ms: 1500, effective_time_ms: 1500, x: 256, y: 192, action_bits: 0 },
-    { sequence: 3n, raw_time_ms: 2000, effective_time_ms: 2000, x: 256, y: 192, action_bits: 1 },
-  ]);
+  engine.submit_inputs(session, two_circle_inputs);
   const compact = new Gameplay_Output();
   engine.advance_output(session, 1000, compact);
   const output = engine.voice_output(session, new Voice_Output());

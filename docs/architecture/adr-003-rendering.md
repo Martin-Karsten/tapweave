@@ -129,8 +129,11 @@ original glyph/analytic shader resources and execution. See the
 
 `platform/browser-js/src/webgl-resources.mjs` implements only the GPU resource
 phase for kind 35/version 1. One service owns one retained attachment and a
-dedicated WebGL2 context. It copies and revalidates input, checks independent
-byte/geometry/atlas/shader limits and finite f32 conversion, then compiles the
+dedicated WebGL2 context. A validated `Render_Resources` is admitted through a
+private snapshot without re-parsing; raw byte bundles take the single reader
+path once. The service checks independent byte/geometry/shader admission
+limits, one atlas dimension quota plus the device texture limit, and finite
+f32 conversion, then compiles the
 Odin sources and uploads geometry/atlas transactionally. Successful replacement
 releases the previous GPU set; failure preserves it. Repeated publication of the
 same retained bytes performs no upload. This is resource-phase work, not a frame

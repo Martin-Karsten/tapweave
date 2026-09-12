@@ -1,22 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import { Engine_Bridge, Gameplay_Output, Voice_Output } from '../src/engine-bridge.mjs';
 import { Audio_Admission } from '../src/audio-admission.mjs';
 import { Audio_Clock } from '../src/clock.mjs';
 import { Audio_Service } from '../src/audio.mjs';
+import { create_engine, two_circle_map as map, voice_session } from './helpers.mjs';
 import { schema, writeRecord } from '../../../engine/abi/records.mjs';
 
-const wasm = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));
-const map = new TextEncoder().encode('osu file format v14\n[Difficulty]\nHPDrainRate:0\n[HitObjects]\n256,192,1000,1,0\n256,192,2000,1,0');
-
 test('voice acknowledgement leaves unread judgements pending', async () => {
-  const engine = await Engine_Bridge.create(wasm);
+  const engine = await create_engine();
   try {
-    const prepared = engine.prepare_map(map);
-    const session = engine.create_session(prepared.map_handle, { input_capacity: 8, batch_capacity: 1 });
-    const required = engine.voice_reserve(session);
-    engine.voice_reserve(session, required.required_commands, required.required_bytes);
+    const session = await voice_session(engine, map, { input_capacity: 8, batch_capacity: 1 });
     engine.submit_inputs(session, [{ sequence: 1n, raw_time_ms: 1000, effective_time_ms: 1000, x: 256, y: 192, action_bits: 1 }]);
     const compact = new Gameplay_Output();
     engine.advance_output(session, 1000, compact);
@@ -29,13 +23,12 @@ test('voice acknowledgement leaves unread judgements pending', async () => {
 });
 
 test('voice production reserve, acknowledgement retry and admission share one watermark', async () => {
-  const engine = await Engine_Bridge.create(wasm);
+  const engine = await create_engine();
   try {
     assert.equal(engine.transport_capabilities.voice_version, 2);
     assert.equal(engine.transport_capabilities.voice_command_mask, 15);
     assert.equal(engine.capabilities.gameplay, 0);
-    const prepared = engine.prepare_map(map);
-    const session = engine.create_session(prepared.map_handle, { input_capacity: 8, batch_capacity: 3 });
+    const session = await voice_session(engine, map, { input_capacity: 8, batch_capacity: 3 });
     const required = engine.voice_reserve(session);
     assert.equal(required.required_commands, 2);
     assert.throws(() => engine.voice_reserve(session, required.required_commands, required.required_bytes - 1n), /status 4/);

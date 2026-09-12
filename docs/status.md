@@ -218,13 +218,19 @@ channel play/stop calls and drawable-side sound parameter writes in the
 
 W01 adds a minimal immutable kind-35 render attachment shared by map/session
 owners, transactional publication, native/generated browser validation and
-production one-shot admission with acknowledgement retry watermarks. Kinds 41–45
+authoritative voice admission with acknowledgement retry watermarks. Kinds 41–45
 add narrow capabilities, transactional voice reserve, independent voice output and
-validated one-shot/loop/ramp record shapes. Production enables only one-shots;
-loop/ramp producers and full H11 remain open. Ordinary one-shot pause retains
-future nominal requests, lets started samples finish and resumes retained requests
-once. The browser admission path still allocates staging/executor objects, and
-its immediate late policy is provisional pending H11.
+one-shot/loop/ramp command records. The authoritative journal is the only
+producer (capability voice version 2): reserve requires flags 1 at READY with
+full command capacity, commands keep their emit-time epochs, and kind-27
+one-shot output remains a diagnostic journal that no longer feeds playback.
+Loop/ramp gameplay producers and full H11 remain open. Ordinary one-shot pause
+retains future nominal requests, lets started samples finish and resumes
+retained requests once. The browser validates frame protocol only; the engine
+asserts command policy at emit time. The browser admission path still allocates
+staging/executor objects, and its immediate late policy is provisional pending
+H11. The prepared_sample flags field (bit 0) publishes loop classification so
+the browser never re-derives it from sample names.
 
 Simulation exposes component and semantic cursor/feedback history independently
 of acknowledgement. Per-object sample ranges avoid scanning unrelated objects'

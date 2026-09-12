@@ -150,7 +150,7 @@ The complete layout is generated from
 | 8 | Map behavior/numeric identity, object/schedule spans, raw/prepared SHA-256, total bytes and difficulty inputs |
 | 9 | Object scalar fields plus vertex, cumulative-length, sample and component spans |
 | 10 | Component identity, kind, prepared/event times, span/progress, position and samples |
-| 11 | Sample name/bank/suffix, volume, beatmap/layered flags and ordered candidates |
+| 11 | Sample name/bank/suffix, volume, beatmap/layered flags, loop classification (flags bit 0) and ordered candidates |
 | 12 | Candidate UTF-8 name span |
 | 13 | Schedule time, object index and component index |
 | 14 | Preparation capability record |
@@ -414,7 +414,8 @@ Span starts are eight-byte aligned and non-overlapping. Vertices are pairs of
 finite little-endian f64 coordinates (stride 16); indices are u32 (stride 4), in
 triangle groups, and must reference an existing vertex. Atlas bytes are RGBA8
 (stride 1); shader sources are UTF-8 GLSL ES 3.00 (stride 1). Atlas dimensions are
-positive and bounded by 4096 in each axis; byte count must equal width*height*4.
+positive and their byte count must equal width*height*4; dimension admission is
+GPU-service policy, not part of the wire contract.
 Every reserved field and flags field is zero; unknown attachment versions reject.
 An empty span has a valid aligned offset and is never dereferenced. Shader spans
 must be nonempty. The current payload is a unit quad and one white pixel, with
@@ -422,17 +423,18 @@ original transform/colour shaders. It does not implement slider tessellation or
 advertise final draw/animation/WebGL capability. W04 extends the payload producer.
 
 The browser `Audio_Admission` owns one session's retained engine-epoch/sequence
-watermark. It validates and admits the entire new kind-27 suffix before calling
-acknowledge. If acknowledgement fails, a new compact snapshot may be admitted:
-already-admitted sequences are skipped and the latest token is acknowledged.
-Queue rejection preserves engine pending events and the watermark. Dispatch
-cancellation retains the watermark, so an acknowledgement retry cannot replay
-cancelled one-shots. A new engine epoch resets sequence admission; browser epoch
-changes require an explicit clock mapping and do not themselves reset admission.
-Kind-27 events retain their exact nominal times and silence flags. Immediate late
-one-shot execution is a provisional diagnostic policy pending H11; this adapter
-does not enable production Play or voice/loop capability. Its staging and executor
-queues still allocate JS objects; allocation-free browser ingestion is not claimed.
+watermark. It validates and admits the entire new kind-45 command suffix before
+calling acknowledge. If acknowledgement fails, a later voice frame may be
+admitted: already-admitted sequences are skipped and the latest token is
+acknowledged. Queue rejection preserves engine pending output and the watermark.
+Dispatch cancellation retains the watermark, so an acknowledgement retry cannot
+replay cancelled one-shots. A new engine epoch resets sequence admission;
+browser epoch changes require an explicit clock mapping and do not themselves
+reset admission. Commands retain their exact nominal times and silence flags.
+Immediate late one-shot execution is a provisional diagnostic policy pending
+H11; this adapter does not enable production Play. Its staging and executor
+queues still allocate JS objects; allocation-free browser ingestion is not
+claimed.
 
 ## Reserved circle draw transport
 
@@ -499,29 +501,31 @@ append duplicate semantic history; backward reads and epoch changes rebuild it.
 ## Voice transport and narrow capabilities
 
 Kind 41 (`transport_capabilities`, 40 bytes) reports independent resource,
-circle-animation, draw and voice versions (currently 1). `flags=1` means the draw
-producer is circle-only; `voice_command_mask=15` exposes one-shot, loop-start,
-loop-stop and parameter-ramp production. The full journal is opt-in through
-kind-42 flag 1; flag zero preserves the legacy one-shot projection. `max_draw_instances=1000000`; reserved fields are
+circle-animation, draw and voice versions (currently resource/animation/draw 1,
+voice 2). `flags=1` means the draw producer is circle-only;
+`voice_command_mask=15` exposes one-shot, loop-start, loop-stop and
+parameter-ramp production from the authoritative journal, which is the only
+producer. `max_draw_instances=1000000`; reserved fields are
 zero. These declarations do not enable aggregate Play or claim full A22/H11.
 
 `oe_session_voice_reserve` accepts kind 42 (32 bytes): `arena_bytes` is a u64 byte
-quota and `command_capacity` a u32 count; flag 1 requests the authoritative
-journal, flag zero the legacy projection; reserved must be zero. Zero count
-queries kind 43 (32 bytes), containing requested/required counts, required arena
-bytes and session epoch. Legacy count derives from one-shot sample capacity.
-The authoritative count includes input/pause capacity, maximum concurrent loop
-samples and scheduled transitions; its byte count also includes journal, loop
-state and indexed deadlines. Legacy reserve requires READY or PAUSED; enabling
-or replacing authoritative storage requires READY. Draw and voice storage jointly count
+quota and `command_capacity` a u32 count; flags must be 1 (authoritative
+journal); reserved must be zero. Any other flag value returns `UNSUPPORTED`.
+Zero count queries kind 43 (32 bytes), containing requested/required counts,
+required arena bytes and session epoch. The required count includes
+input/pause capacity, maximum concurrent loop samples and scheduled
+transitions; its byte count also includes journal, loop state and indexed
+deadlines. Reserve requires READY and a capacity at or above the session's
+bound. Draw and voice storage jointly count
 against the engine's session arena quota. Candidate failure preserves prior
 storage. Counts above 1,000,000 and non-WASM32 byte sizes return typed quota errors.
 
 `oe_session_voice_output` writes kind 44 (64 bytes) plus a relative, aligned span
 of kind-45 records. The header contains epoch, committed map time, latest batch
-token, command offset/count/stride and total bytes; flag 1 identifies an
-authoritative journal, flag zero a legacy projection; reserved is zero.
-Insufficient capacity returns OUTPUT_REQUIRED and kind 43 without overwriting the
+token, command offset/count/stride and total bytes; flag 1 identifies the
+authoritative journal; reserved is zero. Commands carry their emit-time epoch,
+so a frame after pause/resume legitimately mixes epochs. Insufficient capacity
+returns OUTPUT_REQUIRED and kind 43 without overwriting the
 previous voice frame. No gameplay advancement, allocation or memory growth occurs.
 
 Kind 45 (`voice_command`, 112 bytes) contains:
@@ -537,11 +541,12 @@ Kind 45 (`voice_command`, 112 bytes) contains:
 | object_id, component_id | Existing stable source identities; all-ones component denotes the parent |
 | flags, reserved | Flag 1 means missing asset/explicit silence and requires asset ID zero; otherwise asset ID is nonzero. Reserved is zero |
 
-The writer, validator and reader cover all four command shapes. The opt-in
-producer records semantic commands in Odin; frame reads only serialize retained
-commands. The default exporter translates the existing one-shot journal. The
-immediate late policy remains provisional pending broader H11. Legacy kind-27
-output remains unchanged. Loop sample bindings use component `0xfffffffe` with
+The writer, validator and reader cover all four command shapes. The producer
+records semantic commands in Odin; frame reads only serialize retained
+commands, preserving each command's emit-time epoch. The immediate late policy
+remains provisional pending broader H11. Kind-27 one-shot output remains a
+valid engine journal for diagnostics, but browser playback admits voice
+commands only. Loop sample bindings use component `0xfffffffe` with
 the prepared auxiliary sample ordinal; auxiliary tail copies are excluded.
 
 Voice frames own a separate output lifetime: gameplay/draw/result reads do not

@@ -142,9 +142,16 @@ The native C probe and WASM reader compare serialized circle instances exactly.
 
 Kinds 41–45 add independent resource/circle/draw/voice protocol versions, voice
 reserve/capacity, voice frames and typed commands. Existing kinds 1–40 retain
-their layouts. The production command mask enables only one-shots; loop/ramp
-record support does not enable those gameplay producers. Voice output borrows a
+their layouts. The authoritative voice journal is the only producer: reserve
+requires kind-42 flags 1 (capability voice version 2), commands carry their
+emit-time epochs, and loop/ramp record support does not by itself enable those
+gameplay producers. Voice output borrows a
 separate reserved arena, shares the existing audio journal and latest-token
 acknowledgement, and cannot consume unseen judgement records. A single admission
-owner shares its epoch/sequence watermark across legacy and new audio readers.
+owner holds the epoch/sequence watermark for all voice readers.
 Draw and voice arenas count together against the session resource quota.
+
+The `prepared_sample` record's former reserved u32 at offset 68 is now `flags`:
+bit 0 marks upstream sustained-loop samples (slider slide/whistle, spinner
+spin), so loop classification crosses the ABI once instead of being re-derived
+from names on the browser side. Remaining bits stay zero.

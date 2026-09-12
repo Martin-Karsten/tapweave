@@ -118,13 +118,19 @@ ABI raw/effective fields both receive the mapped beatmap time for this profile.
 ## Executable one-shot admission
 
 The browser `Audio_Admission` implements the retained session/engine-epoch/sequence
-watermark for compact kind-31 output and legacy kind-27 one-shots. Failed queue
-admission does not acknowledge; failed acknowledgement retries skip admitted
-sequences even after output-token replacement or dispatch cancellation. Executor
-sequence validation resets on browser epoch change, including cancellation before
-new admission. Tests use actual production WASM output. The provisional immediate
-late policy and allocating JS staging are explicitly diagnostic; H11, bounded
-voice records, the full executor and integrated playback remain open.
+watermark for authoritative kind-45 voice commands; kind-27 one-shot output
+remains a valid engine journal but no longer feeds playback. Reserve always
+enables the authoritative journal (capability voice version 2); there is no
+legacy per-read projection, so commands keep their emit-time epochs and a
+pause/resume frame legitimately mixes epochs. Failed queue admission does not
+acknowledge; failed acknowledgement retries skip admitted sequences even after
+output-token replacement or dispatch cancellation. Executor sequence validation
+resets on browser epoch change, including cancellation before new admission.
+The single validation owner is the engine (emit-time asserts); the browser
+checks frame protocol only. Tests use actual production WASM output. The
+provisional immediate late policy and allocating JS staging are explicitly
+diagnostic; H11, bounded voice records, the full executor and integrated
+playback remain open.
 
 ## W05 opt-in audio execution
 
