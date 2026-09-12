@@ -4,7 +4,7 @@ Status: accepted.
 
 ## Context and evidence
 
-The spike stores text, prepared objects, session mutation, inputs, events, and draw buffers in one ~39.84 MiB fixed allocation even when populated fields are ~153 KiB. It is bounded and allocation-free during play, but each instance pays every maximum and cannot share a prepared map. The C# comparison already identified this maintainability issue ([audit](../compatibility/spike-audit.md)). WebAssembly linear memory grows by pages and does not shrink merely because an Odin allocation is freed; retaining views across growth is unsafe.
+A single maximum-sized mutable allocation wastes memory on small maps and prevents sharing prepared data across sessions. WebAssembly linear memory grows by pages and does not shrink when an allocation is freed; retaining JavaScript views across growth is unsafe.
 
 ## Alternatives
 
@@ -37,3 +37,21 @@ Small maps/sessions are cheap and prepared maps are shareable. Reset is determin
 ## Acceptance
 
 Fifty alternating small/large loads, four parallel sessions on one map, failed replacement, reset loops, disposal in every lifecycle state, and forced memory growth must show no live-owned-byte increase after scope release. No pointer/span may remain valid past its declared lifetime.
+
+## M1 review refinement
+
+`prepared.Map` owns the immutable breaks, control-point arrays and playback
+settings required by future scoring and presentation. They do not borrow decoder
+or `osu_prepare` storage; their portable descriptions count against the same map
+quota. Runtime may retain raw records for diagnostics, but downstream packages
+consume `prepared` records without importing decoder/preparation/runtime packages.
+
+A shared 100,000,000-unit work budget covers control-point insertion, both M1
+passes, geometry, record/string reservations, node preparation, stacking and a
+conservative schedule-sort allowance. Geometry retains its caller-specified
+per-build ceiling and also debits the shared budget. Exhaustion rejects the
+candidate with a typed `PREPARATION_WORK` error; no reduced accuracy is used.
+Node sample lists are scanned once per object/pass. Scratch uses the same checked,
+aligned count/fill reservations as map storage, and every reservation is checked.
+Work units are deterministic resource accounting, not a wall-clock deadline;
+preparation and asset work still belong outside real-time gameplay callbacks.

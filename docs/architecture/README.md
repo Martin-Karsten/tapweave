@@ -26,7 +26,7 @@ No arrow points from deterministic packages toward the browser, renderer, audio 
 |---|---|---|
 | `core_types` | IDs, time/coordinate/result primitives, errors, hashes | Odin core only |
 | `beatmap_decode` | syntax, legacy defaults, raw records, diagnostics | `core_types` |
-| `prepared` | immutable generic prepared structures and storage views | `core_types` |
+| `prepared` | immutable objects, breaks, control points, playback records and storage views | `core_types` |
 | `osu_prepare` | osu! objects, control points, paths, stacking, children, samples | above |
 | `osu_rules` | hit policy, circle/slider/spinner transitions | `prepared`, `core_types` |
 | `scoring` | result tables, normalized score, health/failure | prepared/rule interfaces |

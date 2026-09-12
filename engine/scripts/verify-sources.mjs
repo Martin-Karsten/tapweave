@@ -29,6 +29,6 @@ for (const [key, environment] of [['osu', 'OSU_REFERENCE_CHECKOUT'], ['framework
   }
   const git = args => execFileSync('git', ['-C', checkout, ...args], { encoding: 'utf8' }).trim();
   if (git(['rev-parse', 'HEAD']) !== manifest[key].commit) throw new Error(`${key} checkout revision mismatch`);
-  if (git(['status', '--porcelain', '--untracked-files=no'])) throw new Error(`${key} checkout contains modified source`);
+  if (git(['status', '--porcelain', '--untracked-files=normal'])) throw new Error(`${key} checkout contains modified source`);
 }
 console.log(`Verified ${manifest.files.length} source hashes, licences, and framework pin.`);

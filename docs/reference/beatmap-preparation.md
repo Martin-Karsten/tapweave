@@ -2,7 +2,7 @@
 
 ## Decode and defaults
 
-**SC.** Stable `.osu` format versions end at 14 ([`LegacyDecoder.LATEST_VERSION`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/Formats/LegacyDecoder.cs#L18-L31)); lazer-native encoding starts at 128 ([`LegacyBeatmapEncoder.FIRST_LAZER_VERSION`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/Formats/LegacyBeatmapEncoder.cs#L20-L29)). The pinned decoder accepts the parsed integer and branches at `<5`, `<6`, and `<128`; its tests cover v4/v6 and v128 fractional coordinates. Engine profile `lazer-2026.804.2` accepts versions 1–14 and exactly 128, and rejects the undefined gap 15–127 and future versions >128 rather than guessing. It also rejects missing/invalid headers, other modes, unsupported object types, non-finite ordinary numbers, and out-of-budget resources. **UR-FMT-1:** versions 1–3 lack a broad upstream fixture corpus; H01 establishes their exact defaults and object branches before M0 exits.
+**SC.** Stable `.osu` format versions end at 14 ([`LegacyDecoder.LATEST_VERSION`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/Formats/LegacyDecoder.cs#L18-L31)); lazer-native encoding starts at 128 ([`LegacyBeatmapEncoder.FIRST_LAZER_VERSION`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/Formats/LegacyBeatmapEncoder.cs#L20-L29)). The pinned decoder accepts the parsed integer and branches at `<5`, `<6`, and `<128`; its tests cover v4/v6 and v128 fractional coordinates. Engine profile `lazer-2026.804.2` accepts versions 1–14 and exactly 128, and rejects the undefined gap 15–127 and future versions >128 rather than guessing. It also rejects missing/invalid headers, other modes, unsupported object types, non-finite ordinary numbers, and out-of-budget resources. **UR-FMT-1:** versions 1–3 lack a broad upstream fixture corpus; H01 now verifies the bounded default/coordinate/time corpus for those versions; see the [M0 findings](../status.md).
 
 For format `<5`, lazer applies a 24 ms early-format timing offset ([`EARLY_VERSION_TIMING_OFFSET`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/Formats/LegacyBeatmapDecoder.cs#L25-L76)). Difficulty is clamped: CS/HP/OD/AR to `[0,10]` (AR defaults to OD if absent), slider multiplier to lazer’s allowed range, tick rate to `[0.5,8]` ([decode restrictions](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/Formats/LegacyBeatmapDecoder.cs#L115-L137)). Legacy defaults are applied before sections are parsed, so absent keys are not equivalent to zero ([`ApplyLegacyDefaults`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/Formats/LegacyBeatmapDecoder.cs#L193-L206)).
 
@@ -28,7 +28,7 @@ Each timing line may produce timing, difficulty, effect, and sample control poin
 
 Path control points may begin linear, perfect-curve, Catmull, or Bézier/B-spline segments. Repeated points split segments. [`SliderPath.calculatePath`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Objects/SliderPath.cs#L287-L424) delegates approximation to the matching framework [`PathApproximator`](https://github.com/ppy/osu-framework/blob/f02756c5aa5032e6d04729922702b8d56c4bc2eb/osu.Framework/Utils/PathApproximator.cs). A perfect curve with other than three points falls back; invalid circular arcs fall back to the B-spline path. Catmull output is later simplified with compatibility-specific spacing.
 
-The polyline is shortened or extended to declared pixel length. Extension uses the final non-degenerate direction; degenerate final segments are removed first ([length adjustment](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Objects/SliderPath.cs#L426-L484)). No independently chosen geometric tolerance is compatible: Odin must port the pinned algorithms and float behavior, then compare vertices/cumulative lengths.
+The polyline is shortened or extended to declared pixel length. The pinned implementation deliberately skips extension when the final two calculated vertices coincide and retains an extra cumulative-length entry. Otherwise it adjusts the final remaining segment after trimming excess lengths for shortening ([length adjustment](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Objects/SliderPath.cs#L426-L484)). This behavior was reproduced by the independent M1 geometry host. No independently chosen geometric tolerance is compatible: Odin must port the pinned algorithms and float behavior, then compare vertices/cumulative lengths.
 
 For a slider:
 
@@ -48,21 +48,21 @@ Worked example: beat length 500 ms, slider multiplier 1.4, SV multiplier 1, decl
 
 ## Stacking
 
-`OsuBeatmapProcessor` updates combo information then applies stacking. Version `>=6` uses modern reverse traversal; older maps use the old algorithm ([source](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Beatmaps/OsuBeatmapProcessor.cs)). Stack distance is `<3` osu! px. Time threshold is integer-truncated preempt multiplied by `StackLeniency`. Modern stacking handles slider-end overlaps by shifting intervening objects negatively. Spinners never stack and have zero stack offset.
+`OsuBeatmapProcessor` updates combo information then applies stacking. Version `>=6` uses modern reverse traversal; older maps use the old algorithm ([source](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Beatmaps/OsuBeatmapProcessor.cs)). Stack distance is `<3` osu! px. Time threshold is integer-truncated preempt multiplied by `StackLeniency`. Modern stacking handles slider-end overlaps by shifting intervening objects negatively. Modern stacking skips spinners in its main traversal. The old algorithm can assign a spinner a stack height, but its stack offset remains zero.
 
 ## Prepared-data invariants
 
 - UTF-8 strings are validated and owned by the prepared map.
-- All times are finite f64 milliseconds; geometry positions are f64 during preparation and stored as f32 only in render buffers.
+- All times are finite f64 milliseconds. Prepared geometry records expose f64 coordinates, while source algorithms preserve upstream f32 Vector2 intermediate rounding where required; render buffers store f32 coordinates.
 - Objects have stable `object_id = source ordinal`; components have stable per-object ordinals.
 - Top-level and nested schedules are pre-sorted; no session mutates them.
 - Path cumulative lengths are monotonic; zero-length segments are retained only where upstream behavior requires them.
 - Sample descriptors are resolved to ordered candidate names, not to loaded audio buffers.
 
-## Tests and unresolved work
+## Tests and evidence
 
 Use pinned tests for [`SliderPath`](https://github.com/ppy/osu/tree/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Tests/Rulesets/Objects), [`OsuBeatmapProcessor`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/TestSceneNoSpinnerStacking.cs), and slider application ([`TestSceneSliderApplication`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/TestSceneSliderApplication.cs)).
 
-- **UR-FMT-1:** versions 1–3 default/branch corpus; H01 resolves exact prepared outputs while support remains required.
-- **UR-GEO-1:** cross-runtime float path drift on pathological Béziers; H03 dumps raw vertices and cumulative lengths from pinned framework and Odin.
-- **UR-CP-1:** every coincident red/green ordering permutation; H02 generates the Cartesian fixture set and asserts prepared control points.
+- **UR-FMT-1:** versions 1–3 default/branch corpus; H01 resolves the M0 default/coordinate/time projection; M1 now covers integrated prepared output in the recorded corpus.
+- **UR-GEO-1:** cross-runtime float path drift on pathological Béziers; H03 compares raw vertices and cumulative lengths from pinned framework and Odin; the M1 finding index records the executed corpus.
+- **UR-CP-1:** every coincident red/green ordering permutation; H02 now passes the 24 two-red/two-inherited permutations and additional replacement/fallback fixtures; see the [hashed observations](../../engine/reference/findings/m0.json).

@@ -46,3 +46,27 @@ Run each simulation fixture with direct event-boundary stepping and presentation
 ## Failure reporting
 
 Every diff reports fixture hash, behavior ID, source commit, first differing event, ten events of context, raw numeric values/ULPs, schedule, and a reproduction command. Updating a golden requires a source revision/profile change or a written finding; never an unconditional snapshot refresh.
+
+
+## Executed M0 adapters
+
+H01/H02 are implemented and executed by [`engine/reference-host`](../../engine/reference-host/README.md). The [M0 finding index](../../engine/reference/findings/m0.json) records the 83-observation run, fixture/observation digests, locked dependency digest and policy classifications. The runner rebuilds and tests native/WASM before comparison. Its projection excludes M1 geometry, slider duration/children and final sample candidates; matching this projection is not full prepared-map equivalence.
+
+Malformed-line observations preserve upstream's actual catch-and-continue behavior. The adapter records an exception and rethrows it into the original decoder recovery loop. The comparison separately verifies Tapweave's stricter typed, transactional rejection policy. H03/H04 are implemented below; H05–H12 remain future experiments.
+
+## Implemented preparation observations
+
+`test:prepared:upstream` runs the real `OsuBeatmapConverter`, preprocessor,
+`ApplyDefaults`, and postprocessor in the pinned checkout. It observes final
+objects, paths, samples, stacking and nested children, and separately calls the
+upstream `SliderEventGenerator` for H04 descriptors. Reflection reads the private
+cumulative-length list; it does not reproduce the algorithm. Zero-duration legacy
+marker progress is normalised to 0 in both trace projections and explicitly marked
+as a canonical policy. It is excluded from scoring-child comparisons.
+
+The 101-fixture corpus includes 11 retained synthetic upstream `.osu` test resources
+with source/licence/SHA-256 entries in the source manifest. Numbered community
+beatmaps, music and art are not bundled. Full-map native/WASM traces include a
+binary-description digest. The independent 74-case geometry host remains useful
+for testing caller-supplied workspace limits and path kinds without decoding.
+See [current evidence](../status.md).

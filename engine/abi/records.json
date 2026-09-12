@@ -1,0 +1,911 @@
+{
+  "abi_major": 2,
+  "abi_minor": 0,
+  "version": 1,
+  "records": [
+    {
+      "name": "engine_create",
+      "kind": 1,
+      "size": 16,
+      "fields": {
+        "flags": [
+          8,
+          "u32"
+        ],
+        "reserved": [
+          12,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "map_prepare",
+      "kind": 2,
+      "size": 32,
+      "fields": {
+        "token": [
+          8,
+          "u64"
+        ],
+        "offset": [
+          16,
+          "u32"
+        ],
+        "count": [
+          20,
+          "u32"
+        ],
+        "flags": [
+          24,
+          "u32"
+        ],
+        "reserved": [
+          28,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "session_create",
+      "kind": 3,
+      "size": 32,
+      "fields": {
+        "flags": [
+          8,
+          "u32"
+        ],
+        "reserved": [
+          12,
+          "u32"
+        ],
+        "arena_bytes": [
+          16,
+          "u64"
+        ],
+        "lead_in_ms": [
+          24,
+          "f64"
+        ]
+      }
+    },
+    {
+      "name": "capabilities",
+      "kind": 4,
+      "size": 64,
+      "fields": {
+        "abi_major": [
+          8,
+          "u32"
+        ],
+        "abi_minor": [
+          12,
+          "u32"
+        ],
+        "foundation": [
+          16,
+          "u32"
+        ],
+        "gameplay": [
+          20,
+          "u32"
+        ],
+        "legacy_max": [
+          24,
+          "u32"
+        ],
+        "lazer_version": [
+          28,
+          "u32"
+        ],
+        "raw_bytes": [
+          32,
+          "u64"
+        ],
+        "arena_bytes": [
+          40,
+          "u64"
+        ],
+        "build_id": [
+          48,
+          "u64"
+        ],
+        "behavior_id": [
+          56,
+          "u32"
+        ],
+        "numeric_mode": [
+          60,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "map_descriptor",
+      "kind": 5,
+      "size": 32,
+      "fields": {
+        "format_version": [
+          8,
+          "u32"
+        ],
+        "foundation": [
+          12,
+          "u32"
+        ],
+        "objects": [
+          16,
+          "u32"
+        ],
+        "raw_timing": [
+          20,
+          "u32"
+        ],
+        "live_arena_bytes": [
+          24,
+          "u64"
+        ]
+      }
+    },
+    {
+      "name": "error",
+      "kind": 7,
+      "size": 64,
+      "fields": {
+        "status": [
+          8,
+          "u32"
+        ],
+        "code": [
+          12,
+          "u32"
+        ],
+        "line": [
+          16,
+          "u32"
+        ],
+        "column": [
+          20,
+          "u32"
+        ],
+        "requested": [
+          24,
+          "u64"
+        ],
+        "limit": [
+          32,
+          "u64"
+        ],
+        "severity": [
+          40,
+          "u32"
+        ],
+        "related_id": [
+          44,
+          "u32"
+        ],
+        "message_offset": [
+          48,
+          "u32"
+        ],
+        "message_count": [
+          52,
+          "u32"
+        ],
+        "message_stride": [
+          56,
+          "u32"
+        ],
+        "reserved": [
+          60,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "prepared_descriptor",
+      "kind": 8,
+      "size": 248,
+      "fields": {
+        "behavior_id": [
+          8,
+          "u32"
+        ],
+        "numeric_mode": [
+          12,
+          "u32"
+        ],
+        "objects_offset": [
+          16,
+          "u32"
+        ],
+        "objects_count": [
+          20,
+          "u32"
+        ],
+        "objects_stride": [
+          24,
+          "u32"
+        ],
+        "schedule_offset": [
+          28,
+          "u32"
+        ],
+        "schedule_count": [
+          32,
+          "u32"
+        ],
+        "schedule_stride": [
+          36,
+          "u32"
+        ],
+        "raw_digest_0": [
+          40,
+          "u64"
+        ],
+        "raw_digest_1": [
+          48,
+          "u64"
+        ],
+        "raw_digest_2": [
+          56,
+          "u64"
+        ],
+        "raw_digest_3": [
+          64,
+          "u64"
+        ],
+        "prepared_digest_0": [
+          72,
+          "u64"
+        ],
+        "prepared_digest_1": [
+          80,
+          "u64"
+        ],
+        "prepared_digest_2": [
+          88,
+          "u64"
+        ],
+        "prepared_digest_3": [
+          96,
+          "u64"
+        ],
+        "total_bytes": [
+          104,
+          "u64"
+        ],
+        "hp": [
+          112,
+          "f64"
+        ],
+        "cs": [
+          120,
+          "f64"
+        ],
+        "od": [
+          128,
+          "f64"
+        ],
+        "ar": [
+          136,
+          "f64"
+        ],
+        "slider_multiplier": [
+          144,
+          "f64"
+        ],
+        "tick_rate": [
+          152,
+          "f64"
+        ],
+        "stack_leniency": [
+          160,
+          "f64"
+        ],
+        "breaks_offset": [
+          168,
+          "u32"
+        ],
+        "breaks_count": [
+          172,
+          "u32"
+        ],
+        "breaks_stride": [
+          176,
+          "u32"
+        ],
+        "timing_points_offset": [
+          180,
+          "u32"
+        ],
+        "timing_points_count": [
+          184,
+          "u32"
+        ],
+        "timing_points_stride": [
+          188,
+          "u32"
+        ],
+        "difficulty_points_offset": [
+          192,
+          "u32"
+        ],
+        "difficulty_points_count": [
+          196,
+          "u32"
+        ],
+        "difficulty_points_stride": [
+          200,
+          "u32"
+        ],
+        "sample_points_offset": [
+          204,
+          "u32"
+        ],
+        "sample_points_count": [
+          208,
+          "u32"
+        ],
+        "sample_points_stride": [
+          212,
+          "u32"
+        ],
+        "effect_points_offset": [
+          216,
+          "u32"
+        ],
+        "effect_points_count": [
+          220,
+          "u32"
+        ],
+        "effect_points_stride": [
+          224,
+          "u32"
+        ],
+        "playback_offset": [
+          228,
+          "u32"
+        ],
+        "playback_count": [
+          232,
+          "u32"
+        ],
+        "playback_stride": [
+          236,
+          "u32"
+        ],
+        "format_version": [
+          240,
+          "u32"
+        ],
+        "reserved_244": [
+          244,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "prepared_object",
+      "kind": 9,
+      "size": 272,
+      "fields": {
+        "id": [
+          8,
+          "u32"
+        ],
+        "kind": [
+          12,
+          "u32"
+        ],
+        "time_ms": [
+          16,
+          "f64"
+        ],
+        "end_time_ms": [
+          24,
+          "f64"
+        ],
+        "position_x": [
+          32,
+          "f64"
+        ],
+        "position_y": [
+          40,
+          "f64"
+        ],
+        "end_position_x": [
+          48,
+          "f64"
+        ],
+        "end_position_y": [
+          56,
+          "f64"
+        ],
+        "stack_offset_x": [
+          64,
+          "f64"
+        ],
+        "stack_offset_y": [
+          72,
+          "f64"
+        ],
+        "scale": [
+          80,
+          "f64"
+        ],
+        "radius": [
+          88,
+          "f64"
+        ],
+        "preempt_ms": [
+          96,
+          "f64"
+        ],
+        "fade_in_ms": [
+          104,
+          "f64"
+        ],
+        "stack_height": [
+          112,
+          "u32"
+        ],
+        "combo_index": [
+          116,
+          "u32"
+        ],
+        "combo_index_with_offsets": [
+          120,
+          "u32"
+        ],
+        "index_in_combo": [
+          124,
+          "u32"
+        ],
+        "new_combo": [
+          128,
+          "u32"
+        ],
+        "last_in_combo": [
+          132,
+          "u32"
+        ],
+        "combo_offset": [
+          136,
+          "u32"
+        ],
+        "spans": [
+          140,
+          "u32"
+        ],
+        "velocity": [
+          144,
+          "f64"
+        ],
+        "span_duration": [
+          152,
+          "f64"
+        ],
+        "tick_distance": [
+          160,
+          "f64"
+        ],
+        "path_distance": [
+          168,
+          "f64"
+        ],
+        "calculated_distance": [
+          176,
+          "f64"
+        ],
+        "generate_ticks": [
+          184,
+          "u32"
+        ],
+        "spins_required": [
+          188,
+          "u32"
+        ],
+        "maximum_bonus_spins": [
+          192,
+          "u32"
+        ],
+        "vertices_offset": [
+          196,
+          "u32"
+        ],
+        "vertices_count": [
+          200,
+          "u32"
+        ],
+        "vertices_stride": [
+          204,
+          "u32"
+        ],
+        "cumulative_offset": [
+          208,
+          "u32"
+        ],
+        "cumulative_count": [
+          212,
+          "u32"
+        ],
+        "cumulative_stride": [
+          216,
+          "u32"
+        ],
+        "samples_offset": [
+          220,
+          "u32"
+        ],
+        "samples_count": [
+          224,
+          "u32"
+        ],
+        "samples_stride": [
+          228,
+          "u32"
+        ],
+        "tail_samples_offset": [
+          232,
+          "u32"
+        ],
+        "tail_samples_count": [
+          236,
+          "u32"
+        ],
+        "tail_samples_stride": [
+          240,
+          "u32"
+        ],
+        "auxiliary_samples_offset": [
+          244,
+          "u32"
+        ],
+        "auxiliary_samples_count": [
+          248,
+          "u32"
+        ],
+        "auxiliary_samples_stride": [
+          252,
+          "u32"
+        ],
+        "components_offset": [
+          256,
+          "u32"
+        ],
+        "components_count": [
+          260,
+          "u32"
+        ],
+        "components_stride": [
+          264,
+          "u32"
+        ],
+        "reserved_268": [
+          268,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "prepared_component",
+      "kind": 10,
+      "size": 80,
+      "fields": {
+        "id": [
+          8,
+          "u32"
+        ],
+        "kind": [
+          12,
+          "u32"
+        ],
+        "time_ms": [
+          16,
+          "f64"
+        ],
+        "span_start_ms": [
+          24,
+          "f64"
+        ],
+        "progress": [
+          32,
+          "f64"
+        ],
+        "position_x": [
+          40,
+          "f64"
+        ],
+        "position_y": [
+          48,
+          "f64"
+        ],
+        "span_index": [
+          56,
+          "u32"
+        ],
+        "samples_offset": [
+          60,
+          "u32"
+        ],
+        "samples_count": [
+          64,
+          "u32"
+        ],
+        "samples_stride": [
+          68,
+          "u32"
+        ],
+        "event_time_ms": [
+          72,
+          "f64"
+        ]
+      }
+    },
+    {
+      "name": "prepared_sample",
+      "kind": 11,
+      "size": 72,
+      "fields": {
+        "name_offset": [
+          8,
+          "u32"
+        ],
+        "name_count": [
+          12,
+          "u32"
+        ],
+        "name_stride": [
+          16,
+          "u32"
+        ],
+        "bank_offset": [
+          20,
+          "u32"
+        ],
+        "bank_count": [
+          24,
+          "u32"
+        ],
+        "bank_stride": [
+          28,
+          "u32"
+        ],
+        "suffix_offset": [
+          32,
+          "u32"
+        ],
+        "suffix_count": [
+          36,
+          "u32"
+        ],
+        "suffix_stride": [
+          40,
+          "u32"
+        ],
+        "volume": [
+          44,
+          "u32"
+        ],
+        "use_beatmap": [
+          48,
+          "u32"
+        ],
+        "layered": [
+          52,
+          "u32"
+        ],
+        "candidates_offset": [
+          56,
+          "u32"
+        ],
+        "candidates_count": [
+          60,
+          "u32"
+        ],
+        "candidates_stride": [
+          64,
+          "u32"
+        ],
+        "reserved_68": [
+          68,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "sample_candidate",
+      "kind": 12,
+      "size": 24,
+      "fields": {
+        "name_offset": [
+          8,
+          "u32"
+        ],
+        "name_count": [
+          12,
+          "u32"
+        ],
+        "name_stride": [
+          16,
+          "u32"
+        ],
+        "reserved_20": [
+          20,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "prepared_schedule",
+      "kind": 13,
+      "size": 24,
+      "fields": {
+        "time_ms": [
+          8,
+          "f64"
+        ],
+        "object_index": [
+          16,
+          "u32"
+        ],
+        "component_index": [
+          20,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "preparation_capabilities",
+      "kind": 14,
+      "size": 24,
+      "fields": {
+        "preparation_version": [
+          8,
+          "u32"
+        ],
+        "behavior_id": [
+          12,
+          "u32"
+        ],
+        "numeric_mode": [
+          16,
+          "u32"
+        ],
+        "reserved": [
+          20,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "prepared_break",
+      "kind": 15,
+      "size": 24,
+      "fields": {
+        "start_ms": [
+          8,
+          "f64"
+        ],
+        "end_ms": [
+          16,
+          "f64"
+        ]
+      }
+    },
+    {
+      "name": "prepared_control_point",
+      "kind": 16,
+      "size": 64,
+      "fields": {
+        "time_ms": [
+          8,
+          "f64"
+        ],
+        "beat_length": [
+          16,
+          "f64"
+        ],
+        "slider_velocity": [
+          24,
+          "f64"
+        ],
+        "source_id": [
+          32,
+          "u32"
+        ],
+        "meter": [
+          36,
+          "u32"
+        ],
+        "sample_set": [
+          40,
+          "u32"
+        ],
+        "sample_index": [
+          44,
+          "u32"
+        ],
+        "volume": [
+          48,
+          "u32"
+        ],
+        "generate_ticks": [
+          52,
+          "u32"
+        ],
+        "kiai": [
+          56,
+          "u32"
+        ],
+        "omit_first_bar": [
+          60,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "prepared_playback",
+      "kind": 17,
+      "size": 72,
+      "fields": {
+        "audio_lead_in": [
+          8,
+          "f64"
+        ],
+        "preview_time": [
+          16,
+          "f64"
+        ],
+        "sample_set": [
+          24,
+          "u32"
+        ],
+        "sample_volume": [
+          28,
+          "u32"
+        ],
+        "countdown": [
+          32,
+          "u32"
+        ],
+        "countdown_offset": [
+          36,
+          "u32"
+        ],
+        "samples_match_playback_rate": [
+          40,
+          "u32"
+        ],
+        "letterbox_in_breaks": [
+          44,
+          "u32"
+        ],
+        "epilepsy_warning": [
+          48,
+          "u32"
+        ],
+        "widescreen_storyboard": [
+          52,
+          "u32"
+        ],
+        "special_style": [
+          56,
+          "u32"
+        ],
+        "audio_filename_offset": [
+          60,
+          "u32"
+        ],
+        "audio_filename_count": [
+          64,
+          "u32"
+        ],
+        "audio_filename_stride": [
+          68,
+          "u32"
+        ]
+      }
+    }
+  ]
+}

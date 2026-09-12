@@ -49,15 +49,19 @@ Use tiny boundary fixtures, representative ranked-map corpus, long sliders/spinn
 
 ### M0 — Compatibility foundation
 
-Status: started; see the [implementation report](implementation/m0.md). Local foundation tests pass; upstream compatibility and full lifecycle exits remain open.
+Status: the scoped M0 foundation matrix passes; see the [implementation report](status.md) for executed native/WASM lifecycle checks, pinned H01/H02 observations and classified policy differences. This does not complete gameplay or browser-resource acceptance.
 
 Prerequisites: pinned checkouts/licences and schema tooling.
 
-Deliverables: source-manifest verifier; reference-host skeleton; trace schema/diff tool; two-pass decoder v1–v14 and v128; typed errors/quotas; prepared/session arena primitives; ABI handle table; standalone production regression job (historical spikes remain local).
+Deliverables: source-manifest verifier; executable H01/H02 reference host; trace schema/diff tool; two-pass decoder v1–v14 and v128; typed errors/quotas; integrated map/session arenas; ABI handle table; standalone production regression job (historical spikes remain local).
 
 Exit criteria: A01–A07, A24–A25 pass; H01/H02 completed; no leak across lifecycle matrix; exact native/WASM decoder records; every claim carries commit and fixture hash.
 
 ### M1 — Beatmap preparation
+
+Status: implemented. The [status report](status.md) records A08–A11/H03–H04
+comparisons over synthetic and pinned upstream fixtures, native/WASM parity,
+transactional ownership, quotas and stage measurements.
 
 Prerequisites: M0 trace/diff and immutable prepared storage.
 

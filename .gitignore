@@ -16,6 +16,7 @@
 
 # Toolchains, dependencies, generated output, and credentials.
 **/.toolchain/
+/engine/.reference/
 **/node_modules/
 **/artifacts/
 **/bin/

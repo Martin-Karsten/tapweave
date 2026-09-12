@@ -13,8 +13,8 @@ behavior. Other rulesets, mods, skins, storyboards, difficulty/pp, legacy replay
 containers, accounts, networking, editing, and score submission are outside the
 current implementation scope unless the task explicitly expands it.
 
-The repository currently contains an M0 foundation, not a playable game or a
-certified compatible port. Read `docs/implementation/m0.md` for actual coverage
+The repository implements M0 foundation and M1 preparation; gameplay is not yet
+implemented. Read `docs/status.md` for actual coverage
 and remaining gates; do not treat planned packages or interfaces as implemented.
 
 ## Read before changing behavior
@@ -52,6 +52,25 @@ from visual similarity or from agreement between two local implementations.
 - Keep changes focused. Do not add frameworks, npm dependencies, or broad
   abstractions without a concrete requirement; current engine tooling has no
   npm dependencies.
+
+## Odin naming
+
+- Use descriptive `snake_case` names for variables, parameters, fields, and
+  procedures. Follow existing `Title_Case` type and `UPPER_SNAKE_CASE` constant
+  conventions.
+- Name values for their role: `builder`, `workspace`, `control_point_count`,
+  `previous_vertex`, `expected_length`, and `remaining_work`. Avoid abbreviations
+  such as `b`, `w`, `n`, `opts`, or `st` for engine state and resource management.
+- Always use expressive variable names, including loop indices and tests. Use
+  `object_index`, `sample_index`, or another role-specific index instead of `i`/`j`. Use `x` and `y` for coordinates
+  where their meaning is immediate. Mathematical code still needs descriptive
+  point, distance, angle, and weight names when several values interact.
+- Expand procedure bodies and control-flow blocks across lines; keep one statement
+  per line. Use generated ABI field offsets instead of handwritten byte offsets.
+- Apply the same readability standard to tests and test transports. Prefer
+  descriptive package aliases, such as `geometry`, over single-letter aliases.
+- When renaming compatibility math, preserve operation order, casts, constants,
+  and behavior. Do not rename identifiers in retained upstream reference sources.
 
 ## Memory, determinism, and WASM
 
@@ -108,7 +127,7 @@ sync. Documentation-only changes need link/path and diff checks, not a build.
 - Native/WASM parity is local consistency, not upstream acceptance. Preserve
   honest oracle classifications and attach source revisions, fixture hashes,
   and acceptance IDs to compatibility findings.
-- The .NET reference host is a skeleton until its experiment adapters work.
+- The .NET reference hosts execute pinned H01–H04 adapters.
   Follow `engine/reference-host/README.md` for clean pinned checkouts and restore;
   never fabricate a dependency lock file or oracle output.
 - Do not refresh vendored source hashes merely to silence verification. Source

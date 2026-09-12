@@ -1,0 +1,2569 @@
+{
+  "schemaVersion": 1,
+  "lockHash": "a6cf520b8e80b0e7c06da2bb4493db9173ba20a734433348fe0df54dc4ff7e8a",
+  "foundation": {
+    "lifecycle": {
+      "preparedABI": {
+        "acceptance": [
+          "A24",
+          "A25"
+        ],
+        "oracle": "local-contract-tests",
+        "quotaFailure": true,
+        "grew": true,
+        "descriptionBytes": 11567
+      },
+      "preparedAllocationFailure": true,
+      "acceptance": [
+        "A24",
+        "A25"
+      ],
+      "oracle": "local-contract-tests",
+      "cycles": 50,
+      "sessionsPerMap": 4,
+      "resets": 4000,
+      "growthObserved": true,
+      "allocationFailure": true,
+      "highWaterPages": 4094,
+      "steadyStatePages": 303
+    },
+    "compiler": "/Users/martin/stuff/osu-web/engine/.toolchain/odin/odin version dev-2026-09-nightly:a2fb372",
+    "schemaVersion": 1,
+    "upstreamVerified": false,
+    "records": [
+      {
+        "fixture": "version-1",
+        "sha256": "ead1c64a2b0bf2ff082bbb086cfb4477ff04a139e19846aeb83622c6521fd42f",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-2",
+        "sha256": "a6cf6db2b602b282acbf410d3ca3a465faa5fd8b9504748571dad004be97dd9a",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-3",
+        "sha256": "4195544d989269b2feb43c7bab78f19a1b2f21174e2628d01de287d78b4334cf",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-4",
+        "sha256": "79668d8e66dd7005c381052769cce5ce36c8eb44dff7bda810c24a5d730e8bd1",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-5",
+        "sha256": "c94116d3ae5fbafcc67d0c3466187e67408c910d8ede3c9194a176cb9e04f9eb",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-6",
+        "sha256": "1093862a13679a6cf266dc80a9ebb78f7d2c86b89be03fdc886ad1d25a2b6e7a",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-7",
+        "sha256": "6fc1a09dedc1cc10d637b7a06b204a29e99ab519ec6616eea4575a1c860fc9c7",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-8",
+        "sha256": "a2fc1f336abd2289cbf5aaa11d172e72362732cbf5645c52a22adc68e39b8252",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-9",
+        "sha256": "ed8f22a6ae5cba6782b0b59f3b0ac395a30b3262fa6b17810658f93862fdd079",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-10",
+        "sha256": "f4a37752f74894904fffc28618160b4d99060ce33db066adfb039ed8a9660442",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-11",
+        "sha256": "d0d2608febd57b9954d50f7338a9d45bcf2e5e6550d7cd758c40b2d6ec352a7a",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-12",
+        "sha256": "1310bf0cafe681e696edf6398b2ec77cdf97165cf34374e06f3737c83601fc9a",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-13",
+        "sha256": "b8cca5652a678b30287fe0bf6728e7348d5d89f16f9839faf187a713180396af",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-14",
+        "sha256": "3187faa8270163a2f28d088168c6a67f6dee27aa0e8f0080194f3dd97ddc2ce0",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "version-128",
+        "sha256": "0b19173de22f6dc84d23a7ecac2222d04447b98c8c27d833857eef499ef794c4",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "unsupported-0",
+        "sha256": "bcdcf37dd25cacda69a922166acc620b57cebbee6ffedc1bf1d5f62e5a86667e",
+        "acceptance": [
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "unsupported-15",
+        "sha256": "37213a716c53476d37df97b100ec631d950262acb71caaa5f3f67f7908a5e7ec",
+        "acceptance": [
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "unsupported-127",
+        "sha256": "e40638c4cb7824893e6372db0a698db8ff5059cde1d56d0a2decfb9b125c0a2b",
+        "acceptance": [
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "unsupported-129",
+        "sha256": "abc31869d2836c4dab88fe668ca4e86a98c821cac7842a1198d27a2737820adf",
+        "acceptance": [
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "missing-header",
+        "sha256": "0aa7c9c176519f30cfda5d3c25fd676f954ccc216d2487b6ad1627005d67ed2c",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "bad-number",
+        "sha256": "f23e78a0f3719fe3a9c6218f08dc977685c732c81a3a4928bc335d07aecb3d1e",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "truncated-slider",
+        "sha256": "074d74407ec4a22b2d80b50eb9954f7b426257a4c1831aa341a157038c166303",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "wrong-mode",
+        "sha256": "1120b94eb5231be503f52f799c52f1272eef9553b4e9312ec7e88faf45e80465",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "unknown-object",
+        "sha256": "e989742e831ea730fe3ee270829b92d7a7e65931bd8dcefff4dc2bf556cb1599",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "bom-whitespace-defaults",
+        "sha256": "6fbf2e3446834f22c408a8b99241cc6e813977c830848ebc23dd29d5dfd5577e",
+        "acceptance": [
+          "A01"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "ordering",
+        "sha256": "8bc7d9b2480aca60da22a4f6906134af0bcb21e47b66196c13f0de13e25106a0",
+        "acceptance": [
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "red-green",
+        "sha256": "5545e561d9b9c40db70537b7a9e5e0e5a01dcdc165f053a8594794f561e4e588",
+        "acceptance": [
+          "A06"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "green-red",
+        "sha256": "4827317699f44e091337c5f62f0abe22356fc728b55aedcab2aaad56ef31c31b",
+        "acceptance": [
+          "A06"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "red-nan",
+        "sha256": "144642f4f347a12179d35a8c2606793094922ce9ab31ba473df32f4c0c9c590a",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "quota-edge",
+        "sha256": "f6d20e4aebd0cab00994784fc608a04eb4e695d6379ca8b0b0758d13ad3458db",
+        "acceptance": [
+          "A24"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "quota-overflow",
+        "sha256": "48667ea33295fa1a9f89a1de78c3264d868335d4a36b56edf6cedb4a57c1ae50",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "overflow-header",
+        "sha256": "db880d82c8e1866250a4a41ef0f59e0fc9f8e0cb02cd8fb5209c87c989f5cfc1",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "overflow-sound",
+        "sha256": "e0a091ef1241077fe898c6ba8dd1ec122149c174231778d89dad5b788f755cb7",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "overflow-negative",
+        "sha256": "6d80606e123fe33d545df5f1f25f3b6a523b1de95c1b52ed248966ab1da87c48",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "overflow-sample",
+        "sha256": "da24663f0c671c78032abda475bd5bafd131aebdebd87036eea2cf51dc979915",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "overflow-timing",
+        "sha256": "123c020402a420621f017007387bd6d86ba3f922dba74c50146fb2ab376a49a8",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "omitted-all",
+        "sha256": "b8568f02331922c7cec6624f3d9f02de897c03ab6442bad9c3411bb84594ffa1",
+        "acceptance": [
+          "A01",
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-1",
+        "sha256": "356cb4f96e44d2fe5515a2f2fa01cf441be3639b42e8236037ef2522885304ef",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-2",
+        "sha256": "23fc0fe771cee9671a1d179147d481af60a6e40f3af7373aa00222058cb4e367",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-3",
+        "sha256": "c657e75f6f814d962c1f29ccb7e919cd76785bc7ef10972ef6294d939808e31a",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-4",
+        "sha256": "dcc0ce49f7f15be41159a39fa422d1644ef1068a90874e40baee2bb77633ddd3",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-5",
+        "sha256": "7b6072d567e8a78103fdec4f02a0f6829550e6d0ce6825fac02d749c411290c3",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-6",
+        "sha256": "d67f4e8125e7649a53e0c66afd2006c44d46e8b3498fa18b85dd3b7eb7b7cc5d",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-7",
+        "sha256": "e7151dae3d79ac142a38ed8211a64455235159d719302205a53ec4c2874d32c4",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-8",
+        "sha256": "aa9f69cfc4d1c077525768b9bfbc338628853b72b45853ff2c9f25ae9de4d254",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-9",
+        "sha256": "517bfa576f2a48dd90f250b1c2219bcedecd0636264318507de7a7555b852a6b",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-10",
+        "sha256": "3f9ff1605eb4114d077d714e74816ef426e5ddf94d36b594eb62f3f5e8bbbe12",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-11",
+        "sha256": "833b3fdeb57c55b8c35a8bbfc51cc5efe64c4d6282f98240a91d130b5c042d8c",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-12",
+        "sha256": "c0e5b346434aa0049c14759ff9028ba57a157aa65751f5ee2eb1e767020db245",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-13",
+        "sha256": "be7e81e290bd5c9b520828e44c475e14955f0b1c1b98702e044ddc1e52a3efac",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-14",
+        "sha256": "b8568f02331922c7cec6624f3d9f02de897c03ab6442bad9c3411bb84594ffa1",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "defaults-128",
+        "sha256": "7694997500365b17aca3dea5504d4a5465f699529f50cbb0070f7b2529886a1e",
+        "acceptance": [
+          "A01",
+          "A02",
+          "A03",
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "countdown-name-comments",
+        "sha256": "c54792a94a03901a80584594ab664d54e073304f9608189477b6d569719b4e64",
+        "acceptance": [
+          "A01"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "combo-source-order-break",
+        "sha256": "aa3dc8fc8710a15a3811329b5aabbf68467b321a1f490246b01b18617fdbecb1",
+        "acceptance": [
+          "A04"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "general-breaks",
+        "sha256": "12fc5ba65c15cd9d72bd1af9629b5944d32702f2582441a833b6b040e5e1e363",
+        "acceptance": [
+          "A01",
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-0",
+        "sha256": "21b1c11cb005f3e960747783ab516046ff115d4891bed9dcc21bec54d3bfe6c7",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-1",
+        "sha256": "93535786b0c26cd3eb9303c4f6003258eb96605a397ecd14f425d3ceb67b4b76",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-2",
+        "sha256": "b3c07344fe71b0c1b4c9bcc5f8864aeae23b3009fd692a25c56b6d11be72a1d9",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-3",
+        "sha256": "db05a8eb1d1164e90dc122ed9839d51bd13e30de2562e77b74f8f5f38cdc5cf0",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-4",
+        "sha256": "1971e7d8ed11588b9f8a9f33f54fbc98ebcd8c6904d00cb8f2428ccf3db9e1ab",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-5",
+        "sha256": "bf011c894b49943406fc01c73e7dc06538b78c38b23e85dac6a7aeb56fa9a00e",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-6",
+        "sha256": "2f80c78fad77b1485c625939f95843662b5d3ee481867f8c6a9a4d6327903bf3",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-7",
+        "sha256": "46e5b280809be1fd81d9488d9ac07f85fb7be6bf11ffa954047176afe9622b2c",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-8",
+        "sha256": "4c8cc74d10e1500a68baaf5bb21f993cddce8832daa4a73cb509bb0cfd00aae2",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-9",
+        "sha256": "a59955d414d3262b9ac5ff310afde17e0817cc1d86dbd2df4fa9196118357c21",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-10",
+        "sha256": "a55e197f549175aa2fe49298e6a331d657f45e0e5e6cc609738d33af7e0c0b02",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-11",
+        "sha256": "17add86728dcc13d9baecaed84835628fc3de1c5fe35a8d4bd01f6048cacd229",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-12",
+        "sha256": "33dd6fc282e55fe2d2c538aca414d4df037e97b7a82c70b338b987dee01887b3",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-13",
+        "sha256": "3f42f7a2838578078fb2c55ed53919c907e3e1ee152f2db84edbd52c89ae6ab9",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-14",
+        "sha256": "30edd9eed7da7ae37ca54a5ff69745df9992863956367c291d792eb20965c25b",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-15",
+        "sha256": "372e64e60a268de104c93ef137c408661c15c3e44599822e35e9068ef78d68b5",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-16",
+        "sha256": "772ef7e6171bb48e2e9fa37097c7de3569543c655e2230501a1ff182998fd5e6",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-17",
+        "sha256": "feeddd590b30e88d955a55ea8e6e36161de40f3bae064c65d937821fab688b6e",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-18",
+        "sha256": "b7934b3c34c93da3f47fb2b2a5f4a084b254123dfda5d9a5f0162961976fd2a0",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-19",
+        "sha256": "bb348ed5dbbd0f8c9e8c835cc91212bf76cc781d5643be0c732244614ba1105d",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-20",
+        "sha256": "ac7b8581b1f706662d25c86f6268a8cab9515a1b67846affc3132faf74c5b064",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-21",
+        "sha256": "075f215b69fb79426c4435250a5ea2ccadc62a7901f163d25fd7ab710dec400c",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-22",
+        "sha256": "5bf72b9d50a384e9cbe452d74e6624333e191c5711e5352d35f32aae474638a8",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "coincidence-23",
+        "sha256": "79c0f14c61e9a446c321375c71a399c3227ff466cc0f0190af471ea429589ca1",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "nonconsecutive-timing",
+        "sha256": "2c5377dd166a6b61c0519dc1786b0931824dbc7905b65498f2a4fdc27543219e",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "clamped-control-points",
+        "sha256": "6f42d3f5e9a8466ed8156a74b1d76e1b93900ebd52a3838e125cdff7c8ab12e0",
+        "acceptance": [
+          "A06",
+          "A07"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "bad-sample-1",
+        "sha256": "0a6cac94cced83e2a12d9d06c718a4345f28fc740e063373611e7f96119f3bee",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "bad-sample-1-x",
+        "sha256": "9a03b4ced2ace36646bd5bd8ce2b97acc366a13c5c60e53b05db9b6794ac886a",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "bad-sample-0-0-x",
+        "sha256": "68a3e7abe98a09e98b68ff1664ef751659d7e27ceb9d61f3c6fac2089e876156",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "bad-sample-0-0-0-x",
+        "sha256": "503f0864a14fdd261b7eb696c175c4dd4f8e77fb91771e3e322b63e807ffa7a2",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "slider-banks-only",
+        "sha256": "3c02e3826a9b86bbac49247385ed53d2f89dbd0c211a609742442cf9091d529d",
+        "acceptance": [
+          "A01",
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "edge-sound-fallback",
+        "sha256": "a5996f5fb06d48862c16e7c0fbb4a4ebaa7e6aa59741494cab3c3b369e29cf14",
+        "acceptance": [
+          "A01",
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      },
+      {
+        "fixture": "bad-edge-bank",
+        "sha256": "8a1779fccf8471f874004df62d645754cee68712e85951c48e40735fb592b28d",
+        "acceptance": [
+          "A05"
+        ],
+        "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "oracle": "local-tests-only",
+        "equal": true,
+        "difference": null,
+        "reproduce": "node engine/scripts/test.mjs"
+      }
+    ]
+  },
+  "comparison": "native/WASM exact traces and pinned upstream M0 projection including queries",
+  "records": [
+    {
+      "fixture": "version-1",
+      "sha256": "ead1c64a2b0bf2ff082bbb086cfb4477ff04a139e19846aeb83622c6521fd42f",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "1c3d6983d39236f7c0791d747cc0c369040ff9f7e8a16a600971a9e1e7ed2458",
+      "queryCount": 7,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-2",
+      "sha256": "a6cf6db2b602b282acbf410d3ca3a465faa5fd8b9504748571dad004be97dd9a",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "194793e3b7230d365ec5125609e795e975a5cb18d69bf04e422e504b228cb548",
+      "queryCount": 7,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-3",
+      "sha256": "4195544d989269b2feb43c7bab78f19a1b2f21174e2628d01de287d78b4334cf",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "8c56b3228036223ea6c529e8615c20991d023a8a350e93bba25b15c3689d4580",
+      "queryCount": 7,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-4",
+      "sha256": "79668d8e66dd7005c381052769cce5ce36c8eb44dff7bda810c24a5d730e8bd1",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "08cde72200125faf50cfe5ef5aaa37bd2e2050caed95f4bdc086c4e2cedd6e3d",
+      "queryCount": 7,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-5",
+      "sha256": "c94116d3ae5fbafcc67d0c3466187e67408c910d8ede3c9194a176cb9e04f9eb",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "944d2b1a4965fafcf5fef71835c1db405c1fbd48783cfb76760827f24e18cede",
+      "queryCount": 6,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-6",
+      "sha256": "1093862a13679a6cf266dc80a9ebb78f7d2c86b89be03fdc886ad1d25a2b6e7a",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "99bed04d8d17812cbfb543d4d2af7493284edd9f180e9de20f4123c6746eff9e",
+      "queryCount": 6,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-7",
+      "sha256": "6fc1a09dedc1cc10d637b7a06b204a29e99ab519ec6616eea4575a1c860fc9c7",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "9d8211ee22919e67071d9b9b6f6c7c3f217aed3533c06d4a46c6c3ecc6eaf0f3",
+      "queryCount": 6,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-8",
+      "sha256": "a2fc1f336abd2289cbf5aaa11d172e72362732cbf5645c52a22adc68e39b8252",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "e67c1f04c151cac6fc412eb01059c0beacee21528266c1a8df1ffc0514375183",
+      "queryCount": 6,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-9",
+      "sha256": "ed8f22a6ae5cba6782b0b59f3b0ac395a30b3262fa6b17810658f93862fdd079",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "91f1297b69ad8f94d42bead74de975cb1f387910d05963730c107cde28fd6484",
+      "queryCount": 6,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-10",
+      "sha256": "f4a37752f74894904fffc28618160b4d99060ce33db066adfb039ed8a9660442",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "aa991a30051e8a839697285a5b36d2e071d5c4a12f91b04ce1d4d3e49c0c12b4",
+      "queryCount": 6,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-11",
+      "sha256": "d0d2608febd57b9954d50f7338a9d45bcf2e5e6550d7cd758c40b2d6ec352a7a",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "d4c0d3b74a50c79320547231954d271cbf113b2f002e6ac64caa4f8bb5007bd0",
+      "queryCount": 6,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-12",
+      "sha256": "1310bf0cafe681e696edf6398b2ec77cdf97165cf34374e06f3737c83601fc9a",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "9e40a25b36edd4f6466b40758f3be4386781fc786a7ee76bd2ba2ef968948945",
+      "queryCount": 6,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-13",
+      "sha256": "b8cca5652a678b30287fe0bf6728e7348d5d89f16f9839faf187a713180396af",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "d63213fbd5cc68f0f161c3a6395dcf72eb4c270af65a901dd865e1c2a34dce6a",
+      "queryCount": 6,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-14",
+      "sha256": "3187faa8270163a2f28d088168c6a67f6dee27aa0e8f0080194f3dd97ddc2ce0",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "ac7993fe1303cb84d9fd7ea835cb978bf09bddf49f88629e6a28b42d99f96415",
+      "queryCount": 6,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "version-128",
+      "sha256": "0b19173de22f6dc84d23a7ecac2222d04447b98c8c27d833857eef499ef794c4",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "3b6da4ea65c19783e3439483e025ae11ea257765477d555e8e3a24c43d63fbc5",
+      "queryCount": 6,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "unsupported-0",
+      "sha256": "bcdcf37dd25cacda69a922166acc620b57cebbee6ffedc1bf1d5f62e5a86667e",
+      "acceptance": [
+        "A04"
+      ],
+      "oracle": "documented-version-policy",
+      "observationSha256": "0713d6402a1d1f6ce345241a14fd8e5fbaa1b4de31144504afe3d6f3adba2aab",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "unsupported-15",
+      "sha256": "37213a716c53476d37df97b100ec631d950262acb71caaa5f3f67f7908a5e7ec",
+      "acceptance": [
+        "A04"
+      ],
+      "oracle": "documented-version-policy",
+      "observationSha256": "d99f6f70dd3aa15a210a476f749492f7efae4c429e987ae9af7a4572d05dc815",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "unsupported-127",
+      "sha256": "e40638c4cb7824893e6372db0a698db8ff5059cde1d56d0a2decfb9b125c0a2b",
+      "acceptance": [
+        "A04"
+      ],
+      "oracle": "documented-version-policy",
+      "observationSha256": "21581e76f66eb5c8688d8f1f5f17ba0dc86e702d636713a5f140a3f72b847372",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "unsupported-129",
+      "sha256": "abc31869d2836c4dab88fe668ca4e86a98c821cac7842a1198d27a2737820adf",
+      "acceptance": [
+        "A04"
+      ],
+      "oracle": "documented-version-policy",
+      "observationSha256": "a41e0a8053bfa43c0ec614595a3ef7ef2c9fd90060d783ce8b338da5a0e6d768",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "missing-header",
+      "sha256": "0aa7c9c176519f30cfda5d3c25fd676f954ccc216d2487b6ad1627005d67ed2c",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-header-policy",
+      "observationSha256": "7f9c2357f61a7c64535849396e3fdc225c518b398578b8dc93e57dd9a9da83e8",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "bad-number",
+      "sha256": "f23e78a0f3719fe3a9c6218f08dc977685c732c81a3a4928bc335d07aecb3d1e",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-transactional-error-policy",
+      "observationSha256": "babc02b14e7b667092f12b958f06a7d14759c1e6df6a4bf444059774f2a6c73b",
+      "queryCount": 2,
+      "lineErrors": [
+        {
+          "section": "Difficulty",
+          "line": "CircleSize: 1e999",
+          "exception": "System.OverflowException"
+        }
+      ],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "truncated-slider",
+      "sha256": "074d74407ec4a22b2d80b50eb9954f7b426257a4c1831aa341a157038c166303",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-transactional-error-policy",
+      "observationSha256": "7d22bd92ed8ccd0ac680e5d951b34285da2340898feee3cccd26e03cc559b0a6",
+      "queryCount": 2,
+      "lineErrors": [
+        {
+          "section": "HitObjects",
+          "line": "0,0,0,2,0,B|10:10",
+          "exception": "System.IndexOutOfRangeException"
+        }
+      ],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "unknown-object",
+      "sha256": "e989742e831ea730fe3ee270829b92d7a7e65931bd8dcefff4dc2bf556cb1599",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-ruleset-object-policy",
+      "observationSha256": "1ae7b66478f10950729111dafbab421ff39a0335f8f05d5d2bac01d88fbdf7f9",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "ordering",
+      "sha256": "8bc7d9b2480aca60da22a4f6906134af0bcb21e47b66196c13f0de13e25106a0",
+      "acceptance": [
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "9bb2ea3e92dd1d7ec99e5ae8ab0a24bf59a913a2df6390b95fa13702011de8aa",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "red-green",
+      "sha256": "5545e561d9b9c40db70537b7a9e5e0e5a01dcdc165f053a8594794f561e4e588",
+      "acceptance": [
+        "A06"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "33dd05dd420ac04def85bdcdb1d03371a63cdd28147a0e6eae1db0da7d4cdbda",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "green-red",
+      "sha256": "4827317699f44e091337c5f62f0abe22356fc728b55aedcab2aaad56ef31c31b",
+      "acceptance": [
+        "A06"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "c7017e2c1934168343ef5850f4a098f3d8d0d16909ba154425922e50f73ea5ff",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "red-nan",
+      "sha256": "144642f4f347a12179d35a8c2606793094922ce9ab31ba473df32f4c0c9c590a",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-transactional-error-policy",
+      "observationSha256": "d452284fbee8ddde9aa8ff3b1edcaedd6bc9fc8934fda404fff1aa00af3c53eb",
+      "queryCount": 2,
+      "lineErrors": [
+        {
+          "section": "TimingPoints",
+          "line": "0,NaN,4,1,0,100,1,0",
+          "exception": "System.IO.InvalidDataException"
+        }
+      ],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "overflow-sound",
+      "sha256": "e0a091ef1241077fe898c6ba8dd1ec122149c174231778d89dad5b788f755cb7",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-transactional-error-policy",
+      "observationSha256": "b0e023fb08859ec062f04ef5c783116431b2479930bada9add649ce029e32bae",
+      "queryCount": 2,
+      "lineErrors": [
+        {
+          "section": "HitObjects",
+          "line": "0,0,0,1,18446744073709551617",
+          "exception": "System.OverflowException"
+        }
+      ],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "overflow-negative",
+      "sha256": "6d80606e123fe33d545df5f1f25f3b6a523b1de95c1b52ed248966ab1da87c48",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-transactional-error-policy",
+      "observationSha256": "1409d93fbcd12b5cc6365094c0bc31e7584df88d5bf2a6032240ce00213ba244",
+      "queryCount": 2,
+      "lineErrors": [
+        {
+          "section": "General",
+          "line": "Mode: -18446744073709551616",
+          "exception": "System.OverflowException"
+        }
+      ],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "overflow-sample",
+      "sha256": "da24663f0c671c78032abda475bd5bafd131aebdebd87036eea2cf51dc979915",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-transactional-error-policy",
+      "observationSha256": "2f2bcb7f8954310f8e2233010d79f8b765af5d5102ecc12a61442db5d5e2b276",
+      "queryCount": 2,
+      "lineErrors": [
+        {
+          "section": "HitObjects",
+          "line": "0,0,0,1,0,0:0:18446744073709551617:0:",
+          "exception": "System.OverflowException"
+        }
+      ],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "overflow-timing",
+      "sha256": "123c020402a420621f017007387bd6d86ba3f922dba74c50146fb2ab376a49a8",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-transactional-error-policy",
+      "observationSha256": "01a5011bca6830dc9d62c0810fc0b1a94a7137bb58f815e45fe8fd7c2ab811fa",
+      "queryCount": 2,
+      "lineErrors": [
+        {
+          "section": "TimingPoints",
+          "line": "0,500,18446744073709551620",
+          "exception": "System.OverflowException"
+        }
+      ],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "omitted-all",
+      "sha256": "b8568f02331922c7cec6624f3d9f02de897c03ab6442bad9c3411bb84594ffa1",
+      "acceptance": [
+        "A01",
+        "A05"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "0b920bbc370bf48db22d4a001256c11fdfcb936b104d4dca82cd86a39ad25c11",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-1",
+      "sha256": "356cb4f96e44d2fe5515a2f2fa01cf441be3639b42e8236037ef2522885304ef",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "5b27a4788adb4ba04d399cc65c54a456022e29d6fd7be3560a92536a31744406",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-2",
+      "sha256": "23fc0fe771cee9671a1d179147d481af60a6e40f3af7373aa00222058cb4e367",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "b4e204737359d1fe5b266734dc4b9e957dcf5bcb66f6260924e17231e02b9d58",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-3",
+      "sha256": "c657e75f6f814d962c1f29ccb7e919cd76785bc7ef10972ef6294d939808e31a",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "da698f1fe3ddf3d9a0fc86ec773d77c6761bf3f6325a4c835d8706fff4a68d80",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-4",
+      "sha256": "dcc0ce49f7f15be41159a39fa422d1644ef1068a90874e40baee2bb77633ddd3",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "1a966f464307c2086d6977e4841703773986f7640595ff81d1d05f574373746d",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-5",
+      "sha256": "7b6072d567e8a78103fdec4f02a0f6829550e6d0ce6825fac02d749c411290c3",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "8598ddcb448997429b459ace73bbae08369d5d8174c036c4b423a6dbe1e1d3c7",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-6",
+      "sha256": "d67f4e8125e7649a53e0c66afd2006c44d46e8b3498fa18b85dd3b7eb7b7cc5d",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "a10e0c5b1ae741ea03eedc44a46d18e14721dcb580d9265d89051f8713635b97",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-7",
+      "sha256": "e7151dae3d79ac142a38ed8211a64455235159d719302205a53ec4c2874d32c4",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "19d304bb7ff1b6446bb9786267c469bf341d83698b048d3296fff0b48770d76e",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-8",
+      "sha256": "aa9f69cfc4d1c077525768b9bfbc338628853b72b45853ff2c9f25ae9de4d254",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "0617eb862661209aeef63e9b8cb50770ea57cce3148162ee40f0d5f10c4f3e12",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-9",
+      "sha256": "517bfa576f2a48dd90f250b1c2219bcedecd0636264318507de7a7555b852a6b",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "f87f04803d3cd9b652711d46b3fd2c14c5611c9a3c9867e05c8f8e8162a7267c",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-10",
+      "sha256": "3f9ff1605eb4114d077d714e74816ef426e5ddf94d36b594eb62f3f5e8bbbe12",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "cda7d7cbd2697f2da14f83c11b99fb3e156e61816f75795ef34cb31d01eb24ba",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-11",
+      "sha256": "833b3fdeb57c55b8c35a8bbfc51cc5efe64c4d6282f98240a91d130b5c042d8c",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "add3674325ec8d32dfe9d38899f2014f39f34472edf85dcb5833947d349d5e21",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-12",
+      "sha256": "c0e5b346434aa0049c14759ff9028ba57a157aa65751f5ee2eb1e767020db245",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "65dd25b620b8123c496f6f71bd958d08e9f2ce44595f737d25a60443479c2b24",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-13",
+      "sha256": "be7e81e290bd5c9b520828e44c475e14955f0b1c1b98702e044ddc1e52a3efac",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "b5f3f276b939f16e0964d664de9f57d56d106694a0fc9e03d1c5c9448a7658c7",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-14",
+      "sha256": "b8568f02331922c7cec6624f3d9f02de897c03ab6442bad9c3411bb84594ffa1",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "0b920bbc370bf48db22d4a001256c11fdfcb936b104d4dca82cd86a39ad25c11",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "defaults-128",
+      "sha256": "7694997500365b17aca3dea5504d4a5465f699529f50cbb0070f7b2529886a1e",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A03",
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "3c7f1c16b8c4631c414d7042f4b6f6b6c5dc219ae2ed884641664a7028e43de4",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "countdown-name-comments",
+      "sha256": "c54792a94a03901a80584594ab664d54e073304f9608189477b6d569719b4e64",
+      "acceptance": [
+        "A01"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "c98c11fdd1159714c39d089d91953fe00ef2bedf02d0831035225c0290df1be4",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "combo-source-order-break",
+      "sha256": "aa3dc8fc8710a15a3811329b5aabbf68467b321a1f490246b01b18617fdbecb1",
+      "acceptance": [
+        "A04"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "066ba4b48926a7df88ed861a0400f240e98194d730087319cd18785081ed1e37",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "general-breaks",
+      "sha256": "12fc5ba65c15cd9d72bd1af9629b5944d32702f2582441a833b6b040e5e1e363",
+      "acceptance": [
+        "A01",
+        "A05"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "63d678ea24aac45398cebff3c6add377d3157876a1560bd06f1d73b0d4225a7d",
+      "queryCount": 7,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-0",
+      "sha256": "21b1c11cb005f3e960747783ab516046ff115d4891bed9dcc21bec54d3bfe6c7",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "711152663967b6571d6b4a9a141b84c996f3f7e8d4e2296af925939783ae972c",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-1",
+      "sha256": "93535786b0c26cd3eb9303c4f6003258eb96605a397ecd14f425d3ceb67b4b76",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "dddf69b844569f3c100ff7315c3db5a9be1d8cbc3cf5a8098fc8cb799ca2f22b",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-2",
+      "sha256": "b3c07344fe71b0c1b4c9bcc5f8864aeae23b3009fd692a25c56b6d11be72a1d9",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "49d8f8d2e8fc39453d01cf9291699731291b00506f9706ed0a72b312d143022f",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-3",
+      "sha256": "db05a8eb1d1164e90dc122ed9839d51bd13e30de2562e77b74f8f5f38cdc5cf0",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "c18e9977a80ad4c3229a3309c8c8b7b465e3fd7c59a47a60c4ce9fcdbf3810ba",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-4",
+      "sha256": "1971e7d8ed11588b9f8a9f33f54fbc98ebcd8c6904d00cb8f2428ccf3db9e1ab",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "e73f251ff114ca84343fbb6ec315acc6a5da731c6cac4bab6e849de7c5ac062f",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-5",
+      "sha256": "bf011c894b49943406fc01c73e7dc06538b78c38b23e85dac6a7aeb56fa9a00e",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "81aebed3d3c82b58b3cc08830e39fdfbd4d26654a7905220aebcb983190812ef",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-6",
+      "sha256": "2f80c78fad77b1485c625939f95843662b5d3ee481867f8c6a9a4d6327903bf3",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "44d3324a5a7da1fe535d5872cd458569ac38b9e840d3253875b44a84df3a6c2b",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-7",
+      "sha256": "46e5b280809be1fd81d9488d9ac07f85fb7be6bf11ffa954047176afe9622b2c",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "9b7591331f8cb8b3342941a9dff68dd50157ea3f601b95b15bec714ba98cdc6e",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-8",
+      "sha256": "4c8cc74d10e1500a68baaf5bb21f993cddce8832daa4a73cb509bb0cfd00aae2",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "c7dd0a2371e96c7b97286cb27956b9be88b1b8576780409ef1e8f2854b0fac39",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-9",
+      "sha256": "a59955d414d3262b9ac5ff310afde17e0817cc1d86dbd2df4fa9196118357c21",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "c7e1c8652ff81b220e4c494ac697846cfa3c74669e476fa2b6080288eceb776c",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-10",
+      "sha256": "a55e197f549175aa2fe49298e6a331d657f45e0e5e6cc609738d33af7e0c0b02",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "8ba94ba20d79dae74fa5f5b105d1eb39948320f2d27e7f52304fe9658992a2fe",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-11",
+      "sha256": "17add86728dcc13d9baecaed84835628fc3de1c5fe35a8d4bd01f6048cacd229",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "3fb24a049cb00384e2fd489afefb0ee808bcc921e9dbc5c88462edff34007c82",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-12",
+      "sha256": "33dd6fc282e55fe2d2c538aca414d4df037e97b7a82c70b338b987dee01887b3",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "ef0d54194b2cc496b04e7e6e95f9c7af93a780822e4857716d1c10502c0bcff8",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-13",
+      "sha256": "3f42f7a2838578078fb2c55ed53919c907e3e1ee152f2db84edbd52c89ae6ab9",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "0cc980de72e0a8650475f4753f45c30acc123f48124af7fe61dba27fa96d16c1",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-14",
+      "sha256": "30edd9eed7da7ae37ca54a5ff69745df9992863956367c291d792eb20965c25b",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "18ce700491a16fd120827fc73ff114881733600fd62700069da109447f98e3a3",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-15",
+      "sha256": "372e64e60a268de104c93ef137c408661c15c3e44599822e35e9068ef78d68b5",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "0ecb985484eb185837cf0b4cb91a724c7152f243a1525c61130730990397080e",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-16",
+      "sha256": "772ef7e6171bb48e2e9fa37097c7de3569543c655e2230501a1ff182998fd5e6",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "49d8fa88139424c095cfa9cff4df28364bf02b462fcf77439b9f9f5cde617b06",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-17",
+      "sha256": "feeddd590b30e88d955a55ea8e6e36161de40f3bae064c65d937821fab688b6e",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "dfb5a9989d4919270a8a27671c842e10c47b7a50edaecc802fb813b543e26e7e",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-18",
+      "sha256": "b7934b3c34c93da3f47fb2b2a5f4a084b254123dfda5d9a5f0162961976fd2a0",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "8c4c5033138e6e5f23d3ff2a374f1ce5b8580d9774f9a3a23c36597edbe51962",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-19",
+      "sha256": "bb348ed5dbbd0f8c9e8c835cc91212bf76cc781d5643be0c732244614ba1105d",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "9b60a31b46f065fdc219877e809e13821231b4d3dff7dc4711d35a549b733942",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-20",
+      "sha256": "ac7b8581b1f706662d25c86f6268a8cab9515a1b67846affc3132faf74c5b064",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "ddeedfa884afb20ebdea6db03459af31b4899f3b462fd6ac5c4708d00847357c",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-21",
+      "sha256": "075f215b69fb79426c4435250a5ea2ccadc62a7901f163d25fd7ab710dec400c",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "da0012999b5dbe4185af620fb5144e12e3dc19e3b68f6cdbce0d0946d55c8934",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-22",
+      "sha256": "5bf72b9d50a384e9cbe452d74e6624333e191c5711e5352d35f32aae474638a8",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "9f704233761a3f331f4230594c55a3d6c8d199ce2db1fa784baeafff5f60c76c",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "coincidence-23",
+      "sha256": "79c0f14c61e9a446c321375c71a399c3227ff466cc0f0190af471ea429589ca1",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "6fda98f10c9518bcf263df467de0e592947f7318ce7830d2e4566c02cf380a6f",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "nonconsecutive-timing",
+      "sha256": "2c5377dd166a6b61c0519dc1786b0931824dbc7905b65498f2a4fdc27543219e",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "720504668a0e73ad4fb1d436df12e0e9cc54e44dfce32e849e6f549b19507900",
+      "queryCount": 12,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "clamped-control-points",
+      "sha256": "6f42d3f5e9a8466ed8156a74b1d76e1b93900ebd52a3838e125cdff7c8ab12e0",
+      "acceptance": [
+        "A06",
+        "A07"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "f5c29886949fae4da4128e665cd58772de18e428fb3e17cfa0a62281aa212694",
+      "queryCount": 17,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "bad-sample-1",
+      "sha256": "0a6cac94cced83e2a12d9d06c718a4345f28fc740e063373611e7f96119f3bee",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-transactional-error-policy",
+      "observationSha256": "0be2f1b8e51fdf88b689b8b43a0d9ad51576dae7b5e3855a0f52cfba25860b47",
+      "queryCount": 2,
+      "lineErrors": [
+        {
+          "section": "HitObjects",
+          "line": "0,0,100,1,0,1",
+          "exception": "System.IndexOutOfRangeException"
+        }
+      ],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "bad-sample-1-x",
+      "sha256": "9a03b4ced2ace36646bd5bd8ce2b97acc366a13c5c60e53b05db9b6794ac886a",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-transactional-error-policy",
+      "observationSha256": "03f5b01c895b9742595d13262c4f0d3f43e972c6b4800ce047ae26bbe2f5bf51",
+      "queryCount": 2,
+      "lineErrors": [
+        {
+          "section": "HitObjects",
+          "line": "0,0,100,1,0,1:x",
+          "exception": "System.FormatException"
+        }
+      ],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "bad-sample-0-0-x",
+      "sha256": "68a3e7abe98a09e98b68ff1664ef751659d7e27ceb9d61f3c6fac2089e876156",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-transactional-error-policy",
+      "observationSha256": "b5b4c1e0d4fde9a443dd6e39ff42987c22e7fe04fd5c11e3aa7794a2c1e9a29c",
+      "queryCount": 2,
+      "lineErrors": [
+        {
+          "section": "HitObjects",
+          "line": "0,0,100,1,0,0:0:x",
+          "exception": "System.FormatException"
+        }
+      ],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "bad-sample-0-0-0-x",
+      "sha256": "503f0864a14fdd261b7eb696c175c4dd4f8e77fb91771e3e322b63e807ffa7a2",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-transactional-error-policy",
+      "observationSha256": "87f4745266b49a37b103afefe738958fcc705c606ab3ec483e02ca437cd39edb",
+      "queryCount": 2,
+      "lineErrors": [
+        {
+          "section": "HitObjects",
+          "line": "0,0,100,1,0,0:0:0:x",
+          "exception": "System.FormatException"
+        }
+      ],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "slider-banks-only",
+      "sha256": "3c02e3826a9b86bbac49247385ed53d2f89dbd0c211a609742442cf9091d529d",
+      "acceptance": [
+        "A01",
+        "A05"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "0038d042c214b083dfdb331a32a61307d9d4545cac7f9995e73090753dbf1227",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "edge-sound-fallback",
+      "sha256": "a5996f5fb06d48862c16e7c0fbb4a4ebaa7e6aa59741494cab3c3b369e29cf14",
+      "acceptance": [
+        "A01",
+        "A05"
+      ],
+      "oracle": "upstream-observed-exact",
+      "observationSha256": "c17b140a47f121c1fc14ff325011a6770057cf00043ec2a77e7bba8bf3b6905d",
+      "queryCount": 2,
+      "lineErrors": [],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    },
+    {
+      "fixture": "bad-edge-bank",
+      "sha256": "8a1779fccf8471f874004df62d645754cee68712e85951c48e40735fb592b28d",
+      "acceptance": [
+        "A05"
+      ],
+      "oracle": "documented-transactional-error-policy",
+      "observationSha256": "74c1fd86d4fd701d2572f83479abcb884b4cecc1f6b491cab5ec4fbc0ab10786",
+      "queryCount": 2,
+      "lineErrors": [
+        {
+          "section": "HitObjects",
+          "line": "0,0,100,2,0,L|100:0,1,100,0,0:x",
+          "exception": "System.FormatException"
+        }
+      ],
+      "difference": null,
+      "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb"
+    }
+  ]
+}

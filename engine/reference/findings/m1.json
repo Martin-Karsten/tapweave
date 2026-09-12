@@ -1,0 +1,3578 @@
+{
+  "schemaVersion": 1,
+  "compiler": "/Users/martin/stuff/osu-web/engine/.toolchain/odin/odin version dev-2026-09-nightly:a2fb372",
+  "sourceCommit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "frameworkCommit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "dotnetVersion": "10.0.401",
+  "upstreamExecuted": true,
+  "lifecycle": {
+    "preparedABI": {
+      "acceptance": [
+        "A24",
+        "A25"
+      ],
+      "oracle": "local-contract-tests",
+      "quotaFailure": true,
+      "grew": true,
+      "descriptionBytes": 11567
+    },
+    "preparedAllocationFailure": true,
+    "acceptance": [
+      "A24",
+      "A25"
+    ],
+    "oracle": "local-contract-tests",
+    "cycles": 50,
+    "sessionsPerMap": 4,
+    "resets": 4000,
+    "growthObserved": true,
+    "allocationFailure": true,
+    "highWaterPages": 4094,
+    "steadyStatePages": 303
+  },
+  "dependencyLockSha256": "a6cf520b8e80b0e7c06da2bb4493db9173ba20a734433348fe0df54dc4ff7e8a",
+  "nativeWasmGrowthEvents": 3,
+  "records": [
+    {
+      "fixture": "circle",
+      "sha256": "295d21e74dc21e30dc4dde23bacdbc47abe90ca0e7d257496261c91e1816e26f",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "31ba7a14fd977fab1a3c4e5e6303e4133b26e27e057336d39729b391b6c3573c",
+      "traceSha256": "f6480e31ab0582ac28b87a283110a6bb6244f70d54d66b458f1a6c76c1ff7a3a",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "sample-whitespace",
+      "sha256": "2984bc88c6e715b20fba8534493c62ade8d877e7e73fc6a5a6fcb99eeab8597d",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "c465efa4256bf531e4e2b0e907b7415ee6b3825ff09de82b0bddb979e346650a",
+      "traceSha256": "6ce49d67a2e25c71b5eed46e2085ef186297802716b44b4ad3e9f50352ea898e",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "path-whitespace",
+      "sha256": "325b8a56f2aa71b6aa3acf5759090729f0415f16b072debc55a1010047da8240",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "012d34470eecb84333e4fa2ec900aedd9497def8c4b22ed608ba928811d261d4",
+      "traceSha256": "7e3b607e1f54e493d70dd71c023b936dc4b2c3dbc5c7735c70c929bd3e39ed06",
+      "maximumNumericError": 4.163336342344337e-17,
+      "meanSignedNumericError": -4.429081215259933e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "node-whitespace",
+      "sha256": "e592c87ec6e57b2904dd5cf56bf131d374aa03c6dc0855a42788ca479b59c396",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "8baaec5ae8f34b38048e18c888b46ab6b2b282ef56af65e8e6ca415828a3771f",
+      "traceSha256": "0621ecda843d7270f68a456ad659920f1b5833afe7b5fdfa28fa8e9ea705b018",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "many-node-samples",
+      "sha256": "4958e8e3d08a227dba4d867e94aae2620891f1be118ba05cc66ae305b962e5ec",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "7bae2b1c9d5fe15d0338ea3195a60d6a990a435ca1f98f3cdba3f7255debb6e8",
+      "traceSha256": "d035c7d3ab382a2cd5bfce50cd79f685482e2644452ee8fd3f25ff35341ae3f7",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "shared-map-data",
+      "sha256": "6343f518b7f76f3ac75de4c50b0d49468283a0e1f42bafa76c778b050ba235d7",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "a6353ec1ae27535661022bef6c90cbbaeb47800f8813dc10634b0cf22ddd4a7e",
+      "traceSha256": "edf2354deadc1ba72a0bebe47ef4166c52fe6775cc98ee011eee2b44159f6e11",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "samples",
+      "sha256": "d50936af867d0b9743225fa6b1f9a732ffdb65025b001b6a4f68ec5702d44999",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "11eac79e6df592058afdc971c4b0663bfdb074cc0973fcc93c99bade63dc0340",
+      "traceSha256": "ee36bfbe1736465f542aeb4ebad861af52c0c941209480586e1772e627d5ce27",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "spinner",
+      "sha256": "3f705e65c438c8f22dda373fdfeb7f9959908ee3ac20192d90ee8493ae553a7a",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "775cce05f9c49251e0429da67c1562f59f1825a507f1bf439f4ce885c88263c4",
+      "traceSha256": "7d3c26b7e599a8ea170aaf748e3aa796447276b2d0022b2c298ce3d7db3ba061",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "spinner-file",
+      "sha256": "b4c1b5f119858cdc67a194c102a7de0a094795bc965aa2d35c9db06511cec4ef",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "94ce4a67fc624ab70027ad7d4ca4715978124e85f56c4f000b8492255d5ebd3c",
+      "traceSha256": "dc85326c9be52080996c4224ed22a7fdde82c065a20ae39294b2adb5a3c33ae6",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "linear-v5",
+      "sha256": "861cce8b3bd971147c5600148dda58845f957e8f0a827c414afc6a6b5a869a42",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "598510b2f798bd1c1cb4b5723849df9aa68db2d90cd1153fcd7972ca707698b2",
+      "traceSha256": "f78233f483e0c3f13c23d6a56ef981205505ac640f516d7539e525ad79d959a2",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "linear-v7",
+      "sha256": "e8486f5e4bb9aec9af9ef59cf0daa680341081019b8b0718c9f8fab8b5e111a6",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "598510b2f798bd1c1cb4b5723849df9aa68db2d90cd1153fcd7972ca707698b2",
+      "traceSha256": "a1ebff3cb78d8b4bc3197cb4d372be3c84a3d66039da391f7e7bff8749a0cbf5",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "linear-v14",
+      "sha256": "84e438267b93d48faec578a6620c39923a993f104aa5f2e29ad08d81090d42d2",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "598510b2f798bd1c1cb4b5723849df9aa68db2d90cd1153fcd7972ca707698b2",
+      "traceSha256": "520fc8b4ed180815f0083a35694d14036f200002d747108f141c05f43982a81e",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "linear-v128",
+      "sha256": "c91023d9c79436060492cb7857508034ea2dafd5058fa812853b6f03020f0636",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "598510b2f798bd1c1cb4b5723849df9aa68db2d90cd1153fcd7972ca707698b2",
+      "traceSha256": "167e90f4382b7627bd868d5dae78d1f75becd06a659786400980e7e71b8485b1",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "bezier-v5",
+      "sha256": "84bb73da06574b7819d1be32aa6cc5a20b06e68e3263c6b04749a36428759e37",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "aece364a1298c2297cf8afb8fbaeb03218e045229149e079ab223f41c7cab203",
+      "traceSha256": "9f9b7f641661bc020f559b73bf5f85709b72c6d4dc3b3b63acc41add92a6762c",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "bezier-v7",
+      "sha256": "b39c37a9fc5fcd739205cc342f7c161d6b3125b21f28d7cdc0d7b8334704b6b7",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "aece364a1298c2297cf8afb8fbaeb03218e045229149e079ab223f41c7cab203",
+      "traceSha256": "c0a377c3ddd00914ad155f87ff02876070023bf524b63b16f2551d1c76499937",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "bezier-v14",
+      "sha256": "e969f931a7192e8405e04b7aaad143cd4c521e8af20904bebf1c9e7b13892cd2",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "aece364a1298c2297cf8afb8fbaeb03218e045229149e079ab223f41c7cab203",
+      "traceSha256": "227692708a6ca9b694763e87396e0eb939d92f8e7658e363d30c81bd8355fd9f",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "bezier-v128",
+      "sha256": "b576c1f22abc093867a0afb88d0456639830d62b95eba7b51a9b540c3d8e8363",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "aece364a1298c2297cf8afb8fbaeb03218e045229149e079ab223f41c7cab203",
+      "traceSha256": "971a29de1f0688a5f2d7e3807a72502e819d362143e8b22181086ada66c9b926",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "catmull-v5",
+      "sha256": "91ec495a2b231a920bffddac4aa14fadd2f2b6f4858d31238cfdc60adee51e18",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "5add390fec1982551d805deea7a883b554e1b7dc2d05d0e24b20b3663312baa0",
+      "traceSha256": "16f04239e69416491803ac97d69b29682fad6aec55bfa4ab2f357c5289189005",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "catmull-v7",
+      "sha256": "cf5a31a90f3331a17ed9f0be7c922a447de4569699cc4afd9b31db3ba36052a6",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "5add390fec1982551d805deea7a883b554e1b7dc2d05d0e24b20b3663312baa0",
+      "traceSha256": "083efae4a28936ca20cbe72b7310872076fef2ecda81c6611a3f9534fee94392",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "catmull-v14",
+      "sha256": "6ea83a700935d41b6c9d83852ded2c6334cb3de6eb95950e917dbdc224010a40",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "5add390fec1982551d805deea7a883b554e1b7dc2d05d0e24b20b3663312baa0",
+      "traceSha256": "341266e2c4d7023cece13a621c090cc3a4269ca2dd11160cd5fafb620db42478",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "catmull-v128",
+      "sha256": "a583be083a6f0f60eae992f8d4c80cbfd0666316d1ff59b9abd77e9f7c6aba45",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "5add390fec1982551d805deea7a883b554e1b7dc2d05d0e24b20b3663312baa0",
+      "traceSha256": "1b2a40867e3e349be7ed50cea34286e294467b48db6ebc5e55d4ed4d90cd4b39",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "perfect-v5",
+      "sha256": "cbabbb80d2c8d20c91ecaf86686269beaa6f068b6668fe4d80d9924c4a738dab",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "18a6a7a49866ef9ca9e6c7230539e7483d3cad19086359f00d9ee2a4605a8baf",
+      "traceSha256": "d9b5551920984f46ecb19faddc3e8a416c58b4412cfada3bdce2774777708539",
+      "maximumNumericError": 4.646841997256069e-17,
+      "meanSignedNumericError": -4.224401815687335e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "perfect-v7",
+      "sha256": "9b444322250d1ad335aa425420ced57f79706df094ebd9b1bd9fc903c49b7a5c",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "18a6a7a49866ef9ca9e6c7230539e7483d3cad19086359f00d9ee2a4605a8baf",
+      "traceSha256": "e48b29e1f787bd4b2f82ada33bb1d22942f9342d31abe8d1098a5ce3ec0cf1b3",
+      "maximumNumericError": 4.646841997256069e-17,
+      "meanSignedNumericError": -4.224401815687335e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "perfect-v14",
+      "sha256": "6743960b6eeb2277e4be37293a4702296fb9cb436ca712423fae231a5647d693",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "18a6a7a49866ef9ca9e6c7230539e7483d3cad19086359f00d9ee2a4605a8baf",
+      "traceSha256": "968ab33e257717c3cbaefb075c7e7b2c9258ceb0e45f448f0baaffc678bf1555",
+      "maximumNumericError": 4.646841997256069e-17,
+      "meanSignedNumericError": -4.224401815687335e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "perfect-v128",
+      "sha256": "1b26b28a9faa1b77fcec7ac6ff9f5c8329378979a0c49ff05c6fc43614eda1f2",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "18a6a7a49866ef9ca9e6c7230539e7483d3cad19086359f00d9ee2a4605a8baf",
+      "traceSha256": "6001d609118274d21af35fcc875bfcc833ffeef56fc749f98b16689356523404",
+      "maximumNumericError": 4.646841997256069e-17,
+      "meanSignedNumericError": -4.224401815687335e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "collinear-v5",
+      "sha256": "11afca6ec3f825a994b0dc46c5444b4bf64ce29e74bd595b6a2a5ec16878c496",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "9d86cea810f331327c48930426391986fb252954cbe00e6ccc34578ac1e9ddcf",
+      "traceSha256": "cb072c891e091b3111a7da2fc72ad2d019abf6c04476acf906db0280bb3adc91",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "collinear-v7",
+      "sha256": "7b5a0f348956757bc178d759c5f6aac8e85dee780f2a72e122d8d2094ac086aa",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "9d86cea810f331327c48930426391986fb252954cbe00e6ccc34578ac1e9ddcf",
+      "traceSha256": "3419b4a7022542bbea1e769a9c7d7ce352fabf998a2b36bdb8edf98b1353135f",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "collinear-v14",
+      "sha256": "1e647671aef7bc13ec40a08bc70c17bcfeb232f83dbf29fb94311be84d334acc",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "9d86cea810f331327c48930426391986fb252954cbe00e6ccc34578ac1e9ddcf",
+      "traceSha256": "0971aae2e11646be72d7b97330379e20d29449ea13417623713bd19828270a1a",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "collinear-v128",
+      "sha256": "a413bd56016d7ff3fa71e4ca31bfa89544b9ef0bfda0381d618d961146bcfa8d",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "9d86cea810f331327c48930426391986fb252954cbe00e6ccc34578ac1e9ddcf",
+      "traceSha256": "a2dd1a47b107daabedc5be56cdce0f79001513c038872013af8dd476f8c2d8f6",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "invalid_arc-v5",
+      "sha256": "448c6cb6b4dbaa100d01131389e6816b5b8f97fd98ba28428ec2814832464fe8",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "be5ed964eac5ed365e394228cfd6e4ade1dc4be809d6d67d1b43c72b12ca9822",
+      "traceSha256": "a04da432d36d20d99a9b84bdcb6464745de96912ffb32af42825cec6cf4d5ee6",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "invalid_arc-v7",
+      "sha256": "f4a7a412dba9eb86e665d751df72169c07aae774f8433b5545cd800cff697cff",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "be5ed964eac5ed365e394228cfd6e4ade1dc4be809d6d67d1b43c72b12ca9822",
+      "traceSha256": "ac411be3489c92c3f3a6eea308aadc4b21e9ae1452aaedf44d4501d295fde278",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "invalid_arc-v14",
+      "sha256": "ca9481c0c06af03b34944def63c4de5a5415aa72bd061db8690ad3812f77ce81",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "be5ed964eac5ed365e394228cfd6e4ade1dc4be809d6d67d1b43c72b12ca9822",
+      "traceSha256": "af7b75ede42145dcf91287c7274df5724075062a6317b79c7f28a5b51a793d9f",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "invalid_arc-v128",
+      "sha256": "31e64695d40e3bd8fde50e8ba547fe8f5463e2a7ce5542665b9e6dc17687de1c",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "be5ed964eac5ed365e394228cfd6e4ade1dc4be809d6d67d1b43c72b12ca9822",
+      "traceSha256": "a2d735366156c258cb92c98639436e8f78ce3c563d1d11584b967f216c6413b4",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "mixed-v5",
+      "sha256": "56a43e94401625807f0bd005bbb2151529960827775d1d1ef684001b543f0e3a",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "8e20b58f11a77b15d7a5c18c5546f2727c5f9a1b47db0fc725f9a1f0f48f415d",
+      "traceSha256": "2d8920c1830aa85af80f1a20449bf3064b9bc09048e45cb0149eaa229ed44c96",
+      "maximumNumericError": 3.469446951953614e-17,
+      "meanSignedNumericError": -1.8207010243488355e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "mixed-v7",
+      "sha256": "46f0335fe9519469e2ae9b8ddd0c2df5bd5fa2d36adb6bfe26fee5201e33b81a",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "8e20b58f11a77b15d7a5c18c5546f2727c5f9a1b47db0fc725f9a1f0f48f415d",
+      "traceSha256": "5cfa3066aa21144411ee09b7d054b1a7396caa00c336e06d1a06e77a202cb987",
+      "maximumNumericError": 3.469446951953614e-17,
+      "meanSignedNumericError": -1.8207010243488355e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "mixed-v14",
+      "sha256": "db3fd5dd370b393abeae0e830d3cb3df0a1bff4b850bb3f44e7f036974921658",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "8e20b58f11a77b15d7a5c18c5546f2727c5f9a1b47db0fc725f9a1f0f48f415d",
+      "traceSha256": "528cb7c5a539aa92909ed5cfcbf7b98eebde4b075bae41d0deef3a49049a4c2b",
+      "maximumNumericError": 3.469446951953614e-17,
+      "meanSignedNumericError": -1.8207010243488355e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "mixed-v128",
+      "sha256": "42eed2c0be137a7fa9ca942280a7d57c3dfe9e59e185f45ddf50f1872d403d8a",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "8e20b58f11a77b15d7a5c18c5546f2727c5f9a1b47db0fc725f9a1f0f48f415d",
+      "traceSha256": "4ca9460757ad8f44411a699487926f11bc2157238e36d7ac0feedd9f9e39d240",
+      "maximumNumericError": 3.469446951953614e-17,
+      "meanSignedNumericError": -1.8207010243488355e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "duplicate-v5",
+      "sha256": "59b20f60b6d317094fdd4f8bd3ce45981e37c22d42369dc4f0d724fd3f89448d",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "38060867844345a3fbf15603753c5ce3df9fbb7ccd0ed0197685e32048051b3d",
+      "traceSha256": "0799ec44641235b199b834b78e195236b709692e7152a0e67ca88d75bd40a3f5",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "duplicate-v7",
+      "sha256": "b65a42e2936232b2c84c3b2947cdc898d54f3c1383e2660c3dfb310ca60245bc",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "38060867844345a3fbf15603753c5ce3df9fbb7ccd0ed0197685e32048051b3d",
+      "traceSha256": "02c4f12b1ea0b64a72f2c43e5a6cb917adfc317894648c9b8004b17de9225ce0",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "duplicate-v14",
+      "sha256": "9b2ec8f635b188de87ac940c70d49bd3154b957b33f1a79492b74edc07e1845f",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "38060867844345a3fbf15603753c5ce3df9fbb7ccd0ed0197685e32048051b3d",
+      "traceSha256": "e8e395936c771bade01e90936e1b71772d6699708628ba55ab4271cd78ece4ef",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "duplicate-v128",
+      "sha256": "5996dcc34e3cd65ca7eee862b68f262eb5d23901ae7eaa6eaf5b27954aa5c306",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "38060867844345a3fbf15603753c5ce3df9fbb7ccd0ed0197685e32048051b3d",
+      "traceSha256": "86e7f5cc05c174988dceff3e110bd66476072962427d100bc634b61e8139ea76",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "repeated-v5",
+      "sha256": "baec70b172ca33c91c9ce2b7ba330ec3d1fd8d1805315b4930de6be8ac6fa2f5",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "38060867844345a3fbf15603753c5ce3df9fbb7ccd0ed0197685e32048051b3d",
+      "traceSha256": "8e99eb8b0e0915be09e9def75e39daddc4e1d100b50c6be01f319acd0ade5837",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "repeated-v7",
+      "sha256": "dab94a5b7d08d08577f7d53be16716ddf1ac6c606247701345f377e3ba84f7f4",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "38060867844345a3fbf15603753c5ce3df9fbb7ccd0ed0197685e32048051b3d",
+      "traceSha256": "56ed99bddd6abba7a918383d4a657d41e7c7981e71f48bcbd6963e9f52b51f4d",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "repeated-v14",
+      "sha256": "80e2bd00827326903c1d0fc2862eb6258d233ea2122ab73237f7672e0f892bc5",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "38060867844345a3fbf15603753c5ce3df9fbb7ccd0ed0197685e32048051b3d",
+      "traceSha256": "82e1f8db3173114e37c58b59c616265e55ed8bd99b2fdf1e051f6acd65a04c96",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "repeated-v128",
+      "sha256": "737ea61ef340f887fe071c9948ea49b044d92d852b540849cfcd0e6b4f2c8a79",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "38060867844345a3fbf15603753c5ce3df9fbb7ccd0ed0197685e32048051b3d",
+      "traceSha256": "f231557743b35b7e82adc244135862604ecf86590276da052a693c212976c0cf",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "zero-v5",
+      "sha256": "1fbedb8b1c7979b5e7d89b96a44ab1baf82900f886c15f6c059c05ba6ff567cd",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-with-canonical-policy",
+      "upstreamSha256": "f4e992bf1fedd8efb77bfe71df0020ec600a4bfc801e6dda3aed6b8d7a2387d7",
+      "traceSha256": "854b6b3439b278c00b11d1bb68ff50660d163dd42fda469ac62795fc51dcb552",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": [
+        "Non-finite upstream legacy-marker progress is encoded as 0; marker is not a scoring child."
+      ]
+    },
+    {
+      "fixture": "zero-v7",
+      "sha256": "f148cd784386b191def4dbf4cfa002f626e7fc0515a7ac01b03b55c7bec9f477",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-with-canonical-policy",
+      "upstreamSha256": "f4e992bf1fedd8efb77bfe71df0020ec600a4bfc801e6dda3aed6b8d7a2387d7",
+      "traceSha256": "f48c30708260dfec21714095695b703610e1414b2402fbec38036f3679443d55",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": [
+        "Non-finite upstream legacy-marker progress is encoded as 0; marker is not a scoring child."
+      ]
+    },
+    {
+      "fixture": "zero-v14",
+      "sha256": "ad1e3685af2cc7ec800e1a84d2f855c3dd378bc818e984ec4392278e59a5e911",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-with-canonical-policy",
+      "upstreamSha256": "f4e992bf1fedd8efb77bfe71df0020ec600a4bfc801e6dda3aed6b8d7a2387d7",
+      "traceSha256": "0586082bfcc4d1e4af369a8b45204a6cfded88c434dbe30693322015a05843f2",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": [
+        "Non-finite upstream legacy-marker progress is encoded as 0; marker is not a scoring child."
+      ]
+    },
+    {
+      "fixture": "zero-v128",
+      "sha256": "9294e7ba81d64fcc6275b060dff4b29be31f08bbd173b4fcfdda4353d5605a6d",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-with-canonical-policy",
+      "upstreamSha256": "f4e992bf1fedd8efb77bfe71df0020ec600a4bfc801e6dda3aed6b8d7a2387d7",
+      "traceSha256": "5f03f4b522a3618ba689ed4478e896534dab61cefcc84dc318618179524aa49d",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": [
+        "Non-finite upstream legacy-marker progress is encoded as 0; marker is not a scoring child."
+      ]
+    },
+    {
+      "fixture": "spline-v5",
+      "sha256": "699555200aee7a0e6dabd2e3d2b1fbf1e4b79d5b6724db97be25e09a579ecb14",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "cc06514e2e74d8e1f0c9b1f0def706aef42728b5862fff466cf5df2a71a74ae8",
+      "traceSha256": "aa197ab24c4b77ab5605cde1f2078c85caabbca884f4e10282a1bddf04d82acf",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "spline-v7",
+      "sha256": "cd4fc45c4f0af1620040db0a6231028a54a214c3562b5162b8b28c3bf56b8c7d",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "cc06514e2e74d8e1f0c9b1f0def706aef42728b5862fff466cf5df2a71a74ae8",
+      "traceSha256": "76593ae09bb3b3f01f6d1110f162cfee51a3377c84e6cf31fe522c9bb65ffea8",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "spline-v14",
+      "sha256": "b23e62eacafc77aa7c031069689a77dcaa8b05d88a35acf59e44ddcbaffe99ad",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "cc06514e2e74d8e1f0c9b1f0def706aef42728b5862fff466cf5df2a71a74ae8",
+      "traceSha256": "6dfbf3961b8cb7476f5485cf52dcbcb1f8adab7be39ea78b6573e0847520d233",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "spline-v128",
+      "sha256": "ea450dac29e0cc1ed2912d7d7c2da5234dee396df06f910070e3ed662666ed79",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "cc06514e2e74d8e1f0c9b1f0def706aef42728b5862fff466cf5df2a71a74ae8",
+      "traceSha256": "e1139fe1e1181bbe2b7ce0ae463d17e92f10616f1ae5b15bf2a419913e5e5a87",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "length-0",
+      "sha256": "d0301179d6c6c3e73a3c3b171c5bb0fcec1013e9a87c10dcb2cf2ad3883900e0",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "ed0605164a5c0974ad8c4c05dc39dc4980b4b72f35aec1e16fa445325024ddc0",
+      "traceSha256": "f188e2533ff19a1c878c26f311a1393f0fb9471ecaab117e69653939ace6706b",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "length-1",
+      "sha256": "8a2c51a1fd6b3be87025de737b0f0a7ba0afa23c70f7d7b8effb4cff3bb05b2a",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "357c4099d4bd74a36c141a25485162ba914b002fd7bbf94828c49eb3f1699f43",
+      "traceSha256": "4f0375178556ca5d87bd880e03b53fe24fdf8d62494d263283dbe72c45055356",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "length-40",
+      "sha256": "0190bed278bd6d880397f46b1db3b9a322f34447c04e041b8e3384569edaf096",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "f71df3d8ed64de230e4868d5b750e32dadc2e579229a372d3290aa8b0fd0c374",
+      "traceSha256": "b69672790d5182293a43042bca758b5b6b18bd045c4da6c80b492c52d6f0581e",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "length-500",
+      "sha256": "0f1ad289d558fd2d9cde8c0ea3a2595ae183d2bf33f657a7ded72f9fe592a7f9",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "b55ad3064fa962912abe6ed81073e01b9ddd3da22d310f5ebeb166795eea28c8",
+      "traceSha256": "9784174798b12b09d28bcdf1add7ebd9eb918b56a0fa47deeac5facb1d3f1104",
+      "maximumNumericError": 4.5102810375396984e-17,
+      "meanSignedNumericError": 4.100255488672453e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "length-100001",
+      "sha256": "6b777cfeb62d98577965d5634339d104d974cfdd9db1ad092b8eb48ae7a5e04c",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "9d24a3289a5bdaf6226ffcb63f9d4bfb4ca00197d90448c384eb4aa4c2ec8b4f",
+      "traceSha256": "96dc70003855419d418b0d19508c61dd08662a3f4bbb9d2f52b37dd5b2d6b587",
+      "maximumNumericError": 1.7618285302889447e-18,
+      "meanSignedNumericError": 1.5338921559193319e-22,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "length-131072",
+      "sha256": "3612b9945e508348562d5f1df593c65b3ab208f90a89804af21d26153ef7abfe",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "86445ff4f030111f6a2a7e8ff323cf3c65442814f2ed1ecf04f4a43201107986",
+      "traceSha256": "8749734f6a07efc2894eab2d4dd46c3182f50b5142cca981e0244b3a617f2722",
+      "maximumNumericError": 1.3322134194415636e-17,
+      "meanSignedNumericError": -1.159858453283618e-21,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "repeat-1",
+      "sha256": "cdc065296cc60d9616f8d3a2e299dad4f7d83ff59550675d6b3b07d5fe5741a2",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "d1b57f01baf23bf1dccc7fcc8e8677d2a5aa285f9daa06f6d49eec522bab29d9",
+      "traceSha256": "715ba018a5f048a5ddd06aed20b29267fa4c9c11d0cfc5bf0e852698597c129f",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "repeat-2",
+      "sha256": "2db1f9b757e06e2693219510c7519b7d1cb895b96ffa13f05d14bc575ec7cd9b",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "f1348bd0324446d38ad55ac80e1a891228099718ad7987631d84bb6ea44263ce",
+      "traceSha256": "abf25420f317a4c7a67d633ce62adab2fd49cf498e392b1bb6b106eb358eddfa",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "repeat-4",
+      "sha256": "cbece443d50d2133e6af63fa82d22fd563c57deb249180b16442533068c6f540",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "5e9431172f4fd3fff7cd8301c0ccfe33c6f6bff3bcbb4e0fa2b231526919727a",
+      "traceSha256": "72f65de0571a88f06826c60114f11ab5edad5765509e8b78b5f3db318ff33375",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "repeat-8",
+      "sha256": "75c3f509de34b315c4cc91078665b762af11aaadbb6d764dd2cf6dc4a8e670de",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "13ca4dd9e408230f8f148f45771f4d2e75464149b429f2790f5da9a947631a9c",
+      "traceSha256": "a952adeb7d74dea259c98ef3debfdc2260e5c8fbfeeda75da1a6167b4247e6d6",
+      "maximumNumericError": 3.469446951953614e-17,
+      "meanSignedNumericError": 8.12516850574617e-20,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "node-samples",
+      "sha256": "f45652d3d11ce4f31b1b9b9998fc68a8263f46e36d32a35d1027c25300abcd40",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "8baaec5ae8f34b38048e18c888b46ab6b2b282ef56af65e8e6ca415828a3771f",
+      "traceSha256": "44ad93d13999d92c985eb6c8bc390516444b21b30895bbbe759fcde8a5f55273",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "zero-node-samples",
+      "sha256": "2870dc7d0594c254622c1918911095519b3ad165e7f92d62f0f366c7abfaf138",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-with-canonical-policy",
+      "upstreamSha256": "b20be1e524dab16c4de9e19c8ec0e0811bdd4d9b538662fd1badba5e959bf909",
+      "traceSha256": "077a2e7d7990f2732ec40f3631f1738d1eba2e91c5cbad406682888731ebc1f3",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": [
+        "Non-finite upstream legacy-marker progress is encoded as 0; marker is not a scoring child."
+      ]
+    },
+    {
+      "fixture": "sample-boundary",
+      "sha256": "2cafee9905e75a49f20774c2096f3e5358e7f13396e4fc5f380a3803729f4194",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "bbcae7c70d5fc3e0985a4929882e20a9be37ccca380adb2417051fe5f9a99401",
+      "traceSha256": "1b40f040275c19318be181de50d469655604cbcdde150f4dcf709919de0e17e7",
+      "maximumNumericError": 3.469446951953614e-17,
+      "meanSignedNumericError": -4.448008912761043e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "timing-NaN-7",
+      "sha256": "8aaf474d89be227a654058d08fc52bca0a1638be7eb5407844ce94ac01bca49b",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-with-canonical-policy",
+      "upstreamSha256": "1107044de22f369a9a21d3439d641ca9a3faa237665014f6537592969bf47c2f",
+      "traceSha256": "c9f7f53c9dcdac4d60c1df8348256a7f7083e2b66f65e1c1bd077f4a99737f48",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": [
+        "Infinite disabled tick distance is encoded as 0 with generate_ticks=false."
+      ]
+    },
+    {
+      "fixture": "timing-NaN-14",
+      "sha256": "3c65150952120a6ed4a67356a74c320fd03ba321ddb115d1fcc0978f50c3c872",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-with-canonical-policy",
+      "upstreamSha256": "1107044de22f369a9a21d3439d641ca9a3faa237665014f6537592969bf47c2f",
+      "traceSha256": "681a2fbd10ed8fdb7ce0d392b41bc36bdb815885cda934e49cd9ad5c3a87adaf",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": [
+        "Infinite disabled tick distance is encoded as 0 with generate_ticks=false."
+      ]
+    },
+    {
+      "fixture": "timing--25-7",
+      "sha256": "34a10063f4c3930f5d5d7cd60679ca3dedf2c64be5130e70ba472d71017c169a",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "67ffdcc2e5cdd9ee45cafccf2de765511e9a18e1cda9a1fe7a8c0683eceb1278",
+      "traceSha256": "8a32686ce054b9fb7d039f507eda38f811f7292cde0f10ef7687432ab11c93c6",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "timing--25-14",
+      "sha256": "9f570e39f4541ce1e26507b61543e289a43d2507eccdadc29f91715df02a460e",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "8cc062d58c59913457845d898bbd382590c072ad65ea31f4316201303fde3632",
+      "traceSha256": "8498ea333037265d31916a5a13867073ec7c56929602de1360e313e4bf2a050f",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "timing--300-7",
+      "sha256": "275789f26cabddcc49815f4956e6c7135b5c303f6310baad66cbfba158dbb47b",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "93ac284567d3148b0b46505117838019a1675067789742fa94d5f6044beb14d8",
+      "traceSha256": "010db90b796035848e8424e54be38c67f440c2a1ad46d12882331c539c4dc5e3",
+      "maximumNumericError": 4.163336342344337e-17,
+      "meanSignedNumericError": -5.947623346206196e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "timing--300-14",
+      "sha256": "6c31443a9de6a00888cac0468562fa27fc290f0c0f54a0789e9dc3b390b92d63",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "bf2dacb361a753cadfd06c54b24624037c1c91d0abfb97216eb4484d6a326f1a",
+      "traceSha256": "0dd8e2339477dfbf7cf97c04a2166823ce78d4de50c71cb46e356abcf6a10402",
+      "maximumNumericError": 5.551115123125783e-17,
+      "meanSignedNumericError": 1.3605674321386722e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "timing--0.01-7",
+      "sha256": "431052bdf229eb13714b69d2fd4df87682b45a572a3198c68a6da30110a9d1ef",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "d405c823a0e3dbe73c4a95da1a7656a3a9441662444c8905392d22c896068099",
+      "traceSha256": "b8cc20c64504c57cbc2f8e6f3020a0f5fd267892a8cc03da399671e0d066a97a",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "timing--0.01-14",
+      "sha256": "f38b4841aa6976ecfe09b7dbafb75425593e41210ae4a2768e02f3991fc0dc5d",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "6deae8dcd26b92c1c8e8fb3d14bf1cf14860e464c614edebb7bcdbf519d461f6",
+      "traceSha256": "19575c44480a69c1d718e44970c6b5e39321dc23de67c2dbe705ae45dc6c0437",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "stack-circles-5",
+      "sha256": "ff7836d397cdc35240add4f44cca0dae5ad87faf9a78b399b39abe40ffef7c8f",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "ed35abafa95e56dd5acec1946c9855d4df948865b1419ae9339bf4fdb8c15a3b",
+      "traceSha256": "f30a1f6fef60763411497fda6bdb50f31f440880e6ffa315bb4e6046e9d3f5af",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "stack-slider-end-5",
+      "sha256": "1b6652006b918cbef39ef21e2c929d234b3ff5d406b3967a187f75c4fa8bf86c",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "9bb084bf08e7d8cd0062f94a0cb2f4614bd184ffdcae63204d25416a5fe5a86a",
+      "traceSha256": "cd43adc291b1cc827839bf8e25cb24128fc5459a7184978cf0fdd4b3530cfcc0",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "stack-reverse-5",
+      "sha256": "4486b7a4ab7bc98683807b5e2f08e6b1bf9f78b7e6c65822d779f260c62949aa",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "62f18ed4ac410ea124ebab2d412f1b796ad31f125cb7f07c6b941a7348ceb9c6",
+      "traceSha256": "f4caedd41a889e72e7f0fe755cc04f2fa476439657878681852f76e28937b45f",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "equal-time-5",
+      "sha256": "d854da0dede524d2821ebf2f0f788c1301bbb2a43b67757243f7f2dd26982adc",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "a59223b0ca193189d112d3f910e4c6886d62d86dd58e1ce8cd70c9600f7d501e",
+      "traceSha256": "096e2614dae50c8637a5ea51918708a83bb25e9fa2967c8d09d061f4242db251",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "stack-circles-6",
+      "sha256": "33151a68eaec8cf83103c4335e5828c2411bf5d86d5e2d759172b10fc81891a2",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "ed35abafa95e56dd5acec1946c9855d4df948865b1419ae9339bf4fdb8c15a3b",
+      "traceSha256": "78d4d9a845409dd3c6a5ebece7ccc76f8eff07e1576c40953e8cb0b7d17d1574",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "stack-slider-end-6",
+      "sha256": "378b4bcc84bbadc6199fc3c5b47c859a56fc489df031360d5b80ef635a58ac04",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "9bb084bf08e7d8cd0062f94a0cb2f4614bd184ffdcae63204d25416a5fe5a86a",
+      "traceSha256": "6c83ec68e017fb15f75eb15f8ed52d4004fc994a542089ab8bdefcfd8b56667d",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "stack-reverse-6",
+      "sha256": "edab6ec364ac47405dfe2e6fff458419d4352b7ba7e4ca84a63cd505dc1dbf36",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "6f85a95dbb8ac3d44c80c9986475e2dad4f1b0c1b3cfbd0ed3a24a848f8e6c74",
+      "traceSha256": "aa6d0263c866b03a5132b7175c28c36b283aaad000ae82f842d96b8f15221366",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "equal-time-6",
+      "sha256": "b116d35923971bd6b35c90b3ffb5d279b360b6ac0552ec56c515a9dcd566b031",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "a59223b0ca193189d112d3f910e4c6886d62d86dd58e1ce8cd70c9600f7d501e",
+      "traceSha256": "2fae9e0015f3af15189b4962beb21df6c1da3211aab3c87a9ec519c3f9174e4a",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "stack-circles-14",
+      "sha256": "5a1487339639550875f4c666b00f4d86ecc5034e3445157c3913613b54a0452b",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "ed35abafa95e56dd5acec1946c9855d4df948865b1419ae9339bf4fdb8c15a3b",
+      "traceSha256": "cfa243da7f76fa3a33096efa76214cd03edf3d6c360968ce72b9318033b3cf32",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "stack-slider-end-14",
+      "sha256": "4d1c3ff9c8d3028cf2bfd43f1509d135ecf2268b26c87d9f00f08f42b68af075",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "9bb084bf08e7d8cd0062f94a0cb2f4614bd184ffdcae63204d25416a5fe5a86a",
+      "traceSha256": "f796af0571e37e88a2d70020a52d3325dd9702f9c5f1b84ead43093cd64ac120",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "stack-reverse-14",
+      "sha256": "4e7f4477eb781ee3dceef717dab3f1d3e3fe8244c39a4c759d697563239a9d57",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "6f85a95dbb8ac3d44c80c9986475e2dad4f1b0c1b3cfbd0ed3a24a848f8e6c74",
+      "traceSha256": "4b9e9c777c6a130738d2ae88053331857ae26bb6d196ac6e865123d714d3c8b7",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "equal-time-14",
+      "sha256": "efb4758aba440844842f51e8bd085ad9433c9d850c6a5b2fc73ef3994a1dd5bf",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "a59223b0ca193189d112d3f910e4c6886d62d86dd58e1ce8cd70c9600f7d501e",
+      "traceSha256": "44352defb992415d3b1de852a4e98734603989f07fc2c1aa25c13b532e017c8c",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "difficulty-0",
+      "sha256": "71caec1bfbb8c964f67e293666f314165e4ca8a7f4b3dee56384c3db3c7feefd",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "84331f8029e58a82c1adcbeddc1c73c18566984d4c27f631a2072c2da332fad3",
+      "traceSha256": "6a5cd8e9a77418d1a3227c2e2a3f8e57156ded251360e5038a61d2f25e2eb3bc",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "difficulty-3.7",
+      "sha256": "2d3d9e0be93b0d6cd7acc002b8bc274fdbbccd33866e782c54bdaddc4a39d984",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "0e45ad48cecab5f3acacb335d5bbea5d62f08216a7e6618c7119330c13a1f29b",
+      "traceSha256": "cc45dfc5fff25c574e921773147bb88aaaf89d3eb5ff4532740f10957b254a8e",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "difficulty-10",
+      "sha256": "85df87be1c657be1069e028f6033c2ea2fafe2aa25ef19c5120358eb14a57548",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "d7149291b355c433f004b47527407ef5d9888a4f618cde2fc61b154a92e91ca3",
+      "traceSha256": "85d9d2951ecee71ecca5eb662dc2449d0adeef1e0fe979da3feb3c130652e41d",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "upstream-old-stacking",
+      "sha256": "43393961b76e14d743f4078b8bc3fa2854d705d25d7e18d0b06c8ff6d0cd53f3",
+      "source": {
+        "repository": "ppy/osu",
+        "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/old-stacking.osu",
+        "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/old-stacking.osu",
+        "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__old-stacking.osu",
+        "sha256": "43393961b76e14d743f4078b8bc3fa2854d705d25d7e18d0b06c8ff6d0cd53f3",
+        "licence": "MIT"
+      },
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "d83aa20a3eb6267d4a607a92218f881ebf067476e1fd8e90681b9983f6afa49b",
+      "traceSha256": "3e7d4dd902725a1ea9ead188021f59ff828523f7c52ce67c57132152237529b7",
+      "maximumNumericError": 5.551115123125783e-17,
+      "meanSignedNumericError": 5.317160079622397e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "upstream-multi-segment-slider",
+      "sha256": "e580bd293fcb948dc8223fd9387b53148dfa6dd7fbe7b2a0ee3a9d4859e0aa56",
+      "source": {
+        "repository": "ppy/osu",
+        "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/multi-segment-slider.osu",
+        "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/multi-segment-slider.osu",
+        "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__multi-segment-slider.osu",
+        "sha256": "e580bd293fcb948dc8223fd9387b53148dfa6dd7fbe7b2a0ee3a9d4859e0aa56",
+        "licence": "MIT"
+      },
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "99acc72d47724bba2d23ad5fd1466794c45fdcf918fb4a595835032f6f1ef655",
+      "traceSha256": "05aca89e181d873137174642036a6515f357ca828a9cf3419097c726436226c5",
+      "maximumNumericError": 1.3877787807814457e-17,
+      "meanSignedNumericError": 5.442269728554689e-20,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "upstream-zero-length-sliders",
+      "sha256": "b996b818fac574c4d00756a0e185f08bd3f05d2479908e6ce639751caac76560",
+      "source": {
+        "repository": "ppy/osu",
+        "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/zero-length-sliders.osu",
+        "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/zero-length-sliders.osu",
+        "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__zero-length-sliders.osu",
+        "sha256": "b996b818fac574c4d00756a0e185f08bd3f05d2479908e6ce639751caac76560",
+        "licence": "MIT"
+      },
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "45e3d170e42831212ea7a5d127491756d4eaef5a58445a0b38e4a11ff85a2cad",
+      "traceSha256": "c0babffb657d08da6ba1f06a1329e5f0ea10f7c397830797e33642f40e2967b0",
+      "maximumNumericError": 5.551115123125783e-17,
+      "meanSignedNumericError": 1.3092252648881562e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "upstream-slider-ticks-edge-case",
+      "sha256": "60e3827cd7dc56b45d6d9a0ba8db04fa711e9f1211a3a0b8da3490746fecf9fd",
+      "source": {
+        "repository": "ppy/osu",
+        "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/slider-ticks-edge-case.osu",
+        "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/slider-ticks-edge-case.osu",
+        "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__slider-ticks-edge-case.osu",
+        "sha256": "60e3827cd7dc56b45d6d9a0ba8db04fa711e9f1211a3a0b8da3490746fecf9fd",
+        "licence": "MIT"
+      },
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "29a92769649255e979647a82a441a0cabc71e2faa04559d74e5218709785d557",
+      "traceSha256": "b105b9fd4b1b8d0aa0abbe0d3cf1f6b57de4f757ab5b29839c677ba4e2ce6b23",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "upstream-slider-paths-edge-case",
+      "sha256": "4ad842775727e57f3ec97fc14dea5f6c1de2cc4baf9e3770ef918fc25c8ae597",
+      "source": {
+        "repository": "ppy/osu",
+        "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/slider-paths-edge-case.osu",
+        "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/slider-paths-edge-case.osu",
+        "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__slider-paths-edge-case.osu",
+        "sha256": "4ad842775727e57f3ec97fc14dea5f6c1de2cc4baf9e3770ef918fc25c8ae597",
+        "licence": "MIT"
+      },
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "33efeb5112682baf713665af98c74b76e02bdc2b6639db587312188c06b29882",
+      "traceSha256": "bebf5645d29db1d75d5b2020ca45f7a794588b163b72f54863c5888e2b4f4fc3",
+      "maximumNumericError": 5.551115123125783e-17,
+      "meanSignedNumericError": 3.324021031811846e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "upstream-nan-slider",
+      "sha256": "9bbbe3b75f1adcd211d0d66dd31c254ce4bddf4adea30b77fddf223381b6dcf7",
+      "source": {
+        "repository": "ppy/osu",
+        "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/nan-slider.osu",
+        "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/nan-slider.osu",
+        "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__nan-slider.osu",
+        "sha256": "9bbbe3b75f1adcd211d0d66dd31c254ce4bddf4adea30b77fddf223381b6dcf7",
+        "licence": "MIT"
+      },
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-with-canonical-policy",
+      "upstreamSha256": "61ded9ac5c03b8560284161821e60d425ccb78bdbaed4326dbf746684f205318",
+      "traceSha256": "8dbb64f740965b0b5c1f0074ef87c3810c189eca938e4cd7d86a02426f994812",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": [
+        "Infinite disabled tick distance is encoded as 0 with generate_ticks=false."
+      ]
+    },
+    {
+      "fixture": "upstream-colinear-perfect-curve",
+      "sha256": "ced5602a03de9b61d29cde27e34361776393977cf15ae3d62b1210fb258b5e07",
+      "source": {
+        "repository": "ppy/osu",
+        "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/colinear-perfect-curve.osu",
+        "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/colinear-perfect-curve.osu",
+        "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__colinear-perfect-curve.osu",
+        "sha256": "ced5602a03de9b61d29cde27e34361776393977cf15ae3d62b1210fb258b5e07",
+        "licence": "MIT"
+      },
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "6ab3be812413959ac486534c22494d1b8c364f7bff0ef03310b45caf9ac34b83",
+      "traceSha256": "751003766333e2494dfae0d775eee210571da91dca6a0ebfd39e11ef1b4f101c",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "upstream-uneven-repeat-slider",
+      "sha256": "63a0fccab4c06264710d9f2c493fb71cf189356e1cb894142b9bd708d0e14a86",
+      "source": {
+        "repository": "ppy/osu",
+        "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/uneven-repeat-slider.osu",
+        "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/uneven-repeat-slider.osu",
+        "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__uneven-repeat-slider.osu",
+        "sha256": "63a0fccab4c06264710d9f2c493fb71cf189356e1cb894142b9bd708d0e14a86",
+        "licence": "MIT"
+      },
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "5752e7ac5741ae4e2b446da56d4f19a7a4204c69eed4e9c4bb7d3c4da0c4d483",
+      "traceSha256": "ff1ce69b8c1a4619029dc75d70fe4da8ab7676ebb6c2abb1e8cc548de2941533",
+      "maximumNumericError": 5.551115123125783e-17,
+      "meanSignedNumericError": -1.2922636420232086e-18,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "upstream-very-fast-slider",
+      "sha256": "b0d3113dc907a6f75e9d5a94ab287be63d314f8757c3c638afa8ebd859af5d98",
+      "source": {
+        "repository": "ppy/osu",
+        "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/very-fast-slider.osu",
+        "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/very-fast-slider.osu",
+        "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__very-fast-slider.osu",
+        "sha256": "b0d3113dc907a6f75e9d5a94ab287be63d314f8757c3c638afa8ebd859af5d98",
+        "licence": "MIT"
+      },
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "7f8a0412b845597e905a2db13f19e50b621cb4988760651ae456c1102453ad57",
+      "traceSha256": "ec8e3ce88f966e337609f99bfbf922d814a0e3c11c09d50b3be6ba4693f49555",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "upstream-repeat-slider",
+      "sha256": "57bc943150185655b554c66f064c01eb5156c3265f8349b6cb488d37edbf5f0b",
+      "source": {
+        "repository": "ppy/osu",
+        "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/repeat-slider.osu",
+        "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/repeat-slider.osu",
+        "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__repeat-slider.osu",
+        "sha256": "57bc943150185655b554c66f064c01eb5156c3265f8349b6cb488d37edbf5f0b",
+        "licence": "MIT"
+      },
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "6bf6967ce53a8eb9596c72481e00f308b60a6d1a0cf55f43d88cb4092013984d",
+      "traceSha256": "fc378a28ed55578d3d1419a788f3d10077264361f73dc02e30b84b6f261eaad2",
+      "maximumNumericError": 5.551115123125783e-17,
+      "meanSignedNumericError": -1.7027960500385837e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "upstream-slider-ticks",
+      "sha256": "3d66e02e0513883afb67e20d9a11639a77505fe1112aa924eeff8167acfcb1cf",
+      "source": {
+        "repository": "ppy/osu",
+        "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+        "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/slider-ticks.osu",
+        "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/slider-ticks.osu",
+        "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__slider-ticks.osu",
+        "sha256": "3d66e02e0513883afb67e20d9a11639a77505fe1112aa924eeff8167acfcb1cf",
+        "licence": "MIT"
+      },
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-within-existing-tolerances",
+      "upstreamSha256": "2a4c8c97e30b8fec9882f8470c7df9c5bcdc100b39296941f222231189e6426a",
+      "traceSha256": "4fe7237cff96c008f5cbae853793079ad2e116e5f120c4f31c7973dfc105d989",
+      "maximumNumericError": 5.551115123125783e-17,
+      "meanSignedNumericError": -5.751323352252855e-19,
+      "canonicalPolicy": []
+    },
+    {
+      "fixture": "abi-record-fields",
+      "sha256": "0da5e093b9eaff4ee0d16745f969cb2621bfdf34418252fb734b9652fce75023",
+      "source": "synthetic-project-fixture",
+      "acceptance": [
+        "A08",
+        "A09",
+        "A10",
+        "A11"
+      ],
+      "experiments": [
+        "H03",
+        "H04"
+      ],
+      "nativeWasmEqual": true,
+      "oracle": "pinned-upstream-exact",
+      "upstreamSha256": "07bf7153b8971db4c63623f804cb7fd3bbeab9749a496366b9df7405e80754dd",
+      "traceSha256": "8b7448254e98729c53347394e8fafc283d917b2f4b0eb2feaf7dcb16a4d49c89",
+      "maximumNumericError": 0,
+      "meanSignedNumericError": 0,
+      "canonicalPolicy": []
+    }
+  ],
+  "differences": [],
+  "statistics": [
+    {
+      "fixture": "circle",
+      "decode_ns": 17125,
+      "control_points_ns": 541,
+      "preparation_ns": 8542,
+      "description_ns": 5625,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 608,
+      "description_bytes": 1008,
+      "scratch_bytes": 0
+    },
+    {
+      "fixture": "sample-whitespace",
+      "decode_ns": 17583,
+      "control_points_ns": 500,
+      "preparation_ns": 9750,
+      "description_ns": 4959,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 800,
+      "description_bytes": 1248,
+      "scratch_bytes": 0
+    },
+    {
+      "fixture": "path-whitespace",
+      "decode_ns": 17750,
+      "control_points_ns": 375,
+      "preparation_ns": 26334,
+      "description_ns": 7041,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 3208,
+      "description_bytes": 4264,
+      "scratch_bytes": 2401368
+    },
+    {
+      "fixture": "node-whitespace",
+      "decode_ns": 15708,
+      "control_points_ns": 417,
+      "preparation_ns": 32042,
+      "description_ns": 7291,
+      "decode_bytes": 496,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5464,
+      "description_bytes": 7008,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "many-node-samples",
+      "decode_ns": 986208,
+      "control_points_ns": 458,
+      "preparation_ns": 13274583,
+      "description_ns": 2718417,
+      "decode_bytes": 54448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4393664,
+      "description_bytes": 5474536,
+      "scratch_bytes": 2725296
+    },
+    {
+      "fixture": "shared-map-data",
+      "decode_ns": 25500,
+      "control_points_ns": 541,
+      "preparation_ns": 22917,
+      "description_ns": 9083,
+      "decode_bytes": 871,
+      "control_points_bytes": 448,
+      "prepared_bytes": 4904,
+      "description_bytes": 6119,
+      "scratch_bytes": 0
+    },
+    {
+      "fixture": "samples",
+      "decode_ns": 15667,
+      "control_points_ns": 333,
+      "preparation_ns": 12166,
+      "description_ns": 6125,
+      "decode_bytes": 616,
+      "control_points_bytes": 224,
+      "prepared_bytes": 1880,
+      "description_bytes": 2560,
+      "scratch_bytes": 0
+    },
+    {
+      "fixture": "spinner",
+      "decode_ns": 17458,
+      "control_points_ns": 333,
+      "preparation_ns": 26000,
+      "description_ns": 28333,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 6568,
+      "description_bytes": 8024,
+      "scratch_bytes": 0
+    },
+    {
+      "fixture": "spinner-file",
+      "decode_ns": 17958,
+      "control_points_ns": 459,
+      "preparation_ns": 10416,
+      "description_ns": 6875,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 1008,
+      "description_bytes": 1480,
+      "scratch_bytes": 0
+    },
+    {
+      "fixture": "linear-v5",
+      "decode_ns": 15792,
+      "control_points_ns": 458,
+      "preparation_ns": 30917,
+      "description_ns": 6292,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4112,
+      "description_bytes": 5368,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "linear-v7",
+      "decode_ns": 17416,
+      "control_points_ns": 375,
+      "preparation_ns": 29083,
+      "description_ns": 8084,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4112,
+      "description_bytes": 5368,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "linear-v14",
+      "decode_ns": 20333,
+      "control_points_ns": 417,
+      "preparation_ns": 30167,
+      "description_ns": 6583,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4112,
+      "description_bytes": 5368,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "linear-v128",
+      "decode_ns": 14750,
+      "control_points_ns": 417,
+      "preparation_ns": 26209,
+      "description_ns": 6125,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4112,
+      "description_bytes": 5368,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "bezier-v5",
+      "decode_ns": 16208,
+      "control_points_ns": 375,
+      "preparation_ns": 34958,
+      "description_ns": 6875,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5624,
+      "description_bytes": 6880,
+      "scratch_bytes": 2402024
+    },
+    {
+      "fixture": "bezier-v7",
+      "decode_ns": 17959,
+      "control_points_ns": 333,
+      "preparation_ns": 38833,
+      "description_ns": 6833,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5624,
+      "description_bytes": 6880,
+      "scratch_bytes": 2402024
+    },
+    {
+      "fixture": "bezier-v14",
+      "decode_ns": 16542,
+      "control_points_ns": 292,
+      "preparation_ns": 37833,
+      "description_ns": 7500,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5624,
+      "description_bytes": 6880,
+      "scratch_bytes": 2402024
+    },
+    {
+      "fixture": "bezier-v128",
+      "decode_ns": 19000,
+      "control_points_ns": 458,
+      "preparation_ns": 40250,
+      "description_ns": 8584,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5624,
+      "description_bytes": 6880,
+      "scratch_bytes": 2402024
+    },
+    {
+      "fixture": "catmull-v5",
+      "decode_ns": 20083,
+      "control_points_ns": 417,
+      "preparation_ns": 39541,
+      "description_ns": 7750,
+      "decode_bytes": 456,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5744,
+      "description_bytes": 7000,
+      "scratch_bytes": 2402648
+    },
+    {
+      "fixture": "catmull-v7",
+      "decode_ns": 13709,
+      "control_points_ns": 250,
+      "preparation_ns": 35708,
+      "description_ns": 6667,
+      "decode_bytes": 456,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5744,
+      "description_bytes": 7000,
+      "scratch_bytes": 2402648
+    },
+    {
+      "fixture": "catmull-v14",
+      "decode_ns": 14916,
+      "control_points_ns": 333,
+      "preparation_ns": 36209,
+      "description_ns": 6541,
+      "decode_bytes": 456,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5744,
+      "description_bytes": 7000,
+      "scratch_bytes": 2402648
+    },
+    {
+      "fixture": "catmull-v128",
+      "decode_ns": 15042,
+      "control_points_ns": 167,
+      "preparation_ns": 34208,
+      "description_ns": 5833,
+      "decode_bytes": 456,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5744,
+      "description_bytes": 7000,
+      "scratch_bytes": 2402648
+    },
+    {
+      "fixture": "perfect-v5",
+      "decode_ns": 14250,
+      "control_points_ns": 250,
+      "preparation_ns": 29291,
+      "description_ns": 6292,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4928,
+      "description_bytes": 6184,
+      "scratch_bytes": 2402024
+    },
+    {
+      "fixture": "perfect-v7",
+      "decode_ns": 17958,
+      "control_points_ns": 375,
+      "preparation_ns": 29042,
+      "description_ns": 6416,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4928,
+      "description_bytes": 6184,
+      "scratch_bytes": 2402024
+    },
+    {
+      "fixture": "perfect-v14",
+      "decode_ns": 14959,
+      "control_points_ns": 292,
+      "preparation_ns": 33166,
+      "description_ns": 6042,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4928,
+      "description_bytes": 6184,
+      "scratch_bytes": 2402024
+    },
+    {
+      "fixture": "perfect-v128",
+      "decode_ns": 15500,
+      "control_points_ns": 291,
+      "preparation_ns": 30667,
+      "description_ns": 6291,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4928,
+      "description_bytes": 6184,
+      "scratch_bytes": 2402024
+    },
+    {
+      "fixture": "collinear-v5",
+      "decode_ns": 14333,
+      "control_points_ns": 375,
+      "preparation_ns": 27333,
+      "description_ns": 4875,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4136,
+      "description_bytes": 5392,
+      "scratch_bytes": 2402024
+    },
+    {
+      "fixture": "collinear-v7",
+      "decode_ns": 14542,
+      "control_points_ns": 292,
+      "preparation_ns": 25583,
+      "description_ns": 5333,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4136,
+      "description_bytes": 5392,
+      "scratch_bytes": 2402024
+    },
+    {
+      "fixture": "collinear-v14",
+      "decode_ns": 14666,
+      "control_points_ns": 292,
+      "preparation_ns": 26209,
+      "description_ns": 4750,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4136,
+      "description_bytes": 5392,
+      "scratch_bytes": 2402024
+    },
+    {
+      "fixture": "collinear-v128",
+      "decode_ns": 17125,
+      "control_points_ns": 333,
+      "preparation_ns": 25709,
+      "description_ns": 4917,
+      "decode_bytes": 456,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4136,
+      "description_bytes": 5392,
+      "scratch_bytes": 2402024
+    },
+    {
+      "fixture": "invalid_arc-v5",
+      "decode_ns": 22209,
+      "control_points_ns": 250,
+      "preparation_ns": 32417,
+      "description_ns": 5125,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4112,
+      "description_bytes": 5368,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "invalid_arc-v7",
+      "decode_ns": 13916,
+      "control_points_ns": 334,
+      "preparation_ns": 26958,
+      "description_ns": 5625,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4112,
+      "description_bytes": 5368,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "invalid_arc-v14",
+      "decode_ns": 13791,
+      "control_points_ns": 208,
+      "preparation_ns": 24333,
+      "description_ns": 5167,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4112,
+      "description_bytes": 5368,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "invalid_arc-v128",
+      "decode_ns": 17208,
+      "control_points_ns": 458,
+      "preparation_ns": 29709,
+      "description_ns": 6959,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4112,
+      "description_bytes": 5368,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "mixed-v5",
+      "decode_ns": 20500,
+      "control_points_ns": 334,
+      "preparation_ns": 37250,
+      "description_ns": 6959,
+      "decode_bytes": 464,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5912,
+      "description_bytes": 7168,
+      "scratch_bytes": 2403896
+    },
+    {
+      "fixture": "mixed-v7",
+      "decode_ns": 15625,
+      "control_points_ns": 375,
+      "preparation_ns": 37084,
+      "description_ns": 6333,
+      "decode_bytes": 464,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5912,
+      "description_bytes": 7168,
+      "scratch_bytes": 2403896
+    },
+    {
+      "fixture": "mixed-v14",
+      "decode_ns": 13708,
+      "control_points_ns": 375,
+      "preparation_ns": 33958,
+      "description_ns": 6000,
+      "decode_bytes": 472,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5912,
+      "description_bytes": 7168,
+      "scratch_bytes": 2403896
+    },
+    {
+      "fixture": "mixed-v128",
+      "decode_ns": 16458,
+      "control_points_ns": 583,
+      "preparation_ns": 37542,
+      "description_ns": 7333,
+      "decode_bytes": 472,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5912,
+      "description_bytes": 7168,
+      "scratch_bytes": 2403896
+    },
+    {
+      "fixture": "duplicate-v5",
+      "decode_ns": 14875,
+      "control_points_ns": 250,
+      "preparation_ns": 25625,
+      "description_ns": 4917,
+      "decode_bytes": 456,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4136,
+      "description_bytes": 5392,
+      "scratch_bytes": 2402648
+    },
+    {
+      "fixture": "duplicate-v7",
+      "decode_ns": 16416,
+      "control_points_ns": 250,
+      "preparation_ns": 26583,
+      "description_ns": 5458,
+      "decode_bytes": 456,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4136,
+      "description_bytes": 5392,
+      "scratch_bytes": 2402648
+    },
+    {
+      "fixture": "duplicate-v14",
+      "decode_ns": 14000,
+      "control_points_ns": 500,
+      "preparation_ns": 26750,
+      "description_ns": 5458,
+      "decode_bytes": 456,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4136,
+      "description_bytes": 5392,
+      "scratch_bytes": 2402648
+    },
+    {
+      "fixture": "duplicate-v128",
+      "decode_ns": 13875,
+      "control_points_ns": 250,
+      "preparation_ns": 25208,
+      "description_ns": 5000,
+      "decode_bytes": 456,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4136,
+      "description_bytes": 5392,
+      "scratch_bytes": 2402648
+    },
+    {
+      "fixture": "repeated-v5",
+      "decode_ns": 14750,
+      "control_points_ns": 250,
+      "preparation_ns": 24917,
+      "description_ns": 4792,
+      "decode_bytes": 464,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4136,
+      "description_bytes": 5392,
+      "scratch_bytes": 2403272
+    },
+    {
+      "fixture": "repeated-v7",
+      "decode_ns": 14791,
+      "control_points_ns": 375,
+      "preparation_ns": 28250,
+      "description_ns": 6084,
+      "decode_bytes": 464,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4136,
+      "description_bytes": 5392,
+      "scratch_bytes": 2403272
+    },
+    {
+      "fixture": "repeated-v14",
+      "decode_ns": 17375,
+      "control_points_ns": 416,
+      "preparation_ns": 29250,
+      "description_ns": 6125,
+      "decode_bytes": 464,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4136,
+      "description_bytes": 5392,
+      "scratch_bytes": 2403272
+    },
+    {
+      "fixture": "repeated-v128",
+      "decode_ns": 14958,
+      "control_points_ns": 417,
+      "preparation_ns": 30583,
+      "description_ns": 16667,
+      "decode_bytes": 464,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4136,
+      "description_bytes": 5392,
+      "scratch_bytes": 2403272
+    },
+    {
+      "fixture": "zero-v5",
+      "decode_ns": 14458,
+      "control_points_ns": 291,
+      "preparation_ns": 35458,
+      "description_ns": 7917,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 1704,
+      "description_bytes": 2432,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "zero-v7",
+      "decode_ns": 14791,
+      "control_points_ns": 334,
+      "preparation_ns": 18084,
+      "description_ns": 3792,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 1704,
+      "description_bytes": 2432,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "zero-v14",
+      "decode_ns": 15041,
+      "control_points_ns": 292,
+      "preparation_ns": 24000,
+      "description_ns": 5333,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 1704,
+      "description_bytes": 2432,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "zero-v128",
+      "decode_ns": 19875,
+      "control_points_ns": 334,
+      "preparation_ns": 19375,
+      "description_ns": 4875,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 1704,
+      "description_bytes": 2432,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "spline-v5",
+      "decode_ns": 15666,
+      "control_points_ns": 334,
+      "preparation_ns": 47875,
+      "description_ns": 10958,
+      "decode_bytes": 456,
+      "control_points_bytes": 224,
+      "prepared_bytes": 6680,
+      "description_bytes": 7936,
+      "scratch_bytes": 2402648
+    },
+    {
+      "fixture": "spline-v7",
+      "decode_ns": 14208,
+      "control_points_ns": 292,
+      "preparation_ns": 39541,
+      "description_ns": 7000,
+      "decode_bytes": 456,
+      "control_points_bytes": 224,
+      "prepared_bytes": 6680,
+      "description_bytes": 7936,
+      "scratch_bytes": 2402648
+    },
+    {
+      "fixture": "spline-v14",
+      "decode_ns": 16416,
+      "control_points_ns": 375,
+      "preparation_ns": 42833,
+      "description_ns": 12917,
+      "decode_bytes": 456,
+      "control_points_bytes": 224,
+      "prepared_bytes": 6680,
+      "description_bytes": 7936,
+      "scratch_bytes": 2402648
+    },
+    {
+      "fixture": "spline-v128",
+      "decode_ns": 15292,
+      "control_points_ns": 333,
+      "preparation_ns": 40792,
+      "description_ns": 8125,
+      "decode_bytes": 464,
+      "control_points_bytes": 224,
+      "prepared_bytes": 6680,
+      "description_bytes": 7936,
+      "scratch_bytes": 2402648
+    },
+    {
+      "fixture": "length-0",
+      "decode_ns": 15333,
+      "control_points_ns": 333,
+      "preparation_ns": 23125,
+      "description_ns": 5125,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 2600,
+      "description_bytes": 3528,
+      "scratch_bytes": 2401368
+    },
+    {
+      "fixture": "length-1",
+      "decode_ns": 22083,
+      "control_points_ns": 459,
+      "preparation_ns": 25875,
+      "description_ns": 5500,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 1992,
+      "description_bytes": 2792,
+      "scratch_bytes": 2401368
+    },
+    {
+      "fixture": "length-40",
+      "decode_ns": 16666,
+      "control_points_ns": 375,
+      "preparation_ns": 22083,
+      "description_ns": 6208,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 1992,
+      "description_bytes": 2792,
+      "scratch_bytes": 2401368
+    },
+    {
+      "fixture": "length-500",
+      "decode_ns": 15500,
+      "control_points_ns": 375,
+      "preparation_ns": 25292,
+      "description_ns": 6084,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 3816,
+      "description_bytes": 5000,
+      "scratch_bytes": 2401368
+    },
+    {
+      "fixture": "length-100001",
+      "decode_ns": 22917,
+      "control_points_ns": 583,
+      "preparation_ns": 1157500,
+      "description_ns": 264708,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 436104,
+      "description_bytes": 528296,
+      "scratch_bytes": 2401368
+    },
+    {
+      "fixture": "length-131072",
+      "decode_ns": 20000,
+      "control_points_ns": 458,
+      "preparation_ns": 1127416,
+      "description_ns": 254000,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 436104,
+      "description_bytes": 528296,
+      "scratch_bytes": 2401368
+    },
+    {
+      "fixture": "repeat-1",
+      "decode_ns": 16666,
+      "control_points_ns": 333,
+      "preparation_ns": 30250,
+      "description_ns": 6500,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 3816,
+      "description_bytes": 4672,
+      "scratch_bytes": 2401952
+    },
+    {
+      "fixture": "repeat-2",
+      "decode_ns": 23042,
+      "control_points_ns": 500,
+      "preparation_ns": 35500,
+      "description_ns": 7625,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4720,
+      "description_bytes": 5776,
+      "scratch_bytes": 2401992
+    },
+    {
+      "fixture": "repeat-4",
+      "decode_ns": 17666,
+      "control_points_ns": 375,
+      "preparation_ns": 41041,
+      "description_ns": 8833,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 6528,
+      "description_bytes": 7984,
+      "scratch_bytes": 2402064
+    },
+    {
+      "fixture": "repeat-8",
+      "decode_ns": 20792,
+      "control_points_ns": 416,
+      "preparation_ns": 53917,
+      "description_ns": 11250,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 10144,
+      "description_bytes": 12400,
+      "scratch_bytes": 2402208
+    },
+    {
+      "fixture": "node-samples",
+      "decode_ns": 17083,
+      "control_points_ns": 458,
+      "preparation_ns": 33750,
+      "description_ns": 7333,
+      "decode_bytes": 488,
+      "control_points_bytes": 224,
+      "prepared_bytes": 5464,
+      "description_bytes": 7008,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "zero-node-samples",
+      "decode_ns": 16500,
+      "control_points_ns": 416,
+      "preparation_ns": 28125,
+      "description_ns": 5958,
+      "decode_bytes": 488,
+      "control_points_bytes": 224,
+      "prepared_bytes": 2728,
+      "description_bytes": 3672,
+      "scratch_bytes": 2401400
+    },
+    {
+      "fixture": "sample-boundary",
+      "decode_ns": 24250,
+      "control_points_ns": 541,
+      "preparation_ns": 31000,
+      "description_ns": 8792,
+      "decode_bytes": 656,
+      "control_points_bytes": 896,
+      "prepared_bytes": 2744,
+      "description_bytes": 3672,
+      "scratch_bytes": 2401368
+    },
+    {
+      "fixture": "timing-NaN-7",
+      "decode_ns": 20791,
+      "control_points_ns": 709,
+      "preparation_ns": 30458,
+      "description_ns": 6583,
+      "decode_bytes": 512,
+      "control_points_bytes": 448,
+      "prepared_bytes": 1800,
+      "description_bytes": 2488,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "timing-NaN-14",
+      "decode_ns": 16708,
+      "control_points_ns": 458,
+      "preparation_ns": 20792,
+      "description_ns": 5375,
+      "decode_bytes": 512,
+      "control_points_bytes": 448,
+      "prepared_bytes": 1800,
+      "description_bytes": 2488,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "timing--25-7",
+      "decode_ns": 19416,
+      "control_points_ns": 459,
+      "preparation_ns": 22584,
+      "description_ns": 5000,
+      "decode_bytes": 512,
+      "control_points_bytes": 448,
+      "prepared_bytes": 2392,
+      "description_bytes": 3208,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "timing--25-14",
+      "decode_ns": 14208,
+      "control_points_ns": 542,
+      "preparation_ns": 18500,
+      "description_ns": 4000,
+      "decode_bytes": 512,
+      "control_points_bytes": 448,
+      "prepared_bytes": 1800,
+      "description_bytes": 2488,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "timing--300-7",
+      "decode_ns": 14084,
+      "control_points_ns": 250,
+      "preparation_ns": 19750,
+      "description_ns": 4292,
+      "decode_bytes": 512,
+      "control_points_bytes": 448,
+      "prepared_bytes": 2392,
+      "description_bytes": 3208,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "timing--300-14",
+      "decode_ns": 20333,
+      "control_points_ns": 333,
+      "preparation_ns": 23209,
+      "description_ns": 4959,
+      "decode_bytes": 512,
+      "control_points_bytes": 448,
+      "prepared_bytes": 3576,
+      "description_bytes": 4648,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "timing--0.01-7",
+      "decode_ns": 13083,
+      "control_points_ns": 333,
+      "preparation_ns": 17250,
+      "description_ns": 3500,
+      "decode_bytes": 512,
+      "control_points_bytes": 448,
+      "prepared_bytes": 2096,
+      "description_bytes": 2848,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "timing--0.01-14",
+      "decode_ns": 15250,
+      "control_points_ns": 333,
+      "preparation_ns": 17375,
+      "description_ns": 3708,
+      "decode_bytes": 512,
+      "control_points_bytes": 448,
+      "prepared_bytes": 1800,
+      "description_bytes": 2488,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "stack-circles-5",
+      "decode_ns": 15875,
+      "control_points_ns": 208,
+      "preparation_ns": 10834,
+      "description_ns": 4125,
+      "decode_bytes": 1112,
+      "control_points_bytes": 224,
+      "prepared_bytes": 2592,
+      "description_bytes": 3248,
+      "scratch_bytes": 0
+    },
+    {
+      "fixture": "stack-slider-end-5",
+      "decode_ns": 20333,
+      "control_points_ns": 208,
+      "preparation_ns": 27584,
+      "description_ns": 4834,
+      "decode_bytes": 952,
+      "control_points_bytes": 224,
+      "prepared_bytes": 3488,
+      "description_bytes": 4472,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "stack-reverse-5",
+      "decode_ns": 16792,
+      "control_points_ns": 333,
+      "preparation_ns": 26834,
+      "description_ns": 5709,
+      "decode_bytes": 1128,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4992,
+      "description_bytes": 6240,
+      "scratch_bytes": 2401368
+    },
+    {
+      "fixture": "equal-time-5",
+      "decode_ns": 22541,
+      "control_points_ns": 584,
+      "preparation_ns": 31833,
+      "description_ns": 7666,
+      "decode_bytes": 952,
+      "control_points_bytes": 224,
+      "prepared_bytes": 3792,
+      "description_bytes": 4840,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "stack-circles-6",
+      "decode_ns": 20125,
+      "control_points_ns": 417,
+      "preparation_ns": 14625,
+      "description_ns": 6542,
+      "decode_bytes": 1112,
+      "control_points_bytes": 224,
+      "prepared_bytes": 2592,
+      "description_bytes": 3248,
+      "scratch_bytes": 0
+    },
+    {
+      "fixture": "stack-slider-end-6",
+      "decode_ns": 17208,
+      "control_points_ns": 292,
+      "preparation_ns": 25291,
+      "description_ns": 6209,
+      "decode_bytes": 952,
+      "control_points_bytes": 224,
+      "prepared_bytes": 3488,
+      "description_bytes": 4472,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "stack-reverse-6",
+      "decode_ns": 17167,
+      "control_points_ns": 291,
+      "preparation_ns": 26750,
+      "description_ns": 6417,
+      "decode_bytes": 1128,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4992,
+      "description_bytes": 6240,
+      "scratch_bytes": 2401368
+    },
+    {
+      "fixture": "equal-time-6",
+      "decode_ns": 19417,
+      "control_points_ns": 333,
+      "preparation_ns": 24792,
+      "description_ns": 5625,
+      "decode_bytes": 952,
+      "control_points_bytes": 224,
+      "prepared_bytes": 3792,
+      "description_bytes": 4840,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "stack-circles-14",
+      "decode_ns": 16750,
+      "control_points_ns": 458,
+      "preparation_ns": 11125,
+      "description_ns": 4750,
+      "decode_bytes": 1120,
+      "control_points_bytes": 224,
+      "prepared_bytes": 2592,
+      "description_bytes": 3248,
+      "scratch_bytes": 0
+    },
+    {
+      "fixture": "stack-slider-end-14",
+      "decode_ns": 15542,
+      "control_points_ns": 209,
+      "preparation_ns": 21791,
+      "description_ns": 4750,
+      "decode_bytes": 952,
+      "control_points_bytes": 224,
+      "prepared_bytes": 3488,
+      "description_bytes": 4472,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "stack-reverse-14",
+      "decode_ns": 17500,
+      "control_points_ns": 292,
+      "preparation_ns": 28459,
+      "description_ns": 5958,
+      "decode_bytes": 1128,
+      "control_points_bytes": 224,
+      "prepared_bytes": 4992,
+      "description_bytes": 6240,
+      "scratch_bytes": 2401368
+    },
+    {
+      "fixture": "equal-time-14",
+      "decode_ns": 20584,
+      "control_points_ns": 459,
+      "preparation_ns": 31000,
+      "description_ns": 6875,
+      "decode_bytes": 952,
+      "control_points_bytes": 224,
+      "prepared_bytes": 3792,
+      "description_bytes": 4840,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "difficulty-0",
+      "decode_ns": 15583,
+      "control_points_ns": 458,
+      "preparation_ns": 22958,
+      "description_ns": 6208,
+      "decode_bytes": 440,
+      "control_points_bytes": 224,
+      "prepared_bytes": 2304,
+      "description_bytes": 3160,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "difficulty-3.7",
+      "decode_ns": 17875,
+      "control_points_ns": 584,
+      "preparation_ns": 29291,
+      "description_ns": 6333,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 2304,
+      "description_bytes": 3160,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "difficulty-10",
+      "decode_ns": 17417,
+      "control_points_ns": 375,
+      "preparation_ns": 23917,
+      "description_ns": 6625,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 2304,
+      "description_bytes": 3160,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "upstream-old-stacking",
+      "decode_ns": 27709,
+      "control_points_ns": 333,
+      "preparation_ns": 60208,
+      "description_ns": 15917,
+      "decode_bytes": 3616,
+      "control_points_bytes": 224,
+      "prepared_bytes": 18656,
+      "description_bytes": 21784,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "upstream-multi-segment-slider",
+      "decode_ns": 16208,
+      "control_points_ns": 291,
+      "preparation_ns": 28375,
+      "description_ns": 7334,
+      "decode_bytes": 472,
+      "control_points_bytes": 224,
+      "prepared_bytes": 3800,
+      "description_bytes": 4584,
+      "scratch_bytes": 2403240
+    },
+    {
+      "fixture": "upstream-zero-length-sliders",
+      "decode_ns": 22667,
+      "control_points_ns": 375,
+      "preparation_ns": 127125,
+      "description_ns": 23500,
+      "decode_bytes": 1944,
+      "control_points_bytes": 224,
+      "prepared_bytes": 34096,
+      "description_bytes": 39976,
+      "scratch_bytes": 2402576
+    },
+    {
+      "fixture": "upstream-slider-ticks-edge-case",
+      "decode_ns": 22125,
+      "control_points_ns": 500,
+      "preparation_ns": 37375,
+      "description_ns": 5666,
+      "decode_bytes": 912,
+      "control_points_bytes": 672,
+      "prepared_bytes": 1912,
+      "description_bytes": 2504,
+      "scratch_bytes": 2401952
+    },
+    {
+      "fixture": "upstream-slider-paths-edge-case",
+      "decode_ns": 19792,
+      "control_points_ns": 416,
+      "preparation_ns": 35292,
+      "description_ns": 7958,
+      "decode_bytes": 744,
+      "control_points_bytes": 448,
+      "prepared_bytes": 5792,
+      "description_bytes": 6864,
+      "scratch_bytes": 2403200
+    },
+    {
+      "fixture": "upstream-nan-slider",
+      "decode_ns": 26667,
+      "control_points_ns": 750,
+      "preparation_ns": 66000,
+      "description_ns": 10208,
+      "decode_bytes": 1824,
+      "control_points_bytes": 1120,
+      "prepared_bytes": 11080,
+      "description_bytes": 12128,
+      "scratch_bytes": 2430656
+    },
+    {
+      "fixture": "upstream-colinear-perfect-curve",
+      "decode_ns": 18208,
+      "control_points_ns": 541,
+      "preparation_ns": 25834,
+      "description_ns": 6250,
+      "decode_bytes": 760,
+      "control_points_bytes": 448,
+      "prepared_bytes": 3768,
+      "description_bytes": 4800,
+      "scratch_bytes": 2401952
+    },
+    {
+      "fixture": "upstream-uneven-repeat-slider",
+      "decode_ns": 16334,
+      "control_points_ns": 333,
+      "preparation_ns": 71208,
+      "description_ns": 15750,
+      "decode_bytes": 504,
+      "control_points_bytes": 224,
+      "prepared_bytes": 17968,
+      "description_bytes": 22112,
+      "scratch_bytes": 2401544
+    },
+    {
+      "fixture": "upstream-very-fast-slider",
+      "decode_ns": 18916,
+      "control_points_ns": 292,
+      "preparation_ns": 21125,
+      "description_ns": 5458,
+      "decode_bytes": 1104,
+      "control_points_bytes": 448,
+      "prepared_bytes": 3304,
+      "description_bytes": 4184,
+      "scratch_bytes": 2401328
+    },
+    {
+      "fixture": "upstream-repeat-slider",
+      "decode_ns": 16791,
+      "control_points_ns": 458,
+      "preparation_ns": 49209,
+      "description_ns": 11041,
+      "decode_bytes": 448,
+      "control_points_bytes": 224,
+      "prepared_bytes": 11752,
+      "description_bytes": 14552,
+      "scratch_bytes": 2401544
+    },
+    {
+      "fixture": "upstream-slider-ticks",
+      "decode_ns": 17167,
+      "control_points_ns": 625,
+      "preparation_ns": 54500,
+      "description_ns": 15750,
+      "decode_bytes": 616,
+      "control_points_bytes": 672,
+      "prepared_bytes": 17768,
+      "description_bytes": 20848,
+      "scratch_bytes": 2401368
+    },
+    {
+      "fixture": "abi-record-fields",
+      "decode_ns": 21042,
+      "control_points_ns": 458,
+      "preparation_ns": 46125,
+      "description_ns": 11041,
+      "decode_bytes": 1095,
+      "control_points_bytes": 448,
+      "prepared_bytes": 9368,
+      "description_bytes": 11567,
+      "scratch_bytes": 2401400
+    }
+  ]
+}

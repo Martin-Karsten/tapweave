@@ -1,56 +1,96 @@
-# Tapweave engine foundation
+# Tapweave engine
 
-This is the first M0 implementation increment from [`docs/roadmap.md`](../docs/roadmap.md). Historical spikes are kept outside the public repository. This package has no gameplay, renderer, audio, or browser framework dependency.
+The Odin engine implements decoding, control points, immutable beatmap preparation
+and ABI v2 map/session ownership. See [status and evidence](../docs/status.md).
+Gameplay, rendering and audio playback remain unsupported.
 
-## Run
+## Build and test
 
-From the repository root:
+From the repository root, with Node 24, a native C compiler/linker and `wasm-ld`:
 
 ```sh
 npm --prefix engine run setup
 npm --prefix engine test
 npm --prefix engine run build
 engine/artifacts/decode-native path/to/map.osu
+engine/artifacts/prepared-native path/to/map.osu
+engine/artifacts/prepared-native path/to/map.osu --stats
 ```
 
-The engine has no npm dependencies. Node 24, the pinned Odin compiler, a native linker, and `wasm-ld` are required. Run `setup` before testing or building; it downloads a verified compiler into the ignored `engine/.toolchain/` directory. Set `ODIN_BIN` and `ODIN_WASM_LD_DIR` to use existing tools. See the [root setup instructions](../README.md#development).
+Setup downloads the checksum-pinned compiler into ignored `.toolchain/`. `ODIN_BIN`
+may select a matching compiler; `ODIN_WASM_LD_DIR` adds the linker directory to
+PATH. There are no npm dependencies. See [platform setup](../README.md#development).
 
-`npm test` verifies the pinned source hashes, compiles native/WASM, runs allocation-tracked Odin tests, and compares 31 generated decoder fixtures byte-for-byte. Reports and generated fixtures are in `artifacts/`; each result includes source revision, fixture SHA-256, acceptance IDs, and oracle classification. These are local regression results, not upstream acceptance results.
+The default suite verifies source hashes and generated ABI files, runs
+allocation-tracked Odin tests, a native C consumer, WASM lifecycle/failure tests,
+and byte-identical decoder, geometry and complete-preparation traces.
 
-## Package boundaries
+Real upstream validation requires the [reference setup](reference-host/README.md):
+
+```sh
+npm --prefix engine run test:reference
+npm --prefix engine run test:geometry:upstream
+npm --prefix engine run test:prepared:upstream
+```
+
+The last command also runs the foundation/ownership suite. Reports, full traces
+and measurements are generated in ignored `artifacts/`. Checked-in
+[`reference/findings/`](reference/findings/) retains hashed acceptance evidence.
+Local parity is not upstream acceptance.
+
+## Packages
 
 | Package | Responsibility |
 |---|---|
-| `core_types` | Stable status/error IDs, quotas, checked arithmetic, lifetime arena primitives |
-| `beatmap_decode` | Allocation-free validation/count pass, owned fill pass, raw typed records |
-| `prepared` | Reference-counted storage lifetime primitive for subsequent prepared maps |
-| `runtime` | Generation/index registry with engine-owner and resource-kind validation |
-| `trace_schema` | Versioned decoder JSON records and published JSON Schema |
-| `native`, `wasm` | Test transports over the same decoder/serializer |
-| `reference-host` | Pinned .NET project skeleton; H01/H02 adapters remain to be implemented |
+| `core_types` | Stable errors/quotas, checked arithmetic and arenas |
+| `beatmap_decode` | Owned raw records, defaults and syntax validation |
+| `osu_prepare` | Control points, path conversion/geometry, samples, objects, combo and stacking |
+| `prepared` | Immutable records, schedules, identity and portable binary descriptions |
+| `runtime` (`engine_runtime`) | Registry, engine/map/session ownership and `oe_*` facade |
+| `abi` | Layout schema and generated C/TypeScript bindings |
+| `trace_schema`, `geometry_trace`, `prepared_trace` | Versioned test-only trace formats |
+| `native`, `wasm`, `abi_native`, `geometry_*`, `prepared_*` | Thin test transports |
+| `reference-host`, `geometry-reference-host` | Pinned upstream observations |
 
-Odin reserves the package name `runtime`, so that directory declares `engine_runtime`. Dependency direction remains as specified by the architecture docs. Deterministic packages do not import either transport, the spike, or the .NET host.
+## Ownership and API
 
-## Ownership and failure
+`decode.decode` owns raw records and text. `osu_prepare.resolve` owns resolved
+control points. `osu_prepare.prepare_map` constructs owned immutable records with
+a count/fill arena and reusable scratch. `prepared.describe` creates the portable
+binary description. The runtime applies a combined quota, publishes only successful
+candidates and destroys all parts on failure.
 
-`decode()` borrows input only during the call. It validates/counts before allocating, checks the complete arena size, copies text and typed records into one allocation, and returns a candidate only after successful fill. Strings borrow the owned copy. An error returns an empty map; replacing an existing map is a caller commit after successful decoding. `destroy()` releases the allocation.
+Owning maps and arenas must not be copied. External map references and internal
+session references are counted separately. Releasing the public map handle leaves
+existing sessions valid; releasing the engine drops its children. Session reset
+zeroes reusable storage without allocation. Calls are confined to one thread.
 
-Owning `Map`, `Arena`, `Storage`, and `Handle_Table` values must not be copied after ownership is established. Borrow them by pointer. Treat published decoded records as immutable. `Storage` is a reference-count primitive, not a completed prepared beatmap. Session arena tests exercise lifetime/reset primitives, not gameplay sessions.
+Create engines/sessions with foundation flag `1`. Map flag `1` requests M0 raw
+storage; map flag `2` requests M1 preparation. `oe_preparation_capabilities`
+advertises preparation separately. `oe_map_describe` returns kind `5` for foundation
+maps or kind `8` for complete prepared descriptions. All later gameplay operations
+return `UNSUPPORTED`. Read the [ABI contract](../docs/architecture/interface-v2.md)
+and [preparation API](osu_prepare/README.md).
 
-The registry is shared by engines inside one future ABI instance. It validates ownership and kind, retires slots before generation wrap, and never allocates during lookup/insert/release. Full tables fail transactionally. Releasing an already released handle before slot reuse succeeds without returning the resource again; reuse makes the old generation stale. Destroying a table with live resources fails.
-
-The WASM exports are explicitly `trace_*` test APIs, not the production `oe_*` interface. They accept only their reserved inbox. JavaScript reacquires views after allocations. Trace JSON contains values, never pointers or struct padding. Native/WASM arena byte sizes may differ with pointer width and are excluded from compatibility records.
-
-## Decoder coverage and remaining work
-
-Implemented: required format versions 1–14/128, unsupported-version rejection, BOM/whitespace/comments, UTF-8 validation, core metadata/difficulty, AR fallback/clamping, f32 coordinate/difficulty parsing, pre-v5 timing offset, stable object ordering, circle/slider/spinner raw records, slider segment syntax, raw timing entries and canonical inherited-NaN tick marker, typed numeric/location errors, raw/line/object/timing/duration/arena quotas.
-
-Not yet implemented: full General/Events/sample metadata semantics, numeric validation within retained sample/edge syntax, resolved control-point defaults/precedence/queries, combo/break postprocessing, prepared paths/children/stacking, and the full ABI v2 facade. Unhandled section/property text is retained in the owned source; the current decoded records must not yet be used as a fully prepared gameplay map. Raw slider `end_time_ms` remains its start time until M1 geometry determines duration. The legacy stacking branch is preserved through `format_version`, not executed here.
-
-See [`docs/implementation/m0.md`](../docs/implementation/m0.md) for the remaining M0 exit gates. No compatibility claim is made for H01/H02 or A01–A07/A24–A25 as complete scenarios.
+Reacquire WASM views after operations that can allocate, including failed
+candidates. Production WASM requires the Odin host imports `sin`, `cos`,
+`rand_bytes` and `write`; test timing additionally uses `tick_now`. Test JSON is not
+the production ABI. Preparation version 2 appends breaks/control points/playback
+records to the description and uses explicit canonical binary identity (`prepared-v2`).
+The shared preparation work budget rejects excessive work without reducing accuracy. Native ABI conformance links the generated C consumer into an
+Odin executable; dynamic-library packaging is not offered by this increment.
 
 ## Provenance
 
-`reference/source-manifest.json` pins SHA-256 and upstream commits for the source evidence and both MIT licences. These are fresh upstream files, not exports from the C# spike. Source-informed Odin parsing follows the pinned legacy decoder/parser; retain the upstream copyright notices and licences when redistributing the corresponding source material. The verifier never refreshes hashes automatically. Changes require a reviewed source update and matching fixture/profile findings.
+The [source manifest](reference/source-manifest.json) and
+[geometry manifest](reference/geometry/manifest.json) pin retained source and test
+fixtures. Copyright/licence notices are preserved. Reference hosts execute real
+upstream code and locked packages. See [third-party notices](../THIRD_PARTY_NOTICES.md).
 
-The reference host requires clean pinned checkouts; see its README.
+## Odin readability
+
+Use expressive variable and index names, explicit ownership transfers, multiline
+control flow and one statement per line. `odinfmt.json` records the formatting
+preferences; an optional external `odinfmt` can format individual source packages.
+Do not format retained upstream sources or generated ABI files. Generate ABI
+constants/bindings from `abi/records.json`; writers use its named field offsets.

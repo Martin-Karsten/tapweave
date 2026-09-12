@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode>true</RestoreLockedMode>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ppy.osu.Framework" Version="2026.731.0" />
+    <Compile Include="../reference/geometry/SliderPath.cs" Link="Upstream/SliderPath.cs" />
+    <Compile Include="../reference/geometry/PathControlPoint.cs" Link="Upstream/PathControlPoint.cs" />
+    <Compile Include="../reference/geometry/PathType.cs" Link="Upstream/PathType.cs" />
+  </ItemGroup>
+  <Target Name="VerifySources" BeforeTargets="Restore;PrepareForBuild">
+    <Exec Command="node &quot;$(MSBuildThisFileDirectory)../scripts/verify-geometry-sources.mjs&quot;" />
+  </Target>
+</Project>

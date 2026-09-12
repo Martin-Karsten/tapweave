@@ -73,6 +73,276 @@
       "local": "sources/osu__osu.Game__Beatmaps__Formats__Parsing.cs",
       "sha256": "aa058f6f9a8ac4adf06c364e0747e3ff044cb7074bebd70a0156b4db320e095c",
       "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/ControlPoints/ControlPointInfo.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/ControlPoints/ControlPointInfo.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__ControlPoints__ControlPointInfo.cs",
+      "sha256": "18c14feba05ca7847afa80afcf89f5346d9c25081003279926329b5fdc5b19f8",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/ControlPoints/ControlPointGroup.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/ControlPoints/ControlPointGroup.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__ControlPoints__ControlPointGroup.cs",
+      "sha256": "7cee21f26207999bd3d8b5176ea4657884a06396e36574003627e5cfd2fecada",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/ControlPoints/TimingControlPoint.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/ControlPoints/TimingControlPoint.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__ControlPoints__TimingControlPoint.cs",
+      "sha256": "1c0c55823acff226575ae18e2d17d0791348dc960885d8851713a79f519ab91f",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/ControlPoints/DifficultyControlPoint.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/ControlPoints/DifficultyControlPoint.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__ControlPoints__DifficultyControlPoint.cs",
+      "sha256": "0d6efccbbb8901fa07b161a60dcb8410fac6bf9176d0f554db3ce01f0fecdfd8",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/ControlPoints/EffectControlPoint.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/ControlPoints/EffectControlPoint.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__ControlPoints__EffectControlPoint.cs",
+      "sha256": "e6cfc73f5de9ef0084995ffdfa3b0680dc557b8c3d6a83d65423101c8332a823",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/ControlPoints/SampleControlPoint.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/ControlPoints/SampleControlPoint.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__ControlPoints__SampleControlPoint.cs",
+      "sha256": "771579e5965d0a0cae1edfee89baf328f1acee099557483de245e301c0b1019b",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/Legacy/LegacyControlPointInfo.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/Legacy/LegacyControlPointInfo.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__Legacy__LegacyControlPointInfo.cs",
+      "sha256": "75f7ba9427fc3115da037d00a1bfbe7639653eec24f7a63ca1b962604403b7f6",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/Beatmap.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/Beatmap.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__Beatmap.cs",
+      "sha256": "df06b672a4c06d233dd13edefb562972055dcb47aa1bbfffc4ad638e4fa18810",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/Formats/Decoder.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/Formats/Decoder.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__Formats__Decoder.cs",
+      "sha256": "6a04f6d642ca08ab7ac82acce5583626b174eb735af79b629abdc4a8e20775aa",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu/Beatmaps/OsuBeatmapConverter.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Beatmaps/OsuBeatmapConverter.cs",
+      "local": "sources/osu__osu.Game.Rulesets.Osu__Beatmaps__OsuBeatmapConverter.cs",
+      "sha256": "1eb5c79f20190e02a0e9ce5b1c7338fc6d433e41d1a58c8aaafda42db65ed5ef",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu/Beatmaps/OsuBeatmapProcessor.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Beatmaps/OsuBeatmapProcessor.cs",
+      "local": "sources/osu__osu.Game.Rulesets.Osu__Beatmaps__OsuBeatmapProcessor.cs",
+      "sha256": "dd6e764c1973581e94bb47a43f35e5956b77e5638e185a1053ac71f75b40c9ba",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu/Objects/OsuHitObject.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Objects/OsuHitObject.cs",
+      "local": "sources/osu__osu.Game.Rulesets.Osu__Objects__OsuHitObject.cs",
+      "sha256": "31d53bfac3409bab0094a10e139e0b8f4e21e6a64558cc99a586af92e1070ee2",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu/Objects/Slider.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Objects/Slider.cs",
+      "local": "sources/osu__osu.Game.Rulesets.Osu__Objects__Slider.cs",
+      "sha256": "404cd4084aede513d0992c93d45c0229cabd1fea8d1e9ef667744655fcbbb33a",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu/Objects/Spinner.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Objects/Spinner.cs",
+      "local": "sources/osu__osu.Game.Rulesets.Osu__Objects__Spinner.cs",
+      "sha256": "f6ff236a565732a9c2559d898ea661f1ad9f004b18d6682b5f662bc8e1291550",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Objects/SliderEventGenerator.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Objects/SliderEventGenerator.cs",
+      "local": "sources/osu__osu.Game__Rulesets__Objects__SliderEventGenerator.cs",
+      "sha256": "6054c92d55fae67f0486a19329c27eb912900d60fb236c8e0cbac37572568a4b",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Objects/HitObject.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Objects/HitObject.cs",
+      "local": "sources/osu__osu.Game__Rulesets__Objects__HitObject.cs",
+      "sha256": "6d1107336cdadbb49292151e45436bf1f2250894016e4ec8f4580a939832fde3",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Audio/HitSampleInfo.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Audio/HitSampleInfo.cs",
+      "local": "sources/osu__osu.Game__Audio__HitSampleInfo.cs",
+      "sha256": "3e3273899ff42fc17b0abfbb137e5b826f734366b8c2c1174083fd60557b9e60",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Beatmaps/BeatmapProcessor.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/BeatmapProcessor.cs",
+      "local": "sources/osu__osu.Game__Beatmaps__BeatmapProcessor.cs",
+      "sha256": "a032965baf3f181a2cab57d948e378389e5e0eface1d2a823efb15556161405e",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/old-stacking.osu",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/old-stacking.osu",
+      "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__old-stacking.osu",
+      "sha256": "43393961b76e14d743f4078b8bc3fa2854d705d25d7e18d0b06c8ff6d0cd53f3",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/multi-segment-slider.osu",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/multi-segment-slider.osu",
+      "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__multi-segment-slider.osu",
+      "sha256": "e580bd293fcb948dc8223fd9387b53148dfa6dd7fbe7b2a0ee3a9d4859e0aa56",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/zero-length-sliders.osu",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/zero-length-sliders.osu",
+      "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__zero-length-sliders.osu",
+      "sha256": "b996b818fac574c4d00756a0e185f08bd3f05d2479908e6ce639751caac76560",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/slider-ticks-edge-case.osu",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/slider-ticks-edge-case.osu",
+      "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__slider-ticks-edge-case.osu",
+      "sha256": "60e3827cd7dc56b45d6d9a0ba8db04fa711e9f1211a3a0b8da3490746fecf9fd",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/slider-paths-edge-case.osu",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/slider-paths-edge-case.osu",
+      "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__slider-paths-edge-case.osu",
+      "sha256": "4ad842775727e57f3ec97fc14dea5f6c1de2cc4baf9e3770ef918fc25c8ae597",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/nan-slider.osu",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/nan-slider.osu",
+      "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__nan-slider.osu",
+      "sha256": "9bbbe3b75f1adcd211d0d66dd31c254ce4bddf4adea30b77fddf223381b6dcf7",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/colinear-perfect-curve.osu",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/colinear-perfect-curve.osu",
+      "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__colinear-perfect-curve.osu",
+      "sha256": "ced5602a03de9b61d29cde27e34361776393977cf15ae3d62b1210fb258b5e07",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/uneven-repeat-slider.osu",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/uneven-repeat-slider.osu",
+      "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__uneven-repeat-slider.osu",
+      "sha256": "63a0fccab4c06264710d9f2c493fb71cf189356e1cb894142b9bd708d0e14a86",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/very-fast-slider.osu",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/very-fast-slider.osu",
+      "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__very-fast-slider.osu",
+      "sha256": "b0d3113dc907a6f75e9d5a94ab287be63d314f8757c3c638afa8ebd859af5d98",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/repeat-slider.osu",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/repeat-slider.osu",
+      "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__repeat-slider.osu",
+      "sha256": "57bc943150185655b554c66f064c01eb5156c3265f8349b6cb488d37edbf5f0b",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/slider-ticks.osu",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/Resources/Testing/Beatmaps/slider-ticks.osu",
+      "local": "sources/osu__osu.Game.Rulesets.Osu.Tests__Resources__Testing__Beatmaps__slider-ticks.osu",
+      "sha256": "3d66e02e0513883afb67e20d9a11639a77505fe1112aa924eeff8167acfcb1cf",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Objects/Legacy/LegacyRulesetExtensions.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Objects/Legacy/LegacyRulesetExtensions.cs",
+      "local": "sources/osu__osu.Game__Rulesets__Objects__Legacy__LegacyRulesetExtensions.cs",
+      "sha256": "89891e2511450e49e669df2dcbcc22f4df5e7cbcdbe0324b36e4e331f757ffe5",
+      "licence": "MIT"
     }
   ]
 }

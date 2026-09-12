@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "files": [
+    {
+      "repository": "ppy/osu-framework",
+      "commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+      "path": "osu.Framework/Utils/PathApproximator.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu-framework/f02756c5aa5032e6d04729922702b8d56c4bc2eb/osu.Framework/Utils/PathApproximator.cs",
+      "local": "PathApproximator.cs",
+      "sha256": "d97b0ba7dd26af95aa3bcb861d8c0c7abe173bceca26ad92ef241a21229d37f6",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+      "path": "osu.Framework/Utils/CircularArcProperties.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu-framework/f02756c5aa5032e6d04729922702b8d56c4bc2eb/osu.Framework/Utils/CircularArcProperties.cs",
+      "local": "CircularArcProperties.cs",
+      "sha256": "7047fbbdbb603eaf1ae018c1600ce56d2ac06289677af1a14677c1fd538c57fa",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+      "path": "osu.Framework/Utils/Precision.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu-framework/f02756c5aa5032e6d04729922702b8d56c4bc2eb/osu.Framework/Utils/Precision.cs",
+      "local": "Precision.cs",
+      "sha256": "fe37407d78f847260e77170f5b84ac319a8dd6f80d74f35a551278272e9de8a2",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Objects/SliderPath.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Objects/SliderPath.cs",
+      "local": "SliderPath.cs",
+      "sha256": "13ab2563c5f38a1cd386716d83479fd8073de15fb3ad1941b5cd067f6372c099",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Objects/PathControlPoint.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Objects/PathControlPoint.cs",
+      "local": "PathControlPoint.cs",
+      "sha256": "605853fb2a9122aee3d1f0208d060a64552a82155c5b5ae9e821250519e0db16",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu",
+      "commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+      "path": "osu.Game/Rulesets/Objects/Types/PathType.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Objects/Types/PathType.cs",
+      "local": "PathType.cs",
+      "sha256": "f9d8d39e891ee93d01c1b1189ea024ff3566051802afb1857545c1d7d603a000",
+      "licence": "MIT"
+    }
+  ]
+}

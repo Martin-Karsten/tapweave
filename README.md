@@ -6,9 +6,9 @@ Tapweave is an independent project, not affiliated with or endorsed by osu! or p
 
 ## Status
 
-The compatibility foundation (M0) is under development. The repository currently contains the native/WebAssembly decoder, memory and handle primitives, and test tooling. It is **not yet a playable game**, and upstream compatibility has not been certified.
+M0 (decoder, control points and lifecycle) and M1 (complete beatmap preparation) are implemented and tested against pinned upstream behavior. The engine prepares paths, object schedules, samples, combo and stacking, and exposes immutable maps through ABI v2. Gameplay, rendering and audio playback are next; the app is not yet playable.
 
-See the [roadmap](docs/roadmap.md), [architecture](docs/architecture/README.md), and [implementation status](docs/implementation/m0.md).
+See [implementation status and evidence](docs/status.md), the [roadmap](docs/roadmap.md), and [architecture](docs/architecture/README.md).
 
 ## Development
 
@@ -25,11 +25,11 @@ engine/artifacts/decode-native path/to/map.osu
 
 Setup downloads a checksum-verified Odin compiler into the ignored `engine/.toolchain/` directory. The version, commit, and supported Linux/macOS archives are pinned in [toolchain.json](engine/toolchain.json). Alternatively, set `ODIN_BIN` to an existing matching compiler. The new engine has no npm dependencies.
 
-Tests verify upstream source hashes, run allocation-tracked Odin tests, and compare generated native/WASM decoder traces byte-for-byte. This verifies local consistency; the pinned upstream reference-host experiments remain pending.
+Tests verify upstream source hashes, run allocation-tracked Odin and native C ABI checks, and compare generated native/WASM traces byte-for-byte. The `test:reference`, `test:geometry:upstream` and `test:prepared:upstream` scripts execute pinned upstream comparisons; see the [reference-host setup](engine/reference-host/README.md).
 
 ## Repository layout
 
-- `engine/`: production foundation, tests, schemas, and tooling.
+- `engine/`: engine implementation, tests, schemas, and tooling.
 - `docs/`: implementation specification, decisions, and roadmap.
 - `.github/workflows/`: automated validation.
 

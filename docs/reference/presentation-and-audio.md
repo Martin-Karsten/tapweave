@@ -10,7 +10,7 @@ Gameplay state produces a time-indexed presentation snapshot; rendering never ju
 
 ## Sample resolution
 
-Prepared hit samples retain bank (normal/soft/drum), sample name (normal/whistle/finish/clap/slidertick/spinnerspin/bonus), custom index, volume, and explicit filename. Resolution yields an ordered list of beatmap candidates followed by skin/default fallback where allowed. Custom sample index zero has special legacy meaning and is not interchangeable with one; the local spike comparison reproduced this distinction in historical local experiments (summarized in the [spike audit](../compatibility/spike-audit.md)).
+Prepared hit samples retain bank (normal/soft/drum), sample name (normal/whistle/finish/clap/slidertick/spinnerspin/bonus), custom index, volume, and explicit filename. Resolution yields an ordered list of beatmap candidates followed by skin/default fallback where allowed. Custom sample index zero has special legacy meaning and is not interchangeable with one; M1 verifies these distinctions through pinned upstream sample-candidate observations.
 
 Control point selection and the 5 ms compatibility leniency are specified in [beatmap preparation](beatmap-preparation.md). [`SampleControlPoint.ApplyTo`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Beatmaps/ControlPoints/SampleControlPoint.cs) and [`ConvertHitObjectParser`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs) are the primary source.
 

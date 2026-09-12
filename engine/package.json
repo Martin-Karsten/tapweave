@@ -5,8 +5,14 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node scripts/verify-sources.mjs && node scripts/test.mjs",
+    "test": "node scripts/verify-sources.mjs && node scripts/test.mjs && node scripts/test-geometry.mjs && node scripts/test-prepared.mjs",
+    "test:geometry": "node scripts/test-geometry.mjs",
+    "test:geometry:upstream": "node scripts/test-geometry.mjs --upstream",
     "verify:sources": "node scripts/verify-sources.mjs",
-    "setup": "node scripts/setup.mjs"
+    "setup": "node scripts/setup.mjs",
+    "test:reference": "node scripts/reference-test.mjs",
+    "generate:abi": "node scripts/generate-abi.mjs",
+    "test:prepared": "node scripts/test-prepared.mjs",
+    "test:prepared:upstream": "node scripts/test-prepared.mjs --upstream"
   }
 }

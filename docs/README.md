@@ -1,8 +1,8 @@
 # Odin gameplay engine reference and design
 
-This documentation is the implementation specification for an osu!standard engine written primarily in Odin and delivered first to desktop browsers through WebAssembly. It is not an implementation and does not claim that the existing spike is compatible.
+These documents specify the Odin/WASM osu!standard engine. They distinguish implemented preparation from planned gameplay and browser behavior.
 
-Implementation has started separately in [`engine/`](../engine/README.md). See [M0 implementation status](implementation/m0.md) for tested coverage and remaining exit gates.
+Implementation lives in [`engine/`](../engine/README.md). See [Implementation status](status.md) for tested coverage and remaining exit gates.
 
 ## Pinned baseline
 
@@ -15,21 +15,18 @@ The framework version is source-confirmed by the pinned [`ppy.osu.Framework` pac
 
 ## Reading order
 
-1. [Evidence and terminology](reference/evidence.md)
-2. [Execution model](reference/execution-model.md)
-3. [Beatmap preparation](reference/beatmap-preparation.md)
-4. [Input and judgement](reference/input-and-judgement.md)
-5. [Scoring, health, failure, and results](reference/scoring-health-results.md)
-6. [Presentation and audio](reference/presentation-and-audio.md)
-7. [Replay](reference/replay.md)
-8. [Compatibility survey](reference/compatibility-survey.md)
-9. [Spike audit](compatibility/spike-audit.md)
-10. [Traceability matrix](compatibility/traceability.md)
-11. [Reference harness](compatibility/reference-harness.md)
-12. [Architecture decisions](architecture/README.md)
-13. [Versioned engine interface](architecture/interface-v2.md)
-14. [Validation and roadmap](roadmap.md)
-15. [Sources](SOURCES.md)
+- [Current implementation and evidence](status.md)
+- [Build and package guide](../engine/README.md)
+- [Architecture decisions](architecture/README.md) and [ABI contract](architecture/interface-v2.md)
+- [Beatmap preparation](reference/beatmap-preparation.md)
+- [Execution model](reference/execution-model.md), [input and judgement](reference/input-and-judgement.md), [scoring and health](reference/scoring-health-results.md), and [replay](reference/replay.md)
+- [Presentation and audio](reference/presentation-and-audio.md)
+- [Acceptance matrix](compatibility/traceability.md), [reference harness](compatibility/reference-harness.md), and [roadmap](roadmap.md)
+
+Source revisions, retained files, licences and hashes are catalogued in
+[`source-manifest.json`](../engine/reference/source-manifest.json) and the
+[geometry manifest](../engine/reference/geometry/manifest.json). The reference
+chapters link directly to pinned upstream symbols.
 
 ## Scope boundary
 

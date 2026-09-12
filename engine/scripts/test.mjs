@@ -1,17 +1,20 @@
 import './build.mjs';
+execFileSync(process.execPath, [new URL('./generate-abi.mjs', import.meta.url).pathname, '--check']);
+import { testABI } from './abi-test.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createHash, randomFillSync } from 'node:crypto';
 import { resolve } from 'node:path';
 import { root, compile, verifyCompiler } from './toolchain.mjs';
-import { fixtures } from './fixtures.mjs';
+import { fixtures, referenceFixtures } from './fixtures.mjs';
 import { validateTrace, firstDifference } from './trace-diff.mjs';
 
 compile(['test', 'tests', '-out:artifacts/foundation-tests']);
 const bytes = readFileSync(resolve(root, 'artifacts/decode.wasm'));
 let memory;
 const { instance } = await WebAssembly.instantiate(bytes, { odin_env: {
+  sin: Math.sin, cos: Math.cos,
   write(fd, ptr, count) {
     const value = new Uint8Array(memory.buffer, ptr, count);
     (fd === 2 ? process.stderr : process.stdout).write(value);
@@ -24,7 +27,7 @@ memory = wasm.memory;
 const fixtureDir = resolve(root, 'artifacts/fixtures');
 mkdirSync(fixtureDir, { recursive: true });
 const records = [];
-for (const fixture of fixtures()) {
+for (const fixture of [...new Map([...fixtures(), ...referenceFixtures()].map(f=>[f.id,f])).values()]) {
   const input = Buffer.from(fixture.text);
   const path = resolve(fixtureDir, `${fixture.id}.osu`);
   writeFileSync(path, input);
@@ -57,6 +60,7 @@ wasm.trace_dispose();
 assert.deepEqual(firstDifference({ a: [1, 2] }, { a: [1, 3] }), { path: '$.a.1', expected: 2, actual: 3 });
 assert.ok(firstDifference([], [undefined]));
 assert.throws(() => validateTrace({ schema_version: 2 }));
-const report = { compiler: verifyCompiler(), schemaVersion: 1, upstreamVerified: false, records };
+const lifecycle = testABI(wasm);
+const report = { lifecycle, compiler: verifyCompiler(), schemaVersion: 1, upstreamVerified: false, records };
 writeFileSync(resolve(root, 'artifacts/acceptance.json'), JSON.stringify(report, null, 2) + '\n');
 console.log(`${records.length} decoder fixtures: native/WASM traces byte-identical. Upstream compatibility remains unverified.`);

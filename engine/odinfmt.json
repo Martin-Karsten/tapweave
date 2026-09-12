@@ -1,0 +1,10 @@
+{
+  "character_width": 110,
+  "tabs": true,
+  "tabs_width": 4,
+  "sort_imports": false,
+  "inline_single_stmt_case": false,
+  "align_struct_fields": false,
+  "align_struct_values": false,
+  "newline_limit": 2
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Independent geometry test traces v1 (not production ABI)",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["schema_version", "id", "status", "vertices", "cumulative", "segment_ends", "calculated_length", "distance", "samples"],
+    "properties": {
+      "schema_version": {"const": 1},
+      "id": {"type": "string"},
+      "status": {"enum": ["OK", "Invalid_Input", "Buffer_Too_Small", "Work_Limit", "Numeric_Error"]},
+      "vertices": {"type": "array", "items": {"$ref": "#/$defs/point"}},
+      "samples": {"type": "array", "items": {"$ref": "#/$defs/point"}},
+      "cumulative": {"type": "array", "items": {"type": "number"}},
+      "segment_ends": {"type": "array", "items": {"type": "number"}},
+      "calculated_length": {"type": "number"},
+      "distance": {"type": "number"}
+    }
+  },
+  "$defs": {"point": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number"}}}
+}

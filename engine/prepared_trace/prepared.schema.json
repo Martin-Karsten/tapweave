@@ -1,0 +1,681 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "objects",
+    "schedule",
+    "digest",
+    "description_digest",
+    "description_bytes",
+    "difficulty",
+    "stack_leniency",
+    "format_version",
+    "playback",
+    "breaks",
+    "timing_points",
+    "difficulty_points",
+    "sample_points",
+    "effect_points"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 2,
+      "type": "integer"
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/object"
+      }
+    },
+    "schedule": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "time_ms",
+          "object_index",
+          "component_index"
+        ],
+        "properties": {
+          "time_ms": {
+            "type": "number"
+          },
+          "object_index": {
+            "type": "number"
+          },
+          "component_index": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "digest": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      }
+    },
+    "description_digest": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      }
+    },
+    "description_bytes": {
+      "type": "number"
+    },
+    "difficulty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hp",
+        "cs",
+        "od",
+        "ar",
+        "slider_multiplier",
+        "tick_rate"
+      ],
+      "properties": {
+        "hp": {
+          "type": "number"
+        },
+        "cs": {
+          "type": "number"
+        },
+        "od": {
+          "type": "number"
+        },
+        "ar": {
+          "type": "number"
+        },
+        "slider_multiplier": {
+          "type": "number"
+        },
+        "tick_rate": {
+          "type": "number"
+        }
+      }
+    },
+    "stack_leniency": {
+      "type": "number"
+    },
+    "format_version": {
+      "type": "integer"
+    },
+    "playback": {
+      "type": "object",
+      "required": [
+        "audio_lead_in",
+        "preview_time",
+        "sample_set",
+        "sample_volume",
+        "countdown",
+        "countdown_offset",
+        "samples_match_playback_rate",
+        "letterbox_in_breaks",
+        "epilepsy_warning",
+        "widescreen_storyboard",
+        "special_style",
+        "audio_filename"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "audio_lead_in": {
+          "type": "number"
+        },
+        "preview_time": {
+          "type": "number"
+        },
+        "sample_set": {
+          "type": "integer"
+        },
+        "sample_volume": {
+          "type": "integer"
+        },
+        "countdown": {
+          "type": "integer"
+        },
+        "countdown_offset": {
+          "type": "integer"
+        },
+        "samples_match_playback_rate": {
+          "type": "boolean"
+        },
+        "letterbox_in_breaks": {
+          "type": "boolean"
+        },
+        "epilepsy_warning": {
+          "type": "boolean"
+        },
+        "widescreen_storyboard": {
+          "type": "boolean"
+        },
+        "special_style": {
+          "type": "boolean"
+        },
+        "audio_filename": {
+          "type": "string"
+        }
+      }
+    },
+    "breaks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "start_ms",
+          "end_ms"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "start_ms": {
+            "type": "number"
+          },
+          "end_ms": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "timing_points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "time_ms",
+          "source_id",
+          "beat_length",
+          "slider_velocity",
+          "meter",
+          "sample_set",
+          "sample_index",
+          "volume",
+          "generate_ticks",
+          "kiai",
+          "omit_first_bar"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "time_ms": {
+            "type": "number"
+          },
+          "source_id": {
+            "type": "integer"
+          },
+          "beat_length": {
+            "type": "number"
+          },
+          "slider_velocity": {
+            "type": "number"
+          },
+          "meter": {
+            "type": "integer"
+          },
+          "sample_set": {
+            "type": "integer"
+          },
+          "sample_index": {
+            "type": "integer"
+          },
+          "volume": {
+            "type": "integer"
+          },
+          "generate_ticks": {
+            "type": "boolean"
+          },
+          "kiai": {
+            "type": "boolean"
+          },
+          "omit_first_bar": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "difficulty_points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "time_ms",
+          "source_id",
+          "beat_length",
+          "slider_velocity",
+          "meter",
+          "sample_set",
+          "sample_index",
+          "volume",
+          "generate_ticks",
+          "kiai",
+          "omit_first_bar"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "time_ms": {
+            "type": "number"
+          },
+          "source_id": {
+            "type": "integer"
+          },
+          "beat_length": {
+            "type": "number"
+          },
+          "slider_velocity": {
+            "type": "number"
+          },
+          "meter": {
+            "type": "integer"
+          },
+          "sample_set": {
+            "type": "integer"
+          },
+          "sample_index": {
+            "type": "integer"
+          },
+          "volume": {
+            "type": "integer"
+          },
+          "generate_ticks": {
+            "type": "boolean"
+          },
+          "kiai": {
+            "type": "boolean"
+          },
+          "omit_first_bar": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "sample_points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "time_ms",
+          "source_id",
+          "beat_length",
+          "slider_velocity",
+          "meter",
+          "sample_set",
+          "sample_index",
+          "volume",
+          "generate_ticks",
+          "kiai",
+          "omit_first_bar"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "time_ms": {
+            "type": "number"
+          },
+          "source_id": {
+            "type": "integer"
+          },
+          "beat_length": {
+            "type": "number"
+          },
+          "slider_velocity": {
+            "type": "number"
+          },
+          "meter": {
+            "type": "integer"
+          },
+          "sample_set": {
+            "type": "integer"
+          },
+          "sample_index": {
+            "type": "integer"
+          },
+          "volume": {
+            "type": "integer"
+          },
+          "generate_ticks": {
+            "type": "boolean"
+          },
+          "kiai": {
+            "type": "boolean"
+          },
+          "omit_first_bar": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "effect_points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "time_ms",
+          "source_id",
+          "beat_length",
+          "slider_velocity",
+          "meter",
+          "sample_set",
+          "sample_index",
+          "volume",
+          "generate_ticks",
+          "kiai",
+          "omit_first_bar"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "time_ms": {
+            "type": "number"
+          },
+          "source_id": {
+            "type": "integer"
+          },
+          "beat_length": {
+            "type": "number"
+          },
+          "slider_velocity": {
+            "type": "number"
+          },
+          "meter": {
+            "type": "integer"
+          },
+          "sample_set": {
+            "type": "integer"
+          },
+          "sample_index": {
+            "type": "integer"
+          },
+          "volume": {
+            "type": "integer"
+          },
+          "generate_ticks": {
+            "type": "boolean"
+          },
+          "kiai": {
+            "type": "boolean"
+          },
+          "omit_first_bar": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Immutable preparation test trace v1 (not production ABI)",
+  "$defs": {
+    "sample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "bank",
+        "suffix",
+        "volume",
+        "use_beatmap",
+        "layered",
+        "candidates"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "bank": {
+          "type": "string"
+        },
+        "suffix": {
+          "type": "string"
+        },
+        "volume": {
+          "type": "number"
+        },
+        "use_beatmap": {
+          "type": "boolean"
+        },
+        "layered": {
+          "type": "boolean"
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "time_ms",
+        "span_start_ms",
+        "progress",
+        "span_index",
+        "position",
+        "samples",
+        "event_time_ms"
+      ],
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "Head",
+            "Tick",
+            "Repeat",
+            "Tail",
+            "LegacyLastTick",
+            "SpinnerTick",
+            "SpinnerBonusTick"
+          ]
+        },
+        "time_ms": {
+          "type": "number"
+        },
+        "span_start_ms": {
+          "type": "number"
+        },
+        "progress": {
+          "type": "number"
+        },
+        "span_index": {
+          "type": "number"
+        },
+        "position": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "samples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sample"
+          }
+        },
+        "event_time_ms": {
+          "type": "number"
+        }
+      }
+    },
+    "object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "time_ms",
+        "end_time_ms",
+        "position",
+        "end_position",
+        "stack_offset",
+        "scale",
+        "radius",
+        "preempt_ms",
+        "fade_in_ms",
+        "stack_height",
+        "combo_index",
+        "combo_index_with_offsets",
+        "index_in_combo",
+        "new_combo",
+        "last_in_combo",
+        "combo_offset",
+        "spans",
+        "velocity",
+        "span_duration",
+        "tick_distance",
+        "path_distance",
+        "calculated_distance",
+        "generate_ticks",
+        "vertices",
+        "cumulative",
+        "samples",
+        "tail_samples",
+        "auxiliary_samples",
+        "components",
+        "spins_required",
+        "maximum_bonus_spins"
+      ],
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "CIRCLE",
+            "SLIDER",
+            "SPINNER"
+          ]
+        },
+        "time_ms": {
+          "type": "number"
+        },
+        "end_time_ms": {
+          "type": "number"
+        },
+        "position": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "end_position": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "stack_offset": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "scale": {
+          "type": "number"
+        },
+        "radius": {
+          "type": "number"
+        },
+        "preempt_ms": {
+          "type": "number"
+        },
+        "fade_in_ms": {
+          "type": "number"
+        },
+        "stack_height": {
+          "type": "number"
+        },
+        "combo_index": {
+          "type": "number"
+        },
+        "combo_index_with_offsets": {
+          "type": "number"
+        },
+        "index_in_combo": {
+          "type": "number"
+        },
+        "new_combo": {
+          "type": "boolean"
+        },
+        "last_in_combo": {
+          "type": "boolean"
+        },
+        "combo_offset": {
+          "type": "number"
+        },
+        "spans": {
+          "type": "number"
+        },
+        "velocity": {
+          "type": "number"
+        },
+        "span_duration": {
+          "type": "number"
+        },
+        "tick_distance": {
+          "type": "number"
+        },
+        "path_distance": {
+          "type": "number"
+        },
+        "calculated_distance": {
+          "type": "number"
+        },
+        "generate_ticks": {
+          "type": "boolean"
+        },
+        "vertices": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "cumulative": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "samples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sample"
+          }
+        },
+        "tail_samples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sample"
+          }
+        },
+        "auxiliary_samples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sample"
+          }
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/component"
+          }
+        },
+        "spins_required": {
+          "type": "number"
+        },
+        "maximum_bonus_spins": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

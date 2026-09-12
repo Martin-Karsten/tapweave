@@ -1,10 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Odin decoded-map trace v1",
+  "title": "Odin decoded-map trace v2",
   "type": "object",
   "properties": {
     "schema_version": {
-      "const": 1
+      "const": 2
     },
     "kind": {
       "const": "decoded-map"
@@ -47,7 +47,8 @@
             "DURATION",
             "PATH",
             "HANDLE",
-            "QUOTAS"
+            "QUOTAS",
+            "PREPARATION_WORK"
           ]
         },
         "line": {
@@ -212,6 +213,12 @@
           },
           "hit_sample": {
             "type": "string"
+          },
+          "new_combo": {
+            "type": "boolean"
+          },
+          "combo_offset": {
+            "type": "integer"
           }
         },
         "required": [
@@ -229,7 +236,9 @@
           "path",
           "edge_sounds",
           "edge_sets",
-          "hit_sample"
+          "hit_sample",
+          "new_combo",
+          "combo_offset"
         ],
         "additionalProperties": false
       }
@@ -302,6 +311,536 @@
         ],
         "additionalProperties": false
       }
+    },
+    "general": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "audio_lead_in",
+        "preview_time",
+        "sample_set",
+        "sample_volume",
+        "countdown",
+        "countdown_offset",
+        "samples_match_playback_rate",
+        "letterbox_in_breaks",
+        "epilepsy_warning",
+        "widescreen_storyboard",
+        "special_style"
+      ],
+      "properties": {
+        "audio_lead_in": {
+          "type": "number"
+        },
+        "preview_time": {
+          "type": "number"
+        },
+        "sample_set": {
+          "type": "integer"
+        },
+        "sample_volume": {
+          "type": "integer"
+        },
+        "countdown": {
+          "type": "integer"
+        },
+        "countdown_offset": {
+          "type": "integer"
+        },
+        "samples_match_playback_rate": {
+          "type": "boolean"
+        },
+        "letterbox_in_breaks": {
+          "type": "boolean"
+        },
+        "epilepsy_warning": {
+          "type": "boolean"
+        },
+        "widescreen_storyboard": {
+          "type": "boolean"
+        },
+        "special_style": {
+          "type": "boolean"
+        }
+      }
+    },
+    "breaks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "start_ms",
+          "end_ms"
+        ],
+        "properties": {
+          "start_ms": {
+            "type": "number"
+          },
+          "end_ms": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "control_points": {
+      "type": "object",
+      "required": [
+        "timing",
+        "difficulty",
+        "sample",
+        "effect"
+      ],
+      "properties": {
+        "timing": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "time_ms",
+              "beat_length",
+              "slider_velocity",
+              "source_id",
+              "meter",
+              "sample_set",
+              "sample_index",
+              "volume",
+              "generate_ticks",
+              "kiai",
+              "omit_first_bar"
+            ],
+            "properties": {
+              "time_ms": {
+                "type": "number"
+              },
+              "beat_length": {
+                "type": "number"
+              },
+              "slider_velocity": {
+                "type": "number"
+              },
+              "source_id": {
+                "type": "integer"
+              },
+              "meter": {
+                "type": "integer"
+              },
+              "sample_set": {
+                "type": "integer"
+              },
+              "sample_index": {
+                "type": "integer"
+              },
+              "volume": {
+                "type": "integer"
+              },
+              "generate_ticks": {
+                "type": "boolean"
+              },
+              "kiai": {
+                "type": "boolean"
+              },
+              "omit_first_bar": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "difficulty": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "time_ms",
+              "beat_length",
+              "slider_velocity",
+              "source_id",
+              "meter",
+              "sample_set",
+              "sample_index",
+              "volume",
+              "generate_ticks",
+              "kiai",
+              "omit_first_bar"
+            ],
+            "properties": {
+              "time_ms": {
+                "type": "number"
+              },
+              "beat_length": {
+                "type": "number"
+              },
+              "slider_velocity": {
+                "type": "number"
+              },
+              "source_id": {
+                "type": "integer"
+              },
+              "meter": {
+                "type": "integer"
+              },
+              "sample_set": {
+                "type": "integer"
+              },
+              "sample_index": {
+                "type": "integer"
+              },
+              "volume": {
+                "type": "integer"
+              },
+              "generate_ticks": {
+                "type": "boolean"
+              },
+              "kiai": {
+                "type": "boolean"
+              },
+              "omit_first_bar": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "sample": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "time_ms",
+              "beat_length",
+              "slider_velocity",
+              "source_id",
+              "meter",
+              "sample_set",
+              "sample_index",
+              "volume",
+              "generate_ticks",
+              "kiai",
+              "omit_first_bar"
+            ],
+            "properties": {
+              "time_ms": {
+                "type": "number"
+              },
+              "beat_length": {
+                "type": "number"
+              },
+              "slider_velocity": {
+                "type": "number"
+              },
+              "source_id": {
+                "type": "integer"
+              },
+              "meter": {
+                "type": "integer"
+              },
+              "sample_set": {
+                "type": "integer"
+              },
+              "sample_index": {
+                "type": "integer"
+              },
+              "volume": {
+                "type": "integer"
+              },
+              "generate_ticks": {
+                "type": "boolean"
+              },
+              "kiai": {
+                "type": "boolean"
+              },
+              "omit_first_bar": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "effect": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "time_ms",
+              "beat_length",
+              "slider_velocity",
+              "source_id",
+              "meter",
+              "sample_set",
+              "sample_index",
+              "volume",
+              "generate_ticks",
+              "kiai",
+              "omit_first_bar"
+            ],
+            "properties": {
+              "time_ms": {
+                "type": "number"
+              },
+              "beat_length": {
+                "type": "number"
+              },
+              "slider_velocity": {
+                "type": "number"
+              },
+              "source_id": {
+                "type": "integer"
+              },
+              "meter": {
+                "type": "integer"
+              },
+              "sample_set": {
+                "type": "integer"
+              },
+              "sample_index": {
+                "type": "integer"
+              },
+              "volume": {
+                "type": "integer"
+              },
+              "generate_ticks": {
+                "type": "boolean"
+              },
+              "kiai": {
+                "type": "boolean"
+              },
+              "omit_first_bar": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "queries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "timing",
+          "difficulty",
+          "sample",
+          "effect",
+          "time_ms"
+        ],
+        "properties": {
+          "timing": {
+            "type": "object",
+            "required": [
+              "time_ms",
+              "beat_length",
+              "slider_velocity",
+              "source_id",
+              "meter",
+              "sample_set",
+              "sample_index",
+              "volume",
+              "generate_ticks",
+              "kiai",
+              "omit_first_bar"
+            ],
+            "properties": {
+              "time_ms": {
+                "type": "number"
+              },
+              "beat_length": {
+                "type": "number"
+              },
+              "slider_velocity": {
+                "type": "number"
+              },
+              "source_id": {
+                "type": "integer"
+              },
+              "meter": {
+                "type": "integer"
+              },
+              "sample_set": {
+                "type": "integer"
+              },
+              "sample_index": {
+                "type": "integer"
+              },
+              "volume": {
+                "type": "integer"
+              },
+              "generate_ticks": {
+                "type": "boolean"
+              },
+              "kiai": {
+                "type": "boolean"
+              },
+              "omit_first_bar": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          },
+          "difficulty": {
+            "type": "object",
+            "required": [
+              "time_ms",
+              "beat_length",
+              "slider_velocity",
+              "source_id",
+              "meter",
+              "sample_set",
+              "sample_index",
+              "volume",
+              "generate_ticks",
+              "kiai",
+              "omit_first_bar"
+            ],
+            "properties": {
+              "time_ms": {
+                "type": "number"
+              },
+              "beat_length": {
+                "type": "number"
+              },
+              "slider_velocity": {
+                "type": "number"
+              },
+              "source_id": {
+                "type": "integer"
+              },
+              "meter": {
+                "type": "integer"
+              },
+              "sample_set": {
+                "type": "integer"
+              },
+              "sample_index": {
+                "type": "integer"
+              },
+              "volume": {
+                "type": "integer"
+              },
+              "generate_ticks": {
+                "type": "boolean"
+              },
+              "kiai": {
+                "type": "boolean"
+              },
+              "omit_first_bar": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          },
+          "sample": {
+            "type": "object",
+            "required": [
+              "time_ms",
+              "beat_length",
+              "slider_velocity",
+              "source_id",
+              "meter",
+              "sample_set",
+              "sample_index",
+              "volume",
+              "generate_ticks",
+              "kiai",
+              "omit_first_bar"
+            ],
+            "properties": {
+              "time_ms": {
+                "type": "number"
+              },
+              "beat_length": {
+                "type": "number"
+              },
+              "slider_velocity": {
+                "type": "number"
+              },
+              "source_id": {
+                "type": "integer"
+              },
+              "meter": {
+                "type": "integer"
+              },
+              "sample_set": {
+                "type": "integer"
+              },
+              "sample_index": {
+                "type": "integer"
+              },
+              "volume": {
+                "type": "integer"
+              },
+              "generate_ticks": {
+                "type": "boolean"
+              },
+              "kiai": {
+                "type": "boolean"
+              },
+              "omit_first_bar": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          },
+          "effect": {
+            "type": "object",
+            "required": [
+              "time_ms",
+              "beat_length",
+              "slider_velocity",
+              "source_id",
+              "meter",
+              "sample_set",
+              "sample_index",
+              "volume",
+              "generate_ticks",
+              "kiai",
+              "omit_first_bar"
+            ],
+            "properties": {
+              "time_ms": {
+                "type": "number"
+              },
+              "beat_length": {
+                "type": "number"
+              },
+              "slider_velocity": {
+                "type": "number"
+              },
+              "source_id": {
+                "type": "integer"
+              },
+              "meter": {
+                "type": "integer"
+              },
+              "sample_set": {
+                "type": "integer"
+              },
+              "sample_index": {
+                "type": "integer"
+              },
+              "volume": {
+                "type": "integer"
+              },
+              "generate_ticks": {
+                "type": "boolean"
+              },
+              "kiai": {
+                "type": "boolean"
+              },
+              "omit_first_bar": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          },
+          "time_ms": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
     }
   },
   "required": [
@@ -313,7 +852,11 @@
     "metadata",
     "stack_leniency",
     "objects",
-    "timing"
+    "timing",
+    "general",
+    "breaks",
+    "control_points",
+    "queries"
   ],
   "additionalProperties": false
 }
