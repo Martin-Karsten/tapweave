@@ -50,6 +50,7 @@ class Asset_Source {
     this.entries = new Map();
     this.cache = new Map();
     this.decoded_audio = new Map();
+    this.pending_audio = new Map();
     this.decoded_audio_bytes = 0;
     this.extracted_bytes = 0;
     this.disposed = false;
@@ -65,12 +66,21 @@ class Asset_Source {
     if (this.decoded_audio.has(normalized_name)) {
       return this.decoded_audio.get(normalized_name);
     }
-    const buffer = await decode_audio(bytes.slice().buffer);
-    require_condition(!this.disposed, 'DISPOSED', 'Asset scope was disposed during decoding.');
-    // Another request may have completed this same asset while decoding.
-    if (this.decoded_audio.has(normalized_name)) {
-      return this.decoded_audio.get(normalized_name);
+    if (this.pending_audio.has(normalized_name)) {
+      return this.pending_audio.get(normalized_name);
     }
+    const pending = this.decode_and_retain(normalized_name, bytes, decode_audio);
+    this.pending_audio.set(normalized_name, pending);
+    try {
+      return await pending;
+    } finally {
+      this.pending_audio.delete(normalized_name);
+    }
+  }
+
+  async decode_and_retain(normalized_name, bytes, decode_audio) {
+    const buffer = await decode_audio(bytes);
+    require_condition(!this.disposed, 'DISPOSED', 'Asset scope was disposed during decoding.');
     const decoded_bytes = buffer.length * buffer.numberOfChannels * 4;
     require_condition(Number.isSafeInteger(decoded_bytes) && decoded_bytes >= 0 &&
       decoded_bytes <= this.limits.decoded_audio_bytes - this.decoded_audio_bytes,
@@ -85,6 +95,7 @@ class Asset_Source {
     this.entries.clear();
     this.cache.clear();
     this.decoded_audio.clear();
+    this.pending_audio.clear();
     this.decoded_audio_bytes = 0;
     this.extracted_bytes = 0;
   }

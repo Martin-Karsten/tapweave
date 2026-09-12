@@ -1,10 +1,12 @@
 import { Archive_Assets, Loose_Assets, ASSET_LIMITS, normalize_asset_path } from './archive.mjs';
 import { require_condition } from './errors.mjs';
+import { Audio_Decoder } from './audio-decoder.mjs';
 
 export class Selection_Controller {
   constructor(engine, { decode_audio = null, on_change = () => {}, limits = ASSET_LIMITS } = {}) {
     this.engine = engine;
-    this.decode_audio = decode_audio;
+    this.audio_decoder = decode_audio ? new Audio_Decoder(decode_audio) : null;
+    this.decode_audio = this.audio_decoder ? bytes => this.audio_decoder.decode(bytes) : null;
     this.on_change = on_change;
     this.limits = limits;
     this.generation = 0;

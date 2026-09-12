@@ -100,3 +100,11 @@ are copied by the browser bridge, and all WASM views are reacquired after calls.
 A thin production browser entrypoint links only `oe_*` engine exports; test trace
 transports remain separate. This increment adds no gameplay, audio or presentation
 capability bits. Its independent browser service objects are not ABI records.
+
+## M3 coordinate-only extension
+
+Kinds 29/30 and `oe_playfield_transform` append coordinate conversion without
+changing kind-27 one-shot semantics or any prior record/export. Generated native
+bindings now name bootstrap mailbox offsets as well as record layouts. Native C
+and browser WASM consumers test valid conversion and failure preservation. No
+aggregate gameplay, render or audio-loop capability is enabled by this extension.

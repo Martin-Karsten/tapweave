@@ -73,3 +73,14 @@ loading, archive/resource and input/audio service checks plus initial native/WAS
 viewport values. A12 remains open until the transform is integrated with real
 browser gameplay input. A21/A22 and H11 remain unsupported/unexecuted; fake audio
 contexts and a preparation shell are not evidence of audio-backed gameplay.
+
+### M3 prerequisite transport evidence
+
+Kinds 29/30 expose the Odin transform to native C and browser WASM. The local
+browser suite checks coordinate round trips and existing M2 session operations,
+retained output, replay and lifecycle failures. The `test:session` command covers
+17 schedules of a synthetic three-minute workload with exact judgement/audio/final
+digests and no WASM growth in the exercised calls. See the [M3 report](../implementation/m3.md#m3-prerequisites-implementation-2026-09-12)
+and [retained local findings](../../engine/reference/findings/m3-browser-sessions.json).
+A12 remains open for physical/gameplay input integration; A21/A22/H11 and full M2
+rows remain open. No new upstream drawable acceptance is claimed.

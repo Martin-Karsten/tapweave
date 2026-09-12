@@ -1,0 +1,174 @@
+{
+  "oracle": "local-production-wasm-contract",
+  "upstream_verified": false,
+  "full_acceptance": false,
+  "reproduce": "npm --prefix platform/browser-js run test:session",
+  "acceptance": [
+    "A21",
+    "A23"
+  ],
+  "node_version": "v24.13.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "manifest_sha256": "1c759bdce219b3f7fde8cc893ec443751cdc687be5da833dd05a0713027c8a42",
+  "wasm_sha256": "3bb4f74e1825f92ecdb1d1866e24da9242e9fa7880dc986b03a43efd4a29fb3f",
+  "fixture_sha256": "6b7c3ed83a507c0f513021dd09960eb398247fbff9dcd5a7e9b3f36a5234530b",
+  "inputs_sha256": "c958f21676012c2daa012ff69c3881505a3496f03af805f4cbfdcdc3d64eabc3",
+  "results": [
+    {
+      "frequency": 0,
+      "stall_ms": 0,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 30,
+      "stall_ms": 0,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 30,
+      "stall_ms": 50,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 30,
+      "stall_ms": 100,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 30,
+      "stall_ms": 250,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 60,
+      "stall_ms": 0,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 60,
+      "stall_ms": 50,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 60,
+      "stall_ms": 100,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 60,
+      "stall_ms": 250,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 120,
+      "stall_ms": 0,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 120,
+      "stall_ms": 50,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 120,
+      "stall_ms": 100,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 120,
+      "stall_ms": 250,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 144,
+      "stall_ms": 0,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 144,
+      "stall_ms": 50,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 144,
+      "stall_ms": 100,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    },
+    {
+      "frequency": 144,
+      "stall_ms": 250,
+      "digests": {
+        "judgements": "32db9907229308edf7d1c42e8102bd76c365c254e6436b09d28459ece290fce2",
+        "audio": "ece5678b23130ff1364a2411840904089181fde56c99e472b7004ce5e071a6f1",
+        "final": "44de4616a1729e5b474aecf19e8f632bdeeaa869763b8b5171da1bf1c3a02d91"
+      }
+    }
+  ]
+}

@@ -274,7 +274,7 @@ that same inbox address, byte count and token. Unknown records, bits, non-finite
 values, sequence/time disorder, stale tokens and late inputs reject the whole
 batch. Coordinates are logical osu! pixels; raw and effective time must match.
 Rate=1 and all four offsets=0 are the current clock profile. Future inputs stay
-queued. Once an advance closes a timestamp, later input at that time is late.
+queued. Input equal to committed time is admitted; only earlier input is late.
 
 `oe_session_bind_sample(engine, session, mailbox)` consumes kind 28 before start.
 Each call reports availability of one prepared candidate (`asset_id=0` removes
@@ -312,3 +312,22 @@ The existing mailbox and auxiliary ByteSpan offsets are also named under
 writers validate complete scalar input before modifying a record. The browser
 bridge copies retained map descriptions and reacquires views after WASM calls.
 This transport refinement changes no offsets, record kinds or capability bits.
+
+## Production coordinate conversion
+
+`oe_playfield_transform(engine, viewport_mailbox, output_mailbox)` consumes kind
+29 and returns kind 30. Both are version 1 and append to the schema without
+changing kinds 1–28. The viewport contains CSS left/top/width/height and DPR as
+f64. Positive dimensions/DPR and finite coefficients are required. The result
+contains scale, client origin and six inverse affine coefficients in DOM order.
+DPR does not enter CSS input conversion. Call again when placement or size changes.
+
+This operation does not allocate. It validates handles, exact mailbox addresses,
+record version/size and numeric inputs before publication. Failure leaves prior
+output bytes/span unchanged. The output uses mailbox bytes 672–751 and expires
+on the next transform call. Copy coefficients immediately; never retain a WASM
+view across potentially growing calls. Export discovery indicates coordinate
+support only; full presentation and gameplay capability remain unavailable.
+
+See the [M3 contract audit](../implementation/m3-contract-audit.md) for existing
+session export coverage, missing audio/render records and clock epoch mapping.

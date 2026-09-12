@@ -70,5 +70,24 @@ actual decoded size is checked before caching. This does not bound the browser's
 internal decoder peak memory.
 
 No H11 oracle, WebGL2 executor, object presentation, gameplay input listener,
-music transport, gameplay pause/resume, results, or performance baseline is
+integrated music playback, gameplay pause/resume, results, or performance baseline is
 claimed. These remain tracked in the M3 plan and implementation report.
+
+## Session prerequisites
+
+The bridge now exposes headless M2 sessions, copied output/replay/result records,
+sample availability and production Odin coordinate conversion (kinds 29/30).
+These are testable services; Play still awaits the integrated renderer/lifecycle.
+`music.mjs` consumes the shared clock's media anchor; its tests use mock sources.
+`clock.mjs` explicitly maps session and browser epochs and receipt timestamps.
+
+`audio-decoder.mjs` limits each selection controller to two concurrent decodes
+and 128 MiB of encoded input. Busy admission rejects with QUOTA_EXCEEDED so the
+previous selection stays valid. Same-source in-flight decodes are reused.
+Cancelled work retains its admission charge until the browser promise settles;
+its internal peak allocation cannot be certified by these limits.
+
+Run `npm --prefix platform/browser-js run test:session` for the local three-minute
+production-WASM cadence/stall matrix. Hashed artifacts are written to
+`artifacts/session/`; they are not pinned upstream observations. See the
+[contract audit](../../docs/implementation/m3-contract-audit.md) for remaining gates.

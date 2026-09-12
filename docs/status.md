@@ -149,3 +149,14 @@ Use the checksum-pinned Odin compiler and Node 24. Upstream runs also require th
 [reference host setup](../engine/reference-host/README.md). Generated full traces,
 statistics and reports go to ignored `engine/artifacts/`; checked-in finding
 indices retain evidence without committing build products.
+
+### M3 prerequisites follow-up
+
+The [M3 report](implementation/m3.md#m3-prerequisites-implementation-2026-09-12)
+now records production coordinate conversion, a generated-record headless browser
+session bridge, explicit epoch mapping, independent music transport and bounded
+shared audio decoding. Local session and Chromium transport checks pass; these
+services are not an integrated playable browser. The [contract audit](implementation/m3-contract-audit.md)
+records missing adapters and protocols. All required M2/M3 acceptance gates remain
+open; missing Firefox/WebKit executables and timed-out installation are recorded
+separately from remaining implementation work.

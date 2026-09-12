@@ -98,7 +98,7 @@ test('replacement releases stale candidates before decodes settle', async () => 
   try {
     await controller.load_files([new File([valid_map], 'previous.osu')]);
     const previous = controller.active;
-    for (let load_index = 0; load_index < 3; load_index++) {
+    for (let load_index = 0; load_index < 2; load_index++) {
       const stale_candidate = controller.pending_candidate;
       pending_loads.push(controller.load_files([
         new File([valid_map], 'candidate.osu'), new File([new Uint8Array(4)], 'music.wav'),
@@ -114,6 +114,13 @@ test('replacement releases stale candidates before decodes settle', async () => 
       assert.strictEqual(controller.active, previous);
       assert.equal(previous.source.disposed, false);
     }
+    await controller.load_files([
+      new File([valid_map], 'busy.osu'), new File([new Uint8Array(4)], 'music.wav'),
+    ]);
+    assert.equal(controller.error.code, 'QUOTA_EXCEEDED');
+    assert.equal(controller.audio_decoder.active_count, 2);
+    assert.equal(finish_decodes.length, 2);
+    assert.strictEqual(controller.active, previous);
     await controller.load_files([new File(['invalid'], 'bad.osu')]);
     assert.equal(engine.map_handles.size, 1);
     assert.strictEqual(controller.active, previous);
@@ -122,6 +129,8 @@ test('replacement releases stale candidates before decodes settle', async () => 
       finish_decode({ length: 100, numberOfChannels: 2 });
     }
     await Promise.all(pending_loads);
+    assert.equal(controller.audio_decoder.active_count, 0);
+    assert.equal(controller.audio_decoder.encoded_bytes, 0);
     assert.strictEqual(controller.active, previous);
     assert.equal(controller.error.code, 'ENGINE_5');
   } finally {
@@ -157,6 +166,39 @@ test('cancelling a difficulty candidate preserves the shared active asset scope'
     assert.equal(source.disposed, false);
     assert.equal(controller.pending_candidate, null);
     assert.equal(controller.error, null);
+  } finally {
+    controller.dispose();
+    engine.dispose();
+  }
+});
+
+test('concurrent difficulty candidates share one in-flight decode in the retained source', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  let finish_decode;
+  let decode_count = 0;
+  const controller = new Selection_Controller(engine, { decode_audio: () => {
+    decode_count++;
+    return new Promise(resolve => { finish_decode = resolve; });
+  } });
+  try {
+    await controller.load_files([
+      new File([valid_map.replace('music.wav', 'missing.wav')], 'easy.osu'),
+      new File([valid_map], 'hard.osu'), new File([new Uint8Array(4)], 'music.wav'),
+    ]);
+    const first_candidate = controller.select_map('hard.osu');
+    while (!finish_decode) {
+      await new Promise(resolve => setImmediate(resolve));
+    }
+    const second_candidate = controller.select_map('hard.osu');
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(decode_count, 1);
+    assert.equal(controller.audio_decoder.active_count, 1);
+    finish_decode({ length: 100, numberOfChannels: 2 });
+    await Promise.all([first_candidate, second_candidate]);
+    assert.equal(controller.active.filename, 'hard.osu');
+    assert.equal(controller.active.source.decoded_audio_bytes, 800);
+    assert.equal(controller.active.source.pending_audio.size, 0);
+    assert.equal(engine.map_handles.size, 1);
   } finally {
     controller.dispose();
     engine.dispose();

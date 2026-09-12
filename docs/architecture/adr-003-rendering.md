@@ -28,3 +28,16 @@ This maximizes Odin ownership without binding deterministic packages to DOM call
 ## Acceptance
 
 Test dense circles/sliders/spinners, resize/DPR changes, context loss/recovery, missing texture fallback, alpha ordering, and static-mesh reuse. Measure separately: presentation, tessellation, WASM→JS upload, JS submission, GPU time where timer queries are available, and RAF frame pacing.
+
+## M3 coordinate transport and readonly dependency
+
+The independent viewport transform is exposed as kinds 29/30 through
+`oe_playfield_transform`. It validates a mailbox viewport before publishing into
+a separate readonly mailbox span; it allocates nothing and advertises no object
+rendering capability. Existing records/exports are unchanged.
+
+Presentation consumes a borrowed readonly simulation projection; it may import
+simulation but not runtime. Simulation cannot import presentation. Runtime owns
+composition and resource lifetimes. The current kind-19 full-map diagnostic
+snapshot is not the production active-set render protocol. Remaining resource
+and batching requirements are recorded in the [contract audit](../implementation/m3-contract-audit.md).

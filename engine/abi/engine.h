@@ -2,6 +2,10 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
+#define OE_MAILBOX_CREATION 0
+#define OE_MAILBOX_CREATION_SIZE 256
+#define OE_MAILBOX_RESULT 256
+#define OE_MAILBOX_ERROR 320
 typedef struct { uint16_t type, version; uint32_t byte_size;
   uint32_t flags;
   uint32_t reserved;
@@ -715,6 +719,40 @@ _Static_assert(offsetof(oe_sample_binding_v1, component_id)==12, "field offset")
 _Static_assert(offsetof(oe_sample_binding_v1, sample_index)==16, "field offset");
 _Static_assert(offsetof(oe_sample_binding_v1, candidate_index)==20, "field offset");
 _Static_assert(offsetof(oe_sample_binding_v1, asset_id)==24, "field offset");
+typedef struct { uint16_t type, version; uint32_t byte_size;
+  double css_left;
+  double css_top;
+  double css_width;
+  double css_height;
+  double device_pixel_ratio;
+} oe_viewport_v1;
+_Static_assert(sizeof(oe_viewport_v1)==48, "record size");
+_Static_assert(offsetof(oe_viewport_v1, css_left)==8, "field offset");
+_Static_assert(offsetof(oe_viewport_v1, css_top)==16, "field offset");
+_Static_assert(offsetof(oe_viewport_v1, css_width)==24, "field offset");
+_Static_assert(offsetof(oe_viewport_v1, css_height)==32, "field offset");
+_Static_assert(offsetof(oe_viewport_v1, device_pixel_ratio)==40, "field offset");
+typedef struct { uint16_t type, version; uint32_t byte_size;
+  double scale;
+  double client_left;
+  double client_top;
+  double inverse_a;
+  double inverse_b;
+  double inverse_c;
+  double inverse_d;
+  double inverse_e;
+  double inverse_f;
+} oe_playfield_transform_v1;
+_Static_assert(sizeof(oe_playfield_transform_v1)==80, "record size");
+_Static_assert(offsetof(oe_playfield_transform_v1, scale)==8, "field offset");
+_Static_assert(offsetof(oe_playfield_transform_v1, client_left)==16, "field offset");
+_Static_assert(offsetof(oe_playfield_transform_v1, client_top)==24, "field offset");
+_Static_assert(offsetof(oe_playfield_transform_v1, inverse_a)==32, "field offset");
+_Static_assert(offsetof(oe_playfield_transform_v1, inverse_b)==40, "field offset");
+_Static_assert(offsetof(oe_playfield_transform_v1, inverse_c)==48, "field offset");
+_Static_assert(offsetof(oe_playfield_transform_v1, inverse_d)==56, "field offset");
+_Static_assert(offsetof(oe_playfield_transform_v1, inverse_e)==64, "field offset");
+_Static_assert(offsetof(oe_playfield_transform_v1, inverse_f)==72, "field offset");
 typedef uint64_t oe_handle;
 typedef struct { uint64_t address; uint32_t count, reserved; uint64_t token; } oe_byte_span;
 uintptr_t oe_abi_control(void);
@@ -723,6 +761,7 @@ uint32_t oe_engine_capabilities(oe_handle, oe_byte_span*);
 uint32_t oe_preparation_capabilities(oe_handle, oe_byte_span*);
 uint32_t oe_simulation_capabilities(oe_handle, oe_byte_span*);
 uint32_t oe_session_acknowledge(oe_handle, oe_handle, uint64_t token);
+uint32_t oe_playfield_transform(oe_handle, uintptr_t viewport, uintptr_t output);
 uint32_t oe_session_bind_sample(oe_handle, oe_handle, uintptr_t binding);
 uint32_t oe_session_replay_load(oe_handle, oe_handle, uint64_t token, uint32_t byte_count);
 uint32_t oe_session_replay_export(oe_handle, oe_handle, uintptr_t output);
