@@ -186,6 +186,11 @@ score processing. The [scenario findings](../engine/reference/findings/m3-scenar
 record 36 selected result/score/combo matches and 36 differences, retaining actual
 update schedules and live-input quantisation. This is additional drawable evidence,
 not full Player, replay, health/failure or audio acceptance; W02 remains open.
+The separate [delivery diagnostic](../engine/reference/findings/m3-scenario-delivery.json)
+matches selected result/score/combo fields in all 72 runs when Odin inputs use the
+host's delivery times. This eliminates the original 36 differences for those
+fields under that intervention; original timestamped comparisons and production
+input policy remain unchanged. It does not establish full session equivalence.
 
 W01 adds a minimal immutable kind-35 render attachment shared by map/session
 owners, transactional publication, native/generated browser validation and

@@ -18,6 +18,7 @@
     "test:simulation:upstream": "node scripts/test-simulation.mjs --upstream",
     "test:presentation": "node scripts/test-presentation.mjs",
     "test:scenarios:upstream": "node scripts/test-scenarios.mjs",
-    "compare:circle-draw": "node scripts/compare-circle-draw.mjs"
+    "compare:circle-draw": "node scripts/compare-circle-draw.mjs",
+    "compare:scenario-delivery": "node scripts/compare-scenario-delivery.mjs"
   }
 }

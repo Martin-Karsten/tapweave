@@ -109,3 +109,13 @@ and retains signed errors in `reference/findings/m3-circle-draw.json`. The measu
 36 schedule comparisons match after preserving the framework's different scalar
 and vector interpolation precision. Hit/miss feedback and the rest of A22 remain
 open; this command does not substitute for them or rerun missing observations.
+
+`npm --prefix engine run compare:scenario-delivery` diagnoses input scheduling
+using the same hash-verified observations. In a separate local run it replaces
+input timestamps with the first declared upstream update at/after receipt. All
+72 runs then match ordered result/score/combo; the 36 original differences are
+eliminated for those selected fields. Original receipt-time comparisons remain
+unchanged. This intervention does not establish judgement-time, health, replay
+or audio equivalence and does not justify retiming production inputs. The finding
+index is `reference/findings/m3-scenario-delivery.json`; residual differences,
+if introduced later, remain explicit rather than failing an acceptance claim.
