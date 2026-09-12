@@ -72,6 +72,8 @@ int main(void) {
     unsigned char gameplay_result[2048];
     uint32_t gameplay_byte_count=gameplay_native_probe(gameplay_result);
     presentation_native_probe();
+    unsigned char draw_bytes[2048];
+    uint32_t draw_byte_count = draw_native_probe(draw_bytes);
     printf("{\"capabilities\":[");
     for(unsigned value_index=0;value_index<16;value_index++)printf("%s%u",value_index?",":"",capabilities[value_index]);
     printf("],\"statuses\":[");
@@ -80,6 +82,8 @@ int main(void) {
     for(unsigned value_index=0;value_index<16;value_index++)printf("%s%u",value_index?",":"",error_record[value_index]);
     printf("],\"gameplay\":[");
     for(uint32_t byte_index=0;byte_index<gameplay_byte_count;byte_index++)printf("%s%u",byte_index?",":"",gameplay_result[byte_index]);
+    printf("],\"circle_draw\":[");
+    for (uint32_t byte_index = 0; byte_index < draw_byte_count; byte_index++) printf("%s%u", byte_index ? "," : "", draw_bytes[byte_index]);
     puts("]}");
     return 0;
 }

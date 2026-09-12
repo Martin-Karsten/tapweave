@@ -164,3 +164,37 @@ projection_component_and_cursor_history_survive_journal_ack :: proc(test: ^testi
 	testing.expect_value(test, projection.cursor_history[0], recording[0])
 	testing.expect_value(test, projection.cursor, recording[0])
 }
+
+@(test)
+circle_draw_curves_are_readonly_and_counted :: proc(test: ^testing.T) {
+	object := prepared.Object{kind = .CIRCLE, id = 3, time_ms = 1000, preempt_ms = 1200,
+		fade_in_ms = 800, radius = 32, position = {256, 192}}
+	instances: [24]presentation.Instance
+	context.allocator = mem.panic_allocator()
+	counter: presentation.Builder
+	presentation.circle(&counter, &object, .NONE, 0, 400)
+	testing.expect_value(test, counter.count, 4)
+	builder := presentation.Builder{instances = instances[:]}
+	presentation.circle(&builder, &object, .NONE, 0, 400)
+	testing.expect_value(test, builder.count, counter.count)
+	presentation.order_instances(instances[:builder.count])
+	testing.expect_value(test, instances[0].alpha, 0.75)
+	testing.expect_value(test, instances[3].scale_x, 80)
+	testing.expect_value(test, instances[3].alpha, f64(f32(0.45)))
+	builder.count = 0
+	presentation.circle(&builder, &object, .GREAT, 1000, 1100)
+	testing.expect_value(test, builder.count, 1)
+	testing.expect_value(test, instances[0].primitive, presentation.Primitive.RING)
+	testing.expect_value(test, instances[0].scale_x, 39)
+	testing.expect_value(test, instances[0].alpha, 0.925)
+	builder.count = 0
+	presentation.circle(&builder, &object, .MISS, 1100, 1150)
+	testing.expect_value(test, builder.count, 1)
+	testing.expect_value(test, instances[0].alpha, 0.5)
+	builder.count = 0
+	presentation.circle(&builder, &object, .GREAT, 1000, 1800)
+	testing.expect_value(test, builder.count, 0)
+	// Future committed outcomes are not projected as already-hit in past reads.
+	presentation.circle(&builder, &object, .GREAT, 1000, 400)
+	testing.expect_value(test, builder.count, 4)
+}

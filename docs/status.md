@@ -189,8 +189,8 @@ not full Player, replay, health/failure or audio acceptance; W02 remains open.
 
 W01 adds a minimal immutable kind-35 render attachment shared by map/session
 owners, transactional publication, native/generated browser validation and
-production one-shot admission with acknowledgement retry watermarks. Full dynamic
-reserve/draw/voice contracts remain open. The browser admission path still
+production one-shot admission with acknowledgement retry watermarks. Circle-only dynamic reserve and ordered draw transport are also implemented;
+complete draw/voice contracts remain open. The browser admission path still
 allocates staging/executor objects, and its late policy is provisional pending H11.
 
 Simulation exposes component and semantic cursor/feedback history independently
@@ -198,5 +198,9 @@ of acknowledgement. Per-object sample ranges avoid scanning unrelated objects'
 samples on each judgement. Work counters retain input-candidate, predecessor,
 tracking and sample-binding visits; input/tracking scans remain to be addressed.
 Active projection uses allocation-free heap sorting for adverse reveal bursts.
-These are W03 inputs and cost improvements; complete animation, cursor/trail,
-follow points and final ordered draw intent remain unimplemented. Play stays off.
+Kinds 36–40 now reserve and publish ordered circle draw instances/batches with
+independent output lifetime and readonly hit/miss feedback. The [circle findings](../engine/reference/findings/m3-circle-draw.json)
+retain 36 exact f32 approach alpha/scale comparisons against pinned drawable
+observations. Full feedback acceptance, slider/spinner draws, cursor/trail, follow
+points and HUD glyphs remain open. Circle-only draw reserve rejects mixed maps;
+complete W01/W02/W03 capability and Play stay off.

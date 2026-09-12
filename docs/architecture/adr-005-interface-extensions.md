@@ -129,3 +129,11 @@ without changing kinds 1–34 or prepared/replay identity. Odin/C/JS/TS bindings
 generated together. Native and WASM consumers validate the container; existing
 capability fields remain unchanged while final resource/draw/reserve contracts
 are incomplete. See the [ABI](interface-v2.md#minimal-immutable-render-attachment).
+
+## Reserved circle draw extension
+
+Kinds 36–40 define reserve requests, required capacity, frame headers, instances
+and batches with generated native/WASM layouts. They add explicit exports without
+changing kinds 1–35, existing acknowledgement semantics or identity. The current
+producer supports circles only; broad animation/draw/Play capabilities remain zero.
+The native C probe and WASM reader compare serialized circle instances exactly.

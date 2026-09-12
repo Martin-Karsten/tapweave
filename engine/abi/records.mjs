@@ -1893,6 +1893,253 @@ export const schema = {
           "u64"
         ]
       }
+    },
+    {
+      "name": "render_reserve",
+      "kind": 36,
+      "size": 32,
+      "fields": {
+        "arena_bytes": [
+          8,
+          "u64"
+        ],
+        "instance_capacity": [
+          16,
+          "u32"
+        ],
+        "flags": [
+          20,
+          "u32"
+        ],
+        "reserved": [
+          24,
+          "u64"
+        ]
+      }
+    },
+    {
+      "name": "render_capacity",
+      "kind": 37,
+      "size": 40,
+      "fields": {
+        "requested_instances": [
+          8,
+          "u32"
+        ],
+        "required_instances": [
+          12,
+          "u32"
+        ],
+        "required_bytes": [
+          16,
+          "u64"
+        ],
+        "resource_id": [
+          24,
+          "u64"
+        ],
+        "epoch": [
+          32,
+          "u32"
+        ],
+        "flags": [
+          36,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "draw_frame",
+      "kind": 38,
+      "size": 128,
+      "fields": {
+        "epoch": [
+          8,
+          "u32"
+        ],
+        "state": [
+          12,
+          "u32"
+        ],
+        "resource_id": [
+          16,
+          "u64"
+        ],
+        "presentation_ms": [
+          24,
+          "f64"
+        ],
+        "committed_ms": [
+          32,
+          "f64"
+        ],
+        "scale": [
+          40,
+          "f64"
+        ],
+        "client_left": [
+          48,
+          "f64"
+        ],
+        "client_top": [
+          56,
+          "f64"
+        ],
+        "score": [
+          64,
+          "u64"
+        ],
+        "accuracy": [
+          72,
+          "f64"
+        ],
+        "health": [
+          80,
+          "f64"
+        ],
+        "combo": [
+          88,
+          "u32"
+        ],
+        "highest_combo": [
+          92,
+          "u32"
+        ],
+        "instances_offset": [
+          96,
+          "u32"
+        ],
+        "instances_count": [
+          100,
+          "u32"
+        ],
+        "instances_stride": [
+          104,
+          "u32"
+        ],
+        "batches_offset": [
+          108,
+          "u32"
+        ],
+        "batches_count": [
+          112,
+          "u32"
+        ],
+        "batches_stride": [
+          116,
+          "u32"
+        ],
+        "total_bytes": [
+          120,
+          "u64"
+        ]
+      }
+    },
+    {
+      "name": "draw_instance",
+      "kind": 39,
+      "size": 112,
+      "fields": {
+        "primitive": [
+          8,
+          "u32"
+        ],
+        "layer": [
+          12,
+          "u32"
+        ],
+        "object_id": [
+          16,
+          "u32"
+        ],
+        "component_id": [
+          20,
+          "u32"
+        ],
+        "ordinal": [
+          24,
+          "u32"
+        ],
+        "flags": [
+          28,
+          "u32"
+        ],
+        "x": [
+          32,
+          "f64"
+        ],
+        "y": [
+          40,
+          "f64"
+        ],
+        "scale_x": [
+          48,
+          "f64"
+        ],
+        "scale_y": [
+          56,
+          "f64"
+        ],
+        "rotation": [
+          64,
+          "f64"
+        ],
+        "alpha": [
+          72,
+          "f64"
+        ],
+        "progress": [
+          80,
+          "f64"
+        ],
+        "colour": [
+          88,
+          "u32"
+        ],
+        "glyph": [
+          92,
+          "u32"
+        ],
+        "geometry_first": [
+          96,
+          "u32"
+        ],
+        "geometry_count": [
+          100,
+          "u32"
+        ],
+        "reserved": [
+          104,
+          "u64"
+        ]
+      }
+    },
+    {
+      "name": "draw_batch",
+      "kind": 40,
+      "size": 32,
+      "fields": {
+        "layer": [
+          8,
+          "u32"
+        ],
+        "primitive": [
+          12,
+          "u32"
+        ],
+        "first_instance": [
+          16,
+          "u32"
+        ],
+        "instance_count": [
+          20,
+          "u32"
+        ],
+        "reserved": [
+          24,
+          "u64"
+        ]
+      }
     }
   ],
   "transport": {

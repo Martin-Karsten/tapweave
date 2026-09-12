@@ -101,3 +101,11 @@ Selected comparisons cover ordered result/score/combo. Actual alpha/approach/
 lifetime fields are retained but not yet compared with Odin animation. Full
 Player health/failure, recorder/replay and sample/voice observation remain open.
 The 72 component comparisons remain a separate command and evidence set.
+
+After generating scenario observations, `npm --prefix engine run compare:circle-draw`
+validates their source/fixture/observation/lock hashes and compares Odin's emitted
+pre-start circle approach alpha/scale. It compares the f32 projected values exactly
+and retains signed errors in `reference/findings/m3-circle-draw.json`. The measured
+36 schedule comparisons match after preserving the framework's different scalar
+and vector interpolation precision. Hit/miss feedback and the rest of A22 remain
+open; this command does not substitute for them or rerun missing observations.

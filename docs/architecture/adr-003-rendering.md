@@ -101,3 +101,19 @@ The borrowed simulation facade additionally exposes component results, retained
 judgement feedback, cursor and semantic recording history. These views survive
 journal acknowledgement and must be reacquired after mutation/reset/seek. They
 are inputs for W03, not completed feedback/trail animation.
+
+## Reserved circle draw publication
+
+Kinds 36–40 add an explicit circle-only count/reserve/fill protocol. A separate
+session-owned arena holds instances and serialized batches; reserve is
+READY/PAUSED-only and transactional, while draw output cannot acknowledge or
+advance gameplay. Insufficient frame capacity reports the exact required count
+without overwriting the prior frame. Mixed maps are rejected by reserve until
+slider/spinner producers exist. Complete draw capability remains unavailable.
+
+Circle approach scalar and vector interpolation preserve the pinned framework's
+different precision and operation order. The retained findings compare 36
+schedule observations exactly after f32 projection. Source-derived hit/miss
+feedback is locally tested but broader A22 feedback remains open. W04 still owns
+original glyph/analytic shader resources and execution. See the
+[wire contract](interface-v2.md#reserved-circle-draw-transport).

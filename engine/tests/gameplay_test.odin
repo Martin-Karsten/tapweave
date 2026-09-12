@@ -390,3 +390,31 @@ render_attachment_failure_and_sharing_preserve_map_owner :: proc(test: ^testing.
 		engine_runtime.session_release(&instance, engine, session_handle)
 	}
 }
+
+@(test)
+draw_reserve_failure_preserves_previous_capacity :: proc(test: ^testing.T) {
+	instance, _ := engine_runtime.instance_create()
+	defer engine_runtime.instance_destroy(&instance)
+	engine, _ := engine_runtime.engine_create(&instance)
+	defer engine_runtime.engine_release(&instance, engine)
+	map_handle, preparation_error := engine_runtime.map_prepare(&instance, engine, GAMEPLAY_CIRCLES, true)
+	testing.expect_value(test, preparation_error.status, core_types.Status.OK)
+	testing.expect_value(test, engine_runtime.render_resource_create(&instance, engine, map_handle), core_types.Status.OK)
+	session_handle, created := engine_runtime.session_create(&instance, engine, map_handle, 65536, 0, true, 8)
+	testing.expect_value(test, created, core_types.Status.OK)
+	required, status := engine_runtime.draw_required_bytes(48)
+	testing.expect_value(test, status, core_types.Status.OK)
+	testing.expect_value(test, engine_runtime.draw_reserve(&instance, engine, session_handle, 48, required), core_types.Status.OK)
+	session, _ := engine_runtime.session_get(&instance, engine, session_handle)
+	original_output := raw_data(session.draw_storage.output)
+	original_allocator := instance.allocator
+	instance.allocator = mem.Allocator{procedure = reject_allocations}
+	testing.expect_value(test, engine_runtime.draw_reserve(&instance, engine, session_handle, 48, required), core_types.Status.OUT_OF_MEMORY)
+	testing.expect_value(test, raw_data(session.draw_storage.output), original_output)
+	instance.allocator = original_allocator
+	testing.expect_value(test, engine_runtime.draw_reserve(&instance, engine, session_handle, 48, required - 1), core_types.Status.QUOTA_EXCEEDED)
+	testing.expect_value(test, raw_data(session.draw_storage.output), original_output)
+	testing.expect_value(test, len(session.draw_storage.instances), 48)
+	_, overflow_status := engine_runtime.draw_required_bytes(max(u64))
+	testing.expect_value(test, overflow_status, core_types.Status.QUOTA_EXCEEDED)
+}

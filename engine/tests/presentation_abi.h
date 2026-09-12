@@ -33,3 +33,46 @@ static void presentation_native_probe(void) {
     assert(oe_engine_release(engine_handle) == 0);
     assert(oe_playfield_transform(engine_handle, (uintptr_t)viewport, (uintptr_t)span_output) != 0);
 }
+
+static uint32_t draw_native_probe(unsigned char *draw_bytes) {
+    unsigned char *mailbox = (unsigned char *)oe_abi_control();
+    oe_handle *handle_output = (void *)(mailbox + OE_MAILBOX_RESULT);
+    oe_byte_span *span_output = (void *)(mailbox + OE_MAILBOX_RESULT);
+    oe_error_v1 *error_output = (void *)(mailbox + OE_MAILBOX_ERROR);
+    oe_engine_create_v1 *engine_creation = (void *)mailbox;
+    *engine_creation = (oe_engine_create_v1){.type = 1, .version = 1,
+        .byte_size = sizeof(*engine_creation), .flags = 1};
+    assert(oe_engine_create(engine_creation, handle_output, error_output) == 0);
+    oe_handle engine_handle = *handle_output;
+    const char map_text[] = "osu file format v14\n[HitObjects]\n256,192,1000,1,0";
+    assert(oe_buffer_reserve(engine_handle, 1, sizeof(map_text)-1, span_output) == 0);
+    memcpy((void *)(uintptr_t)span_output->address, map_text, sizeof(map_text)-1);
+    oe_map_prepare_v1 *map_creation = (void *)mailbox;
+    *map_creation = (oe_map_prepare_v1){.type = 2, .version = 1, .byte_size = sizeof(*map_creation),
+        .token = span_output->token, .count = sizeof(map_text)-1, .flags = 2};
+    assert(oe_map_prepare(engine_handle, map_creation, handle_output, error_output) == 0);
+    oe_handle map_handle = *handle_output;
+    assert(oe_map_render_resources(engine_handle, map_handle, (uintptr_t)span_output) == 0);
+    oe_gameplay_create_v1 *session_creation = (void *)mailbox;
+    *session_creation = (oe_gameplay_create_v1){.type = 18, .version = 1, .byte_size = sizeof(*session_creation),
+        .flags = 2, .arena_bytes = 65536, .input_capacity = 8};
+    assert(oe_session_create(engine_handle, map_handle, (void *)session_creation, handle_output, error_output) == 0);
+    oe_handle session_handle = *handle_output;
+    oe_render_reserve_v1 *reserve = (void *)mailbox;
+    *reserve = (oe_render_reserve_v1){.type = 36, .version = 1, .byte_size = sizeof(*reserve),
+        .arena_bytes = 65536, .instance_capacity = 24};
+    assert(oe_session_render_reserve(engine_handle, session_handle, (uintptr_t)reserve, (uintptr_t)span_output) == 0);
+    const oe_render_capacity_v1 *capacity = (void *)(uintptr_t)span_output->address;
+    assert(capacity->type == 37 && capacity->requested_instances == 24);
+    oe_viewport_v1 *viewport = (void *)mailbox;
+    *viewport = (oe_viewport_v1){.type = 29, .version = 1, .byte_size = sizeof(*viewport),
+        .css_width = 512, .css_height = 384, .device_pixel_ratio = 1};
+    assert(oe_session_draw(engine_handle, session_handle, 500, (uintptr_t)viewport, (uintptr_t)span_output) == 0);
+    const oe_draw_frame_v1 *frame = (void *)(uintptr_t)span_output->address;
+    assert(frame->type == 38 && frame->instances_count == 4 && frame->resource_id == map_handle);
+    assert(frame->instances_stride == sizeof(oe_draw_instance_v1));
+    uint32_t byte_count = frame->instances_count * frame->instances_stride;
+    memcpy(draw_bytes, (unsigned char *)frame + frame->instances_offset, byte_count);
+    assert(oe_engine_release(engine_handle) == 0);
+    return byte_count;
+}

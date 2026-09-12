@@ -41,6 +41,7 @@ Session :: struct {
 	output: []byte,
 	presentation_output: []byte,
 	active_presentation: presentation.Active_Set,
+	draw_storage: Draw_Storage,
 	input_candidate: []core_types.Input_Snapshot,
 	output_token: u64,
 	output_judgement_count: int,
@@ -320,6 +321,7 @@ session_create :: proc(
 	defer {
 		if !committed {
 			core_types.arena_destroy(&session_state.arena)
+			core_types.arena_destroy(&session_state.draw_storage.arena)
 			free(session_state, instance.allocator)
 		}
 	}
@@ -390,6 +392,7 @@ session_release :: proc(instance: ^Instance, engine, session: core_types.Handle)
 	session_state := cast(^Session)value
 	map_drop(instance, session_state.map_storage)
 	core_types.arena_destroy(&session_state.arena)
+	core_types.arena_destroy(&session_state.draw_storage.arena)
 	free(session_state, instance.allocator)
 	return .OK
 }

@@ -433,3 +433,62 @@ Kind-27 events retain their exact nominal times and silence flags. Immediate lat
 one-shot execution is a provisional diagnostic policy pending H11; this adapter
 does not enable production Play or voice/loop capability. Its staging and executor
 queues still allocate JS objects; allocation-free browser ingestion is not claimed.
+
+## Reserved circle draw transport
+
+Kinds 36–40 add a separate diagnostic circle draw path. It returns explicit
+instances and batches, not kind-32/33 projections. Complete animation/draw/Play
+capability remains unavailable: reserve rejects maps containing sliders/spinners.
+W03 still requires those families, complete feedback, cursor/trail/follow points,
+HUD glyphs and broader A22 evidence. The frame header already carries authoritative
+score/accuracy/health/combo/status; browser scoring is never required.
+
+`oe_session_render_reserve(engine, session, request, mailbox_output)` accepts
+kind 36: `arena_bytes:u64`, `instance_capacity:u32`, flags/reserved zero. Both
+pointers must be the documented mailbox slots. A zero instance request queries
+kind 37 without allocation. The recommendation is 24 instances per object, a
+conservative circle digit/primitive count, not a performance threshold. A caller
+may reserve less and receive an exact per-frame `OUTPUT_REQUIRED` later. Reserve
+accepts READY/PAUSED only, requires an existing map attachment, caps requested
+instances at 1,000,000 and total base-session plus draw-arena bytes at the engine
+arena quota. Checked sizing also enforces WASM32 addressability. Candidate failure
+leaves prior draw storage and output descriptor unchanged; success replaces it.
+Reacquire WASM views after reserve, including failure. Reset reuses storage and
+changes the engine epoch; final session disposal releases it.
+
+`oe_session_draw(engine, session, time_ms, viewport, mailbox_output)` accepts the
+existing kind-29 viewport. It refreshes active indices, counts primitives, checks
+capacity, fills reserved instances, orders them and writes batches. No gameplay
+advance, acknowledgement, allocation or memory growth occurs. Insufficient
+capacity returns status 8 and kind 37 with exact required instances/bytes while
+preserving the previous frame bytes. Resource and gameplay-journal lifetimes are
+independent of draw output. Successful draw calls replace the previous frame;
+reset/seek invalidate its semantic epoch. Nonfinite time/viewport rejects.
+
+Kind 38 contains epoch/state, resource ID, requested and committed milliseconds,
+playfield-to-CSS scale/translation, authoritative HUD values, relative instance/
+batch spans and total bytes. Each array starts at an eight-byte aligned offset
+with generated stride and validated, nonoverlapping bounds. Empty arrays have
+count zero and valid aligned offsets. Kind 39 contains primitive/layer,
+source object/component/ordinal, position in osu! pixels, radii/scales in pixels,
+rotation in degrees, alpha/progress in [0,1], packed little-endian RGBA8 colour,
+glyph ID and bounded index range. Reserved/flags are zero. Current emitted
+primitives are disc=1, ring=2 and numeric glyph=3 (ASCII 48–57); all reference the
+quad's index range. Layers 20/30/40 are object/approach/feedback. Original glyph
+atlas and analytic shaders still belong to W04; no GPU execution is advertised.
+
+Order is strictly `(layer, source object ID, component ID, primitive ordinal)`.
+Kind 40 groups consecutive matching layer/primitive instances using first/count;
+batches cover the entire instance span exactly once. Readers reject unknown
+versions/primitive kinds, stale resource/epoch identity, nonfinite parameters,
+invalid alpha/progress/index ranges and inconsistent ordering/batch coverage.
+Source IDs and quad data are never WebGL handles. Viewport scale and translation
+are carried in the same frame as the sampled state, so browser animation decisions
+are unnecessary.
+
+Circle approach alpha and vector-scale arithmetic preserve the pinned framework's
+distinct f64/f32 interpolation paths. The count/fill producer preserves readonly
+past reads and hit feedback after journal acknowledgement. Its source-derived
+40 ms hide, 400 ms expansion, hit lifetime and 100 ms miss fade are separate
+policies; the active set's 800 ms conservative retention is not used as a generic
+animation duration. Broader feedback observations remain open.

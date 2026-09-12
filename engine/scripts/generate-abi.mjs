@@ -167,6 +167,8 @@ uint32_t oe_map_prepare(oe_handle, const oe_map_prepare_v1*, oe_handle*, oe_erro
 uint32_t oe_map_describe(oe_handle, oe_handle, oe_byte_span*);
 uint32_t oe_map_render_resources(oe_handle, oe_handle, uintptr_t output);
 uint32_t oe_session_render_resources(oe_handle, oe_handle, uintptr_t output);
+uint32_t oe_session_render_reserve(oe_handle, oe_handle, uintptr_t request, uintptr_t output);
+uint32_t oe_session_draw(oe_handle, oe_handle, double time_ms, uintptr_t viewport, uintptr_t output);
 uint32_t oe_map_retain(oe_handle, oe_handle);
 uint32_t oe_map_release(oe_handle, oe_handle);
 uint32_t oe_session_create(oe_handle, oe_handle, const oe_session_create_v1*, oe_handle*, oe_error_v1*);
