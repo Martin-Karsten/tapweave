@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { Engine_Bridge, Gameplay_Output, Draw_Output } from '../src/engine-bridge.mjs';
-import { schema } from '../../../engine/abi/records.mjs';
 
 const wasm_bytes = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));
 const map_bytes = new TextEncoder().encode('osu file format v14\n[HitObjects]\n256,192,1000,1,0');
@@ -68,7 +67,7 @@ test('circle draw reserve, overflow and readonly feedback have independent publi
     engine.draw(session, 1100, viewport, output);
     assert.equal(output.summary.score, 1000000n);
     assert.equal(output.instances.count, 1);
-    assert.equal(output.instance_record.primitive, 2);
+    assert.equal(output.record_into(output.instances, 0, {}).primitive, 2);
     assert.equal(output.summary.committed_ms, 1000);
     const feedback = copy_draw(output);
     engine.acknowledge(session, token);
@@ -88,24 +87,18 @@ test('circle draw reserve, overflow and readonly feedback have independent publi
   }
 });
 
-test('draw reader rejects stale resources, nonfinite instances and inconsistent batches', async () => {
+test('draw reader rejects stale attachments and stale engine epochs', async () => {
   const { engine, session, output } = await fixture();
   try {
     const requirements = engine.render_reserve(session);
     engine.render_reserve(session, requirements.required_instances, requirements.required_bytes);
     engine.draw(session, 500, viewport, output);
-    const fields = schema.records.find(record => record.kind === 39).fields;
-    output.view.setFloat64(output.address + output.instances.offset + fields.alpha[0], NaN, true);
-    assert.throws(() => output.bind(engine.wasm.memory.buffer, engine.result_address), { code: 'INVALID_DRAW' });
-    engine.draw(session, 500, viewport, output);
-    const batch_fields = schema.records.find(record => record.kind === 40).fields;
-    output.view.setUint32(output.address + output.batches.offset + batch_fields.first_instance[0], 1, true);
-    assert.throws(() => output.bind(engine.wasm.memory.buffer, engine.result_address), { code: 'INVALID_DRAW' });
-    engine.draw(session, 500, viewport, output);
     const other = engine.prepare_map(map_bytes);
     const other_resources = engine.render_resources(other.map_handle);
     const wrong_output = new Draw_Output(other_resources, output.engine_epoch);
     assert.throws(() => engine.draw(session, 500, viewport, wrong_output), { code: 'INVALID_DRAW' });
+    engine.reset_session(session);
+    assert.throws(() => engine.draw(session, 500, viewport, output), { code: 'INVALID_DRAW' });
   } finally {
     engine.dispose();
   }

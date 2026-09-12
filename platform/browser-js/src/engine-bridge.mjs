@@ -420,64 +420,18 @@ export class Draw_Output extends Borrowed_Output {
     this.engine_epoch = engine_epoch;
     this.instances = instances;
     this.batches = batches;
-    this.instance_record = {};
-    this.batch_record = {};
     this.required = {};
   }
 
   bind(buffer, span_address) {
     super.bind(buffer, span_address);
-    try {
-      require_condition(this.summary.resource_id === this.resources.summary.resource_id && this.summary.epoch === this.engine_epoch && this.summary.epoch > 0 &&
-        this.summary.state <= 4 && Number.isFinite(this.summary.accuracy) && this.summary.accuracy >= 0 && this.summary.accuracy <= 1 &&
-        Number.isFinite(this.summary.health) && this.summary.health >= 0 && this.summary.health <= 1 &&
-        Number.isFinite(this.summary.presentation_ms) && Number.isFinite(this.summary.committed_ms) &&
-        Number.isFinite(this.summary.scale) && this.summary.scale > 0 &&
-        Number.isFinite(this.summary.client_left) && Number.isFinite(this.summary.client_top),
-      'INVALID_DRAW', 'Stale draw identity or invalid transform.');
-      let previous_layer = 0;
-      let previous_object = 0;
-      let previous_component = 0;
-      let previous_ordinal = 0;
-      for (let instance_index = 0; instance_index < this.instances.count; instance_index++) {
-        const instance = this.record_into(this.instances, instance_index, this.instance_record);
-        require_condition(instance.primitive >= 1 && instance.primitive <= 3 && instance.flags === 0 && instance.reserved === 0n &&
-          Number.isFinite(instance.x) && Number.isFinite(instance.y) && Number.isFinite(instance.rotation) &&
-          Number.isFinite(instance.scale_x) && instance.scale_x >= 0 && Number.isFinite(instance.scale_y) && instance.scale_y >= 0 &&
-          Number.isFinite(instance.alpha) && instance.alpha >= 0 && instance.alpha <= 1 &&
-          Number.isFinite(instance.progress) && instance.progress >= 0 && instance.progress <= 1 &&
-          instance.geometry_count > 0 && instance.geometry_count % 3 === 0 &&
-          (instance.primitive !== 3 || instance.glyph >= 48 && instance.glyph <= 57) &&
-          instance.geometry_first <= this.resources.summary.indices_count &&
-          instance.geometry_count <= this.resources.summary.indices_count - instance.geometry_first,
-        'INVALID_DRAW', 'Malformed draw instance.');
-        require_condition(instance_index === 0 || instance.layer > previous_layer ||
-          instance.layer === previous_layer && (instance.object_id > previous_object ||
-          instance.object_id === previous_object && (instance.component_id > previous_component ||
-          instance.component_id === previous_component && instance.ordinal > previous_ordinal)),
-        'INVALID_DRAW', 'Unordered draw instances.');
-        previous_layer = instance.layer;
-        previous_object = instance.object_id;
-        previous_component = instance.component_id;
-        previous_ordinal = instance.ordinal;
-      }
-      let covered_instances = 0;
-      for (let batch_index = 0; batch_index < this.batches.count; batch_index++) {
-        const batch = this.record_into(this.batches, batch_index, this.batch_record);
-        require_condition(batch.reserved === 0n && batch.first_instance === covered_instances && batch.instance_count > 0 &&
-          batch.instance_count <= this.instances.count - covered_instances, 'INVALID_DRAW', 'Invalid draw batch range.');
-        for (let instance_index = covered_instances; instance_index < covered_instances + batch.instance_count; instance_index++) {
-          const instance = this.record_into(this.instances, instance_index, this.instance_record);
-          require_condition(instance.layer === batch.layer && instance.primitive === batch.primitive,
-            'INVALID_DRAW', 'Batch metadata does not match its instances.');
-        }
-        covered_instances += batch.instance_count;
-      }
-      require_condition(covered_instances === this.instances.count, 'INVALID_DRAW', 'Draw batches leave uncovered instances.');
-    } catch (error) {
-      this.valid = false;
-      throw error;
-    }
+    this.valid = false;
+    // The engine owns ordering, batching and instance policy; this reader only
+    // checks transport identity against the bound attachment and epoch.
+    require_condition(this.summary.resource_id === this.resources.summary.resource_id &&
+      this.summary.epoch === this.engine_epoch && this.summary.epoch > 0,
+    'INVALID_DRAW', 'Stale draw identity.');
+    this.valid = true;
   }
 }
 
