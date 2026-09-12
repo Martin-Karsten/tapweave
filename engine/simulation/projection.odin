@@ -10,6 +10,10 @@ Projection :: struct {
 	prepared_objects: []prepared.Object,
 	outcomes: []rules.Object_State,
 	paused: bool,
+	components: []Component_State,
+	feedback: []Judgement_Event,
+	cursor_history: []core_types.Input_Snapshot,
+	cursor: core_types.Input_Snapshot,
 }
 
 Projected_Object :: struct {
@@ -20,7 +24,15 @@ Projected_Object :: struct {
 }
 
 project :: proc(session: ^Session) -> Projection {
-	return {session.prepared_map.objects, session.objects, session.state == .PAUSED}
+	return {
+		prepared_objects = session.prepared_map.objects,
+		outcomes = session.objects,
+		paused = session.state == .PAUSED,
+		components = session.components,
+		feedback = session.journal[:session.journal_count],
+		cursor_history = session.recording[:session.recording_count],
+		cursor = session.cursor,
+	}
 }
 
 project_object :: proc(projection: Projection, object_index: int, time_ms: f64) -> Projected_Object {
@@ -39,4 +51,10 @@ project_object :: proc(projection: Projection, object_index: int, time_ms: f64) 
 		position = position,
 		tracking = outcome.tracking && !projection.paused,
 	}
+}
+
+// Component state and semantic history are independent of browser journal ack.
+// Reset/seek invalidate borrowed views; obtain a fresh projection after mutation.
+project_component :: proc(projection: Projection, object_index, component_index: int) -> Component_State {
+	return projection.components[projection.outcomes[object_index].component_start + component_index]
 }

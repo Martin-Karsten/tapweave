@@ -23,7 +23,7 @@ Active_Set :: struct {
 	epoch: u32,
 	initialized: bool,
 	// Per-read work counters, including rebuilds after backwards diagnostic reads.
-	visited_count, revealed_count: u64,
+	visited_count, revealed_count, ordering_work: u64,
 }
 
 required_bytes :: proc(object_count: u64, arena_used: u64 = 0) -> (u64, core_types.Status) {
@@ -68,6 +68,7 @@ refresh_active :: proc(active_set: ^Active_Set, projection: simulation.Projectio
 	}
 	active_set.visited_count = 0
 	active_set.revealed_count = 0
+	active_set.ordering_work = 0
 	// Compact in source order; feedback survives journal acknowledgement.
 	retained_count := 0
 	for object_index in active_set.indices[:active_set.count] {
@@ -88,17 +89,39 @@ refresh_active :: proc(active_set: ^Active_Set, projection: simulation.Projectio
 		if outcome.result != .NONE && time_ms > outcome.result_time_ms + FEEDBACK_RETENTION_MS {
 			continue
 		}
-		// Reveal order can differ from source order (different preempt values).
-		insertion_index := active_set.count
-		for insertion_index > 0 && active_set.indices[insertion_index - 1] > object_index {
-			active_set.indices[insertion_index] = active_set.indices[insertion_index - 1]
-			insertion_index -= 1
-		}
-		active_set.indices[insertion_index] = object_index
+		active_set.indices[active_set.count] = object_index
 		active_set.count += 1
+	}
+	if active_set.count > retained_count {
+		// Heap sort bounds an adverse reveal burst to O(active * log(active)),
+		// uses no scratch allocation, and preserves unique source index order.
+		for root_index := active_set.count / 2 - 1; root_index >= 0; root_index -= 1 {
+			sift_active(active_set, root_index, active_set.count)
+		}
+		for end_index := active_set.count - 1; end_index > 0; end_index -= 1 {
+			active_set.indices[0], active_set.indices[end_index] = active_set.indices[end_index], active_set.indices[0]
+			sift_active(active_set, 0, end_index)
+		}
 	}
 	active_set.previous_ms = time_ms
 	active_set.epoch = epoch
 	active_set.initialized = true
 	return .OK
+}
+
+sift_active :: proc(active_set: ^Active_Set, root_index, end_index: int) {
+	parent_index := root_index
+	for parent_index * 2 + 1 < end_index {
+		child_index := parent_index * 2 + 1
+		active_set.ordering_work += 1
+		if child_index + 1 < end_index && active_set.indices[child_index] < active_set.indices[child_index + 1] {
+			child_index += 1
+		}
+		active_set.ordering_work += 1
+		if active_set.indices[parent_index] >= active_set.indices[child_index] {
+			break
+		}
+		active_set.indices[parent_index], active_set.indices[child_index] = active_set.indices[child_index], active_set.indices[parent_index]
+		parent_index = child_index
+	}
 }

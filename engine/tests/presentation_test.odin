@@ -113,3 +113,54 @@ presentation_reservation_failure_does_not_claim_storage :: proc(test: ^testing.T
 	_, status := presentation.required_bytes(max(u64))
 	testing.expect_value(test, status, core_types.Status.QUOTA_EXCEEDED)
 }
+
+@(test)
+presentation_reverse_reveal_burst_has_bounded_ordering_work :: proc(test: ^testing.T) {
+	object_count :: 10_000
+	objects := make([]prepared.Object, object_count)
+	defer delete(objects)
+	outcomes := make([]rules.Object_State, object_count)
+	defer delete(outcomes)
+	for &object, object_index in objects {
+		object = {id = u32(object_index), time_ms = f64(object_index + object_count), preempt_ms = f64(2 * object_index)}
+	}
+	prepared_map := prepared.Map{objects = objects}
+	session := simulation.Session{prepared_map = &prepared_map, objects = outcomes}
+	required, _ := presentation.required_bytes(object_count)
+	arena, _ := core_types.arena_create(required)
+	defer core_types.arena_destroy(&arena)
+	active_set: presentation.Active_Set
+	testing.expect_value(test, presentation.initialize_active(&active_set, &prepared_map, &arena), core_types.Status.OK)
+	context.allocator = mem.panic_allocator()
+	testing.expect_value(test, presentation.refresh_active(&active_set, simulation.project(&session), object_count, 1), core_types.Status.OK)
+	testing.expect_value(test, active_set.count, object_count)
+	for source_index, active_index in active_set.indices[:active_set.count] {
+		testing.expect_value(test, source_index, active_index)
+	}
+	// Algorithmic comparison bound, not a performance approval threshold.
+	testing.expect(test, active_set.ordering_work < 4 * object_count * 14)
+	testing.expect_value(test, presentation.refresh_active(&active_set, simulation.project(&session), object_count + 1, 1), core_types.Status.OK)
+	testing.expect_value(test, active_set.ordering_work, 0)
+}
+
+@(test)
+projection_component_and_cursor_history_survive_journal_ack :: proc(test: ^testing.T) {
+	objects: [1]prepared.Object
+	outcomes := [1]rules.Object_State{{component_start = 0}}
+	components := [1]simulation.Component_State{{result = .LARGE_TICK_HIT, time_ms = 1500}}
+	journal := [1]simulation.Judgement_Event{{sequence = 1, time_ms = 1500, component_id = 0, result = .LARGE_TICK_HIT}}
+	recording := [1]core_types.Input_Snapshot{{sequence = 2, effective_time_ms = 1500, x = 300, y = 192}}
+	prepared_map := prepared.Map{objects = objects[:]}
+	session := simulation.Session{
+		prepared_map = &prepared_map, objects = outcomes[:], components = components[:],
+		journal = journal[:], journal_count = 1, acknowledged_count = 1,
+		recording = recording[:], recording_count = 1, cursor = recording[0],
+	}
+	context.allocator = mem.panic_allocator()
+	projection := simulation.project(&session)
+	testing.expect_value(test, simulation.project_component(projection, 0, 0), components[0])
+	testing.expect_value(test, len(projection.feedback), 1)
+	testing.expect_value(test, projection.feedback[0], journal[0])
+	testing.expect_value(test, projection.cursor_history[0], recording[0])
+	testing.expect_value(test, projection.cursor, recording[0])
+}

@@ -45,6 +45,14 @@ Sample_Binding :: struct {
 	asset_id: u64,
 	candidate_assets: []u64,
 }
+Sample_Range :: struct {
+	start, end: int,
+}
+
+Work_Counters :: struct {
+	input_candidate_visits, predecessor_visits, tracking_visits, sample_binding_visits: u64,
+}
+
 Session :: struct {
 	prepared_map: ^prepared.Map,
 	objects: []rules.Object_State,
@@ -57,6 +65,8 @@ Session :: struct {
 	journal_count, acknowledged_count: int,
 	no_drain: []prepared.Break,
 	sample_bindings: []Sample_Binding,
+	sample_ranges: []Sample_Range,
+	work: Work_Counters,
 	audio: []audio_protocol.Event,
 	audio_count, acknowledged_audio_count: int,
 	state: Session_Status,
@@ -154,6 +164,7 @@ required_bytes :: proc(prepared_map: ^prepared.Map, input_capacity: u64) -> (u64
 	   !size_add(&total, core_types.Input_Snapshot, recording_capacity(prepared_map, input_capacity)) ||
 	   !size_add(&total, Judgement_Event, judgement_count) ||
 	   !size_add(&total, prepared.Break, u64(len(prepared_map.breaks))) ||
+	   !size_add(&total, Sample_Range, u64(len(prepared_map.objects))) ||
 	   !size_add(&total, Sample_Binding, sample_count(prepared_map)) ||
 	   !size_add(&total, audio_protocol.Event, sample_count(prepared_map)) ||
 	   !size_add(&total, u64, candidate_count(prepared_map)) {
@@ -180,10 +191,12 @@ initialize :: proc(session: ^Session, prepared_map: ^prepared.Map, arena: ^core_
 	session.recording, _ = core_types.arena_take(arena, core_types.Input_Snapshot, recording_capacity(prepared_map, input_capacity))
 	session.journal, _ = core_types.arena_take(arena, Judgement_Event, judgement_count)
 	session.no_drain, _ = core_types.arena_take(arena, prepared.Break, u64(len(prepared_map.breaks)))
+	session.sample_ranges, _ = core_types.arena_take(arena, Sample_Range, u64(len(prepared_map.objects)))
 	session.sample_bindings, _ = core_types.arena_take(arena, Sample_Binding, sample_count(prepared_map))
 	session.audio, _ = core_types.arena_take(arena, audio_protocol.Event, sample_count(prepared_map))
 	binding_index := 0
-	for &object in prepared_map.objects {
+	for &object, object_index in prepared_map.objects {
+		session.sample_ranges[object_index].start = binding_index
 		if object.kind != .SLIDER {
 			for &sample, sample_index in object.samples {
 				session.sample_bindings[binding_index] = {object.id, max(u32), u32(sample_index), &sample, 0, nil}
@@ -199,6 +212,7 @@ initialize :: proc(session: ^Session, prepared_map: ^prepared.Map, arena: ^core_
 				binding_index += 1
 			}
 		}
+		session.sample_ranges[object_index].end = binding_index
 	}
 	for &binding in session.sample_bindings {
 		binding.candidate_assets, _ = core_types.arena_take(arena, u64, u64(len(binding.sample.candidates)))
@@ -319,6 +333,7 @@ reset_session :: proc(session: ^Session, lead_in_ms: f64) -> core_types.Status {
 	session.submitted_input_count = 0
 	session.pause_count = 0
 	session.completed_objects = 0
+	session.work = {}
 	session.cursor = {}
 	session.health = {amount = 1}
 	session.score = scoring.create(session.score.maxima)
@@ -435,7 +450,9 @@ emit_judgement :: proc(session: ^Session, object_index, component_index: int, re
 	session.journal_count += 1
 	record_frame(session, time_ms)
 	if core_types.result_properties(result).hit {
-		for binding in session.sample_bindings {
+		sample_range := session.sample_ranges[object_index]
+		for binding in session.sample_bindings[sample_range.start:sample_range.end] {
+			session.work.sample_binding_visits += 1
 			if binding.object_id != object.id || binding.component_id != event.component_id {
 				continue
 			}
@@ -544,6 +561,7 @@ judge_slider :: proc(session: ^Session, object_index: int, time_ms: f64, catch_u
 
 press :: proc(session: ^Session, action: u32, time_ms: f64) {
 	for &object, object_index in session.prepared_map.objects {
+		session.work.input_candidate_visits += 1
 		object_state := &session.objects[object_index]
 		if object.kind == .SPINNER || object_state.head_result != .NONE || time_ms < object.time_ms - object.preempt_ms {
 			continue
@@ -559,6 +577,7 @@ press :: proc(session: ^Session, action: u32, time_ms: f64) {
 		// one already judged, rather than any earlier unjudged circle.
 		blocking_index := -1
 		for &previous_object, previous_index in session.prepared_map.objects[:object_index] {
+			session.work.predecessor_visits += 1
 			if previous_object.time_ms < object.time_ms && previous_object.kind != .SPINNER && time_ms >= previous_object.time_ms - previous_object.preempt_ms {
 				blocking_index = previous_index
 			}
@@ -567,6 +586,7 @@ press :: proc(session: ^Session, action: u32, time_ms: f64) {
 			return
 		}
 		for &previous_object, previous_index in session.prepared_map.objects[:object_index] {
+			session.work.predecessor_visits += 1
 			if previous_object.time_ms < object.time_ms && previous_object.kind != .SPINNER && session.objects[previous_index].head_result == .NONE {
 				judge_head(session, previous_index, .MISS, .NOTE_LOCK, time_ms)
 				if previous_object.kind == .SLIDER {
@@ -594,6 +614,7 @@ apply_input :: proc(session: ^Session, input: core_types.Input_Snapshot) {
 		press(session, core_types.RIGHT, input.effective_time_ms)
 	}
 	for &object, object_index in session.prepared_map.objects {
+		session.work.tracking_visits += 1
 		object_state := &session.objects[object_index]
 		if object_state.result != .NONE || input.effective_time_ms < object.time_ms - object.preempt_ms {
 			continue
