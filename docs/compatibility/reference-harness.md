@@ -73,24 +73,132 @@ See [current evidence](../status.md).
 ## Remaining gameplay adapters
 
 Whole-scenario A13–A20/A23 and A12/A21/A22 acceptance remains open. Existing
-component and local session checks do not substitute for these missing adapters.
+component, local session and bounded [gameplay ports](gameplay-tests.md) do not
+substitute for the complete acceptance scenarios below.
 
 | Harness | Required scenarios | Existing evidence / remaining entry point |
 |---|---|---|
-| H05 / A15 | Slider tracking loss/recovery, key restriction, sparse samples and deadlines across schedules/stalls | Drawable adapter absent; local session tests only |
-| H06 / A13–A14 | Strict/adjacent window boundaries, circle selection, note lock, equal-time input | `test:simulation:upstream` executes hit-window component subset; selection adapter absent |
-| H07 / A14–A16/A20 | Nested/top-level equal-time result order, early nominal tail | Drawable adapter absent |
-| H08 / A16/A23 | Spinner reversals, >90-degree segments, input/recorder angular subdivision | Existing spin-history component adapter; full cursor/recorder adapter absent |
-| H09 / A19 | HP0/5/10, breaks, drain, failure time/freeze | Existing drain component adapter; player adapter absent |
-| H10 / A17–A18 | Complete score/count/health sequences and terminal rank | Existing score component adapter; integrated player projection absent |
-| Replay / A23 | Same replay under direct, 30/60/120/144 Hz and 50/100/250 ms stalls | Local bridge/native/WASM evidence; upstream recorder cadence remains open |
-| H11 / A20–A21 | Missing candidates, nominal tails, loops, rapid toggles, ramps, pause/resume | Drawable sample adapter absent; mock Web Audio cannot close this |
+| H05 / A15 | Slider tracking loss/recovery, key restriction, sparse samples and deadlines across schedules/stalls | 34 slider ports now execute a real drawable adapter; broader curved/short-slider timing remains open |
+| H06 / A13–A14 | Strict/adjacent window boundaries, circle selection, note lock, equal-time input | 61 circle/window and four note-lock cases execute real input selection; full scheduling acceptance remains open |
+| H07 / A14–A16/A20 | Nested/top-level equal-time result order, early nominal tail | Early/nominal-tail and result-order ports exist; broader equal-time combinations remain open |
+| H08 / A16/A23 | Spinner reversals, >90-degree segments, input/recorder angular subdivision | Spin-history component and five cursor ports exist; reversal/angular recorder coverage remains open |
+| H09 / A19 | HP0/5/10, breaks, drain, failure time/freeze | 36 health cases and nine real Player health/failure cases added; arbitrary frame-cadence health remains open |
+| H10 / A17–A18 | Complete score/count/health sequences and terminal rank | Integrated ordered/final score projection added for 115 scenarios; bounded corpus only |
+| Replay / A23 | Same replay under direct, 30/60/120/144 Hz and 50/100/250 ms stalls | 17 local schedules per gameplay case and two real recorder ports; full upstream recorder cadence remains open |
+| H11 / A20–A21 | Missing candidates, nominal tails, loops, rapid toggles, ramps, pause/resume | Discrete request ports added; loops, fallback and device output remain separate |
 | Presentation / A22 | Circle preempt/fade/approach/feedback, slider body/ball/follow/repeats, spinner states | Source chapters, local coordinates and active projections; drawable adapter absent |
 
-Measure full score/count/health sequences at HP0/5/10, actual player failure
-freeze, recorder cadence/angular subdivision and sample eligibility. Keep the
+Extend the retained score/count/health and Player failure observations to the
+remaining cadence, recorder angular subdivision and sample eligibility scenarios. Keep the
 schedule/stall matrix above and traceability tolerances unchanged. Capture real
 locked-restore observations with source, fixture, observation and lock hashes.
 Dense/long/10,000-object workload measurements must include creation/calibration,
 advance/event work, live/peak arenas, recording/output/checkpoint high water and
 WASM pages. Resolve unexplained discrete differences before closing M2 gates.
+
+## Test backfill plan
+
+The first implemented batch is described in [gameplay test coverage](gameplay-tests.md),
+with 153 added fixture cases and explicit remaining limits. The broader plan below
+is not itself acceptance evidence. Prioritise already
+implemented headless gameplay; browser-only gates follow the capabilities they
+require. Use the revisions in `engine/reference/source-manifest.json` throughout.
+Inspect work in progress in the reference host before extending it, so existing
+scenario adapters are reused rather than replaced or duplicated.
+
+### 1. Inventory and map equivalent upstream tests
+
+Search `osu.Game.Rulesets.Osu.Tests`, shared `osu.Game.Tests` and relevant pinned
+framework tests. For each applicable test method and parameter case, record its
+source path/revision, acceptance ID, local fixture/test mapping, and status:
+covered, missing, blocked, out of scope, or documented divergence. Audit M0/M1
+as well as M2; bounded passing corpora do not establish that all equivalent
+upstream cases were ported. Record reasons for exclusions, especially Classic,
+other mods, legacy replay containers and editor-only behavior.
+
+Retain the mapping with the existing compatibility findings. Preserve licence
+notices and record hashes/provenance for added test sources and synthetic assets.
+Do not import community music or artwork to reproduce a test.
+
+Exit: every discovered in-scope case has an explicit disposition and missing
+cases are assigned to the batches below. Counts describe cases, not just files.
+
+### 2. Complete the shared scenario adapter
+
+Extend the .NET reference host to drive actual pinned drawable/player behavior
+with a controlled clock and timestamped input. First prove one circle scenario
+can execute upstream and through a production Odin session, producing comparable
+judgement, score, health and terminal-state traces. Keep adapters observational;
+do not reproduce gameplay algorithms in C# or JavaScript.
+
+Port upstream scenario setup, actions, parameter cases and assertions into local
+fixtures, with thin native/WASM transports over shared Odin logic. Extend schemas
+and validators together. Retain source, fixture, observation and dependency-lock
+hashes, and report the first differing event with reproduction instructions.
+An unavailable drawable host is a blocker, not a reason to substitute component
+results. Keep component probes as complementary evidence.
+
+Exit: the smoke scenario passes upstream assertions and local assertions, and
+its native/WASM traces agree with independently captured upstream observations.
+
+### 3. Backfill gameplay in dependency order
+
+The source names below are inventory starting points in the pinned checkout,
+not claims that every required boundary already has an upstream test. Add
+source-derived boundary cases wherever the upstream suite has gaps.
+
+| Order | Coverage and starting tests | Required result |
+|---|---|---|
+| 1 | H06/H07, A13–A14: `TestSceneMissHitWindowJudgements.cs` and input/note-lock tests found during inventory | Exact and adjacent hit-window boundaries, radius checks, overlapping/equal-time objects, one-edge selection, forced misses and automatic deadlines; compare ordered judgements |
+| 2 | H05/H07, A15/A20: `TestSceneSliderInput.cs`, `TestSceneSliderFollowCircleInput.cs`, `TestSceneSliderEarlyHitJudgement.cs`, `TestSceneSliderLateHitJudgement.cs` | Tracking acquisition/loss/recovery, held keys and invalid transfers, short sliders, early/late/missed heads, repeats/ticks, early versus nominal tail and equal-time nested ordering |
+| 3 | H08, A16: `TestSceneSpinnerInput.cs`, `TestSceneSpinnerJudgement.cs`, `TestSceneSpinnerRotation.cs` | Complete cursor-to-result behavior, threshold boundaries, bonus spins, reversals, centre crossings, large angular steps and sparse/dense samples |
+| 4 | H09/H10, A17–A19: shared `ScoreProcessorTest.cs`, `TestSceneScoreProcessor.cs`, `TestSceneDrainingHealthProcessor.cs`, and ruleset `OsuHealthProcessorTest.cs` | Full mixed-object score/count/combo/accuracy sequences, terminal rank, HP0/5/10, breaks, actual failure time and no post-failure mutation |
+| 5 | A23: `TestSceneReplayRecording.cs`, `TestSceneReplayStability.cs`, and shared `FramedReplayInputHandlerTest.cs` | Real upstream recording/sampling and replayed input outcomes; local pause, seek and replay identity checks; do not expand into legacy container support |
+| 6 | H11, A20 and implemented audio intent: `TestSceneOsuHitObjectSamples.cs`, shared `TestSceneHitObjectSamples.cs` and `TestSceneGameplaySamplePlayback.cs` | Sample eligibility, missing candidates, early/nominal tails and ordered intent; distinguish observed upstream requests from browser playback evidence |
+
+For each batch, execute the original relevant upstream tests or real-behavior
+adapter and the ports. Compare full ordered traces, not just final scores.
+Fix implementation mismatches with regression cases; never refresh expectations
+merely to make a port pass. Apply the existing matching policy and document
+measured frame dependence without making Odin judgement depend on rendering.
+
+Exit per batch: mapped cases pass locally on native/WASM and have independent
+pinned upstream evidence; remaining cases and divergences stay explicit.
+
+### 4. Exercise cadence, workloads and browser boundaries
+
+Run every integrated gameplay fixture with direct boundary stepping and
+30/60/120/144 Hz schedules, plus 50/100/250 ms stalls around critical events.
+Run upstream under matching schedules and retain its observed variation; require
+Odin outcomes to remain invariant. Vary recorder/input density separately from
+presentation cadence, especially for spinners and slider tracking.
+
+Complete dense simultaneous, long-slider/spinner, 10,000-object and three-minute
+mixed-session measurements. Include creation/calibration, event work, arena and
+recording/output high water, WASM pages, allocation-free advance/reset and
+transactional capacity exhaustion. Extend existing workload checks rather than
+treating a transport-only workload as complete gameplay validation.
+
+For implemented browser services, close available cross-browser validation gaps
+and report unavailable executables as blockers. Add physical input, sampled
+presentation and real audio/loop lifecycle checks as browser gameplay lands,
+following the [browser plan](../browser-gameplay.md). A12/A21/A22 and the remaining
+H11 gates require that integration; mock services cannot close them.
+
+### 5. Make the coverage reproducible and enforce completion
+
+Keep fast local ports in `npm --prefix engine test`. Extend the dedicated pinned
+upstream runners for integrated scenarios and document their commands in the
+reference-host README. Provide an aggregate compatibility command/job that runs
+H01/H02, geometry, preparation, component and new scenario comparisons with clean
+pinned checkouts and locked restore. Its required acceptance run must fail on
+missing prerequisites or skipped required cases, rather than report success.
+Do not imply that the default local test command executes upstream comparisons.
+
+Run local tests plus all affected upstream suites after each implementation
+batch; run the aggregate acceptance suite before closing the backfill. Update
+[traceability](traceability.md), [status](../status.md) and hashed findings only
+from executed results. Completion requires mapped in-scope ports to pass, all
+required scenario/schedule observations to exist, and no unexplained discrete
+differences. Preserve separate labels for local regression, native/WASM parity,
+pinned component evidence and whole-scenario upstream acceptance.

@@ -109,15 +109,24 @@ counts :: proc(prepared_map: ^prepared.Map) -> (component_count, judgement_count
 	return component_count, judgement_count, .OK
 }
 
+// The pinned model stores tail samples on Slider, while DrawableSlider plays
+// them on the tail's behalf. Bind those samples to the semantic tail result.
+component_samples :: proc(object: ^prepared.Object, component: ^prepared.Component) -> []prepared.Sample {
+	if component.kind == .Tail {
+		return object.tail_samples
+	}
+	return component.samples
+}
+
 sample_count :: proc(prepared_map: ^prepared.Map) -> u64 {
 	count: u64
-	for object in prepared_map.objects {
+	for &object in prepared_map.objects {
 		if object.kind != .SLIDER {
 			count += u64(len(object.samples))
 		}
-		for component in object.components {
+		for &component in object.components {
 			if component.kind != .LegacyLastTick {
-				count += u64(len(component.samples))
+				count += u64(len(component_samples(&object, &component)))
 			}
 		}
 	}
@@ -126,15 +135,15 @@ sample_count :: proc(prepared_map: ^prepared.Map) -> u64 {
 
 candidate_count :: proc(prepared_map: ^prepared.Map) -> u64 {
 	count: u64
-	for object in prepared_map.objects {
+	for &object in prepared_map.objects {
 		if object.kind != .SLIDER {
 			for sample in object.samples {
 				count += u64(len(sample.candidates))
 			}
 		}
-		for component in object.components {
+		for &component in object.components {
 			if component.kind != .LegacyLastTick {
-				for sample in component.samples {
+				for sample in component_samples(&object, &component) {
 					count += u64(len(sample.candidates))
 				}
 			}
@@ -207,7 +216,7 @@ initialize :: proc(session: ^Session, prepared_map: ^prepared.Map, arena: ^core_
 			if component.kind == .LegacyLastTick {
 				continue
 			}
-			for &sample, sample_index in component.samples {
+			for &sample, sample_index in component_samples(&object, &component) {
 				session.sample_bindings[binding_index] = {object.id, component.id, u32(sample_index), &sample, 0, nil}
 				binding_index += 1
 			}
@@ -458,7 +467,7 @@ emit_judgement :: proc(session: ^Session, object_index, component_index: int, re
 			}
 			sample_time_ms := time_ms
 			if component_index >= 0 && object.components[component_index].kind == .Tail {
-				sample_time_ms = object.end_time_ms
+				sample_time_ms = max(time_ms, object.end_time_ms)
 			}
 			session.audio[session.audio_count] = {
 				sequence = u64(session.audio_count + 1), epoch = session.epoch,
@@ -559,7 +568,7 @@ judge_slider :: proc(session: ^Session, object_index: int, time_ms: f64, catch_u
 	}
 }
 
-press :: proc(session: ^Session, action: u32, time_ms: f64) {
+press :: proc(session: ^Session, action, previous_actions: u32, time_ms: f64) {
 	for &object, object_index in session.prepared_map.objects {
 		session.work.input_candidate_visits += 1
 		object_state := &session.objects[object_index]
@@ -585,6 +594,11 @@ press :: proc(session: ^Session, action: u32, time_ms: f64) {
 		if blocking_index >= 0 && session.objects[blocking_index].head_result == .NONE && time_ms < session.prepared_map.objects[blocking_index].time_ms {
 			return
 		}
+		// The real drawable publishes the selected head result before HandleHit
+		// force-misses its predecessors. This ordering affects combo and health.
+		object_state.previous_actions = previous_actions
+		object_state.head_action = action
+		judge_head(session, object_index, result, .INPUT, time_ms)
 		for &previous_object, previous_index in session.prepared_map.objects[:object_index] {
 			session.work.predecessor_visits += 1
 			if previous_object.time_ms < object.time_ms && previous_object.kind != .SPINNER && session.objects[previous_index].head_result == .NONE {
@@ -594,8 +608,6 @@ press :: proc(session: ^Session, action: u32, time_ms: f64) {
 				}
 			}
 		}
-		object_state.head_action = action
-		judge_head(session, object_index, result, .INPUT, time_ms)
 		if object.kind == .SLIDER {
 			judge_slider(session, object_index, time_ms, core_types.result_properties(result).hit)
 		}
@@ -604,14 +616,15 @@ press :: proc(session: ^Session, action: u32, time_ms: f64) {
 }
 
 apply_input :: proc(session: ^Session, input: core_types.Input_Snapshot) {
-	pressed := input.action_bits & ~session.cursor.action_bits & 3
+	previous_actions := session.cursor.action_bits
+	pressed := input.action_bits & ~previous_actions & 3
 	session.cursor = input
 	record_frame(session, input.effective_time_ms)
 	if pressed & core_types.LEFT != 0 {
-		press(session, core_types.LEFT, input.effective_time_ms)
+		press(session, core_types.LEFT, previous_actions, input.effective_time_ms)
 	}
 	if pressed & core_types.RIGHT != 0 {
-		press(session, core_types.RIGHT, input.effective_time_ms)
+		press(session, core_types.RIGHT, previous_actions, input.effective_time_ms)
 	}
 	for &object, object_index in session.prepared_map.objects {
 		session.work.tracking_visits += 1

@@ -1,0 +1,3612 @@
+{
+  "schema_version": 1,
+  "compiler": "/Users/martin/stuff/osu-web/engine/.toolchain/odin/odin version dev-2026-09-nightly:a2fb372",
+  "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "lock_sha256": "a6cf520b8e80b0e7c06da2bb4493db9173ba20a734433348fe0df54dc4ff7e8a",
+  "upstream_executed": true,
+  "filtered": false,
+  "sources": [
+    {
+      "path": "osu.Game.Rulesets.Osu.Tests/SpinFramesGenerator.cs",
+      "sha256": "ee4fedc9ceeafa3b8990506e598ddaccc9bd85c6b9c27aa125d2fd24c7d59a23",
+      "methods": {}
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu.Tests/TestSceneHitCircleArea.cs",
+      "sha256": "336c506747b17c0df21d66479000ac3b37da5eb73073db043fc9057500334719",
+      "methods": {
+        "TestCircleHitCentre": [
+          "circle-centre-port"
+        ],
+        "TestCircleHitLeftEdge": [
+          "circle-left-edge-port"
+        ],
+        "TestHitsCloseToEdge": [
+          "circle-diagonal-0.95",
+          "circle-diagonal-1.05"
+        ],
+        "TestCircleMissBoundingBoxCorner": [
+          "circle-bounding-corner"
+        ]
+      }
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu.Tests/TestSceneMissHitWindowJudgements.cs",
+      "sha256": "ecad907a296597035439fcb0842cb27a9caf37d9a999fbab9779310d7e4831c6",
+      "methods": {
+        "TestMissViaNotHitting": [
+          "TestMissViaNotHitting"
+        ],
+        "TestMissViaEarlyHit": [
+          "TestMissViaEarlyHit"
+        ]
+      }
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu.Tests/TestSceneReplayRecording.cs",
+      "sha256": "1fb18f5808d00b2ce67ddc9b941725a7b1e5267508d979084dd5b4f237aa518d",
+      "methods": {
+        "TestRecording": [
+          "replay-record-actions-port"
+        ],
+        "TestPressAndReleaseOnSameFrame": [
+          "replay-record-same-time-release-port"
+        ]
+      }
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu.Tests/TestSceneSliderEarlyHitJudgement.cs",
+      "sha256": "dab4b40daa9251430e705f800834c0e29e64fea8929d0fb717ef0ff94b5b44e6",
+      "methods": {
+        "TestHitEarlyMoveIntoFollowRegion": [
+          "TestHitEarlyMoveIntoFollowRegion"
+        ],
+        "TestHitEarlyAndReleaseInFollowRegion": [
+          "TestHitEarlyAndReleaseInFollowRegion"
+        ],
+        "TestHitEarlyAndRepressInFollowRegion": [
+          "TestHitEarlyAndRepressInFollowRegion"
+        ],
+        "TestHitEarlyMoveOutsideFollowRegion": [
+          "TestHitEarlyMoveOutsideFollowRegion"
+        ]
+      }
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu.Tests/TestSceneSliderFollowCircleInput.cs",
+      "sha256": "5b9a063c50b769cdd29ebbc6af19a8751160190bd8876499b33a2598c1a6cff4",
+      "methods": {
+        "TestMaximumDistanceTrackingWithoutMovement": [
+          "follow-area-cs0-velocity0",
+          "follow-area-cs0-velocity5",
+          "follow-area-cs0-velocity10",
+          "follow-area-cs5-velocity0",
+          "follow-area-cs5-velocity5",
+          "follow-area-cs5-velocity10",
+          "follow-area-cs10-velocity0",
+          "follow-area-cs10-velocity5",
+          "follow-area-cs10-velocity10"
+        ]
+      }
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs",
+      "sha256": "15517761715a62eb343c54f47cc5cdbf8220433c6953e58c32d68fd3468af710",
+      "methods": {
+        "TestPressBothKeysSimultaneouslyAndReleaseOne": [
+          "TestPressBothKeysSimultaneouslyAndReleaseOne"
+        ],
+        "TestInvalidKeyTransfer": [
+          "TestInvalidKeyTransfer"
+        ],
+        "TestLeftBeforeSliderThenRightThenLettingGoOfLeft": [
+          "TestLeftBeforeSliderThenRightThenLettingGoOfLeft"
+        ],
+        "TestTrackingRetentionLeftRightLeft": [
+          "TestTrackingRetentionLeftRightLeft"
+        ],
+        "TestTrackingLeftBeforeSliderToRight": [
+          "TestTrackingLeftBeforeSliderToRight"
+        ],
+        "TestTrackingPreclicked": [
+          "TestTrackingPreclicked"
+        ],
+        "TestTrackingReturnMidSlider": [
+          "TestTrackingReturnMidSlider"
+        ],
+        "TestTrackingReturnMidSliderKeyDownBefore": [
+          "TestTrackingReturnMidSliderKeyDownBefore"
+        ],
+        "TestTrackingMidSlider": [
+          "TestTrackingMidSlider"
+        ],
+        "TestMidSliderTrackingAcquired": [
+          "TestMidSliderTrackingAcquired"
+        ],
+        "TestMidSliderTrackingAcquiredWithMouseDownOutsideSlider": [
+          "TestMidSliderTrackingAcquiredWithMouseDownOutsideSlider"
+        ],
+        "TestTrackingReleasedValidKey": [
+          "TestTrackingReleasedValidKey"
+        ],
+        "TestTrackingAreaEdge": [
+          "TestTrackingAreaEdge"
+        ],
+        "TestTrackingAreaOutsideEdge": [
+          "TestTrackingAreaOutsideEdge"
+        ]
+      }
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu.Tests/TestSceneSliderLateHitJudgement.cs",
+      "sha256": "abd2e82da9de742f4af84d417a21545ddd424615e8a5a52c8a702058ca8e797d",
+      "methods": {
+        "TestHitLateInRangeTracks": [
+          "TestHitLateInRangeTracks"
+        ],
+        "TestHitLateOutOfRangeDoesNotTrack": [
+          "TestHitLateOutOfRangeDoesNotTrack"
+        ],
+        "TestHitLateInRangeHitsTicks": [
+          "TestHitLateInRangeHitsTicks"
+        ],
+        "TestHitLateOutOfRangeDoesNotHitTicks": [
+          "TestHitLateOutOfRangeDoesNotHitTicks"
+        ],
+        "TestMissHeadInRangeDoesNotTrack": [
+          "TestMissHeadInRangeDoesNotTrack"
+        ],
+        "TestHitLateInRangeHitsRepeat": [
+          "TestHitLateInRangeHitsRepeat"
+        ],
+        "TestHitLateShortSliderHitsAll": [
+          "TestHitLateShortSliderHitsAll"
+        ]
+      }
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerJudgement.cs",
+      "sha256": "da624fe92af66bbc7ff9b6e215f1ceb2c4a79fa4b4f16be1738162a6b7798ea1",
+      "methods": {
+        "TestHitNothing": [
+          "spinner-no-input-port"
+        ],
+        "TestNumberOfSpins": [
+          "spinner-1-spins",
+          "spinner-2-spins",
+          "spinner-5-spins"
+        ],
+        "TestHitEverything": [
+          "spinner-20-spins"
+        ]
+      }
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu.Tests/TestSceneStartTimeOrderedHitPolicy.cs",
+      "sha256": "2918ae4122f8e2378b3559ee1bc671845bc4fe15dbf1c4cb2cab179fe76b351b",
+      "methods": {
+        "TestClickSecondCircleBeforeFirstCircleTime": [
+          "note-lock-before"
+        ],
+        "TestClickSecondCircleAtFirstCircleTime": [
+          "note-lock-at"
+        ],
+        "TestClickSecondCircleAfterFirstCircleTime": [
+          "note-lock-after"
+        ]
+      }
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs",
+      "sha256": "abb650aad7f36fd5ce4615ebeca60d39c8da6f552bd154214b977707501e09d7",
+      "methods": {}
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu/Scoring/OsuHealthProcessor.cs",
+      "sha256": "8240acf6cb2f0d2f019962960864dddbcfe0aa910a9c7db610a25a6d2630d057",
+      "methods": {}
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+      "sha256": "eabcab8269b9e681bea51eef93fdc56a54c98f8c19557941adffefda3ce20184",
+      "methods": {}
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu/UI/StartTimeOrderedHitPolicy.cs",
+      "sha256": "3b8b45559467f80c9df8b0a9094c171788dcb3c80b765e0046212fe8f6832b32",
+      "methods": {}
+    },
+    {
+      "path": "osu.Game/Rulesets/Scoring/DrainingHealthProcessor.cs",
+      "sha256": "e35f88f37c5685522f1f7f124c1d3348917b28dd55d1df4d5288e4c1ed126a01",
+      "methods": {}
+    },
+    {
+      "path": "osu.Game/Screens/Play/Player.cs",
+      "sha256": "4d6377d1570d78962993783af6145c950bafa7dc244ce4b0f506dd97714dea6d",
+      "methods": {}
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs",
+      "sha256": "37dd119c35d0fcfeadb00197023efc66254341d3cf487f52feaadfe5f819c146",
+      "methods": {
+        "TestFailAfterMinResult": [
+          "upstream-health-HitCircle-min",
+          "upstream-health-SliderHeadCircle-min",
+          "upstream-health-SliderTick-min",
+          "upstream-health-SliderRepeat-min",
+          "upstream-health-SliderTailCircle-min",
+          "upstream-health-Slider-min",
+          "upstream-health-SpinnerTick-min",
+          "upstream-health-SpinnerBonusTick-min",
+          "upstream-health-Spinner-min"
+        ],
+        "TestNoFailAfterMaxResult": [
+          "upstream-health-HitCircle-max",
+          "upstream-health-SliderHeadCircle-max",
+          "upstream-health-SliderTick-max",
+          "upstream-health-SliderRepeat-max",
+          "upstream-health-SliderTailCircle-max",
+          "upstream-health-Slider-max",
+          "upstream-health-SpinnerTick-max",
+          "upstream-health-SpinnerBonusTick-max",
+          "upstream-health-Spinner-max"
+        ]
+      }
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu/Scoring/OsuHealthProcessor.cs",
+      "sha256": "8240acf6cb2f0d2f019962960864dddbcfe0aa910a9c7db610a25a6d2630d057",
+      "methods": {}
+    }
+  ],
+  "records": [
+    {
+      "id": "circle-centre-port",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneHitCircleArea.cs::TestCircleHitCentre"
+      ],
+      "source_symbols": [],
+      "adaptation": "The upstream receptor is scaled to the prepared CS5 radius; coordinates use the same relative radius and the action is delivered through the real playfield.",
+      "fixture_sha256": "76a6119ec2ff22cd9d3e0308c6763632afee5d0cf536d7592c3b07103109027b",
+      "upstream": {
+        "fixture_sha256": "e97121624dbc87803577f9d1130d11ca972f8744473774376978aa289c6457ff",
+        "observation_sha256": "df80973ca65a9543163220178a8fa009e348ca8d49d8ade56486af23688432c4",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "d5b13fa91d2bfcaf9ec073a1d5f9fe7dfa29ef0e966f12a64e7b958d16870a36"
+    },
+    {
+      "id": "circle-left-edge-port",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneHitCircleArea.cs::TestCircleHitLeftEdge"
+      ],
+      "source_symbols": [],
+      "adaptation": "Translate the centre to the origin so the exact radius edge is representable as f32; screen-space round-trip rounding at translated centres belongs to A12.",
+      "fixture_sha256": "42af0a63618680801e6670a027e9260f9f236ac4e08a7d8678209510d6d27400",
+      "upstream": {
+        "fixture_sha256": "e195d815c76309a0b654c818ae618d517b5aee5b64f1b2c527d23d3250dbefab",
+        "observation_sha256": "7ddcbb39cc468582d808f40534d0468ed2455270fdc435ccff42b405418689a5",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "9e47d08a9208a451dc89ec96bd00d8133cc39579dcadf9b0bf7475d4fe2be38c"
+    },
+    {
+      "id": "circle-diagonal-0.95",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneHitCircleArea.cs::TestHitsCloseToEdge"
+      ],
+      "source_symbols": [],
+      "adaptation": "The upstream receptor is scaled to the prepared CS5 radius; coordinates use the same relative radius and the action is delivered through the real playfield.",
+      "fixture_sha256": "a2edaa5d6b64ef004453bea351f18e1c0afa192920b11b8327a9ff2b8f0ec136",
+      "upstream": {
+        "fixture_sha256": "7e46c1d5f27e18324449c41df67060a275dd54a0effdf6b2044c793e19d53b17",
+        "observation_sha256": "7b4a31242b9f57591037300e0d6f8c4aa01a841744b4d82627f15c1d2048f3c0",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "701112b8cc5e62b0c795e45c402d88e68d1d9673f86f6fc68e92340e0921bd55"
+    },
+    {
+      "id": "circle-diagonal-1.05",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneHitCircleArea.cs::TestHitsCloseToEdge"
+      ],
+      "source_symbols": [],
+      "adaptation": "The upstream receptor is scaled to the prepared CS5 radius; coordinates use the same relative radius and the action is delivered through the real playfield.",
+      "fixture_sha256": "1aae22f97146f630612860cdc693bfd38dae660304d3870b32dfdbb479ed3ba8",
+      "upstream": {
+        "fixture_sha256": "a58abe9dfb771334dc32f2ca347f764295cfdd08c2012371439e672acefef67c",
+        "observation_sha256": "d6056a408babe8f0e7a609a7f2f1497187f3097eebfd9ccbd6f4c012b2b59c08",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "6c704f6bceb3f5d10228e86292af382996de2bc1857b5693482d4bfb31f3929b"
+    },
+    {
+      "id": "circle-bounding-corner",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneHitCircleArea.cs::TestCircleMissBoundingBoxCorner"
+      ],
+      "source_symbols": [],
+      "adaptation": "The upstream receptor is scaled to the prepared CS5 radius; coordinates use the same relative radius and the action is delivered through the real playfield.",
+      "fixture_sha256": "137a0630925da9ab4f98e5caeb9b2c8d67002cdf05d586010ebe47f32882537e",
+      "upstream": {
+        "fixture_sha256": "d3ba00178b21f1d43198c5dab02cedda2f4ba3a389db9fae91ee1f1d50a4782f",
+        "observation_sha256": "0637fd2cffdfadd9ec85540bd24c2381cd1da01a6351b6b407c74e33ae0b1452",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "6f6e78121308dec9bc3fbd744fd5304d51405dece02b74828683e80e93a71152"
+    },
+    {
+      "id": "TestMissViaNotHitting",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneMissHitWindowJudgements.cs::TestMissViaNotHitting"
+      ],
+      "source_symbols": [],
+      "adaptation": "Translate the object and replay times by +1000 ms; the autoplay helper supplies input only, with no gameplay mod.",
+      "fixture_sha256": "18722682b67d6475344c53f126efc195d03b11ffc1e4d6661352f5de5467ac05",
+      "upstream": {
+        "fixture_sha256": "117ed6270ca83a6c6f01052abd3ee798959a5f2bb064af2d12c270daff112dce",
+        "observation_sha256": "925f85c3709f43a738a4e94a5ecb5c1dedfe54cf33d627fd06e43cc5630600fe",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "1fe76aca36a0a06a72dd96897b72553410bae84c6c7154334cc567a1bb925664"
+    },
+    {
+      "id": "TestMissViaEarlyHit",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneMissHitWindowJudgements.cs::TestMissViaEarlyHit"
+      ],
+      "source_symbols": [],
+      "adaptation": "Translate the object and replay times by +1000 ms; the autoplay helper supplies input only, with no gameplay mod.",
+      "fixture_sha256": "a289612fa34feb4111ff21478f96d71a2d23f987533caf3f88e1e47bb905f065",
+      "upstream": {
+        "fixture_sha256": "5fbe168b164a246e1776532bb0ea3192365c9d44901cc8a4f4650fbfbf241c54",
+        "observation_sha256": "286f10e8bbf380431072554ddca8889dfaec6753e660a21272f2a3c1a957f298",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "07aca8c231938e26488df1b3947512e95f982b30c8cbb073866ceaaefcc078b3"
+    },
+    {
+      "id": "window-od0-0--1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "c53d48884ee7f3ed5124e05727794c054c945150100ff4b66ef6fb78ea5023d5",
+      "upstream": {
+        "fixture_sha256": "46fd7755415cef0ada6ec875abfbfa11362c663d8aa2169e92452147f474a27d",
+        "observation_sha256": "72a8ae23fee451b59ddca7d3871a307dac6bd878505589c7c5442e955ed01960",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "0b8f72ac321d71af8136494df739f40ab7cf6b22ae5ca6d719f4ea85cb7906ca"
+    },
+    {
+      "id": "window-od0-0--1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "0049fc4ce2761c0466ea5d627530fcdbb29cf22f0928af3f7200f8f6877bc340",
+      "upstream": {
+        "fixture_sha256": "5485fc9a0b4ea80a1be518ec90feb66ede681d65157db8b95e1d15382cea760a",
+        "observation_sha256": "7f1c172bafc77346cf440df1065960d724ced05bb02ef7915e08239b4cc7a013",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "4b41e0836ee0fc0678e11f3e6b0e793da2ef189fbb15529edd7d63a014c5ca7e"
+    },
+    {
+      "id": "window-od0-0--1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "0bfb30abf5ca1033d853e654f238bb9468457b4cb4544b177824d087ca4bde4c",
+      "upstream": {
+        "fixture_sha256": "81afc822faf0339287700c56638874caa4d0cd4f23e293deefff25b8cd0b2178",
+        "observation_sha256": "3efa1851311a6ec5ea8d9c99e1489212d1afd3214b1da0feea8ad4af88e231ed",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "a3df2257b04bfbbe859d453c4e59434b18fd398dc8c2082c35c056f0e73ec806"
+    },
+    {
+      "id": "window-od0-0-1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "a532fd42359149f3ad2280c915f93e05a2526a12399f9a4404f2c4e01b715fa5",
+      "upstream": {
+        "fixture_sha256": "4653065f53bbd0570327c508ac7174734293f7640071e26d70e7abc89b1cb2f8",
+        "observation_sha256": "72232e900ecf550d07c778f15baaff950ad1b1e7166cc56aa849c621a2667292",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "f4a675233f52e17292dc88da7e4a6b59796866f37bd97583132cdd43c481a44b"
+    },
+    {
+      "id": "window-od0-0-1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "1136ad79566e377241424aaa55508beee89fc54eb4a04aff03023011ca7b59ec",
+      "upstream": {
+        "fixture_sha256": "a8d3e8949df7a557fb0a8bd0a838a7e4d7c7bb7e5275ecfd3446d63b468204f5",
+        "observation_sha256": "4300d32735538413f3b5776a8917b152f5a59fa85d9f6f50b268e8b330b18346",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "d1d79cdf0c9926b68a79522e96727d7a7b66bfbec14714ed437c88ace20c1f8f"
+    },
+    {
+      "id": "window-od0-0-1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "113190d81b65cf89be4cc3bbcc57e6a76bb90b2ed45d06d0d5179694590cdf3d",
+      "upstream": {
+        "fixture_sha256": "7a7a7dc70f0fbabf5dfbc29dbdd9c47c9f30d4cc28d31eef914f06067263d01b",
+        "observation_sha256": "88c4d8605bf67f1aa190bb41e6c1195c21ab5afe905295aa183eb80fac5cabaa",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "c5853f5a0f6a713d2b6f63ee94ec11e21da3a7db166d24ba389d82b31a7edcbb"
+    },
+    {
+      "id": "window-od0-1--1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "6f49daa9e31513b47e3c6a7f3d80bf970ed2835fec7835f405b79e21bbd4fb1f",
+      "upstream": {
+        "fixture_sha256": "4afbe1a0739981aa997f6892f532387181bc310c2df7e09b28a468a612f4099d",
+        "observation_sha256": "55ff986a0d4c8fe0b31aed8caf361f092d694f385cb928897fb424467d3dfc2e",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "31f03524657e1172bb06b31f7a915dce6937aa1c2fc377e770bec00f919fb0e1"
+    },
+    {
+      "id": "window-od0-1--1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "8999b5f670d7d96cc2c7315c1cb6a29c26c25c08dc3ff568104b43d0e3c4d48a",
+      "upstream": {
+        "fixture_sha256": "54f29bcd9445774287f635b74ec57d4ec394e8b9900ec41e78e589616a4436cb",
+        "observation_sha256": "5f3551df595dcc5524a11aadb96f88cfe7fe64d79affc33e4a44bd91ef3ee0c5",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "31db37c141a05a723f8a1c8064bedccab600736cce787dd604b1071d585ae0e5"
+    },
+    {
+      "id": "window-od0-1--1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "108a5330fe88bf60a0e9d9da6d29d862b6765cbd4eea34e2ebb00074f1487317",
+      "upstream": {
+        "fixture_sha256": "9ae8020f385d7a5e667b31e2eb8365d46cab66e0fe1dde2def9101d8b2b74b15",
+        "observation_sha256": "ef669cb77a6322580770ac3728b9acdca3bbc1765eee961812efefba2a03e066",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "258239d1714dd69271fd5cbafe5aba96c3b9e94d9a34c216d71e7db5d7623994"
+    },
+    {
+      "id": "window-od0-1-1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "89ad8c62a960e28cbe1c678667996293e4a8e2f8bfec28e3ece62ae053eb6a44",
+      "upstream": {
+        "fixture_sha256": "bc185665e71e1f64e133cc8d87bc7c4f1baecbd265f581ba6b30d4b356ab451c",
+        "observation_sha256": "ddb562132d73419a04ce7e0df3740e08fd9dc6a30db3d35ef3a3a65cf76789a8",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "0bc3a53df9ce0ce98a016217fff7e9039b03df82fdc741c374f8104c91daf75a"
+    },
+    {
+      "id": "window-od0-1-1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "47bbc10f7e69b48e7dc40898434cb20dff0e76963adcd4c7e101139ea9508b3d",
+      "upstream": {
+        "fixture_sha256": "76cb5646394fe25f1a76055f58c1c3311f3db1616d511a8d3fb4ef11ff9fc0fb",
+        "observation_sha256": "11e8a5eee244cfcf6fd20b58f902c5dcabf04db220d66d247ee6ba2ae494c7bf",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "3f817737313d897f2e9698d80b34f4f869718bf53e11604b382d1484e2c8564f"
+    },
+    {
+      "id": "window-od0-1-1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "bdf3d50bf1e3e15b71fde9a48629df09a2ce09e04f029271862a27fbc6526114",
+      "upstream": {
+        "fixture_sha256": "ec63a9d35bd8555284ac00d6ed870fa6d99c5d5ef92778180d1ac88da89d1a74",
+        "observation_sha256": "de412a6558a7ee361dfa0046e5f6db33a6bf007670fade1f6869cf5f38a7f77b",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "d02e214fab77dec2592e920f6f231406b940d6dee1d7205a6fdb9f78271aa5a4"
+    },
+    {
+      "id": "window-od0-2--1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "c6927a7fb741b45df11b2c3202295b60ee751260e079f4d4d61ba0901fbef6a1",
+      "upstream": {
+        "fixture_sha256": "e8d7f95b3a6dddab1e1d58b787fd1fa12cf962f5c5acaee6a0d0d5159897f952",
+        "observation_sha256": "d39a4d34c0a89b8eeb1af8987460d226304e77366f8d6642241ea34c6e18a2fd",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "f204b4f24592a256e7451b91eb69ebf7d70f72641e67e8af755a0047b10e959a"
+    },
+    {
+      "id": "window-od0-2--1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "758bb747687dda9e55c2254f8856a64023f68b7efe78055c5fb2a0cb3f1c8c62",
+      "upstream": {
+        "fixture_sha256": "11d88056902b4ce9daa485ac34bbccad9af7b6904b96820bf07a6f8c56bb9673",
+        "observation_sha256": "61687b9c037a6d177ab068baff1dc19ba9299425a4bc9791ce4fb9411f3ff4db",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "7ac8425cf59a1f4671ec1ef9b2de0c049804df836c2bd1fa8bde244094886905"
+    },
+    {
+      "id": "window-od0-2--1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "c0bd5e2ff702893f2a66a9c06f736b6faded572267161ed8651c073503f350ee",
+      "upstream": {
+        "fixture_sha256": "1480bb5ddb9f9637940d228ac9279da34bba198e2d063aa7015ea570040731b8",
+        "observation_sha256": "054b70f7d25a03ebbdab0ee2a93dc43bc368cf2cfde7407804ff7b95f79032a9",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "e8d3d5d5cc583d4fa8dfa6ca28fdca3558f9fb8868e9895372f373d6df708f77"
+    },
+    {
+      "id": "window-od0-2-1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "3940ac235e98dd65de6460c66d5fb39139e659269734795cb6dc151fc94d80f2",
+      "upstream": {
+        "fixture_sha256": "611055f49e315899db9733cd54c8dc05703bcf6ca801b160d3e5aa812b371675",
+        "observation_sha256": "73abb82a266edfd85100debbbe087d45b6b834577876a9ed2134b2cc0c57481b",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "027e3e060b8120f3dacf9093710cf0d57e6b483f4f39e1acd2011897fbb58a95"
+    },
+    {
+      "id": "window-od0-2-1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "fa55fcccda129c833913d1038438b958df492e7bd129f92a6414fb176d66038b",
+      "upstream": {
+        "fixture_sha256": "ffcf3204906e6ba036c216f7fd1360e0d3504060c42c8d2238a17c5828aa42a5",
+        "observation_sha256": "5026d38e4abe9d3d93e3cafe86275f27dfa1a9fa57571378e8470ed2e3a8f879",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "e72d24f57cd6d3250bb4a7a27e9db75dc651d2ee3a8f1e5fc100a64f1ae30967"
+    },
+    {
+      "id": "window-od0-2-1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "1aedac9b719e0c61dea590d539975430afd92cb0a36d97d9c88ddfeb517b0495",
+      "upstream": {
+        "fixture_sha256": "699432d1733a113c8708cf995075d6b99335647e297a30eb27605b4e3e0f3088",
+        "observation_sha256": "a9c1a50df328782d46c2ff14e7395db1bd9dffd0bc0defb6453a9d3bce2b8627",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "875e8657e56690f85eecb584a8ea369b9d6de67515d08d50b3cc965a863fd691"
+    },
+    {
+      "id": "window-od5-0--1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "37ac486275f6bc4e8836e3bd8c65bbd61c49560b364a8547802646f7800bff18",
+      "upstream": {
+        "fixture_sha256": "2a5babfc4f57c176ddbf930f51f4eb8d6ba04d923aa765791f4d34155a751e92",
+        "observation_sha256": "dd044de1bcd4039cf981589b0d763ef2b4e470043f232c4da986a909955be301",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "c58b3868ae538358042b3b2e2e07d3820a422e65c72c1e85122dcfc031bd189d"
+    },
+    {
+      "id": "window-od5-0--1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "4dfb6348e5763801cd8ddd738d311b739a4e86eb8badf7f3db2d23902c06ee75",
+      "upstream": {
+        "fixture_sha256": "99c6575af7e9c10d48e7bcb12c5cf0ab17808207dba8160a9140493e90be2d56",
+        "observation_sha256": "b85c0da06e835afd49afc84a73b84a3aa24ba369ee300726555fe958ba3f53a5",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "5f045cafb9d3f107d2a9d23ef66ca23dd2e951ff3699962dbb7ad9083d4df9d6"
+    },
+    {
+      "id": "window-od5-0--1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "64f2369e1e9053253380cf525c3b2d0a0c8e6c4c6f118351bd913392c82a920d",
+      "upstream": {
+        "fixture_sha256": "67e50cf76ea891b0b3f868516f35484afeac839d350e58edfd57489149d15bfa",
+        "observation_sha256": "5946b302762ec4c61f5e1cc2911a7a9f307d184f802d791967a127a63b071a8c",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "e10e44ddb172b3d456ddd2032f2261e47a5a41b40e33f5f708f8277916fc33f2"
+    },
+    {
+      "id": "window-od5-0-1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "7703299a3537922df1563d8b50ef395acf9205e4481076eda08f117f076c0b91",
+      "upstream": {
+        "fixture_sha256": "89bf20063ea7ab35a7517282f215a37fb912a34be55cd6cddaa28c4018aa6bf3",
+        "observation_sha256": "882b63d153999bff88dc41f615e5f16d06cc191dad888575c92a55ebfacd27ea",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "d5cb15a4220a2b1a6b7e3a688bb636edf55f7671c7e4500a25be33248324d908"
+    },
+    {
+      "id": "window-od5-0-1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "8c2292b1d28a45690d6e21a7c7ae3ec9e553a538a3f9a893e935dd7a20e86ad6",
+      "upstream": {
+        "fixture_sha256": "1df56bfaf03d7fa1f251312d7bc50df2e4f6ab7729520e1333509330c36b7766",
+        "observation_sha256": "fc96ce6d3468449c4fa24ac912e8551aac4ea117cb15e00ef6d37ae90307b128",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "38b617e10c8d80ee100aa438141805f38399ca33d29ffea16e9bd1c99f1640df"
+    },
+    {
+      "id": "window-od5-0-1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "23888fd07994b027b2992b7c3d7e346ec128301a273a03d796351c7f8888bdaf",
+      "upstream": {
+        "fixture_sha256": "92aa51867888b56822c79ccff2226b58679069f9b2b98407cb233e45bbbc9dab",
+        "observation_sha256": "55f7374980475d0b4ca056fbbd3de240ecb171a0004e3746ba62d8aaee67adee",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "52fb5108c55db10b289c8547c68d57a1629476ca351db2dfdc35282a232028d4"
+    },
+    {
+      "id": "window-od5-1--1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "c180e11e3df6cb07b5d20a985fefeabd9f14f67b48c97aef0570e79f9a0f8270",
+      "upstream": {
+        "fixture_sha256": "599dfc8eccbea82368d2a48a9d47daa11c544fa78df54a0b16efebc60d79b972",
+        "observation_sha256": "19146c41ffb3d05a5e875f3b4994b43012f06a96d426f6fc391baeabfdb0a984",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "8b62a8d4ef484f4ffa5aba291003d822cc814b900cbc14247243b42adc0d3722"
+    },
+    {
+      "id": "window-od5-1--1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "5a247bfdf8f745a68fd77704195fd5c5cfe3595a072fd4e613cb52cae6f29dc3",
+      "upstream": {
+        "fixture_sha256": "5248966c8e772793cdfc3daab587b527491cff27c73b1d996eda3deed45c808b",
+        "observation_sha256": "784d816f2b24774c2672f95d7660297a01ca1fec3f855d17b33fbb99260c2726",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "eb7ebc791d87444119d6f40583ee4f7fa9f4e66dec07981f2fe2f37ad7c6a5ed"
+    },
+    {
+      "id": "window-od5-1--1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "60ae4295b6d59da35afc32c31daa91b1d57a66ceae1d89e2624e248a0190c10a",
+      "upstream": {
+        "fixture_sha256": "c4e90249065f1aeff341828727d641c25d8aaad71be7f72d0c63a3b52c0fa2d6",
+        "observation_sha256": "8aeaa4329fb084fc50ed5addd61a3c664325f95de5ac9e5fb619bda46350db6d",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "dfe4e7057e14ba57d6462f27221a146ed318066ca97506197d1171c464d73164"
+    },
+    {
+      "id": "window-od5-1-1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "550631adc811e5c29f589d13d941c52ae4b5e79d07ca43a7c9527d2d9072b1eb",
+      "upstream": {
+        "fixture_sha256": "af8f722a5c2c87735efa4c47efb940942921b9f12fd769bb69d07b21cbca124e",
+        "observation_sha256": "2fb9f674827b7243eb94e28dd8ed97f965c9d96d4eccc42217d27a844332ef16",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "2ea1698d2d3e1b62ffdce9cafb339f8c83b483b752a4ebc3f7e5908e4135072b"
+    },
+    {
+      "id": "window-od5-1-1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "4d682a42f07b21dd2f121db8922d4f2c5f13fbf6e63845dc081f9c5b32cdf504",
+      "upstream": {
+        "fixture_sha256": "c4757259a3cbf552adefa52c98bb51b2010b5324df672be08c997b8cf3f50119",
+        "observation_sha256": "5baecb1c9ec54fd00b819cd409a42da50fb7bbd15113d8b001c8ed1484a97668",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "4aa454c20927b04d91dfc8279cecd3e16aeb330829de0ced5f1d19f404694c34"
+    },
+    {
+      "id": "window-od5-1-1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "3171d7a199113f037ae5dabb2e28aba23856ff31cd39da8ac9956e249a0e88c8",
+      "upstream": {
+        "fixture_sha256": "8b8fb4058399dcc4c3ec59a2886531c460c300401ba426a374d49dd19ffc9b5b",
+        "observation_sha256": "118c69e6848374ce76da960f19068eb38606151945a7d6ebb1864c371fc13568",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "4137aee8fddef112960f00d2d2c1d16319f5fbed1d561cb022fdd2594026fcf9"
+    },
+    {
+      "id": "window-od5-2--1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "f354768d1cc854d2236888a50ff31ed6d4b60a8d4684d36f564ee4e22e8c90df",
+      "upstream": {
+        "fixture_sha256": "9358fb03c8286442d31055f49863535fb9c16dd1e670a4c1270234ff9a36310c",
+        "observation_sha256": "1e523711664709281208d66ac36a028015e850f1c054ecc89375e5dcf79ab8cf",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "03c33e65fe1b8312373091d952000a4ae809a1dabec2b7bebcc30dd5565f1b6f"
+    },
+    {
+      "id": "window-od5-2--1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "1237466025b78e122d8e296048e7bf5786526d7e30bed5ec6216ac8f78712f9a",
+      "upstream": {
+        "fixture_sha256": "7b00e19520d9f379edf4955fe764875771d4373794a87fecff52c399f24383c5",
+        "observation_sha256": "adc0e477bde769fd80442a18751faba4e81a90d3fa321bff5d9d64b0e8201762",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "2df54ddefdcb67cae3fbc0da03f1e86c8fcac3ecb8cfb0a4c0ba439c25ff2bcc"
+    },
+    {
+      "id": "window-od5-2--1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "ec3b284ca5c0041c08211dbe60eed472397077e54beaf7b3e3172327d7a1b203",
+      "upstream": {
+        "fixture_sha256": "fe6e21ffc6925d5e221587342f0cccf05f53ae63c2c02f4311e8ceb4f4c962a5",
+        "observation_sha256": "2037ea15d6722d210985e308afa69fe3e4d3290875eac21a863dc743161c83a2",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "19dfc759c5db50f562e5bcc421b6883cb1d97f560c63453871a5b035f9196983"
+    },
+    {
+      "id": "window-od5-2-1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "c520e32b2dbfcf70c017d983265e488b6c8c7726f06a628ccf051350b1768d2a",
+      "upstream": {
+        "fixture_sha256": "d4f389945f5c3afaccbd0cd6371db380fca0bb94abaa525c5fea580a6e985751",
+        "observation_sha256": "d6f68363ea26db56ec815e6d07b96d65e3bfc5a0ad92c9cf397b7bb51ce5529b",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "fe67d8ab38d378212de441b020a05c3e9971a7bdc760464ea849895a59ad3507"
+    },
+    {
+      "id": "window-od5-2-1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "fa430a9530d1ddf2dc6644832a9f9da3613aaaf499157dffbe77b2498c8294a0",
+      "upstream": {
+        "fixture_sha256": "685a160131cec23e894ef794ec3463d14ef037682628c3cfa631a1ca6ef7645d",
+        "observation_sha256": "46e3d19d61b0f2912b9d2c09392bd5296805470d2a570e419ffcd84aa8c1aa78",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "d6bfb518cfa4736a4188a8a16f9c4f87f79ab48c459bb0d2abfc62a0a87d422b"
+    },
+    {
+      "id": "window-od5-2-1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "c15e478e173f76870d6a1d06fce38bb7dd583dba1d58b3357c34f8931aa7b56e",
+      "upstream": {
+        "fixture_sha256": "301821a8131520b7fea2473086cc5cceede8e0cd14ae005dabb1500cc5b7df5c",
+        "observation_sha256": "002f2f5d5cfcb07a35f458ba0645ccc035ab27347e44854fe21623bcd244e1cc",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "200e1579fc9aa84fb4b683065a496db7500dba4468532f8171720cb8f6365059"
+    },
+    {
+      "id": "window-od10-0--1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "1d034b7e9ac40c1d360cc94a91e19f8ab98c2e8b3921a31bdd2397af36479da2",
+      "upstream": {
+        "fixture_sha256": "b3b6baa923cd526abd51609992e6cd1b8e7ec9d0c77157dfc8f25afa2d62c177",
+        "observation_sha256": "f77b138df687a1546c35ac1fecc51c6b47bd6336d7d35c8e93c3dff15508b6bb",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "beca1f3318354efaf64277f896170af757945fcc48f5ee8ddbd93fe905bd206d"
+    },
+    {
+      "id": "window-od10-0--1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "574fc717b15dd4a68339090a6d91fb810db6699dddd9efc229e01807739014a0",
+      "upstream": {
+        "fixture_sha256": "40014e528cd532d8f35baf66876bc34d8aa84e065176498accb58f3c1627a51d",
+        "observation_sha256": "e9658bb5fe626580d2d8f56db316eb303f916a82dd5913afe65298380be99b1f",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "87b32bbc3f55c3d75fc5d812c477a59679c4c0d359bfe458b294acee3ea98a99"
+    },
+    {
+      "id": "window-od10-0--1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "7e51d74da0953cfca853432901af8130aaf97f6f365afcb1dd528ab3b76c8d08",
+      "upstream": {
+        "fixture_sha256": "ce991ecbc581f7e11bf33d66c6d334873c13173facda818e7424fa47a897082a",
+        "observation_sha256": "064b9f6bb59ed64183030de285739f1ad8e8ec2821bb14f424189179868fae70",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "e7679c9e0e6d3a6127152ce62488e87ccc881b4299ce8209b43336fc4830309c"
+    },
+    {
+      "id": "window-od10-0-1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "3fc84abff5ee43fb50b7e31579456b37d2bd735ab2bb9f6b1c94ca868aa01f0a",
+      "upstream": {
+        "fixture_sha256": "129ad84dcfc4ba72b50f7d47c9457ca2ebb44ce96b014f65ca086484194d5b21",
+        "observation_sha256": "ca4c55ee68a34f48e2bfcd262f73014f41138f1ece043982f57498dd3720945e",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "e152fe9fb61d9d31aafe1596dedfe390b706c469b80ba3165be0a632cfbd3d24"
+    },
+    {
+      "id": "window-od10-0-1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "f353061234148819903b394002d3220ba97855e2f0931bf74edd5b6c78e96d85",
+      "upstream": {
+        "fixture_sha256": "9f137335943a27f3184373170aa81c525e0c8d12a88fb68622ef2fc317e2d9f1",
+        "observation_sha256": "de2f7c7c19815f3b20d1969d8037107a6c7c63a79d8c426792fd2989d89707fa",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "a76814a7caeec0b81039b132b98008d8f6a97d036e750864e5b814f11399060b"
+    },
+    {
+      "id": "window-od10-0-1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "10cbad7131f7e008b16bf50e31d3a8a38cebc71b644c116bedf6e24c1b3be5b3",
+      "upstream": {
+        "fixture_sha256": "414b349014bb03cf11290fd339c820a1155618e233aef29185ee9788a3cb55eb",
+        "observation_sha256": "455eb0ee637aff6ba3a247e8358830d6919a6a77e131817bdcaa0c9911a8df2a",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "cc57025690dbc4480a0960e4e058cd7d8c78b27129b95b901f837dd0e60097d0"
+    },
+    {
+      "id": "window-od10-1--1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "7f0e4d827612f526d214feb8b655105bec91ccd34a276738449c476f5ec7b947",
+      "upstream": {
+        "fixture_sha256": "55b4ee76bb02f13406c5c2bd696c9e9f1bddafbfd8889e8d5d3b071b7e74d415",
+        "observation_sha256": "1b08fd3b7d41aa72efdb9397cfafae31f31807f86655aa89af75c8af31569f90",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "cb0f8dfbd38fd040d0134b986b64da0c34f19db918255bd7b60ef3ea24985199"
+    },
+    {
+      "id": "window-od10-1--1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "f0836da60ed41d72e2be936249a8bd3471f486781ce74bf7e8bceee9d2b0ce1f",
+      "upstream": {
+        "fixture_sha256": "0dc570b1e25424cc3c820737272391756f660de64065b58eb3f07902f99a7f8f",
+        "observation_sha256": "3bfd9bdc04cb75a0f6bc4875abef9d600777ddec4252eb88e54be8f3e1ea07a7",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "6e0a40a74df7e18275164c36f2c32172e552b93c6a460d10f7a593c4da60aaad"
+    },
+    {
+      "id": "window-od10-1--1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "ee3b24f42f934d01bd3ebaa0f67b4db4f8a8ff9e513e3fb865aaa36f4196fe6b",
+      "upstream": {
+        "fixture_sha256": "080c2d6831bac28289a286dd62d7463bfc837bfc09081a0df5c1b8b43700355c",
+        "observation_sha256": "a134fe5037b64fd7a6feb30aa0c6f06e9268abb194217256898be4683da14423",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "89383757b8dd79520a5960335d8d0873b199b979af831535d8cc4e82b612ad0e"
+    },
+    {
+      "id": "window-od10-1-1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "fa1e1c8dd24ef4f0c497391ac1fe71eb26a0ba86215a00ecb08c15c56a5aaeb4",
+      "upstream": {
+        "fixture_sha256": "d4e05f98ddd41d4c259d0542a93579648b48df81a277a9e44be20bc6546757c3",
+        "observation_sha256": "a99712fa697ae699eb8c5676f5b4ee04c917b3256db0f3b51cb3a96612edfa34",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "4b8a9824df268c591dcbc2a9b38c16718bd33567cd3753c03b4170943d7ef41f"
+    },
+    {
+      "id": "window-od10-1-1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "905b794df13a7d2f07da5d86e581aed3e69eb1dd1b581b6824700cc5c2bdbabc",
+      "upstream": {
+        "fixture_sha256": "00e81f970ca1469331b949bdca34a89d86b1b61468b6fef30805b4d4ac93822e",
+        "observation_sha256": "d5d37b097cae78baed046bd8192edf81906b26494ea661dda6ae54462ac67e2c",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "b0d16ec55e55f2d7f83db830155960aa044b59b30c1135e0c6061c431235e13d"
+    },
+    {
+      "id": "window-od10-1-1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "56e4ba729c68dcd71f5fec2c683bf363595cd55b8e8f12c8ab3a6f7139a6a698",
+      "upstream": {
+        "fixture_sha256": "14d9928e26bb53b77a966febd8e8b36ebb11febb3af3d197d44e551ed13ea48d",
+        "observation_sha256": "0611ba093239978db9f59231f5737721e89bc73d912070205269531f2a231ab6",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "e394217888a255bdb1429dd3aa3aaba27cc42d4aafae3ee43b3040cf672826de"
+    },
+    {
+      "id": "window-od10-2--1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "e505803e138621423d0f4a84430cb1c2447fe07e3cbba763771f54f9fa66027a",
+      "upstream": {
+        "fixture_sha256": "6484249e0f105e4d308aca0423f1d15332b774976830f2806aa29e1a397c301c",
+        "observation_sha256": "23881a84d1f4fb51a4429276bdcfa048f20d969d493ba9fd8e6878373b56e28a",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "a1031e32b52c40b48e7b6d9199c4a38c0f383bc6f467f9154d4c1fce7f2a7b00"
+    },
+    {
+      "id": "window-od10-2--1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "bc5f9eecba52941a6ee228139c6926344fce9b5c2ad94c03e07b359926d05415",
+      "upstream": {
+        "fixture_sha256": "615c924def474ad425144fe55dfd5064ad382763ba20ac6e1a0dbaebe5116a4a",
+        "observation_sha256": "5c1547452a8d52c61527f7f33a9353f76a117f29b108d803bb98035bf86a257f",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "fbeb184393b65beff2aa6e65ecc3360fd060b7a31dd4dcbb72bbc1a37390f313"
+    },
+    {
+      "id": "window-od10-2--1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "85f782ab024acfe2e4d4645aad3a8636fe112bae24f2e65407cf755ff543aa7a",
+      "upstream": {
+        "fixture_sha256": "c70c385ffd5f05f389a925292dcfbeedc35d2c146ec03177e8619416964c4095",
+        "observation_sha256": "8b8caedf8523bebb2c067f98b843129fe21d56ccd38db77b9221c1d400d2da21",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "c79cab1edbdd8a3b5d5c7237137a1f3d02e13ae6c9c522396fad0a76ba9d251c"
+    },
+    {
+      "id": "window-od10-2-1--1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "a6812c080543270fa22c49d22315b5339f56415b7aec1296e9449b408c0a6fd3",
+      "upstream": {
+        "fixture_sha256": "8400bf1a49f2e76815841b1f29d319e4fc7b9d2d5874e6555d2a961cd8733734",
+        "observation_sha256": "53bf6ee24025e31324a4de16a230b2f24cd51b63742f1f4e48aea4ae29253b7f",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "7fb9032360c3e8cecb3831dbcf665c3e87d070acf01dd5977e46d74520088fb0"
+    },
+    {
+      "id": "window-od10-2-1-0",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "ef067f2eb5af3fc4464915b0789be79733ac54c47c16f6dccdc125e66316e13b",
+      "upstream": {
+        "fixture_sha256": "7c065f45a0167748a90f0a42caf82233a424836522d001135aa06c9a317ee8f5",
+        "observation_sha256": "fb544fbc2ae87c2ea878ac6a55667bc4392baa4dd2009b2ec3ab09396fc2aab2",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "921ec41b7778b434487fe3d8fb8fe9f9d5d54ec38acf73bedd3731f400b22751"
+    },
+    {
+      "id": "window-od10-2-1-1",
+      "acceptance": [
+        "A13"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/Scoring/OsuHitWindows.cs",
+        "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableHitCircle.cs"
+      ],
+      "adaptation": "Source-derived drawable boundary regression; neighbouring representable absolute input timestamps, not rounded offsets.",
+      "fixture_sha256": "4bdbc6d4a8bf315a148fd1f19849d11ed742cd43e241fe93f41eec0290bd006d",
+      "upstream": {
+        "fixture_sha256": "a2e6462d6b5d13b723ef69b364f6b224fd21ae2e610d3d875b080949e048362a",
+        "observation_sha256": "131fa5b0b9c92fc7ed3f3a159947d9586a1377ffdf402c3f0cc076d2357259a2",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "38857ae87ab5cb83e86575ef45184960098778bb1c23f509c3365d8e2e3f5701"
+    },
+    {
+      "id": "note-lock-before",
+      "acceptance": [
+        "A14"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneStartTimeOrderedHitPolicy.cs::TestClickSecondCircleBeforeFirstCircleTime"
+      ],
+      "source_symbols": [],
+      "adaptation": "Upstream uses custom ±500/1000 ms test windows. Preserve input/order setup and assert standard OD5 result bands; this is a production-window adaptation, not the custom-window test itself.",
+      "fixture_sha256": "c3a17c07e19fb02bd4fb8401e9539fd1a01bc683bf7bd9dcabc58b238cb5b264",
+      "upstream": {
+        "fixture_sha256": "a85f3d28865328a6c83fbb06d7c62a8aff8e16cf04a33db69c478dfff0f25686",
+        "observation_sha256": "98cc11de853e997b8675d50ed4417873a7ad1fe394b9b716a81db1fbecf8c783",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "33f7a9463e2259e3bbd8f8f787216ecf50694c96988c630cf0d7a1a2891f772b"
+    },
+    {
+      "id": "note-lock-at",
+      "acceptance": [
+        "A14"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneStartTimeOrderedHitPolicy.cs::TestClickSecondCircleAtFirstCircleTime"
+      ],
+      "source_symbols": [],
+      "adaptation": "Upstream uses custom ±500/1000 ms test windows. Preserve input/order setup and assert standard OD5 result bands; this is a production-window adaptation, not the custom-window test itself.",
+      "fixture_sha256": "debfbfdb8fa30281c95be238bf3e320876c80500d41bb6fd121dcd8e87f7484d",
+      "upstream": {
+        "fixture_sha256": "4aa666975acbbbf96973f3a49a9a461c610fa83584bc501855258ea3e65fa986",
+        "observation_sha256": "483861ebb13694f919268bd8fa015a93c3e1b4044d0076ecdbdb667ce79740c3",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "61efacce7052f05250f025a20f56837b8c880f628ce5d872aed081340c64055d"
+    },
+    {
+      "id": "note-lock-after",
+      "acceptance": [
+        "A14"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneStartTimeOrderedHitPolicy.cs::TestClickSecondCircleAfterFirstCircleTime"
+      ],
+      "source_symbols": [],
+      "adaptation": "Upstream uses custom ±500/1000 ms test windows. Preserve input/order setup and assert standard OD5 result bands; this is a production-window adaptation, not the custom-window test itself.",
+      "fixture_sha256": "45c40ef9909bd3376d7f8e4f3d98ff1c289d4ff68b72554a7f3fac5ba70aa34f",
+      "upstream": {
+        "fixture_sha256": "86204161ad2edff5ab8e2fcb10f519d7342b3d4b9c11f3439b4db0bbf4fdd33c",
+        "observation_sha256": "45213ec019b6330102de63f1d04ea43f9675ee734d8d60cc93f2cb0e9352d79b",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "5c4b287581d50531b79204ec9e31fdf713903c5a0d71a4641b23b773768e1a9c"
+    },
+    {
+      "id": "one-edge-two-equal-circles",
+      "acceptance": [
+        "A14"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu/UI/StartTimeOrderedHitPolicy.cs"
+      ],
+      "adaptation": null,
+      "fixture_sha256": "101237b714f8c911e45989e7d8ee5e7ed3801ff338650442a21274b061e9d43c",
+      "upstream": {
+        "fixture_sha256": "192189d14ded9b5e84125329c685bc14e197d839e79b3e76b76da186db70895a",
+        "observation_sha256": "aec91018893d034a8a0f1e9b3a9bd1a0b5359a55aa9885cb22f77a7369acff6b",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "7ac5b3fb99cae518d1ca56dba6f84d4b50e92f9ef9948919636a327062165017"
+    },
+    {
+      "id": "TestPressBothKeysSimultaneouslyAndReleaseOne",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestPressBothKeysSimultaneouslyAndReleaseOne"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "fce60e34f3fd7769041ddf1ab68dd65dd4db5801f7f174527ebcfb3985aa328f",
+      "upstream": {
+        "fixture_sha256": "577a7f3c16bc93a0c91c3b3d3b5615c8c153969f71c84a25be007c8110275129",
+        "observation_sha256": "7fdd714fab851ed98df3fbdf0046437ce41702704e83a6721a043017438388d1",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "a13cbb40870f15516dbcf2c5c275d110ed41a19fdb0ad9115ebaebe18fda6902"
+    },
+    {
+      "id": "TestInvalidKeyTransfer",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestInvalidKeyTransfer"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "57d872b8b61304c48fe43ccc15cf8662df9a5c56263ed0b888500278973e5baf",
+      "upstream": {
+        "fixture_sha256": "c1ca3a6c4a2f921c01a351d913f7d7a53b370a16d3eb20ccb8acca8f67b4353d",
+        "observation_sha256": "a9a7c65958c14cc282aea93bfcc7c40464d58c28cbd8f1483882a5a86afdad0a",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "ddf9e253d59f7f88b3d82a451de777c8aadb636d858918d863dfeae224348db4"
+    },
+    {
+      "id": "TestLeftBeforeSliderThenRightThenLettingGoOfLeft",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestLeftBeforeSliderThenRightThenLettingGoOfLeft"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "d1e31007eabfbf3f12b74cbd557ba146a9868c9f7257355ba58f67f9c7d81ec6",
+      "upstream": {
+        "fixture_sha256": "9e835b128cfad23654a093552d2db02f213e5a81e1e4df4eb1db7f8c502ae6ac",
+        "observation_sha256": "71eb3e2528f21e6fadee04b9cd5c936fe09c601a93ffb4d0c84023968211a9c1",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "081da1edfa912d1f2e03cedf6b2ec28e0d861f5318ad6d6c3e06fcee9d718798"
+    },
+    {
+      "id": "TestTrackingRetentionLeftRightLeft",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestTrackingRetentionLeftRightLeft"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "5ea5577e576ed642f41eb09df38fc18c6539abc663f67b9e8e5e0a185e416228",
+      "upstream": {
+        "fixture_sha256": "2277ac9b6fa4a00231637646caa6fbe07ef0bcb8d78db3a29e5d82373cd3c194",
+        "observation_sha256": "d9f8166613c79bb95f13290bb68302eecdecf27399215b8075d2a03fa86c04dc",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "d0b9a6502e6e9483953d02c3493e4704b58d874f7dfb886402d87a3bb2a3c273"
+    },
+    {
+      "id": "TestTrackingLeftBeforeSliderToRight",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestTrackingLeftBeforeSliderToRight"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "cdae800982726be955f115f6371f58bf5a3d195d268236ba966ed544087379ec",
+      "upstream": {
+        "fixture_sha256": "888ee00a50530e951c9b52df7618682d141debf4242d8d4e9e97d30b1a062102",
+        "observation_sha256": "12d4a499c3b4b6ef46b088a3947b87446345db2955261c0255da7af58925a497",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "d6e51e128947e775c5384b8941c8f82f0cd1cbfc655852b1eb28b9eddeb299d5"
+    },
+    {
+      "id": "TestTrackingPreclicked",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestTrackingPreclicked"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "275fee82ada3a49af6e7baebee1c03ac6d483dcb703e4c2d3e81848978c0a689",
+      "upstream": {
+        "fixture_sha256": "5150c91c071f57feff1b723658e8340ba0364e8719be5309cf3679708e393f57",
+        "observation_sha256": "0be34a22aa6f43bc3e9b4bd74a99700fe815d7eb158edacb5562482a0cb8506c",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "a5858cb7994351a488a1ff36b97a47f318756bda4f4a3f3d4a64ba22eb082add"
+    },
+    {
+      "id": "TestTrackingReturnMidSlider",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestTrackingReturnMidSlider"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "b9607dbd69d3fe5b060b2e0573f93f80c2585424531dc71d5725884c032afd3f",
+      "upstream": {
+        "fixture_sha256": "2ed9fd3335e3d274aa56969955b03bf231cd2372108b345f7f743b197de88875",
+        "observation_sha256": "11b5e4c1f0c41884e288dc8d3c11a3196c46e4a22ce4ec977393c3fd6d8faba1",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "08953282f6f5d775d759c49dacd381ed5ce22aeb8062bbcf28fa9eaf6ae3b13b"
+    },
+    {
+      "id": "TestTrackingReturnMidSliderKeyDownBefore",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestTrackingReturnMidSliderKeyDownBefore"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "72f6376759ca65c5765f9706447fbba0375abfc879d917e700c1430e6b8dae84",
+      "upstream": {
+        "fixture_sha256": "23611a5857402d7c08a3017b47ac21766111bb58089769ea72149514338b7a13",
+        "observation_sha256": "0d30aaf9b38842316e8bdbbf3535afa6d85c9d999dd086fd2ea5706218768d15",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "bcb070cccec0929bf69f27393fbc0c00c83ade5f13ba2f59cd52b0b6f2be3f84"
+    },
+    {
+      "id": "TestTrackingMidSlider",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestTrackingMidSlider"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "d11f6a916479539ad91000e835f47b86376b4c9bac752e3f9a7978ae11e38bd9",
+      "upstream": {
+        "fixture_sha256": "ea00df8987b0995a9229e229096cb710cbe03a05e10c072c8daff556f244c738",
+        "observation_sha256": "2a641986eaadfdf7c24dafc5834ed26fed40c6871e5575df939da81437835968",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "abe0b40a9a6dc5a06bccbe51ca547e9c1860f7ee6554eabb050cb63f948971b1"
+    },
+    {
+      "id": "TestMidSliderTrackingAcquired",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestMidSliderTrackingAcquired"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "f763f1f937c5ebf2f38eb5edd6b6f5e64f18ebd5ee282de1dd48d726c5545fd6",
+      "upstream": {
+        "fixture_sha256": "41df5359991ae53ca6395103e09b0b8989fd39a61bbbc2bc6a376ca4ca812168",
+        "observation_sha256": "96019c756786c823e269181d51126d188f8288079030be197cb4155fd6964d1a",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "7de8f022f6c536f9a5d91d7aab9a54e69c2d737c993a2c273024c6f2aa1c4f62"
+    },
+    {
+      "id": "TestMidSliderTrackingAcquiredWithMouseDownOutsideSlider",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestMidSliderTrackingAcquiredWithMouseDownOutsideSlider"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "1d799602d858f071916e5a0bb8bb45eb915d07b591f850cf1cd745c4fb166b70",
+      "upstream": {
+        "fixture_sha256": "b252543bf97d8cbb99b279075a44ea9d8890621fd2be7540e36e48714190ba4b",
+        "observation_sha256": "f0add1a227722a7ad0cb82659cb0c2d3a3486887869dab313d656b72442b0b6f",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "65e78d2f1ad33c140b3ab306e62fd70befff3ff03a55c24dbdcde869a935f802"
+    },
+    {
+      "id": "TestTrackingReleasedValidKey",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestTrackingReleasedValidKey"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "df104451d172bc78197de674b13641fa559501da328e5a447619bbeae66bb280",
+      "upstream": {
+        "fixture_sha256": "b6f0a58359454b7fcd214581db981b85fd9b9d156ca37200d96a0edc9911c223",
+        "observation_sha256": "6d32a1005f82cccb314dd233cb18b5f0340f151490a91a027876c192dd418acf",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "0894a19c0e07f097f6a06cf7e0c0cb129e05474f1f73ecea1c4089e7f4893d80"
+    },
+    {
+      "id": "TestTrackingAreaEdge",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestTrackingAreaEdge"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "6a3d8af8cfb6afcaa9f73eac3d7f696587a6cc3c1eda1597c99157ef1fb19c03",
+      "upstream": {
+        "fixture_sha256": "167bb7d0dc238d49b1acabae980ec08169555efaa5e44127abe4dfb63520cd0f",
+        "observation_sha256": "cbaaac14dc24d48f4590be3da3f4aa943679dc81bce7a76c9e6f38d724763617",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "7d87c9217b268c608503fac3e8cc1d626f6bd5f3b0fef41f686bc79e8e32d2e6"
+    },
+    {
+      "id": "TestTrackingAreaOutsideEdge",
+      "acceptance": [
+        "A15",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs::TestTrackingAreaOutsideEdge"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same positions, times, actions, length, velocity and tick rate. Two-point perfect curve resolves to a line; prepared through the legacy decoder. Replay interpolation is required.",
+      "fixture_sha256": "ca7858636de0e519d3fc01ad04be61c3fa2a21adfb574708bbc915f62304926d",
+      "upstream": {
+        "fixture_sha256": "1625ad9d5abaa67d8578abb9b3b682b2a45bc082f3a4ce46977411928449fb04",
+        "observation_sha256": "393bf48daab02f6b76941ac3c87b897bd5ece9e196fa8d5e3c1b774e27fa485b",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "c85dffbd13fc054c428e0889516c81e47ba12c06a11d123579d067f0ac6ca675"
+    },
+    {
+      "id": "follow-area-cs0-velocity0",
+      "acceptance": [
+        "A15"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderFollowCircleInput.cs::TestMaximumDistanceTrackingWithoutMovement"
+      ],
+      "source_symbols": [],
+      "adaptation": "Full 3×3 parameter matrix. Zero SV uses the same upstream precision-adjusted minimum of 0.1; path and cursor use the upstream f32 radius calculation.",
+      "fixture_sha256": "b07b7882f4b09b67ca3eeb7517022e329b8b6050e0545def14a9498310b2d116",
+      "upstream": {
+        "fixture_sha256": "330e7a700b364754662b20e619e4025cfa05ecc41bc71fdae40b7b5f7d8db35a",
+        "observation_sha256": "748f6378c6fbdea1afb0de7bbaac1d57297bcb49d25ac35bd8b1f65ae15a8c29",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "5ff25a8a63ff073ecff098c8c45367b487d345cc94248ff38f159992fb1aa792"
+    },
+    {
+      "id": "follow-area-cs0-velocity5",
+      "acceptance": [
+        "A15"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderFollowCircleInput.cs::TestMaximumDistanceTrackingWithoutMovement"
+      ],
+      "source_symbols": [],
+      "adaptation": "Full 3×3 parameter matrix. Zero SV uses the same upstream precision-adjusted minimum of 0.1; path and cursor use the upstream f32 radius calculation.",
+      "fixture_sha256": "092bfa17897a587a580d4c9cd6795b423ab3dc038195dd978522f1ad35961e08",
+      "upstream": {
+        "fixture_sha256": "fc12e713ad62a517379442217ea0f397fb2bd82bba3864b8e294dd2ea33502cc",
+        "observation_sha256": "b7e1d56ff737042b887b9d44c3c99de620443d4925aa1803cb048cd09f3a7b10",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "3ad8ee8685bcadb4bb7a124e414b5640aa03344aeca58d7df391a60752a29db5"
+    },
+    {
+      "id": "follow-area-cs0-velocity10",
+      "acceptance": [
+        "A15"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderFollowCircleInput.cs::TestMaximumDistanceTrackingWithoutMovement"
+      ],
+      "source_symbols": [],
+      "adaptation": "Full 3×3 parameter matrix. Zero SV uses the same upstream precision-adjusted minimum of 0.1; path and cursor use the upstream f32 radius calculation.",
+      "fixture_sha256": "f16f21a5862856238bbcff50638376caa4fa9b2e55672d9026e15c41c7c3f027",
+      "upstream": {
+        "fixture_sha256": "6993d7c84e75f2a4bf576e68ff3224b879633ee5aa442bc4e51b67190c57ce64",
+        "observation_sha256": "bb35783a3b2cc3b9e20cf647151c7bae077cd87492201242eb703954e9beeb98",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "a71b006d659559c4998a4c8abcafe943e5f57e86c9d59b3b2b9c6aef991d37f6"
+    },
+    {
+      "id": "follow-area-cs5-velocity0",
+      "acceptance": [
+        "A15"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderFollowCircleInput.cs::TestMaximumDistanceTrackingWithoutMovement"
+      ],
+      "source_symbols": [],
+      "adaptation": "Full 3×3 parameter matrix. Zero SV uses the same upstream precision-adjusted minimum of 0.1; path and cursor use the upstream f32 radius calculation.",
+      "fixture_sha256": "8c5589c1aee4af1f624e005d7f0409170e88c68d6b641c4e1ec4a1324df2fe67",
+      "upstream": {
+        "fixture_sha256": "bda66e784fcc25d2380490fef6d99432c3059a8da6729e1474f19067d42cec5c",
+        "observation_sha256": "42bcffd319f7da91c206d9fe8ccadf2f096add467b08c7a21f4861b5a17d8492",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "e850959e4fbe70d204bc3407dfe2b8d7d1dab90c075c0d06565bb8c579a50521"
+    },
+    {
+      "id": "follow-area-cs5-velocity5",
+      "acceptance": [
+        "A15"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderFollowCircleInput.cs::TestMaximumDistanceTrackingWithoutMovement"
+      ],
+      "source_symbols": [],
+      "adaptation": "Full 3×3 parameter matrix. Zero SV uses the same upstream precision-adjusted minimum of 0.1; path and cursor use the upstream f32 radius calculation.",
+      "fixture_sha256": "249436dbd62fe2adc15662d95eec0b68a158d90f059816de2454d5d80539f603",
+      "upstream": {
+        "fixture_sha256": "24ae75f20b54bc51c0bd447469490d47fd61be88384cc69e61bdbdfd16e82de4",
+        "observation_sha256": "90b41f9b2cbc5cdce55cad4b423709225ec28db147374412fea284657e0e7f7f",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "cdcff728b7138d6228b329da09a87deab7bc5f67d912c2ea5e3e7f46e39d5bd9"
+    },
+    {
+      "id": "follow-area-cs5-velocity10",
+      "acceptance": [
+        "A15"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderFollowCircleInput.cs::TestMaximumDistanceTrackingWithoutMovement"
+      ],
+      "source_symbols": [],
+      "adaptation": "Full 3×3 parameter matrix. Zero SV uses the same upstream precision-adjusted minimum of 0.1; path and cursor use the upstream f32 radius calculation.",
+      "fixture_sha256": "6463685b8f65fe50603dac0ac06e92fdea3a2c506660cf7f39aca3523daad9c2",
+      "upstream": {
+        "fixture_sha256": "d2959aeb3f1088c6b4445b3559b64671a5409222810343ff6706a1fc7e0c6f80",
+        "observation_sha256": "bec84ebfa2fa31c71dfa6a06d8810a41ea73604ddd90e2dfbeabfd1c4100936f",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "4705b6b87f9d58d023020c087dbd1487b4d5a0d7f27708da03e580dd3be0b0ac"
+    },
+    {
+      "id": "follow-area-cs10-velocity0",
+      "acceptance": [
+        "A15"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderFollowCircleInput.cs::TestMaximumDistanceTrackingWithoutMovement"
+      ],
+      "source_symbols": [],
+      "adaptation": "Full 3×3 parameter matrix. Zero SV uses the same upstream precision-adjusted minimum of 0.1; path and cursor use the upstream f32 radius calculation.",
+      "fixture_sha256": "8907fea132d23f840cd5c5cbf3b9b11fceae93ece1a4c629ae314c664ee7ae48",
+      "upstream": {
+        "fixture_sha256": "024712a9580e9e7d860e05e0a1e5409c0ae8898b1090cd60b33b83d9316d9a23",
+        "observation_sha256": "fc186c705abc234a6167789f23958dbbffbf3472fbed88bc5422d98da01b36d4",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "8614d3cce9f6d2f2693b5f22ed875a5f4fe69c4ae4e1f3f7ffc2fb0ebd2f601a"
+    },
+    {
+      "id": "follow-area-cs10-velocity5",
+      "acceptance": [
+        "A15"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderFollowCircleInput.cs::TestMaximumDistanceTrackingWithoutMovement"
+      ],
+      "source_symbols": [],
+      "adaptation": "Full 3×3 parameter matrix. Zero SV uses the same upstream precision-adjusted minimum of 0.1; path and cursor use the upstream f32 radius calculation.",
+      "fixture_sha256": "64fb410174ddf79c18cf0b03e14305adb666c3bf69d81f309e9bbfd4211e559c",
+      "upstream": {
+        "fixture_sha256": "f144182da02a840c08eeab4ff683c237912517610b09316c7bc63e75bb3b4b9b",
+        "observation_sha256": "2a89b6a0420c520402826b3ab6502b116d8496530139792a135d35cf4fad48ba",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "2989e32b99d56ca8eaf90655d43658ac6e5e84e9a00a00f77fc0431949cac853"
+    },
+    {
+      "id": "follow-area-cs10-velocity10",
+      "acceptance": [
+        "A15"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderFollowCircleInput.cs::TestMaximumDistanceTrackingWithoutMovement"
+      ],
+      "source_symbols": [],
+      "adaptation": "Full 3×3 parameter matrix. Zero SV uses the same upstream precision-adjusted minimum of 0.1; path and cursor use the upstream f32 radius calculation.",
+      "fixture_sha256": "c58cc3ec407129ae8abea441e75b5b9f26ab4a5ccd134eb9b103920d4edfcf6f",
+      "upstream": {
+        "fixture_sha256": "482eeb42826506cb9bea451633dbac3e7a43b9af94a2bf7ceeed602621c9447b",
+        "observation_sha256": "ddf704abada082576ec78faad95cbfddc66a259de9e3d7bb5cdf85daf7703b1f",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "76fd42ce6c90427590a072d7be6a00be5589ad0f6cc15f4d584f5eea67b2b850"
+    },
+    {
+      "id": "TestHitEarlyMoveIntoFollowRegion",
+      "acceptance": [
+        "A15",
+        "A20",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderEarlyHitJudgement.cs::TestHitEarlyMoveIntoFollowRegion"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same replay, OD0, path and duration. TickDistanceMultiplier=3 with SliderTickRate=3 is represented by tick rate 1, yielding the same single tick.",
+      "fixture_sha256": "0d6328f4e8216846f498023139dd0fbecd1989a623c6865d5dc435d0f758f5e0",
+      "upstream": {
+        "fixture_sha256": "2981e8ce49f73866a42f7545283698393f07b26ef64654e30d681a48d449efcf",
+        "observation_sha256": "a5e76f1360c9fad5c45d586ce2956766f4786545ab5fe6609848c8caf32ce26f",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "8e0d6bb83c52e1205e8fbf01d915e0754f907625df4b259165e7171bd7a3b7cf"
+    },
+    {
+      "id": "TestHitEarlyAndReleaseInFollowRegion",
+      "acceptance": [
+        "A15",
+        "A20",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderEarlyHitJudgement.cs::TestHitEarlyAndReleaseInFollowRegion"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same replay, OD0, path and duration. TickDistanceMultiplier=3 with SliderTickRate=3 is represented by tick rate 1, yielding the same single tick.",
+      "fixture_sha256": "766e2a11febf50cef9e6de57d4af0c5e9dac9955865a5418aac48b985907dd41",
+      "upstream": {
+        "fixture_sha256": "913d14c037927d1e8cfabcfdec1a037b80e45960b172995af36bd5fee9c8e072",
+        "observation_sha256": "4c9ec448847c6a9d54239089250bf89946be86895df22299239325be75ee6658",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "ddcb36bcca9d5811003530ab1095ebfceca4a9682dee39c942c315bd4dac7271"
+    },
+    {
+      "id": "TestHitEarlyAndRepressInFollowRegion",
+      "acceptance": [
+        "A15",
+        "A20",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderEarlyHitJudgement.cs::TestHitEarlyAndRepressInFollowRegion"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same replay, OD0, path and duration. TickDistanceMultiplier=3 with SliderTickRate=3 is represented by tick rate 1, yielding the same single tick.",
+      "fixture_sha256": "597160d153fd68faad28b8467bb605ad64e82664b41412f4ca3eb92f6a823620",
+      "upstream": {
+        "fixture_sha256": "3adc5f56f2301c0e4ed2e0024e26b7a413a21168881b6f306784581acf27e5f1",
+        "observation_sha256": "da285448dccf68310879a2419d8cbf7ccaf756d1db4e3c3b44fdbfcc36f1a4fb",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "c187e97e7e4b906f893e55fecb067c9fe58f2a40c3396b7b74d82f685d35e116"
+    },
+    {
+      "id": "TestHitEarlyMoveOutsideFollowRegion",
+      "acceptance": [
+        "A15",
+        "A20",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderEarlyHitJudgement.cs::TestHitEarlyMoveOutsideFollowRegion"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same replay, OD0, path and duration. TickDistanceMultiplier=3 with SliderTickRate=3 is represented by tick rate 1, yielding the same single tick.",
+      "fixture_sha256": "5ecfaae96948dd411b642aaa2093194c4a156dc12ac81c6f1906b8add19b2e90",
+      "upstream": {
+        "fixture_sha256": "06eec2b30525a3b58e9d34ce0dae74dd4bc8ed0a2b51a17497c2ece8a6761a05",
+        "observation_sha256": "c69aabfaf583bae582b068189b6e0eab08fbfb5e1d10cc3db56842d6a28d70c5",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "67b273a1d0c008b81fd767249a830142dc2a03873abdb3b4327a0a1efef86fd5"
+    },
+    {
+      "id": "TestHitLateInRangeTracks",
+      "acceptance": [
+        "A15",
+        "A20",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderLateHitJudgement.cs::TestHitLateInRangeTracks"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same path, replay, OD5 and velocity. Represent programmatic TickDistanceMultiplier through legacy tick rate; all component assertions are checked independently upstream.",
+      "fixture_sha256": "b75f6d1a272ab08018b66145d853d812dace9425f303fd007b01c6ced23a51d1",
+      "upstream": {
+        "fixture_sha256": "28091075c4598d9b58e769e1aa969a087545f9daad7069f07733b4f73bc6970d",
+        "observation_sha256": "ef0e3b7e7a72767be230dd774cc2da0aa08e149d850db383f71d663ac949f2ab",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "f315f3aac5a054e92607d86342ef69027e284b5830202e94e8dffc215bfcd2c6"
+    },
+    {
+      "id": "TestHitLateOutOfRangeDoesNotTrack",
+      "acceptance": [
+        "A15",
+        "A20",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderLateHitJudgement.cs::TestHitLateOutOfRangeDoesNotTrack"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same path, replay, OD5 and velocity. Represent programmatic TickDistanceMultiplier through legacy tick rate; all component assertions are checked independently upstream.",
+      "fixture_sha256": "e93c16d6fbe3ddef25a988951df7ffcc642d83b99631a9b74fd0d0842361683d",
+      "upstream": {
+        "fixture_sha256": "7555b2062bbaa9db1271c731d87a6635d24e3758295f911cf1fe3067412e6686",
+        "observation_sha256": "7ddae7459ad608c0f907464e95d0365e9f0df6b3e0f73ded507fcccce75a7f12",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "3dea0d55c60f40f1c4c55da31d20d861cd2a2d69946b9b5cb9149c87cc727a5e"
+    },
+    {
+      "id": "TestHitLateInRangeHitsTicks",
+      "acceptance": [
+        "A15",
+        "A20",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderLateHitJudgement.cs::TestHitLateInRangeHitsTicks"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same path, replay, OD5 and velocity. Represent programmatic TickDistanceMultiplier through legacy tick rate; all component assertions are checked independently upstream.",
+      "fixture_sha256": "859d48b7320e5af526c7bc38903ac4d008d2e9aa1668a78b9a64aa0a5e6e978c",
+      "upstream": {
+        "fixture_sha256": "d6b487ab55352448fbad774e3e227277e1abf928237f621909cf0fbcf8665eb6",
+        "observation_sha256": "7a3731c5e5fe55311c94460e08dbdc9286fc75b8a32a6f52f4ae164d7df950c5",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "e29f5b04bc7e3f34142890f7ab256a2b350bbda4d284ef8b7cea12c76b18be1c"
+    },
+    {
+      "id": "TestHitLateOutOfRangeDoesNotHitTicks",
+      "acceptance": [
+        "A15",
+        "A20",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderLateHitJudgement.cs::TestHitLateOutOfRangeDoesNotHitTicks"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same path, replay, OD5 and velocity. Represent programmatic TickDistanceMultiplier through legacy tick rate; all component assertions are checked independently upstream.",
+      "fixture_sha256": "d099dc28ef9397244132cab7db50cc7d7b7a40eaa851498d7026ac9e68b0a4b8",
+      "upstream": {
+        "fixture_sha256": "66056f0ee6f84779f7e87041f9f7886e0cab0c2ab4ef7e9a0c4a10f047814034",
+        "observation_sha256": "bd227158b8672096801d90f28579374cbdcba8bac8dae54c868406ba3840287b",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "6d603781304202a0ee356c121ec94c775b658d92b980fc120f716623fce11635"
+    },
+    {
+      "id": "TestMissHeadInRangeDoesNotTrack",
+      "acceptance": [
+        "A15",
+        "A20",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderLateHitJudgement.cs::TestMissHeadInRangeDoesNotTrack"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same path, replay, OD5 and velocity. Represent programmatic TickDistanceMultiplier through legacy tick rate; all component assertions are checked independently upstream.",
+      "fixture_sha256": "38b6e29e9177dad6d9c78c47c03ae2ee52a109a7daee9477fd9942d01cf2259a",
+      "upstream": {
+        "fixture_sha256": "2a2a01a60dd808d651964f27b0470a5c8dcd642f39fefa24131c0a785cad9612",
+        "observation_sha256": "5bb8c8ea6f56aa5e0c12c4acbb61fec76ce99daae80bd91660b62737be691c87",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "efbc014a169f3446c14bb61edd7af0a09c9e332838f57c7d5535f9a6dd14ee66"
+    },
+    {
+      "id": "TestHitLateInRangeHitsRepeat",
+      "acceptance": [
+        "A15",
+        "A20",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderLateHitJudgement.cs::TestHitLateInRangeHitsRepeat"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same path, replay, OD5 and velocity. Represent programmatic TickDistanceMultiplier through legacy tick rate; all component assertions are checked independently upstream.",
+      "fixture_sha256": "1e6caa85ceeace7c4381970f01f0cd3738374c4665eeb577674762d7d65d283f",
+      "upstream": {
+        "fixture_sha256": "b3b156d92edd8219a79c1ce276d99729751597cc2a5f15f3ef555cdabfa40382",
+        "observation_sha256": "d913d9b1fbaf9ca791828c195d0adbe5936c5504369ef75cc4476fdf7f0a1312",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "de0246ff6639a02b884a6a558c3c3a1da8f6ff68a89ec56840fe8962aa67e95f"
+    },
+    {
+      "id": "TestHitLateShortSliderHitsAll",
+      "acceptance": [
+        "A15",
+        "A20",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSliderLateHitJudgement.cs::TestHitLateShortSliderHitsAll"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same path, replay, OD5 and velocity. Represent programmatic TickDistanceMultiplier through legacy tick rate; all component assertions are checked independently upstream.",
+      "fixture_sha256": "632504192dc51731d85e8e005db503ff949749bf364dc9bfcafa1946efc1fe2c",
+      "upstream": {
+        "fixture_sha256": "f93807b7d9b8ec9b822fe61f868915f547e2e3054e29dd8cbc8bf143f5c60b85",
+        "observation_sha256": "f0b17d37253a62451c6d1186c2d47430548a5b027c64010e025fdc0bb4dddc60",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "discrete sample delivery frame/object/volume"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "a6447b51d123a220636ca6d78f6e736e7501946eb0ed9a34aa734e2b4b19dd86"
+    },
+    {
+      "id": "spinner-no-input-port",
+      "acceptance": [
+        "A16"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerJudgement.cs::TestHitNothing"
+      ],
+      "source_symbols": [],
+      "adaptation": null,
+      "fixture_sha256": "2b5499c7739156acaafdd41e9140b57296b3a4534be0e8a960e8908c61178a91",
+      "upstream": {
+        "fixture_sha256": "d78ce77ee6535d64951cb4faeaaf027d5d1a1a0813c03c7ab202d168080d1734",
+        "observation_sha256": "4e34f5df9888a8955f761a7ac2684c90921eb75100ce0ec113054499cf11842d",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "31d4b75e59dcaf19bfaba837972aa30df6e5cbc17c54348573d86b96f88cbc0d"
+    },
+    {
+      "id": "spinner-1-spins",
+      "acceptance": [
+        "A16",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerJudgement.cs::TestNumberOfSpins"
+      ],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu.Tests/SpinFramesGenerator.cs"
+      ],
+      "adaptation": "Same 2000–4000 ms spinner, OD5, 10 ms frames, angular error margin and final release. f32 operations retained; trigonometric library rounding is checked through fixture coordinates.",
+      "fixture_sha256": "1faf78e6d3a2dbb5a3e81beb419bde2524ba6e6075602ae48e505cbc90007075",
+      "upstream": {
+        "fixture_sha256": "836f521fe611531dcce6ecdea88c2ee9b4399b342a7fdfb2023b824f3736056e",
+        "observation_sha256": "906426a1b54ae2617b33fb9ea36ef449572c75970ee379242c47d15d6a5467ae",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "0fac304b9f459ed28c497e647dc9d1259de96dd71ad135b2b5a140b61df804c4"
+    },
+    {
+      "id": "spinner-2-spins",
+      "acceptance": [
+        "A16",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerJudgement.cs::TestNumberOfSpins"
+      ],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu.Tests/SpinFramesGenerator.cs"
+      ],
+      "adaptation": "Same 2000–4000 ms spinner, OD5, 10 ms frames, angular error margin and final release. f32 operations retained; trigonometric library rounding is checked through fixture coordinates.",
+      "fixture_sha256": "5b3a3e0d854d48125d7660e02bd616d70257a39b7ee1025236a21ff9e1721bcb",
+      "upstream": {
+        "fixture_sha256": "2dc5d5cecac40a5db48c73822cadff9a36059092c30fcd79373996b6bebf6879",
+        "observation_sha256": "6a73695eb90e31268768be776aeb26986c10916eb082a8870a92596a2067c392",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "ec81961882810005585bd74a6e78a66d0b1b0c352311afdb055207f5092bf159"
+    },
+    {
+      "id": "spinner-5-spins",
+      "acceptance": [
+        "A16",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerJudgement.cs::TestNumberOfSpins"
+      ],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu.Tests/SpinFramesGenerator.cs"
+      ],
+      "adaptation": "Same 2000–4000 ms spinner, OD5, 10 ms frames, angular error margin and final release. f32 operations retained; trigonometric library rounding is checked through fixture coordinates.",
+      "fixture_sha256": "756c30d5fb5de5bc97ae13106dc6044a0e80f66538fe4232e983f02cd5ccab10",
+      "upstream": {
+        "fixture_sha256": "cce2c9cdd2b55282786164eb3462ea2b8cec119c7f3897a47d18f858e9f3797a",
+        "observation_sha256": "036bb7e914bd0065aae3d13d6b3e1da826d8e0deddcde94c359bd65ab25e5ed9",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "445efb230382f765c925b65e65c15b2344c829effb81a4335ce33fcbf32c18f4"
+    },
+    {
+      "id": "spinner-20-spins",
+      "acceptance": [
+        "A16",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerJudgement.cs::TestHitEverything"
+      ],
+      "source_symbols": [
+        "osu.Game.Rulesets.Osu.Tests/SpinFramesGenerator.cs"
+      ],
+      "adaptation": "Same 2000–4000 ms spinner, OD5, 10 ms frames, angular error margin and final release. f32 operations retained; trigonometric library rounding is checked through fixture coordinates.",
+      "fixture_sha256": "b7f3feeca6a1f84f7fd04206fbce345c49f189b7ca99c305a509e2f7e4a339ba",
+      "upstream": {
+        "fixture_sha256": "afa67cefcb3544fcc7886a7cab232aabbb63a3ef55524f8dfcf6a435bdb694b1",
+        "observation_sha256": "2db6b1fd3930751887815c8ddd2e7410464581ecace4c245950cd60e2b9a7c1b",
+        "adapter": "controlled-drawable-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "68ba2073b0da2d5cd8cf0e862b92b966040a060ae95dcbd5de07ae4c46830c50"
+    },
+    {
+      "id": "player-mixed-hp0-break-false",
+      "acceptance": [
+        "A17",
+        "A18",
+        "A19",
+        "A23"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game/Screens/Play/Player.cs",
+        "osu.Game/Rulesets/Scoring/DrainingHealthProcessor.cs"
+      ],
+      "adaptation": "Source-derived mixed-session health/score integration at HP0/5/10, with and without a break.",
+      "fixture_sha256": "461a42d4eff22a27ea9294a501eea2052e03d87265968762b74f7d9627f1acb3",
+      "upstream": {
+        "fixture_sha256": "615b5461f56976ef8fd46d5cd82914aa3f7b38e3d5c512f610ff90af4d47273c",
+        "observation_sha256": "5cc3af96ccedcf45fefe7752fe4e4dce88d39b804c70db9a8ee78bf64446ab05",
+        "adapter": "pinned-player-with-replay-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "player failure/final health/per-result health"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "2b0eec1b987a60e0bf6bb8509a2784c101488f1d6baf872f9e7161ee2414c532"
+    },
+    {
+      "id": "player-mixed-hp0-break-true",
+      "acceptance": [
+        "A17",
+        "A18",
+        "A19",
+        "A23"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game/Screens/Play/Player.cs",
+        "osu.Game/Rulesets/Scoring/DrainingHealthProcessor.cs"
+      ],
+      "adaptation": "Source-derived mixed-session health/score integration at HP0/5/10, with and without a break.",
+      "fixture_sha256": "cae6398af3deaaec29e58c5249d7e2e3ebfbdae795ff33b5a20a6e5e45a1c03d",
+      "upstream": {
+        "fixture_sha256": "fb437660392e758db5194d634ad7e162a812b3735981762718784282b4a37c62",
+        "observation_sha256": "331541e3bf60920e24675ec4bf96931ff65a556218604fcc560525fa029fd93d",
+        "adapter": "pinned-player-with-replay-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "player failure/final health/per-result health"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "0e12a27632ed2edc4e737e74b6c15ff5f50d4262d89e77ad24a61b7416178252"
+    },
+    {
+      "id": "player-failure-hp0",
+      "acceptance": [
+        "A19"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game/Screens/Play/Player.cs",
+        "osu.Game.Rulesets.Osu/Scoring/OsuHealthProcessor.cs"
+      ],
+      "adaptation": "Source-derived real Player failure and post-failure score observations.",
+      "fixture_sha256": "440261abd69cd9290d0710e5c8d0be009ddfc41a71893583590a71836245ac93",
+      "upstream": {
+        "fixture_sha256": "e634cec64de3d2d9cdbb815bd73102faf38b68ff4c08f686c016848593ea0255",
+        "observation_sha256": "fb5ca0d5a2c996b01518fd18792b6ec301dd05235d690767b001b66513c1f05d",
+        "adapter": "pinned-player-with-replay-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "player failure/final health/per-result health"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "1448bd86872302b5412e0d8e7e9fc83ab5943bbe916dd4c70c27f541d1923695"
+    },
+    {
+      "id": "player-mixed-hp5-break-false",
+      "acceptance": [
+        "A17",
+        "A18",
+        "A19",
+        "A23"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game/Screens/Play/Player.cs",
+        "osu.Game/Rulesets/Scoring/DrainingHealthProcessor.cs"
+      ],
+      "adaptation": "Source-derived mixed-session health/score integration at HP0/5/10, with and without a break.",
+      "fixture_sha256": "66d15c0e2aad7b8c0b9f3c5cb35f165b569b699b9a23d29ac40fac50f828a030",
+      "upstream": {
+        "fixture_sha256": "04a8045c3ead28ea1fe5e9c6ab650f0a35ccb0459f98d82ac02dec90a63294e1",
+        "observation_sha256": "b9894e2ef160134db7c303f5220cd713eb38687c4f108bcd2f830a4bb3611a94",
+        "adapter": "pinned-player-with-replay-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "player failure/final health/per-result health"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "b117a5911461e2f16fd6707134b45b04c649069906ae2e2a05c814dda9b158ec"
+    },
+    {
+      "id": "player-mixed-hp5-break-true",
+      "acceptance": [
+        "A17",
+        "A18",
+        "A19",
+        "A23"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game/Screens/Play/Player.cs",
+        "osu.Game/Rulesets/Scoring/DrainingHealthProcessor.cs"
+      ],
+      "adaptation": "Source-derived mixed-session health/score integration at HP0/5/10, with and without a break.",
+      "fixture_sha256": "4f547aadb99e12827db7d98fef13a718ee2445ee760c39d2d1eb585562aebd23",
+      "upstream": {
+        "fixture_sha256": "4c20f0998db2c29f6e9824360a56b1396059df84fb45a0f700712b044a5e1112",
+        "observation_sha256": "654c016fd635eb3a6cd5b81efd933bd63562e121da9186167edf1e72d551970e",
+        "adapter": "pinned-player-with-replay-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "player failure/final health/per-result health"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "44fd3664992229fa2a32d72067e497fa7bd8e9c16b6bf437c06730d1700912fc"
+    },
+    {
+      "id": "player-failure-hp5",
+      "acceptance": [
+        "A19"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game/Screens/Play/Player.cs",
+        "osu.Game.Rulesets.Osu/Scoring/OsuHealthProcessor.cs"
+      ],
+      "adaptation": "Source-derived real Player failure and post-failure score observations.",
+      "fixture_sha256": "73cba6f203f6131a748b3a5e3da0d2d19c9ac4359afda9a0c57c8592a9ed4941",
+      "upstream": {
+        "fixture_sha256": "1c955e340c3ac8ddb6783dc12faa67f64a62a0998a7cfaf2c81b765c5671bc0d",
+        "observation_sha256": "50c1511fd147e4ca57c64574630a75fb0cf1b76a909eb2c500bf6d6f2f2bce7c",
+        "adapter": "pinned-player-with-replay-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "player failure/final health/per-result health"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "e96e45e313ae3a34f4f763c466e55a1f5ce6d9717a4e8a5482e17fcfbe86cb69"
+    },
+    {
+      "id": "player-mixed-hp10-break-false",
+      "acceptance": [
+        "A17",
+        "A18",
+        "A19",
+        "A23"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game/Screens/Play/Player.cs",
+        "osu.Game/Rulesets/Scoring/DrainingHealthProcessor.cs"
+      ],
+      "adaptation": "Source-derived mixed-session health/score integration at HP0/5/10, with and without a break.",
+      "fixture_sha256": "057f169d3c38ae24a129f03bd95b26ad2e82efe2448f72b40a8eae1d1a440bfe",
+      "upstream": {
+        "fixture_sha256": "dd5cb69cdf6d688fecd48a943e716f200ecc7df6c4a632dd1021c4537efac56c",
+        "observation_sha256": "491624de87d05aee388168ce80aa11a5733d6d2055d8cf7d77125fb11fa8db95",
+        "adapter": "pinned-player-with-replay-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "player failure/final health/per-result health"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "b75b283e9511e2eabaa99fa3d360e667d338eafe2dd4725a8cb6e42b5eafd2ed"
+    },
+    {
+      "id": "player-mixed-hp10-break-true",
+      "acceptance": [
+        "A17",
+        "A18",
+        "A19",
+        "A23"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game/Screens/Play/Player.cs",
+        "osu.Game/Rulesets/Scoring/DrainingHealthProcessor.cs"
+      ],
+      "adaptation": "Source-derived mixed-session health/score integration at HP0/5/10, with and without a break.",
+      "fixture_sha256": "d158e29b98aef8f4196467ae06b2b8e11dce54f6e60cee0d1c6c6bf9f3a0c80a",
+      "upstream": {
+        "fixture_sha256": "70bfee25c77720ba7f925a049f9a87c965d41255454594b5a61a5f6d098a2716",
+        "observation_sha256": "9d68bbb18970d46c1322b2378710a38f953204c4c731a3f401dad41467fb3806",
+        "adapter": "pinned-player-with-replay-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "player failure/final health/per-result health"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "8c661c0cea27ca32bcf64683867d290c0833d75f419a61134817a4304b52d113"
+    },
+    {
+      "id": "player-failure-hp10",
+      "acceptance": [
+        "A19"
+      ],
+      "upstream_tests": [],
+      "source_symbols": [
+        "osu.Game/Screens/Play/Player.cs",
+        "osu.Game.Rulesets.Osu/Scoring/OsuHealthProcessor.cs"
+      ],
+      "adaptation": "Source-derived real Player failure and post-failure score observations.",
+      "fixture_sha256": "8b38d67126795011cca48ba241d848a419adb01ff22179959f1b420abed244a5",
+      "upstream": {
+        "fixture_sha256": "8a862d7ebe35124efa4230773c6e7ed16fa37c82250e52d59038a262065b3eb4",
+        "observation_sha256": "a329cd93f230d7259d43801f3872fe7896e4fbccb7714ba1e3a18921ef35e673",
+        "adapter": "pinned-player-with-replay-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "player failure/final health/per-result health"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "65825c08d22aee2e1a3c76a90bc5915b21822435dcefa03cb7bf2a824b8faff8"
+    },
+    {
+      "id": "replay-record-actions-port",
+      "acceptance": [
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneReplayRecording.cs::TestRecording"
+      ],
+      "source_symbols": [],
+      "adaptation": "Translate object/input times by +1000 ms and use HP0 in place of the test-only NoFail mod; preserve right/left/smoke recording assertions.",
+      "fixture_sha256": "322aea35f60984176f1ddb18d31aa4b342aeb42360173135c2850716ae2e6772",
+      "upstream": {
+        "fixture_sha256": "5a8f406546a5fa2d638f463ffe31e5f520aa49ea2130e502824086d4fe46f29e",
+        "observation_sha256": "eb75c1db1c1cbd84d8d6e8ab4ef74860f60df70b87c97b168456cc8dfcf5217c",
+        "adapter": "pinned-player-with-live-recording",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "player failure/final health/per-result health",
+          "recorded action assertions"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "9afa4773ef3f60b35f48fbbd742c6a92efad9721eb7eb85535bba5aa4eef7352"
+    },
+    {
+      "id": "replay-record-same-time-release-port",
+      "acceptance": [
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneReplayRecording.cs::TestPressAndReleaseOnSameFrame"
+      ],
+      "source_symbols": [],
+      "adaptation": "Press/release on successive host updates at one frozen beatmap timestamp, matching the source test; +1000 ms time translation and HP0.",
+      "fixture_sha256": "ddc522c3647abf7cf15752ca088defaab66a5f9e4a05797757c99d398bbb0271",
+      "upstream": {
+        "fixture_sha256": "9ad02952d48ffcc8e00ca00987e69f31da3197c0376ab2315e838452a592820b",
+        "observation_sha256": "c1fde1454e8325b1b6e8aa0ecdf52b6dc16ee692e67be83f4eb6ad01b7a19b75",
+        "adapter": "pinned-player-with-live-recording",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "player failure/final health/per-result health",
+          "recorded action assertions"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "e2487c8001c585df7ef474cfe90feaf87bb4cc6a3542c4767c4207a60a4a2853"
+    }
+  ],
+  "failures": [],
+  "limitations": [
+    "Player health/failure uses a semantic boundary schedule with audio-clock smoothing disabled; arbitrary upstream render-cadence equivalence remains open.",
+    "Judgement deadline quantisation is observed separately; this comparison does not claim equal automatic-result times.",
+    "Recording ports assert action retention, not full adaptive recorder sampling equivalence.",
+    "Discrete sample requests cover the marked fixtures; asset selection, loops, browser playback and presentation acceptance remain separate."
+  ],
+  "health": [
+    {
+      "fixture": "upstream-health-HitCircle-min",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestFailAfterMinResult",
+      "sha256": "6e19de4793789f1d7f77b20fd925adf72c34759cc21bb4f15d09d32e1df17589",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "6b5ce02c17f645e8a301b529697354b75d30e432e27bedd5b71ba2ff5b3f6f0e",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-HitCircle-max",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestNoFailAfterMaxResult",
+      "sha256": "a06d8ea9bbaa9a905c97ca970de3df6d6cc8c7165054cbb3d5fcbd5d3970b159",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "d84cd21c76dc30d5fc5fc580215b10d5fe6a39118df56e620b95424f8014f8ae",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-SliderHeadCircle-min",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestFailAfterMinResult",
+      "sha256": "5cecc874860d8badcaa59c650b4c09c6341e32e1ce176ba8526bd310f5b81b97",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "56844e6326053e37ed52eaeaa9a3aeb094d1a5aaced0c08cff54fe06cefafcbc",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-SliderHeadCircle-max",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestNoFailAfterMaxResult",
+      "sha256": "eea30f05d96b22a8e27b3c0ff1b3eb39ac292bec78a5a72f7e151ecb67dbdd57",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "4e73c646a070e395ed23564093327e0a308bde1aa2890278e2c4d17fdf2cc83a",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-SliderTick-min",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestFailAfterMinResult",
+      "sha256": "dd667faf1d8c6c9423834ecfc9ed4bb00503e9ef9e91ee29da7ca40c3b0b3be8",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "55f2319e53adc8a3eed8a121e51d2ac4f3e492fcca122f3c112ec6a6121e5699",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-SliderTick-max",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestNoFailAfterMaxResult",
+      "sha256": "65ed2977278a4c3506f02243b5bf81875ac02fa37b47f3c95a42fe54923a3f06",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "d26fdb43fe3564a2c02420e4f4bed4b9d6ee5226422fd7490448e18fdd4d76e3",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-SliderRepeat-min",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestFailAfterMinResult",
+      "sha256": "b0e1413625fe2dcd3ece2cae943741cccf4753b593b6d46f0c18b0a076658979",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "8ccd79f9fedc7c8d9f88e1c8fd1e6bce68978feb3f162f6dac93ffc7edff071a",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-SliderRepeat-max",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestNoFailAfterMaxResult",
+      "sha256": "d123160381fb1151fd94aeed0dac65be927124e1fa2176c72187c6aef79aa77a",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "8f971973e3b16b646da553c1321962ebc77e29ed16454f867e4ea3f4b0da646a",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-SliderTailCircle-min",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestFailAfterMinResult",
+      "sha256": "15ca2f3debdadc09bd8ee70c1f1441a62e21388d754c546908a607164c811745",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "751b6b73eec6a86b727cdd5579d8e5dcc9dd978907563c639c8114352104c15e",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-SliderTailCircle-max",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestNoFailAfterMaxResult",
+      "sha256": "bf46e17d6271b4a3451d5f2163b5e97e8f167dcedfe6a018ce87992c73ef1e26",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "c5554e425afbf0ddaa241994130dd967f92252d7f0ac7311eab273a20609c2d4",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-Slider-min",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestFailAfterMinResult",
+      "sha256": "d4b07d5fdde38de352f7c9d0909aabbfa8ff1037e1ac5c3bd04881af61322d4e",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "d7f13ca1bc4350c8009086a0dcd7555b225508bbf8aa54e508fed3af947dca76",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-Slider-max",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestNoFailAfterMaxResult",
+      "sha256": "f1749a2941778bd63eef799facfc1e86b98a479757bcfbe6f79e36e094255292",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "52e8f899e81255ea252626bedd799553a1766eacbf44c85a3e7f9d337931d0bf",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-SpinnerTick-min",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestFailAfterMinResult",
+      "sha256": "1a75a1db57e538410da334ea75de0622d9cfc8102cdd0925ce142dbb6e1db3c8",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "a19c395c450e85b1954d348fb25bf33f08641952192fce22ac708e59d451291f",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-SpinnerTick-max",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestNoFailAfterMaxResult",
+      "sha256": "da90aef09c6f7d32a3213ccf70cd95c91291934fceb47af0e8cdb9d2ae10e9b2",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "182d7239a25c060dd64fcbe28e2812783d2628c4b418ec6d25f4a67047773e1b",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-SpinnerBonusTick-min",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestFailAfterMinResult",
+      "sha256": "ea0fd413445c246335e9a2690d138245524c9eea718ce5d7c99bf436f962c267",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "530de180e566e4c29970fde7218a31ea6e863d21186ddab1debca0821d622bb9",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-SpinnerBonusTick-max",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestNoFailAfterMaxResult",
+      "sha256": "ccb5c8f43455f997be07d2d7039e963021b480e3058ce0f52200c407f9bacd11",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "fd2137282eb289e1abcf38c860a580c98150285ca282ed0fa9a60b83cf577a96",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-Spinner-min",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestFailAfterMinResult",
+      "sha256": "cb4bd9bb5cef16e3554dac20863691cb99f73212e8f6ad7caaa36765b25c6e42",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "d9bf6a4fc965ced8b06efa1fc147dc225c564d7ff432cf3f38465ad047179098",
+      "difference": null
+    },
+    {
+      "fixture": "upstream-health-Spinner-max",
+      "upstream_test": "osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs::TestNoFailAfterMaxResult",
+      "sha256": "2860cc8496d1b35963b3b669370d1d21ee703f3cd58400d7de7af14f8751e45c",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "227339fb7223c21708120f2f49b73232e142e4b1ca034aca79306769115ac98b",
+      "difference": null
+    },
+    {
+      "fixture": "health-combo-hp0-result1",
+      "upstream_test": null,
+      "sha256": "48a3e037010f16aac4b67b6f49798ede4153357febedc4f000be100276302733",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "106f263da06002b8a35c79f3388faf6f45cf421bbbeb0af8eae6a43220ce2d8f",
+      "difference": null
+    },
+    {
+      "fixture": "health-combo-hp0-result2",
+      "upstream_test": null,
+      "sha256": "ddb55cbdb7c571a6309a928d7dbdc9bf44cd7ea2b56f5c8bf13dc60529f9312a",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "8aad3ac65bebfd41fba8668584a19070fee67b1051cbe46d1a02b69097e2d087",
+      "difference": null
+    },
+    {
+      "fixture": "health-combo-hp0-result3",
+      "upstream_test": null,
+      "sha256": "aa7457edd73b1fd42f1a71da86e364d61d1e525c1db1ecf052337905a7b3ea6a",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "887bba8ff22cb95cd8eb9f2f9e6dade3f874634d27d902b83884348f7b211fa4",
+      "difference": null
+    },
+    {
+      "fixture": "health-combo-hp0-result5",
+      "upstream_test": null,
+      "sha256": "8b3f8ec4cca1b5632079bdfad6a8b77044aa474e44422dd0c1b9903a8a1de5ce",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "907af080d61658675c4d89a7679ba75fec29bbfa878620f7f21bcca936322cc9",
+      "difference": null
+    },
+    {
+      "fixture": "health-missed-tail-combo-hp0",
+      "upstream_test": null,
+      "sha256": "db9dd8ec831648747c89e5e23b5371aa9324e52600132a8e3b555f2eacf3f095",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "ca59cf86e08b12788e97623dac5388333cb6512d276819512b50b70426a53d90",
+      "difference": null
+    },
+    {
+      "fixture": "health-new-combo-resets-quality-hp0",
+      "upstream_test": null,
+      "sha256": "836b0eef2a6b6b57c5ff8a4173ed8318078b5ef458d6a2c4e63de7fd40c129a5",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "7dfb814984c85b289b8ada636516a85a1cb14fc53975fea53f77e075be43c16b",
+      "difference": null
+    },
+    {
+      "fixture": "health-combo-hp5-result1",
+      "upstream_test": null,
+      "sha256": "00e74c11e8066748bc05aba4b1eeab3be478f8ad97eedb964d19eadcd52de177",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "47526030542a7307989a21c72f207bbe7952cfd3365a5e0fa5632bd2318baa70",
+      "difference": null
+    },
+    {
+      "fixture": "health-combo-hp5-result2",
+      "upstream_test": null,
+      "sha256": "e3c5661002db44fb30b4774ee63b25ea6f0681eb57755462f1403d3d936f3063",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "761f0ddb11a369b0359bd9c925c83d6e4ab8dedb6681ffe1503103f605e81142",
+      "difference": null
+    },
+    {
+      "fixture": "health-combo-hp5-result3",
+      "upstream_test": null,
+      "sha256": "84b747a5cb6d1df456f84d206b43091263d7dcc11d2a15efffe78c1dbd36655d",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "98fa26e4897a238efed6c8454ddc9a50e01f1aebbfda08c4c7d6c4055dc42a2f",
+      "difference": null
+    },
+    {
+      "fixture": "health-combo-hp5-result5",
+      "upstream_test": null,
+      "sha256": "5ce1651458e4930ccb82d81780ed27110ccebc98b31b8e6ac681dd2e77d53db1",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "1a51b3821ba57b1635fd91991bf77232fe907abe55b6d8c8ae9e79c1dade59f0",
+      "difference": null
+    },
+    {
+      "fixture": "health-missed-tail-combo-hp5",
+      "upstream_test": null,
+      "sha256": "1a0d29c2777d6423311f217359235839718874ced786923163b6b9b38d6f314a",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "14c5ddec18d7fa82892d94d3d53877aa38d06fcb89836fc453563867bd904766",
+      "difference": null
+    },
+    {
+      "fixture": "health-new-combo-resets-quality-hp5",
+      "upstream_test": null,
+      "sha256": "cee9758ca79cfe821689b6ac505159e4a612037925abb2672994e050437e70e9",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "0ee9e7c94bd62ad47294b03a20b43e840c445323d85c53c84f2a23eee4591050",
+      "difference": null
+    },
+    {
+      "fixture": "health-combo-hp10-result1",
+      "upstream_test": null,
+      "sha256": "6ed060a0f817711505101fc3ee169db471f8745522d16c09ee419274f9fbc52a",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "7b12ee96ae791e121257603492b741353db97cac741cb5c8ce94424088672966",
+      "difference": null
+    },
+    {
+      "fixture": "health-combo-hp10-result2",
+      "upstream_test": null,
+      "sha256": "8b40b4f14c86277a19bf024f31da898d40a3763d66d2010b20b56ed6c897a606",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "1120aeac261e00d7b1200c977d5b784dec0453a5e9722c9b43a86a58cd14c1b6",
+      "difference": null
+    },
+    {
+      "fixture": "health-combo-hp10-result3",
+      "upstream_test": null,
+      "sha256": "c2ee4779d497ef64c5bb022c1e2ec752039b761a4f77fb39d8410cd566c8a587",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "5ac4e6a35b2d03e7a6770e76d889ddeb7e01a5369e9236c44ecb46265371bf7e",
+      "difference": null
+    },
+    {
+      "fixture": "health-combo-hp10-result5",
+      "upstream_test": null,
+      "sha256": "43c4b719c1d627d3217f382d5ec59f009ca8780f2af616075c6941b6e144f988",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "4ea2f70a2075282f17e212cd01d9eed67f034024814684fd2ae2c0da19da8698",
+      "difference": null
+    },
+    {
+      "fixture": "health-missed-tail-combo-hp10",
+      "upstream_test": null,
+      "sha256": "946f0a9cc07e020f3bf34bf8f01108b83002bdfc1e013f43414f96a34d319cc7",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "f975f432d5bdc3ac31a6ef35fda3723bc4396c4864c759e23059629b40a1384f",
+      "difference": null
+    },
+    {
+      "fixture": "health-new-combo-resets-quality-hp10",
+      "upstream_test": null,
+      "sha256": "2fbeced2c93f22051057c0d2ca666ba3344fd1a2a85435c58f390153f66646d4",
+      "acceptance": [
+        "A19"
+      ],
+      "experiment": "H09-result-sequences",
+      "oracle": "pinned-upstream-component",
+      "nativeWasmEqual": true,
+      "reproduce": "npm --prefix engine run test:simulation:upstream",
+      "observationSha256": "f13d64f4ad1a133ec847d4b92d1496a85a745a14b43351f32fccf23df576e3bc",
+      "difference": null
+    }
+  ],
+  "workloads": [
+    {
+      "id": "dense-10000-circles",
+      "acceptance": [],
+      "upstream_tests": [],
+      "source_symbols": [],
+      "adaptation": "Synthetic local resource and long-session regression; no upstream oracle.",
+      "fixture_sha256": "9abf54d19c2ef06c980bab3718f9b465bb1bb893c33100737efd85014b638518",
+      "upstream": null,
+      "schedule_count": 2,
+      "schedules_sha256": "4f5638bb44b534b9af93b11a720d307dff9a3532a027c69e9069470184c9016f"
+    },
+    {
+      "id": "long-ten-minute-replay",
+      "acceptance": [],
+      "upstream_tests": [],
+      "source_symbols": [],
+      "adaptation": "Synthetic local resource and long-session regression; no upstream oracle.",
+      "fixture_sha256": "bd97e7d9e1ecc46d1f89671c63907cf5cf2e869214012e6c00dcecc79e07d0d9",
+      "upstream": null,
+      "schedule_count": 2,
+      "schedules_sha256": "0d97180449d72bdc6dfb73c1592bde7595d05d806a7fdef817c8dd125b403a0d"
+    }
+  ],
+  "reproduce": [
+    "npm --prefix engine test",
+    "npm --prefix engine run test:simulation:upstream",
+    "npm --prefix engine run test:gameplay:upstream",
+    "node engine/scripts/retain-gameplay-findings.mjs"
+  ],
+  "m2_complete": false
+}

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node scripts/verify-sources.mjs && node scripts/test.mjs && node scripts/test-geometry.mjs && node scripts/test-prepared.mjs && node scripts/test-simulation.mjs && node scripts/test-presentation.mjs",
+    "test": "node scripts/verify-sources.mjs && node scripts/test.mjs && node scripts/test-geometry.mjs && node scripts/test-prepared.mjs && node scripts/test-simulation.mjs && node scripts/test-presentation.mjs && node scripts/test-gameplay.mjs && node scripts/test-gameplay.mjs --workloads",
     "test:geometry": "node scripts/test-geometry.mjs",
     "test:geometry:upstream": "node scripts/test-geometry.mjs --upstream",
     "verify:sources": "node scripts/verify-sources.mjs",
@@ -19,6 +19,10 @@
     "test:presentation": "node scripts/test-presentation.mjs",
     "test:scenarios:upstream": "node scripts/test-scenarios.mjs",
     "compare:circle-draw": "node scripts/compare-circle-draw.mjs",
-    "compare:scenario-delivery": "node scripts/compare-scenario-delivery.mjs"
+    "compare:scenario-delivery": "node scripts/compare-scenario-delivery.mjs",
+    "test:gameplay": "node scripts/test-gameplay.mjs",
+    "test:gameplay:upstream": "node scripts/test-gameplay.mjs --upstream",
+    "test:compatibility": "npm run test:reference && npm run test:geometry:upstream && npm run test:prepared:upstream && npm run test:simulation:upstream && npm run test:gameplay:upstream",
+    "test:gameplay:workloads": "node scripts/test-gameplay.mjs --workloads"
   }
 }

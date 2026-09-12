@@ -1,0 +1,277 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Gameplay session observation v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "judgements",
+    "recording",
+    "audio",
+    "score",
+    "accuracy",
+    "health",
+    "terminal_ms",
+    "combo",
+    "highest_combo",
+    "counts",
+    "state",
+    "rank"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string"
+    },
+    "judgements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "object_index",
+          "component_id",
+          "combo",
+          "object_type",
+          "result",
+          "maximum",
+          "time_ms",
+          "offset_ms",
+          "health",
+          "score"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "object_index": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "component_id": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "combo": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "object_type": {
+            "enum": [
+              "HitCircle",
+              "Slider",
+              "Spinner",
+              "SliderHeadCircle",
+              "SliderTick",
+              "SliderRepeat",
+              "SliderTailCircle",
+              "SpinnerTick",
+              "SpinnerBonusTick"
+            ]
+          },
+          "result": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 16
+          },
+          "maximum": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 16
+          },
+          "time_ms": {
+            "type": "number"
+          },
+          "offset_ms": {
+            "type": "number"
+          },
+          "health": {
+            "type": "number"
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        }
+      }
+    },
+    "recording": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "sequence",
+          "source",
+          "focus_epoch",
+          "flags",
+          "action_bits",
+          "raw_time_ms",
+          "effective_time_ms",
+          "x",
+          "y"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "source": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "focus_epoch": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "flags": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "action_bits": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "raw_time_ms": {
+            "type": "number"
+          },
+          "effective_time_ms": {
+            "type": "number"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "audio": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "sequence",
+          "epoch",
+          "object_id",
+          "component_id",
+          "sample_index",
+          "asset_id",
+          "time_ms",
+          "volume",
+          "missing"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "epoch": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "object_id": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "component_id": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "sample_index": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "asset_id": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "time_ms": {
+            "type": "number"
+          },
+          "volume": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "missing": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "accuracy": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "health": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "terminal_ms": {
+      "type": "number"
+    },
+    "combo": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "highest_combo": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "counts": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4294967295
+      },
+      "minItems": 17,
+      "maxItems": 17
+    },
+    "state": {
+      "enum": [
+        "RUNNING",
+        "PASSED",
+        "FAILED"
+      ]
+    },
+    "rank": {
+      "enum": [
+        "X",
+        "S",
+        "A",
+        "B",
+        "C",
+        "D",
+        "F"
+      ]
+    }
+  }
+}

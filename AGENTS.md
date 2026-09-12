@@ -126,6 +126,26 @@ changed behavior, including relevant malformed input, quota, failure, ownership,
 and native/WASM edge cases. Keep trace serializers, schemas, and validators in
 sync. Documentation-only changes need link/path and diff checks, not a build.
 
+When adding a feature or changing behavior, search the pinned osu!lazer test
+projects (and pinned framework tests where relevant) for equivalent scenarios
+before implementing it. If equivalent in-scope tests exist, port their setup,
+input sequences, parameter cases and assertions into this codebase and ensure
+they pass against the Odin implementation in both native and WASM runs. Adapt
+the test infrastructure, not the expected behavior to fit our implementation.
+Run the corresponding pinned upstream tests or an adapter executing the real
+upstream behavior to establish independent comparison evidence; local ports
+alone do not prove compatibility.
+
+Record upstream test paths/methods, source revision, fixture hashes, acceptance
+IDs and local test mappings with the compatibility findings. Preserve licences
+and attribution for copied/adapted material. If no equivalent test exists,
+record the search scope and add focused tests from pinned source evidence.
+Explicitly classify out-of-scope cases and documented deterministic divergences;
+do not silently omit cases or weaken assertions. If an equivalent test cannot
+yet be ported or executed, report the blocker and leave the feature's upstream
+acceptance open rather than declaring validation complete. Follow the test
+backfill plan in `docs/compatibility/reference-harness.md` for existing gaps.
+
 ## Compatibility evidence and delivery
 
 - Native/WASM parity is local consistency, not upstream acceptance. Preserve

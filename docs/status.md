@@ -98,15 +98,32 @@ The [component findings](../engine/reference/findings/m2-primitives.json),
 [session findings](../engine/reference/findings/m2-sessions.json) and
 [correction probes](../engine/reference/findings/m2-session-corrections.json)
 retain source/fixture/lock hashes and evidence classifications. The current
-component suite has 104 native/WASM fixtures and 72 pinned comparisons, including
+component suite has 140 native/WASM fixtures and 108 pinned comparisons, including
 replay-handler interpolation and repeated-slider position probes. Native C/WASM
 session tests cover mixed objects across cadences, pause/replay, strict boundaries,
 transactional rejection, ownership and output acknowledgement. These are local
 session regressions and pinned component evidence, not whole-drawable acceptance.
 
-Full A13–A20/A23 acceptance, recorder sampling and dense/long workload validation
-remain open. The [reference harness](compatibility/reference-harness.md#remaining-gameplay-adapters)
-identifies the missing whole-drawable/player adapters and observations.
+The [gameplay backfill findings](../engine/reference/findings/m2-gameplay-backfill.json)
+add 115 integrated scenarios, each checked byte-for-byte native/WASM under 17
+schedules (direct, 30/60/120/144 Hz and 0/50/100/250 ms stalls). Pinned drawable
+adapters compare ordered results and final score state; real Player cases compare
+health, breaks, failure and frozen scoring. Two recorder ports retain left/right/
+smoke and same-time press/release assertions. Marked circle/slider cases compare
+discrete sample requests. The component extension adds 36 health cases, including
+18 minimum/maximum-result ports and missed-tail/combo regressions.
+
+Two local workloads exercise every judgement in a 10,000-circle map and a
+ten-minute replay under direct and stalled schedules. These are deterministic
+capacity regressions, not timing benchmarks or upstream performance acceptance.
+All local cases run in `npm --prefix engine test`; independent comparisons use
+`test:gameplay:upstream` and `test:simulation:upstream`.
+
+Full A13–A20/A23 acceptance remains open: the Player adapter uses semantic
+boundaries and disables audio-clock smoothing, recording assertions do not cover
+all adaptive sampling, and discrete requests do not certify audio playback.
+See the [backfill scope](compatibility/gameplay-tests.md) for adaptations,
+exclusions and remaining work. No browser gate is closed by these results.
 
 ## M3: browser foundation and partial W01/W03
 

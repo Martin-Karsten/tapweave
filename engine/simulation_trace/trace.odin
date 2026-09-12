@@ -11,6 +11,9 @@ import prepared "../prepared"
 
 Fixture :: struct {
 	id, kind: string,
+	health_kinds: []string,
+	combo_flags: []u32,
+	starting_health: f64,
 	spans: u32,
 	maximum, actual: []core_types.Hit_Result,
 	failed_before: []bool,
@@ -110,6 +113,11 @@ run :: proc(input: []byte) -> ([]byte, bool) {
 		for fixture in fixtures {
 			delete(fixture.id)
 			delete(fixture.kind)
+			for object_kind in fixture.health_kinds {
+				delete(object_kind)
+			}
+			delete(fixture.health_kinds)
+			delete(fixture.combo_flags)
 			delete(fixture.maximum)
 			delete(fixture.actual)
 			delete(fixture.failed_before)
@@ -149,6 +157,10 @@ run :: proc(input: []byte) -> ([]byte, bool) {
 			return nil, false
 		}
 		switch fixture.kind {
+		case "health":
+			if !write_health_observation(&output, fixture) {
+				return nil, false
+			}
 		case "properties":
 			values: [17]Property_Value
 			for result in core_types.Hit_Result {

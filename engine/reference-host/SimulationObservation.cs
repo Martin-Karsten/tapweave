@@ -18,7 +18,7 @@ using osu.Game.Rulesets.Osu.Objects.Drawables;
 
 // Explicit synthetic inputs exercise the real processors. No recreated score,
 // window, or spin arithmetic is used by this adapter; no M1 projection involved.
-static class SimulationObservation
+static partial class SimulationObservation
 {
     static HitResult Result(int resultId) => (HitResult)resultId;
     public static void Run(string path)
@@ -31,6 +31,9 @@ static class SimulationObservation
             var values = new List<object>();
             switch (kind)
             {
+                case "health":
+                    ObserveHealth(fixture, values);
+                    break;
                 case "properties":
                     using (var processor = new OsuScoreProcessor())
                     {

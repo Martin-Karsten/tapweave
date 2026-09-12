@@ -80,7 +80,7 @@ jobs:
             engine/artifacts/acceptance.json
   simulation-reference:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 40
     env:
       OSU_REFERENCE_CHECKOUT: ${{ github.workspace }}/engine/.reference/osu
       OSU_FRAMEWORK_CHECKOUT: ${{ github.workspace }}/engine/.reference/framework
@@ -110,11 +110,15 @@ jobs:
         run: npm --prefix engine run setup
       - name: Compare independent M2 primitives with pinned upstream
         run: npm --prefix engine run test:simulation:upstream
+      - name: Compare gameplay test ports with pinned drawables and Player
+        run: npm --prefix engine run test:gameplay:upstream
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: simulation-comparisons
-          path: engine/artifacts/simulation/
+          path: |
+            engine/artifacts/simulation/
+            engine/artifacts/gameplay/
 
   browser-foundation:
     runs-on: ubuntu-24.04

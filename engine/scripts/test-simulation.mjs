@@ -90,6 +90,14 @@ function validate(observation) {
 }
 
 actual.forEach(validate);
+for (const fixture of fixtures.filter(fixture => fixture.kind === 'health')) {
+  const observation = actual.find(observation => observation.id === fixture.id);
+  if (fixture.expected_failed !== undefined)
+    assert.equal(observation.values.at(-1).failed, fixture.expected_failed, fixture.id);
+  if (fixture.expected_health !== undefined)
+    assert.ok(Math.abs(observation.values.at(-1).health - fixture.expected_health) < 1e-12, fixture.id);
+}
+
 assert.equal(actual.length, fixtures.length);
 assert.throws(() => validate({ ...actual[0], schema_version: 9 }));
 assert.throws(() => validate({ ...actual[0], kind: 'unknown' }));
@@ -164,17 +172,18 @@ if (process.argv.includes('--upstream')) {
 }
 const manifest = JSON.parse(readFileSync(resolve(root, 'reference/source-manifest.json')));
 const acceptanceByKind = {
-  score: ['A17', 'A18'], drain: ['A19'], properties: ['A17'], windows: ['A13'], spin: ['A16'],
+  health: ['A19'], score: ['A17', 'A18'], drain: ['A19'], properties: ['A17'], windows: ['A13'], spin: ['A16'],
   slider_position: ['A14', 'A15'], round: ['A18'], events: ['A23'], inputs: ['A23'], replay: ['A23'], codec: ['A23'], queue_overlap: ['A23'],
 };
 const experimentByKind = {
-  score: 'H10-subset', drain: 'H09-calibration-subset', properties: 'H10-subset',
+  health: 'H09-result-sequences', score: 'H10-subset', drain: 'H09-calibration-subset', properties: 'H10-subset',
   slider_position: 'H07-position-subset', replay: 'H11-cursor-subset', windows: 'H06-windows-subset', spin: 'H08-history-subset', round: 'H10-subset',
 };
 const records = fixtures.map((fixture, fixtureIndex) => {
   const expected = upstream?.find(observation => observation.id === fixture.id);
   return {
     fixture: fixture.id,
+    upstream_test: fixture.upstream_test ?? null,
     sha256: hash(JSON.stringify(fixture)),
     acceptance: acceptanceByKind[fixture.kind],
     experiment: experimentByKind[fixture.kind] ?? null,

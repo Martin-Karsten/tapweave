@@ -31,7 +31,8 @@
           "drain",
           "inputs",
           "queue_overlap",
-          "slider_position"
+          "slider_position",
+          "health"
         ]
       },
       "values": {
@@ -250,6 +251,37 @@
             "values": {
               "items": {
                 "$ref": "#/$defs/replay"
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "kind": {
+              "const": "health"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "values": {
+              "items": {
+                "type": "object",
+                "required": [
+                  "health",
+                  "failed"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "health": {
+                    "type": "number"
+                  },
+                  "failed": {
+                    "type": "boolean"
+                  }
+                }
               }
             }
           }
@@ -590,6 +622,10 @@
       "x": "number",
       "y": "number",
       "action_bits": "number"
+    },
+    "health": {
+      "health": "number",
+      "failed": "boolean"
     }
   }
 }

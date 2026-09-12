@@ -119,3 +119,18 @@ unchanged. This intervention does not establish judgement-time, health, replay
 or audio equivalence and does not justify retiming production inputs. The finding
 index is `reference/findings/m3-scenario-delivery.json`; residual differences,
 if introduced later, remain explicit rather than failing an acceptance claim.
+
+## Gameplay regression acceptance
+
+`npm --prefix engine run test:gameplay:upstream` runs the ported circle, slider,
+spinner, Player and recorder corpus. Unlike `test:scenarios:upstream`, it fails
+on assertion or comparison differences. `--scenario` supports replay input and
+optional frame capture; `--player` uses the pinned test runner with actual Player
+failure and live recording. Both validate the same fixture envelope.
+
+See [gameplay test coverage](../../docs/compatibility/gameplay-tests.md) for
+clock adaptations, source mappings and precise comparison boundaries. The new
+health mode in `--simulation` executes OsuHealthProcessor result sequences; the
+component suite now contains 140 local fixtures and 108 pinned comparisons.
+The existing diagnostic observations are separate and are not rewritten by the
+acceptance runner.

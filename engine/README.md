@@ -125,3 +125,11 @@ See the [browser guide](../platform/browser-js/README.md) and
 [current status](../docs/status.md). Browser dependencies remain isolated
 from this engine package. `test:presentation` runs after the other engine suites;
 it does not execute an upstream presentation oracle.
+
+## Gameplay regression ports
+
+`npm test` also runs 115 integrated gameplay scenarios across 17 native/WASM
+schedules and two dense/long local workloads. `test:gameplay:upstream` executes
+pinned drawable, Player and recorder adapters and fails on comparison errors.
+The existing simulation reference CI job runs both upstream suites and uploads
+their raw observations. See [coverage and limitations](../docs/compatibility/gameplay-tests.md).

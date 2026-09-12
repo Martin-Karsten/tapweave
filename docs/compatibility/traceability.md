@@ -82,3 +82,13 @@ checks; the existing 72 pinned component comparisons add no whole-session oracle
 A12 requires physical/gameplay input integration. A21/A22 and H11 remain open;
 mock audio and a preparation shell do not establish audio-backed gameplay. See
 [current status](../status.md) for implemented coverage and validation limits.
+
+## Bounded gameplay backfill evidence
+
+[Gameplay findings](../../engine/reference/findings/m2-gameplay-backfill.json)
+map 115 integrated fixtures to A13–A20/A23, including pinned test methods and
+source-derived boundary cases. They also retain 36 added health component cases
+and two local workloads. These supplement the rows above without closing their
+full scenario gates. [Coverage and adaptations](gameplay-tests.md) distinguish
+ordered drawable results, real Player health/failure, recorder action assertions,
+discrete audio delivery, local cadence invariance and remaining browser work.

@@ -1,3 +1,4 @@
+import { healthFixtures } from './health-fixtures.mjs';
 // Deterministic explicit-input fixtures. None synthesizes prepared map behavior.
 function adjacent(value, direction) {
   if (value === 0) return direction * Number.MIN_VALUE;
@@ -11,7 +12,7 @@ function adjacent(value, direction) {
 }
 
 export function simulationFixtures() {
-  const fixtures = [{ id: 'result-properties', kind: 'properties' }];
+  const fixtures = [...healthFixtures(), { id: 'result-properties', kind: 'properties' }];
   const addScore = (id, maximum, actual, extra = {}) => {
     fixtures.push({ id, kind: 'score', maximum, actual, ...extra });
   };

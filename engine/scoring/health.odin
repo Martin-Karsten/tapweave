@@ -46,6 +46,11 @@ apply_health :: proc(health: ^Health, result, maximum: core_types.Hit_Result, di
 		case .MEH, .MISS:
 			health.combo_quality = 2
 		}
+		// SliderTailCircle uses IgnoreMiss, which is not covered by the generic
+		// result switch. Upstream still lowers the combo quality to Good.
+		if maximum == .SLIDER_TAIL_HIT && !core_types.result_properties(result).hit {
+			health.combo_quality = max(health.combo_quality, 1)
+		}
 		if last_in_combo && core_types.result_properties(result).hit {
 			bonuses := [3]f64{0.07, 0.05, 0.03}
 			increase += bonuses[health.combo_quality]
