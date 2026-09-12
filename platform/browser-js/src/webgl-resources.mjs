@@ -50,13 +50,16 @@ export class WebGL_Resources {
     const bytes = resources.bytes;
     require_condition(bytes instanceof Uint8Array && bytes.byteLength <= RESOURCE_LIMITS.bytes,
       'QUOTA_EXCEEDED', 'Render attachment exceeds the resource byte limit.');
-    if (this.#retained && bytes.length === this.#retained.bytes.length &&
-      bytes.every((byte, byte_index) => byte === this.#retained.bytes[byte_index])) {
+    // Own a private copy. A validated attachment is never re-parsed; raw byte
+    // bundles take the full reader path once.
+    const candidate = resources instanceof Render_Resources
+      ? resources.own_snapshot()
+      : new Render_Resources(bytes.slice());
+    if (this.#retained && candidate.bytes.length === this.#retained.bytes.length &&
+      candidate.bytes.every((byte, byte_index) => byte === this.#retained.bytes[byte_index])) {
       if (!this.#published) this.#upload(this.#retained);
       return;
     }
-    // Own and revalidate bytes: callers can mutate their public reader/copy.
-    const candidate = new Render_Resources(bytes.slice());
     this.#validate(candidate);
     this.#upload(candidate);
     this.#retained = candidate;

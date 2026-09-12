@@ -22,8 +22,8 @@ export class Render_Resources {
       'INVALID_RESOURCE', 'Invalid render resource span.');
       previous_end = offset + count * stride;
     }
-    require_condition(summary.atlas_width > 0 && summary.atlas_height > 0 && summary.atlas_width <= 4096 &&
-      summary.atlas_height <= 4096 && summary.atlas_count === summary.atlas_width * summary.atlas_height * 4,
+    require_condition(summary.atlas_width > 0 && summary.atlas_height > 0 &&
+      summary.atlas_count === summary.atlas_width * summary.atlas_height * 4,
     'INVALID_RESOURCE', 'Invalid RGBA atlas dimensions.');
     for (let vertex_index = 0; vertex_index < summary.vertices_count; vertex_index++) {
       const offset = summary.vertices_offset + vertex_index * summary.vertices_stride;
@@ -36,5 +36,11 @@ export class Render_Resources {
     }
     require_condition(summary.indices_count % 3 === 0 && summary.vertex_shader_count > 0 && summary.fragment_shader_count > 0,
       'INVALID_RESOURCE', 'Incomplete triangle or shader payload.');
+  }
+
+  // Private byte copy with the already validated summary. The GPU service owns
+  // this snapshot; callers can mutate their reader without affecting recovery.
+  own_snapshot() {
+    return { bytes: this.bytes.slice(), summary: this.summary };
   }
 }

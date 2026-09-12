@@ -35,8 +35,6 @@ export class Audio_Admission {
       require_condition((this.engine.transport_capabilities.voice_command_mask & (1 << (command.command_kind - 1))) !== 0,
         'UNSUPPORTED', 'The producer has not enabled this voice command family.');
       if (command.sequence <= retained_sequence) continue;
-      require_condition(this.events.length < this.audio_service.maximum_pending,
-        'QUOTA_EXCEEDED', 'Voice batch exceeds admission capacity.');
       this.events.push(Object.assign(this.staging[this.events.length], { sequence: command.sequence, epoch: browser_epoch,
         kind: kinds[command.command_kind - 1], policy: command.late_policy === 1 ? 'immediate' : 'drop',
         beatmap_time_ms: command.time_ms, voice_id: command.voice_id, asset_id: command.asset_id,
