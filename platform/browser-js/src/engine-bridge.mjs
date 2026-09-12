@@ -497,7 +497,7 @@ export class Prepared_Description {
       let sample_index = 0;
       for (const sample of descriptor.records(parent, field, 11)) {
         const name = descriptor.text(sample, 'name');
-        if (!loops_only || ['sliderslide', 'sliderwhistle', 'spinnerspin'].includes(name)) {
+        if (!loops_only || (sample.flags & 1) === 1) {
           yield { object_id, component_id, sample_index, name, use_beatmap: sample.use_beatmap !== 0,
             candidates: [...descriptor.records(sample, 'candidates', 12)].map(candidate => descriptor.text(candidate, 'name')) };
         }

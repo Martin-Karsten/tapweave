@@ -29,7 +29,7 @@ Voice_Journal :: struct {
 }
 
 loop_sample :: proc(sample: prepared.Sample) -> bool {
-	return sample.name == "sliderslide" || sample.name == "sliderwhistle" || sample.name == "spinnerspin"
+	return prepared.is_loop_sample(sample.name)
 }
 
 // Input cost scales with maximum simultaneous loops, not total map length.

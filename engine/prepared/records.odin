@@ -26,6 +26,13 @@ Sample :: struct {
 	candidates: []string,
 }
 
+// Upstream sustained-loop hitsound names: slider slide/whistle and spinner
+// spin produce continuous loops rather than one-shots. The descriptor exposes
+// this classification as bit 0 of the prepared_sample flags field.
+is_loop_sample :: proc(name: string) -> bool {
+	return name == "sliderslide" || name == "sliderwhistle" || name == "spinnerspin"
+}
+
 Component :: struct {
 	id: u32,
 	kind: Component_Kind,

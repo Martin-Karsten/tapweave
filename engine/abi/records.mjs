@@ -708,7 +708,7 @@ export const schema = {
           64,
           "u32"
         ],
-        "reserved_68": [
+        "flags": [
           68,
           "u32"
         ]

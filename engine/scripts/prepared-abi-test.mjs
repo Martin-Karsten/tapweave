@@ -40,7 +40,7 @@ export function testPreparedABI(wasm){
  };
  const string=(record,name)=>{const {offset,count,stride}=span(record,name);assert.equal(stride,1);return new TextDecoder().decode(bytes().subarray(offset,offset+count))};
  const records=(record,name,kind)=>{const {offset,count,stride}=span(record,name);return Array.from({length:count},(_,index)=>readRecord(descriptionView(),offset+index*stride,kind))};
- function samples(record,name){return records(record,name,11).map(sample=>{assert.equal(sample.reserved_68,0);return ({name:string(sample,'name'),bank:string(sample,'bank'),suffix:string(sample,'suffix'),volume:sample.volume|0,use_beatmap:!!sample.use_beatmap,layered:!!sample.layered,candidates:records(sample,'candidates',12).map(candidate=>{assert.equal(candidate.reserved_20,0);return string(candidate,'name')})});})}
+ function samples(record,name){return records(record,name,11).map(sample=>{assert.ok(sample.flags===0||sample.flags===1);return ({name:string(sample,'name'),bank:string(sample,'bank'),suffix:string(sample,'suffix'),volume:sample.volume|0,use_beatmap:!!sample.use_beatmap,layered:!!sample.layered,candidates:records(sample,'candidates',12).map(candidate=>{assert.equal(candidate.reserved_20,0);return string(candidate,'name')})});})}
  const objects=records(descriptor,'objects',9);assert.equal(objects.length,reference.objects.length);
  for(let index=0;index<objects.length;index++){
   const object=objects[index],expected=reference.objects[index];

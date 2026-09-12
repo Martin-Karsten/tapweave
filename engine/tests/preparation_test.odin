@@ -259,3 +259,27 @@ prepared_identity_v2_has_a_fixed_golden :: proc(test: ^testing.T) {
 	prepared.compute_identity(&prepared_map, decoded_map.text)
 	testing.expect(test, prepared_map.prepared_digest != expected)
 }
+
+@(test)
+descriptor_sample_flags_mark_upstream_loop_names :: proc(test: ^testing.T) {
+	samples := []prepared.Sample{
+		{name = "sliderslide", candidates = []string{"sliderslide"}},
+		{name = "sliderwhistle"},
+		{name = "spinnerspin"},
+		{name = "hitnormal"},
+	}
+	defer delete(samples[0].candidates)
+	defer delete(samples)
+	expected_flags := [4]u32{1, 1, 1, 0}
+	builder := prepared.Binary_Builder{bytes = make([]byte, 4096), limit = 4096}
+	defer delete(builder.bytes)
+	builder.used = 72
+	prepared.write_samples(&builder, 0, samples)
+	testing.expect_value(test, builder.error, core_types.Status.OK)
+	for expected_flag, sample_index in expected_flags {
+		flag_offset := int(72 + u64(sample_index) * prepared.ABI_PREPARED_SAMPLE_SIZE + prepared.ABI_PREPARED_SAMPLE_FLAGS_OFFSET)
+		flag := u32(builder.bytes[flag_offset]) | u32(builder.bytes[flag_offset + 1]) << 8 |
+			u32(builder.bytes[flag_offset + 2]) << 16 | u32(builder.bytes[flag_offset + 3]) << 24
+		testing.expect_value(test, flag, expected_flag)
+	}
+}

@@ -69,6 +69,7 @@ write_samples :: proc(builder: ^Binary_Builder, span_offset: u64, samples: []Sam
 			4,
 		)
 		write_number(builder, record_offset + ABI_PREPARED_SAMPLE_LAYERED_OFFSET, u64(sample.layered), 4)
+		write_number(builder, record_offset + ABI_PREPARED_SAMPLE_FLAGS_OFFSET, u64(is_loop_sample(sample.name) ? 1 : 0), 4)
 		write_string(builder, record_offset + ABI_PREPARED_SAMPLE_NAME_OFFSET_OFFSET, sample.name)
 		write_string(builder, record_offset + ABI_PREPARED_SAMPLE_BANK_OFFSET_OFFSET, sample.bank)
 		write_string(builder, record_offset + ABI_PREPARED_SAMPLE_SUFFIX_OFFSET_OFFSET, sample.suffix)
