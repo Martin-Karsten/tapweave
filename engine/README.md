@@ -100,10 +100,10 @@ constants/bindings from `abi/records.json`; writers use its named field offsets.
 
 ## Independent M2 primitives
 
-The [M2 increment](../docs/implementation/m2.md) adds result/scoring, hit-window,
+The [headless engine](../docs/status.md#m2-headless-sessions) adds result/scoring, hit-window,
 forward spinner-history and drain-calibration primitives, bounded [event/input
-queues](simulation/README.md), and [replay validation/serialization](replay/README.md). These consume explicit inputs; the [session integration](../docs/implementation/m2-sessions.md)
-connects them to production gameplay and replay APIs.
+queues](simulation/README.md), and [replay validation/serialization](replay/README.md). These consume explicit inputs; the [headless sessions](../docs/status.md#m2-headless-sessions)
+connect them to production gameplay and replay APIs.
 
 `npm test` includes allocation-tracked primitive tests and native/WASM traces.
 `npm --prefix engine run test:simulation:upstream` uses the same clean pinned
@@ -122,6 +122,6 @@ gameplay output. Native/WASM local contract tests cover these transports; object
 animation and WebGL rendering remain unsupported.
 
 See the [browser guide](../platform/browser-js/README.md) and
-[M3 report](../docs/implementation/m3.md). Browser dependencies remain isolated
+[current status](../docs/status.md). Browser dependencies remain isolated
 from this engine package. `test:presentation` runs after the other engine suites;
 it does not execute an upstream presentation oracle.

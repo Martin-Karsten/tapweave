@@ -40,7 +40,7 @@ Presentation consumes a borrowed readonly simulation projection; it may import
 simulation but not runtime. Simulation cannot import presentation. Runtime owns
 composition and resource lifetimes. The current kind-19 full-map diagnostic
 snapshot is not the production active-set render protocol. Remaining resource
-and batching requirements are recorded in the [contract audit](../implementation/m3-contract-audit.md).
+and batching requirements are specified [below](#remaining-resource-protocol).
 
 ## Active projection transport implementation
 
@@ -52,3 +52,34 @@ The active set retains committed outcomes independently of the journal cursor.
 Backwards diagnostic reads rebuild; normal forward reads do not scan the map.
 This is the projection substrate for rendering, not the accepted final draw
 protocol. Animation, static resources and WebGL command generation remain open.
+
+## Remaining resource protocol
+
+These definitions constrain the next implementation; they are not advertised
+wire records or completed capabilities. Assign concrete new kinds when writers,
+readers and conformance tests land together, preserving kinds 1–34.
+
+- Creation reserves active indices, expiry ordering, feedback history, trail,
+  instance output and mesh accounting with checked u64 arithmetic. Normal forward
+  presentation uses arrival/expiry cursors plus the active set; arbitrary backward
+  requests explicitly rebuild reusable indices without judging. Stable order is
+  layer, source object order, component order, then primitive ordinal.
+- A static-resource header identifies map identity, resource generation and total
+  bytes. Relative spans carry vertex/index buffers, original atlas bytes and
+  versioned Odin shader sources. A draw header identifies session epoch, resource
+  generation, viewport and HUD; spans carry ordered batches and compact instances.
+  Resource IDs are integers, never native pointers or WebGL handles.
+- Every span has checked relative offset/count/stride and eight-byte alignment
+  for record headers. Validate command opcode, resource reference, index range,
+  instance range and finite uniforms before executing any batch. Unknown versions
+  reject. Resource candidates publish only after all uploads succeed.
+- Static resources belong to a prepared-map render attachment; four sessions may
+  share them. GPU objects belong to the browser map/context generation. A lost
+  context invalidates all GPU IDs; recreate once from owned immutable bytes.
+  Frame spans expire on next render-output call. Output reserve is READY/PAUSED
+  only and transactional; overflow reports required capacity without truncation.
+- Quotas must bound active objects, instances, commands, mesh vertices/indices,
+  texture dimensions/bytes, dynamic uploads and total arena bytes independently.
+  Their concrete defaults require count-pass workload measurements; no capability
+  can be enabled with an unbounded or unimplemented quota. No static mesh builds,
+  shader compilation, allocation or memory growth in advance/render hot paths.

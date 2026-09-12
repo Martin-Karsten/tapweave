@@ -4,9 +4,9 @@ M0 (compatibility foundation) and M1 (beatmap preparation) are implemented for
 unmodded osu!standard against osu!lazer **2026.804.2**, commit
 `3c1c96f742e7aae2ff67a7361e058fe91ca3b955`, and framework **2026.731.0**, commit
 `f02756c5aa5032e6d04729922702b8d56c4bc2eb`. Tapweave is not yet playable.
-M2 now connects those primitives to prepared maps through headless gameplay sessions.
-[Session integration](implementation/m2-sessions.md) is locally validated; full
-upstream M2 acceptance and browser gameplay remain open.
+Headless gameplay sessions connect preparation to rules, scoring and replay.
+Local integration is validated; full upstream M2 acceptance and browser gameplay
+remain open.
 
 ## M0: foundation
 
@@ -71,45 +71,64 @@ cover typed spans, failed replacement, memory growth, shared sessions, reset,
 disposal and stale handles. The existing 50-cycle/four-session lifecycle matrix,
 4,000 resets and deliberate memory-ceiling failure remain part of the suite.
 
-## M2: independent primitives
+## M2: headless sessions
 
-The M2 worktree has been integrated into main. It adds explicit result properties,
-standalone scoring and drain calibration, hit-window and forward spinner-history
-primitives, bounded event/input queues, and replay validation/interpolation/codec.
-They are now connected to prepared maps and the production gameplay ABI by the
-[headless session integration](implementation/m2-sessions.md).
+Prepared-map-backed sessions implement event-driven circles/note lock, default
+lazer slider heads/tracking/key restriction/children/early tail, spinner history
+and final thresholds, score maxima, normalized score/counts, health calibration,
+no-drain intervals, failure freeze and terminal results. Legacy-last-tick markers
+are not judged. Health is anchored at semantic judgements to avoid render-rate
+rounding differences.
 
-The [M2 report](implementation/m2.md) records 104 native/WASM primitive fixtures,
-including 72 exact pinned component comparisons, with source/fixture/lock hashes.
-The suite includes transactional buffer-overlap rejection, framework f32 replay
-interpolation and repeated-slider position probes. Overflowing replay intervals
-are rejected before state publication.
-The 14 allocation-tracked M2 test groups also exercise checksummed malformed
-replay payloads and unchanged destinations on rejection.
-The [M2 acceptance backlog](implementation/m2-plan.md) tracks whole-scenario
-reference adapters, recorder sampling, checkpoint caching and workload measurements.
-M1 is complete and its final contracts are consumed by headless sessions. No complete
-A13–A20 or A23 acceptance gate is claimed from these component subsets.
+Creation reserves bounded input, state and complete judgement/audio journals in
+an arena. Creation failures are transactional; hot paths and reset allocate
+nothing. Snapshots expose committed outcomes and HUD state; one-shot samples use
+frozen availability and ordered fallback, with explicit missing-sample silence.
+See [ABI v2](architecture/interface-v2.md#m2-headless-session-transport) for the
+production operations and ownership contract.
+
+Replay records ordinary input/judgement frames and exact-time pause releases.
+Playback uses framework f32 interpolation; seeking resimulates from the initial
+checkpoint. More frequent bounded checkpoint caching is unimplemented. Input and
+recording capacity are fixed at creation; exhaustion rejects batches. Imported
+final digests are comparison metadata, not trusted results. Rate is 1, offsets
+are zero, and no mods or legacy replay containers are supported.
+
+The [component findings](../engine/reference/findings/m2-primitives.json),
+[session findings](../engine/reference/findings/m2-sessions.json) and
+[correction probes](../engine/reference/findings/m2-session-corrections.json)
+retain source/fixture/lock hashes and evidence classifications. The current
+component suite has 104 native/WASM fixtures and 72 pinned comparisons, including
+replay-handler interpolation and repeated-slider position probes. Native C/WASM
+session tests cover mixed objects across cadences, pause/replay, strict boundaries,
+transactional rejection, ownership and output acknowledgement. These are local
+session regressions and pinned component evidence, not whole-drawable acceptance.
+
+Full A13–A20/A23 acceptance, recorder sampling and dense/long workload validation
+remain open. The [reference harness](compatibility/reference-harness.md#remaining-gameplay-adapters)
+identifies the missing whole-drawable/player adapters and observations.
 
 ## M3: browser foundation and partial W01/W03
 
-The [M3 report](implementation/m3.md) records production-only WASM, shared generated
+The browser foundation implements production-only WASM, shared generated
 bindings, local archive/loose loading, transactional difficulty selection, music
 cache/transport, bounded shared decoding and independent input/audio services.
 The browser bridge exposes headless sessions, replay/results/sample availability
 and production coordinate conversion. Review fixes cover cancelled candidates,
 ZIP descriptors and audio dispatch recovery.
 
-The [W01 ledger](implementation/m3.md#w01-implementation-ledger--compact-output-and-active-projection)
-records compact gameplay output and an arena-backed active projection with
-independent output lifetime (kinds 31–34). This is partial W01 and the W03
+The runtime exposes compact gameplay output and an arena-backed active projection
+with independent output lifetime (kinds 31–34). This is partial W01 and the W03
 foundation; object animation, static resources, WebGL2, voice/loop intent and
-integrated input/music/lifecycle/results remain work in the [M3 plan](implementation/m3-plan.md).
+integrated input/music/lifecycle/results remain work in the [browser gameplay plan](browser-gameplay.md).
 Play stays disabled; no aggregate gameplay capability is advertised.
 
-Local service, session and Chromium transport checks are retained in the report
-and findings. The [contract audit](implementation/m3-contract-audit.md) identifies
-missing whole-scenario adapters and remaining protocols. A12/A21/A22, H11 and full
+The [browser session findings](../engine/reference/findings/m3-browser-sessions.json)
+and [output findings](../engine/reference/findings/m3-output-transport.json) retain
+local service, session and Chromium evidence: 38 service tests, 34 diagnostic/compact
+schedules and four Chromium scenarios. These do not establish upstream or audible
+output acceptance. The reference harness identifies missing adapters; rendering
+and audio ADRs specify remaining protocols. A12/A21/A22, H11 and full
 M2 acceptance remain open. Missing Firefox/WebKit executables and installation
 timeouts are validation limitations, separate from unfinished implementation.
 
@@ -139,7 +158,7 @@ apply the simulation phases and judgement deadlines specified in ADR-002.
 Explicit kind-18 gameplay sessions support production simulation, score/health,
 replay execution, snapshots and one-shot sample intent. Foundation kind-3 sessions
 retain their original ownership-only behavior. Browser rendering and audio playback
-remain unsupported. See the [session report](implementation/m2-sessions.md) for limits.
+remain unsupported in an integrated player.
 Dynamic-library packaging and integrated browser context-loss recovery are not claimed.
 Transactional browser asset replacement is implemented in the M3 foundation.
 Validation was executed locally on macOS arm64 with native and WASM builds; CI

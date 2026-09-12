@@ -1,6 +1,6 @@
 # Independent replay primitives
 
-These Odin APIs accept explicit typed inputs. The [M2 session transport](../../docs/implementation/m2-sessions.md)
+These Odin APIs accept explicit typed inputs. The [M2 session transport](../../docs/status.md#m2-headless-sessions)
 now connects them to prepared identity, recording, playback and initial-checkpoint
 resimulation. Rules version 1 is shared by primitive and session APIs.
 
@@ -55,3 +55,8 @@ Session recording stores ordinary frames at actual input and judgement timestamp
 including exact-time pause release. Flags remain zero. No synthetic interpolation
 anchors are inserted. Complete recorder cadence/angular subdivision is still an
 acceptance gate.
+
+More frequent checkpoint caching remains unimplemented. Any bounded cache must
+retain complete mutable session state, suppress historical one-shots after seek,
+and stay outside replay identity. Seeking must resimulate forward rather than
+reverse judgements.

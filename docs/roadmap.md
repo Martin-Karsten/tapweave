@@ -71,8 +71,8 @@ Exit criteria: A08–A11 pass on generated and upstream corpus; H03/H04 resolved
 
 ### M2 — Complete unmodded simulation and scoring
 
-Status: [independent primitives](implementation/m2.md) and [headless session integration](implementation/m2-sessions.md) are implemented. Full upstream M2 acceptance remains open.
-Remaining work: [M2 acceptance backlog](implementation/m2-plan.md).
+Status: [headless sessions and their primitives](status.md#m2-headless-sessions) are implemented. Full upstream M2 acceptance remains open.
+Remaining work: [remaining adapter work](compatibility/reference-harness.md#remaining-gameplay-adapters).
 
 Prerequisites: M1 objects/schedules and result tables.
 
@@ -82,8 +82,8 @@ Exit criteria: A13–A20 and A23 pass; H05–H10 resolved/classified; exact disc
 
 ### M3 — Odin presentation and browser runtime
 
-Status: [independent browser foundation](implementation/m3.md); browser gameplay remains open.
-Implementation sequence: [M3 plan](implementation/m3-plan.md).
+Status: [independent browser foundation](status.md); browser gameplay remains open.
+Implementation sequence: [browser gameplay plan](browser-gameplay.md).
 
 Prerequisites: M2 readonly snapshot API and audio intent.
 

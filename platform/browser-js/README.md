@@ -73,7 +73,7 @@ internal decoder peak memory.
 
 No H11 oracle, WebGL2 executor, object animation, gameplay input listener,
 integrated music playback, gameplay pause/resume, results, or performance baseline is
-claimed. These remain tracked in the M3 plan and implementation report.
+claimed. These remain tracked in the [browser gameplay plan](../../docs/browser-gameplay.md).
 
 ## Session prerequisites
 
@@ -92,4 +92,4 @@ its internal peak allocation cannot be certified by these limits.
 Run `npm --prefix platform/browser-js run test:session` for the local three-minute
 production-WASM cadence/stall matrix. Hashed artifacts are written to
 `artifacts/session/`; they are not pinned upstream observations. See the
-[contract audit](../../docs/implementation/m3-contract-audit.md) for remaining gates.
+[reference harness](../../docs/compatibility/reference-harness.md#remaining-gameplay-adapters) for remaining gates.

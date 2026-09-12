@@ -47,12 +47,11 @@ Run each simulation fixture with direct event-boundary stepping and presentation
 
 Every diff reports fixture hash, behavior ID, source commit, first differing event, ten events of context, raw numeric values/ULPs, schedule, and a reproduction command. Updating a golden requires a source revision/profile change or a written finding; never an unconditional snapshot refresh.
 
-
 ## Executed M0 adapters
 
 H01/H02 are implemented and executed by [`engine/reference-host`](../../engine/reference-host/README.md). The [M0 finding index](../../engine/reference/findings/m0.json) records the 83-observation run, fixture/observation digests, locked dependency digest and policy classifications. The runner rebuilds and tests native/WASM before comparison. Its projection excludes M1 geometry, slider duration/children and final sample candidates; matching this projection is not full prepared-map equivalence.
 
-Malformed-line observations preserve upstream's actual catch-and-continue behavior. The adapter records an exception and rethrows it into the original decoder recovery loop. The comparison separately verifies Tapweave's stricter typed, transactional rejection policy. H03/H04 are implemented below. M2 has component subsets of H06/H08/H09/H10; see [M2 status](../implementation/m2.md). Full gameplay observations and H05/H07/H11/H12 remain open.
+Malformed-line observations preserve upstream's actual catch-and-continue behavior. The adapter records an exception and rethrows it into the original decoder recovery loop. The comparison separately verifies Tapweave's stricter typed, transactional rejection policy. H03/H04 are implemented below. M2 has component subsets of H06/H08/H09/H10; see [M2 status](../status.md#m2-headless-sessions). Full gameplay observations and H05/H07/H11/H12 remain open.
 
 ## Implemented preparation observations
 
@@ -70,3 +69,28 @@ beatmaps, music and art are not bundled. Full-map native/WASM traces include a
 binary-description digest. The independent 74-case geometry host remains useful
 for testing caller-supplied workspace limits and path kinds without decoding.
 See [current evidence](../status.md).
+
+## Remaining gameplay adapters
+
+Whole-scenario A13–A20/A23 and A12/A21/A22 acceptance remains open. Existing
+component and local session checks do not substitute for these missing adapters.
+
+| Harness | Required scenarios | Existing evidence / remaining entry point |
+|---|---|---|
+| H05 / A15 | Slider tracking loss/recovery, key restriction, sparse samples and deadlines across schedules/stalls | Drawable adapter absent; local session tests only |
+| H06 / A13–A14 | Strict/adjacent window boundaries, circle selection, note lock, equal-time input | `test:simulation:upstream` executes hit-window component subset; selection adapter absent |
+| H07 / A14–A16/A20 | Nested/top-level equal-time result order, early nominal tail | Drawable adapter absent |
+| H08 / A16/A23 | Spinner reversals, >90-degree segments, input/recorder angular subdivision | Existing spin-history component adapter; full cursor/recorder adapter absent |
+| H09 / A19 | HP0/5/10, breaks, drain, failure time/freeze | Existing drain component adapter; player adapter absent |
+| H10 / A17–A18 | Complete score/count/health sequences and terminal rank | Existing score component adapter; integrated player projection absent |
+| Replay / A23 | Same replay under direct, 30/60/120/144 Hz and 50/100/250 ms stalls | Local bridge/native/WASM evidence; upstream recorder cadence remains open |
+| H11 / A20–A21 | Missing candidates, nominal tails, loops, rapid toggles, ramps, pause/resume | Drawable sample adapter absent; mock Web Audio cannot close this |
+| Presentation / A22 | Circle preempt/fade/approach/feedback, slider body/ball/follow/repeats, spinner states | Source chapters, local coordinates and active projections; drawable adapter absent |
+
+Measure full score/count/health sequences at HP0/5/10, actual player failure
+freeze, recorder cadence/angular subdivision and sample eligibility. Keep the
+schedule/stall matrix above and traceability tolerances unchanged. Capture real
+locked-restore observations with source, fixture, observation and lock hashes.
+Dense/long/10,000-object workload measurements must include creation/calibration,
+advance/event work, live/peak arenas, recording/output/checkpoint high water and
+WASM pages. Resolve unexplained discrete differences before closing M2 gates.

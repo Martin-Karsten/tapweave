@@ -308,7 +308,7 @@ Seek cost is proportional to events before the target, not elapsed milliseconds.
 The WASM host must now provide `odin_env.pow` alongside the existing math/import
 functions, because production scoring is linked. Browser rendering, audio loops,
 asset loading and synchronized playback remain M3. Whole-scenario upstream gates
-are tracked separately in the [M2 integration report](../implementation/m2-sessions.md).
+are tracked separately in the [headless session status](../status.md#m2-headless-sessions).
 
 ## Browser foundation bindings
 
@@ -335,8 +335,9 @@ on the next transform call. Copy coefficients immediately; never retain a WASM
 view across potentially growing calls. Export discovery indicates coordinate
 support only; full presentation and gameplay capability remain unavailable.
 
-See the [M3 contract audit](../implementation/m3-contract-audit.md) for existing
-session export coverage, missing audio/render records and clock epoch mapping.
+Remaining [render resources](adr-003-rendering.md#remaining-resource-protocol),
+[audio records](adr-004-audio.md#remaining-audio-protocol) and
+[clock mapping](adr-004-audio.md#receipt-time-conversion) are specified in their ADRs.
 
 ## Compact gameplay output and active projection
 

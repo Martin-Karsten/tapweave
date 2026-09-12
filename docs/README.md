@@ -15,12 +15,12 @@ The framework version is source-confirmed by the pinned [`ppy.osu.Framework` pac
 
 ## Document ownership
 
-`status.md` summarizes current coverage; implementation reports retain increment
-provenance and executed checks. The ABI chapter and ADRs own contracts, reference
-chapters own pinned behavior evidence, traceability owns acceptance classifications,
-and milestone plans own remaining work. Historical test counts are dated evidence,
-not current suite inventories. See the [cleanup audit](implementation/repository-cleanup.md)
-for the consolidation decisions.
+`status.md` owns current coverage and limitations. The ABI chapter and ADRs own
+contracts; reference chapters own pinned behavior; traceability and the reference
+harness own acceptance evidence and missing experiments. The roadmap and
+[browser gameplay plan](browser-gameplay.md) describe remaining work. Hashed
+findings retain reproducible evidence; Git history retains the implementation
+journey. Separate milestone reports and progress ledgers are unnecessary.
 
 ## Reading order
 

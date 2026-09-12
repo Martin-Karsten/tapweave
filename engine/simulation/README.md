@@ -21,5 +21,5 @@ dispatch all events through its target before committing that target time.
 
 `session.odin` consumes immutable prepared maps and owns no browser resources.
 Its mutable slices borrow the runtime-owned creation arena; sessions must not be
-copied. See the [M2 session report](../../docs/implementation/m2-sessions.md) for
+copied. See the [headless session status](../../docs/status.md#m2-headless-sessions) for
 production APIs, event/recording policy, tests and remaining acceptance gates.

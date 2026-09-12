@@ -50,7 +50,7 @@ numbered browser epoch and immutable DOM-receipt/AudioContext pair. Numeric epoc
 equality is never assumed. Pause invalidates the mapping; input conversion neither
 clamps late timestamps nor applies offsets again. Production M2 still requires
 zero offsets; the independent clock's nonzero-offset fixtures do not change that
-profile. The [contract audit](../implementation/m3-contract-audit.md) separates DOM
+profile. The [receipt-time conversion](#receipt-time-conversion) separates DOM
 receipt diagnostics from ABI beatmap-relative raw/effective timestamps.
 
 Music transport consumes the same anchor and its separate media coordinate.
@@ -66,3 +66,42 @@ there is no unbounded waiting queue. Cancellation releases candidate ownership
 immediately but does not free a decoder slot before uninterruptible work settles.
 Same-source requests share a pending decode by normalized asset name. Internal
 browser decoder peak memory remains unbounded by this admission accounting.
+
+## Remaining audio protocol
+
+Append a distinct audio-command record and a separately discoverable capability.
+Keep kind-27 serialization and acknowledgement valid for existing consumers.
+Commands require sequence, engine epoch, kind, late policy, beatmap timestamp,
+voice ID, selected asset ID, volume/pan/rate, ramp duration and ramp parameter mask.
+Kinds are one-shot, loop-start, loop-stop and linear parameter ramp. Stops and
+ramps reference an explicit voice in the same epoch; voice IDs cannot be reused
+within an epoch. Asset zero is diagnostic silence. Stops must execute even late.
+
+Odin emits transitions from semantic input/judgement/tracking events, never RAF.
+The H11 observations must determine rapid-toggle/ramp replacement semantics and
+late one-shot policy before those are advertised. Reserve maximum journals and
+voices at session creation with checked arithmetic; a failed admission cannot
+partially change gameplay or lose pending sound. Do not assume a bounded number
+of loop toggles from object count: account for accepted input capacity.
+
+The browser must copy/admit a complete unacknowledged batch transactionally, save
+its session/epoch/sequence watermark, then acknowledge. An acknowledgement retry
+must not re-enqueue sound. New snapshots change tokens, so retry acknowledges the
+latest token only after all newly included events are admitted. Dispatch failure
+cancels voices/music and enters recovery; it must not replay already-admitted
+one-shots. A future nominal-tail timestamp remains unchanged in the queue.
+
+## Receipt-time conversion
+
+An immutable running mapping contains session handle, engine epoch, browser clock
+epoch, DOM receipt anchor, AudioContext anchor, media anchor and four offsets.
+These epochs are different counters. Bind them explicitly after start/resume and
+invalidate the mapping on pause, reset, seek, replacement or context suspension.
+
+`audio = audio_anchor + (receipt_ms - receipt_anchor_ms) / 1000`.
+`effective = beatmap_anchor + (audio - audio_anchor) * 1000` at production rate 1.
+Offsets enter beatmap_anchor exactly once; media position uses media_anchor and
+never adds that offset again. While the M2 profile is zero-offset only, production
+start must reject nonzero vectors rather than export incorrect replay metadata.
+DOM receipt time and mapped beatmap time remain distinct diagnostic fields. Input
+ABI raw/effective fields both receive the mapped beatmap time for this profile.

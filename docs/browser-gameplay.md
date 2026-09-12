@@ -1,12 +1,9 @@
-# M3 completion plan — Odin presentation and browser runtime
+# Browser gameplay plan
 
-Status: remaining implementation plan, reconciled with the prerequisite work on 2026-09-12.
-The [contract audit](m3-contract-audit.md) and [implementation report](m3.md#m3-prerequisites-implementation-2026-09-12)
-record prerequisite code and validation. W01 and the W03 active-projection foundation
-are partially implemented; no unit is complete. Play remains disabled.
-See [current evidence](m3.md), [implementation status](../status.md), and
-[headless M2](m2-sessions.md). This plan supersedes the initial foundation task
-list without relaxing its acceptance gates.
+Play remains disabled. Only partial W01 and the W03 active-projection foundation
+are implemented; no unit below is complete. [Current status](status.md) owns
+implemented coverage, the [reference harness](compatibility/reference-harness.md#remaining-gameplay-adapters)
+owns missing adapters, and the ADRs own resource/audio requirements.
 
 ## Target and scope
 
@@ -26,28 +23,7 @@ submission, legacy replay containers, difficulty/pp and mobile certification are
 out of scope. M4 retains the 10,000-map corpus and eight-hour soak; M3 still needs
 its bounded workload, lifecycle and release-browser validation below.
 
-## Baseline: reuse rather than rebuild
-
-| Area | Implemented | Remaining |
-|---|---|---|
-| Engine | M0/M1 preparation and explicit headless M2 sessions | Whole-scenario M2 upstream acceptance |
-| ABI | Production WASM, kinds 1–34, generated Odin/C/JS/TS, session/replay/sample bridge, coordinates, compact output and independent active projection | Animation/static-resource and loop/voice contracts |
-| Assets | Local ZIP/loose loading, transactional replacement, music cache, descriptor validation, immediate candidate cleanup, shared decode admission and in-flight reuse | Hitsounds/default assets, integrated availability binding, GPU ownership and bounded concurrent reads |
-| Presentation | Production Odin viewport transform and bounded active projection, native C/WASM and Chromium coordinate checks | Object animation/feedback, HUD, meshes and draw batches |
-| Input/audio | Independent buffers/executor, explicit session epoch mapping and music transport; failure/resume regressions | DOM listeners, production audio ingestion, loops/ramps and integrated frame/lifecycle ownership |
-| Evidence | Full engine suite, 38 browser service tests, four Chromium checks, 34 diagnostic/compact WASM cadence/stall runs and 72 pinned component comparisons | Whole-scenario M2, H11/A12/A21/A22, complete browser/input/audio matrix and measured performance |
-
-Do not replace M2 rules/replay/scoring with browser logic. The existing kind-27
-record is one-shot intent; the JS executor's fixture objects are not production
-loop/ramp records. A headless capability does not establish playable-browser
-support or upstream compatibility.
-
-## Baseline preservation and completion checkpoints
-
-Prerequisites are preserved in `061f19a`; `1b4b8f3` adds compact output and active
-projection on the reconciled history (`88b73ea`, `3062eee`, `cf379bc`). Continue
-from these committed implementations. The [W01 ledger](m3.md#w01-implementation-ledger--compact-output-and-active-projection)
-retains provenance and validation.
+## Completion checkpoints
 
 There are two distinct checkpoints, both inside M3:
 
@@ -67,13 +43,12 @@ constraints. M4 does not absorb unfinished M3 gameplay or acceptance.
 
 ## Reviewable implementation units
 
-Use these units as the implementation checklist. Each delivers code, targeted
-regressions and updated evidence, rather than another audit-only increment. The
-numbered sections below retain the full acceptance requirements.
+Use these units as the implementation checklist. The numbered sections below
+specify their acceptance requirements.
 
 | Unit | Depends on | Concrete deliverable | Review/exit evidence |
 |---|---|---|---|
-| W01: transport contracts | Preserved prerequisite baseline | Append-only render/static-resource/audio schemas, quota/reserve paths, capability flags, readonly projection and efficient advance/output calls; update ADRs and generate all bindings | Native C/WASM layout and malformed-span tests; old kinds 1–34/exports remain valid; exact lifetime/ack contract |
+| W01: transport contracts | Existing session/output ABI | Append-only render/static-resource/audio schemas, quota/reserve paths, capability flags, readonly projection and efficient advance/output calls; update ADRs and generate all bindings | Native C/WASM layout and malformed-span tests; old kinds 1–34/exports remain valid; exact lifetime/ack contract |
 | W02: executable reference adapters | W01 fixture contracts | Pinned whole-session/drawable adapters and named fixture entry points for H05–H11 and A22; compare local and upstream projections with schedule envelopes | Real locked restore and observation hashes; coverage manifest distinguishes executable scenarios from absent ones |
 | W03: Odin presentation | W01, relevant W02 observations | Bounded active/feedback sets; circle/slider/spinner states, approach/fade/feedback, cursor/trail, follow points and HUD | Native/WASM traces, readonly/repeated-snapshot tests, stable order, reserve/failure tests; no ordinary full-map frame scan |
 | W04: meshes and WebGL2 | W03 | Counted reusable slider geometry, original atlas/shaders, static resource publication and thin bounded JS command executor | Degenerate/reversing/overlapping scenes, invalid-command tests, upload-once counters and context-generation tests |
@@ -99,13 +74,13 @@ milestone. M2 acceptance work starts in step 1 and continues alongside independe
 M3 work, but must finish before an integrated compatibility claim or M3 completion.
 No elapsed-time estimate substitutes for an exit gate.
 
-### 1. Confirm session prerequisites and specify missing contracts
+### 1. Specify remaining transport contracts
 
 Primary areas: `engine/runtime/`, `engine/audio_protocol/`, `engine/abi/`,
 `docs/architecture/`, and the existing reference hosts.
 
-- Consume the completed [session export audit](m3-contract-audit.md); do not repeat
-  the audit as the deliverable. Preserve all existing record layouts, exports,
+- Consume the existing [session ABI](architecture/interface-v2.md#m2-headless-session-transport).
+  Preserve all existing record layouts, exports,
   prepared identity and foundation behavior. Finish concrete schema/transport
   definitions and executable fixture entry points listed below.
 - Consume the implemented compact advance/output and independent projection APIs.
@@ -133,7 +108,7 @@ Primary areas: `engine/runtime/`, `engine/audio_protocol/`, `engine/abi/`,
 - Establish the remaining M2 acceptance matrix: H05–H10 with complete
   circle/note-lock, slider tracking, spinner, score/health/failure and replay
   observations; A13–A20/A23 remain open until their full scenarios are verified.
-  Include recorder cadence/angular subdivision gaps from the M2 session report.
+  Include the recorder cadence/angular subdivision gaps in the reference harness.
 
 Exit: reviewed ABI/ADR definitions, generated-binding conformance tests, an
 explicit dependency/acceptance matrix and executable reference fixture entry
@@ -283,40 +258,20 @@ inputs or output playback. Keyboard navigation and error flows remain usable.
   workload baselines before closing performance gates. The required measurements
   are known; threshold values are not yet established and must not be invented.
 - Close M2 A13–A20/A23 and M3 A12/A21/A22 with appropriate pinned evidence and H11
-  resolution/classification. Update findings, traceability, status and the M3
-  report together. Local parity and screenshots alone never close upstream gates.
+  resolution/classification. Update findings, traceability and current status together. Local parity and screenshots alone never close upstream gates.
 
 Exit: a playable browser milestone with all required acceptance rows supported,
 no unresolved resource/lifecycle failures, and approved performance results.
 Only then mark M3 complete and advertise its implemented capabilities.
 
-## Standards and verification for every increment
+## Validation and delivery
 
-Follow AGENTS.md and ADR-001 through ADR-005. Keep deterministic packages acyclic
-and browser-independent. Use descriptive snake_case names and role-specific loop
-indices, Title_Case Odin types and UPPER_SNAKE_CASE constants; preserve serialized
-and retained upstream identifiers. Keep procedure/control-flow bodies multiline.
-Do not copy owning maps, arenas, storage or handle tables after ownership begins.
-Construct candidates transactionally; reserve before hot paths and make cleanup
-explicit. Review handwritten fixtures and test transports to the same standard.
+Follow AGENTS.md and the accepted ADRs. Run the full engine suite for engine or
+tooling changes and relevant browser service/session/integration checks. Record
+executed comparisons in hashed findings and update current status and acceptance
+classifications. Commit messages retain implementation history; do not add another
+milestone report or progress ledger.
 
-Use `npm --prefix engine test` for engine/tooling changes, browser service tests
-for each browser change, and browser assembly/integration checks for affected
-flows. Add targeted failure, quota, lifecycle, native/WASM and ordering regressions
-rather than tests that merely repeat implementation. Use the existing reference
-commands and add reproducible new adapter commands with their implementation.
-Document the checks actually run and distinguish local, upstream and release-
-browser evidence. Do not claim completion from partial fixtures.
-
-## Track completion
-
-After every unit update a short ledger in the M3 report: implemented files,
-commands and results, fixture/source/lock hashes where applicable, open defects,
-remaining acceptance IDs and the next unit. Keep local parity, pinned upstream
-observations and physical release-browser evidence separate. Do not reset the
-implementation sequence after another successful prerequisite increment.
-
-For external blockers, record the attempted command/environment and affected
-gate. Continue independent implementation. Obtain physical input/audible-output
-results and performance approval only against a concrete running player and
-recorded measurements; never substitute mock tests or invented thresholds.
+For external validation limits, record the attempted command/environment and
+its affected gate. Obtain physical input/audible-output results and performance
+approval against a concrete running player and recorded measurements.

@@ -1,6 +1,6 @@
 # Traceability matrix
 
-M0 rows below describe the tested foundation matrix; the [M0 report](../status.md) and [hashed findings](../../engine/reference/findings/m0.json) define its bounded coverage. M1 rows link to the complete-preparation findings. M2 has independent component evidence and locally tested [headless sessions](../implementation/m2-sessions.md); whole-scenario upstream acceptance remains open.
+M0 rows below describe the tested foundation matrix; the [M0 report](../status.md) and [hashed findings](../../engine/reference/findings/m0.json) define its bounded coverage. M1 rows link to the complete-preparation findings. M2 has independent component evidence and locally tested [headless sessions](../status.md#m2-headless-sessions); whole-scenario upstream acceptance remains open.
 
 `unsupported` means the current engine does not implement that capability; design descriptions are not implementation evidence.
 
@@ -55,42 +55,30 @@ covers explicit typed paths; the integrated runner also exercises raw legacy pat
 conversion and final optimised paths. Byte-identical native/WASM traces and binary
 digests are a separate check from the pinned upstream projection.
 
-## Independent M2 component observations
+## Gameplay evidence
 
-[M2 status](../implementation/m2.md) records pinned result/scoring, hit-window,
-forward spin-history and drain-calibration subsets, with separate local
-scheduler/replay evidence. These do **not** complete A13–A20 or A23. In particular,
-H06 window predicates are not circle/note-lock dispatch acceptance; H08 history
-is not complete spinner judgement; H09 calibration is not player failure.
-Headless integration now exposes separate production session capabilities. Neither
-its local consistency tests nor these component observations complete the listed
-whole-scenario upstream acceptance gates.
+The [component findings](../../engine/reference/findings/m2-primitives.json) retain
+pinned result/scoring, hit-window, forward spin-history and drain-calibration
+subsets. [Correction probes](../../engine/reference/findings/m2-session-corrections.json)
+cover result minima, framework replay interpolation and repeated-slider positions.
+H06 predicates do not establish circle/note-lock dispatch; H08 history does not
+establish complete spinner judgement; H09 calibration does not establish failure.
 
-## Independent M3 observations
+The [session findings](../../engine/reference/findings/m2-sessions.json) retain
+local production ABI, cadence, ownership, replay and one-shot regressions.
+These findings do not close whole A13–A20/A23 scenarios. The
+[reference harness](reference-harness.md#remaining-gameplay-adapters) tracks missing
+whole-drawable/player entry points.
 
-The [M3 report](../implementation/m3.md) records local production-ABI browser
-loading, archive/resource and input/audio service checks plus initial native/WASM
-viewport values. A12 remains open until the transform is integrated with real
-browser gameplay input. A21/A22 and H11 remain unsupported/unexecuted; fake audio
-contexts and a preparation shell are not evidence of audio-backed gameplay.
+## Browser evidence
 
-### M3 prerequisite transport evidence
+The [browser session findings](../../engine/reference/findings/m3-browser-sessions.json)
+retain coordinate conversion, session/replay/lifecycle checks and local synthetic
+cadence/stall evidence. The [output findings](../../engine/reference/findings/m3-output-transport.json)
+cover diagnostic/compact parity across 34 schedules, independent projection/journal
+lifetimes and a 10,000-object active-work regression. These are local transport
+checks; the existing 72 pinned component comparisons add no whole-session oracle.
 
-Kinds 29/30 expose the Odin transform to native C and browser WASM. The local
-browser suite checks coordinate round trips and existing M2 session operations,
-retained output, replay and lifecycle failures. The `test:session` command covers
-17 schedules of a synthetic three-minute workload with exact judgement/audio/final
-digests and no WASM growth in the exercised calls. See the [M3 report](../implementation/m3.md#m3-prerequisites-implementation-2026-09-12)
-and [retained local findings](../../engine/reference/findings/m3-browser-sessions.json).
-A12 remains open for physical/gameplay input integration; A21/A22/H11 and full M2
-rows remain open. No new upstream drawable acceptance is claimed.
-
-### Compact output and active projection evidence
-
-The [transport finding](../../engine/reference/findings/m3-output-transport.json)
-records local compact/diagnostic output parity across 34 cadence/stall schedules,
-independent projection/journal lifetimes and a 10,000-object active-work regression.
-It is local transport evidence only. The rerun of 72 pinned component comparisons
-adds no whole-session/drawable oracle. A12/A21/A22, H11 and M2 A13–A20/A23 remain
-open. See the [implementation ledger](../implementation/m3.md#w01-implementation-ledger--compact-output-and-active-projection)
-for unfinished implementation versus external validation constraints.
+A12 requires physical/gameplay input integration. A21/A22 and H11 remain open;
+mock audio and a preparation shell do not establish audio-backed gameplay. See
+[current status](../status.md) for implemented coverage and validation limits.
