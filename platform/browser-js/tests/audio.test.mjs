@@ -109,3 +109,49 @@ test('malformed batch rejects transactionally; new epoch retains new events', ()
   audio.dispose();
   assert.equal(audio.assets.size, 0);
 });
+
+test('voice exhaustion cancels playback instead of blocking loop stops', () => {
+  const context = fake_context();
+  const clock = new Audio_Clock();
+  clock.start(10, 0);
+  const audio = new Audio_Service(context, clock, { maximum_voices: 1 });
+  audio.set_assets([[1n, {}]]);
+  audio.enqueue([
+    audio_event(clock, 1, { kind: 'loop_start' }),
+    audio_event(clock, 2, { kind: 'loop_start', beatmap_time_ms: 1 }),
+    audio_event(clock, 3, { kind: 'loop_stop', voice_id: 1n, beatmap_time_ms: 2 }),
+  ]);
+  assert.throws(() => audio.pump(), { code: 'QUOTA_EXCEEDED' });
+  assert.equal(audio.voices.size, 0);
+  assert.equal(audio.retiring_voices.size, 0);
+  assert.equal(audio.pending.length, 0);
+  assert.ok(context.calls.some(call => call[0] === 'stop'));
+  audio.pump();
+  audio.enqueue([audio_event(clock, 4)]);
+  audio.pump();
+  assert.equal(context.sources.length, 2);
+  audio.dispose();
+});
+
+test('epoch replacement counts only surviving events and validates before cancellation', () => {
+  const context = fake_context();
+  const clock = new Audio_Clock();
+  clock.start(10, 0);
+  const audio = new Audio_Service(context, clock, { maximum_pending: 1 });
+  audio.enqueue([audio_event(clock, 1, { beatmap_time_ms: 5000 })]);
+  const previous_pending = audio.pending.slice();
+  const stale_event = audio_event(clock, 2);
+  clock.pause(10);
+  clock.resume(10);
+  assert.throws(() => audio.enqueue([audio_event(clock, 2, { volume: NaN })]), { code: 'INVALID_AUDIO_EVENT' });
+  assert.throws(() => audio.enqueue([audio_event(clock, 2), audio_event(clock, 3)]), { code: 'QUOTA_EXCEEDED' });
+  assert.deepEqual(audio.pending, previous_pending);
+  assert.equal(audio.last_sequence, 1n);
+  audio.enqueue([stale_event, audio_event(clock, 3)]);
+  assert.equal(audio.pending.length, 1);
+  assert.equal(audio.pending[0].sequence, 3n);
+  assert.equal(audio.pending[0].epoch, clock.epoch);
+  assert.equal(audio.metrics.stale, 1);
+  assert.equal(audio.epoch, clock.epoch);
+  audio.dispose();
+});

@@ -162,15 +162,31 @@ export class Archive_Assets extends Asset_Source {
         local_name_size === name_size && name_bytes.every((byte, name_index) => byte === bytes[local_offset + 30 + name_index]) &&
         payload_offset + compressed_size <= directory_start,
         'MALFORMED_ARCHIVE', 'ZIP local entry disagrees with directory.');
+      let entry_end = payload_offset + compressed_size;
       if ((flags & 8) === 0) {
         require_condition(view.getUint32(local_offset + 14, true) === checksum &&
           view.getUint32(local_offset + 18, true) === compressed_size &&
           view.getUint32(local_offset + 22, true) === original_size,
           'MALFORMED_ARCHIVE', 'ZIP local sizes or checksum disagree.');
+      } else {
+        // The optional signature can also be a valid unsigned descriptor CRC.
+        // Match the complete tuple before choosing either representation.
+        const descriptor_matches = checksum_offset => checksum_offset + 12 <= directory_start &&
+          view.getUint32(checksum_offset, true) === checksum &&
+          view.getUint32(checksum_offset + 4, true) === compressed_size &&
+          view.getUint32(checksum_offset + 8, true) === original_size;
+        if (entry_end + 16 <= directory_start && view.getUint32(entry_end, true) === 0x08074b50 &&
+            descriptor_matches(entry_end + 4)) {
+          entry_end += 16;
+        } else {
+          require_condition(descriptor_matches(entry_end),
+            'MALFORMED_ARCHIVE', 'ZIP data descriptor is missing or disagrees with directory.');
+          entry_end += 12;
+        }
       }
       require_condition(compression !== 8 || compressed_size > 0, 'MALFORMED_ARCHIVE', 'Empty DEFLATE payload.');
       require_condition(compression !== 0 || compressed_size === original_size, 'MALFORMED_ARCHIVE', 'Stored ZIP size mismatch.');
-      occupied_ranges.push([local_offset, payload_offset + compressed_size]);
+      occupied_ranges.push([local_offset, entry_end]);
       if (!is_directory) {
         this.entries.set(normalized_name, { filename, payload_offset, compressed_size, original_size, checksum, compression });
       }

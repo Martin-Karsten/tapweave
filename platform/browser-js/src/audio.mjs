@@ -28,8 +28,7 @@ export class Audio_Service {
   }
 
   enqueue(events) {
-    require_condition(events.length <= this.maximum_pending - this.pending.length,
-      'QUOTA_EXCEEDED', 'Audio event queue is full.');
+    let current_epoch_event_count = 0;
     let previous_sequence = this.last_sequence;
     for (const event of events) {
       require_condition(typeof event.sequence === 'bigint' && event.sequence > previous_sequence && event.sequence <= 0xffffffffffffffffn &&
@@ -44,7 +43,13 @@ export class Audio_Service {
         Number.isFinite(event.lateness_threshold_ms) && event.lateness_threshold_ms >= 0,
         'INVALID_AUDIO_EVENT', 'Malformed audio event.');
       previous_sequence = event.sequence;
+      if (event.epoch === this.clock.epoch) {
+        current_epoch_event_count++;
+      }
     }
+    const retained_event_count = this.clock.epoch === this.epoch ? this.pending.length : 0;
+    require_condition(current_epoch_event_count <= this.maximum_pending - retained_event_count,
+      'QUOTA_EXCEEDED', 'Audio event queue is full.');
     if (this.clock.epoch !== this.epoch) {
       this.cancel();
     }
@@ -85,6 +90,10 @@ export class Audio_Service {
         }
         processed_count++;
       }
+    } catch (error) {
+      // A failed start must not block queued stops and leave existing loops audible.
+      this.cancel();
+      throw error;
     } finally {
       // Compact once per dispatch batch; repeated shift() makes dense batches quadratic.
       this.pending.splice(0, processed_count);

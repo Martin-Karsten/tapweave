@@ -96,8 +96,9 @@ A13–A20 or A23 acceptance gate is claimed from these component subsets.
 The [M3 increment](implementation/m3.md) adds a production-only browser WASM
 transport, shared generated JavaScript/TypeScript bindings, local archive/loose
 asset loading, transactional difficulty selection, decoded music reuse and a
-validation shell. Independent input/audio services and Odin viewport transforms
-have local regression coverage. The browser Play control stays disabled.
+validation shell. Review fixes release cancelled candidates immediately, validate
+ZIP data descriptors and clean up audio dispatch failures. Independent input/audio
+services and Odin viewport transforms have local regression coverage. The browser Play control stays disabled.
 
 Full upstream M2 acceptance, object presentation, WebGL2, integrated music/input/lifecycle,
 results and H11 remain open. This increment does not complete A12/A21/A22, does

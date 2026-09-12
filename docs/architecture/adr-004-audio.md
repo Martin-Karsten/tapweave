@@ -33,3 +33,12 @@ The JS boundary remains small while using browser-native decoding/output. Audio 
 ## Acceptance
 
 Offset vectors, rate changes between sessions, pause/resume, focus loss, missing assets, repeated load, loop loss/recovery, and long-stall late events are integration fixtures. Report p50/p95/p99 scheduling lateness and drift between music position and engine beatmap time.
+
+## Browser foundation failure handling
+
+The independent executor validates each enqueue batch before mutation, counting
+only events that survive epoch replacement against queue capacity. If dispatch
+fails (including voice quota exhaustion), it cancels queued playback and stops and
+disconnects active/retiring voices, then reports the error for explicit caller
+recovery. A failed start cannot indefinitely block a subsequent loop stop. This
+failure path does not choose substitute samples or silently steal voices.

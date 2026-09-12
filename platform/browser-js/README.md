@@ -45,13 +45,17 @@ they do not certify audible output or H11 compatibility.
   after calls; descriptions retained by the UI are owned copies. No object-by-
   object JavaScript gameplay state is created.
 - `selection.mjs` transactionally replaces the selected map and its asset scope.
-  Stale loads cannot publish. Failures preserve the previous selection.
+  Superseded loads release candidate maps immediately, including during pending
+  audio decoding, and cannot publish. Failures preserve the previous selection.
 - `archive.mjs` owns the asset index, extracted bytes and cached decoded music.
   fflate performs DEFLATE decoding; a bounded ZIP envelope reader validates
-  local/central consistency, names, ranges and CRC before returning bytes.
+  local/central consistency, data descriptors, names, ranges and CRC before
+  returning bytes.
 - `clock.mjs`, `audio.mjs` and `input.mjs` are independent, tested services awaiting
   M2 integration. Their JavaScript test event objects are **not** production ABI
-  records. No gameplay, sample fallback, or animation policy is implemented in JS.
+  records. Dispatch failure cancels queued and active playback before reporting
+  the error; callers must recover explicitly. No gameplay, sample fallback, or
+  animation policy is implemented in JS.
 - The Odin `presentation` package owns the initial playfield transform. It has
   native/WASM test evidence, but is not yet exposed to browser gameplay.
 

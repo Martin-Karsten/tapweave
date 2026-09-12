@@ -92,3 +92,57 @@ test('empty DEFLATE payload and overlapping entries reject', () => {
   overlapping_view.setUint32(central_offset + 24, 104, true);
   assert.throws(() => new Archive_Assets(overlapping), { code: 'MALFORMED_ARCHIVE', message: 'Overlapping ZIP entries.' });
 });
+
+function descriptor_archive(signed, compression_level = 0) {
+  const original = zipSync({ 'map.osu': strToU8(fixture_text) }, { level: compression_level });
+  const original_view = new DataView(original.buffer);
+  const directory_offset = original_view.getUint32(original.length - 6, true);
+  const descriptor_size = signed ? 16 : 12;
+  const bytes = new Uint8Array(original.length + descriptor_size);
+  bytes.set(original.subarray(0, directory_offset));
+  bytes.set(original.subarray(directory_offset), directory_offset + descriptor_size);
+  const view = new DataView(bytes.buffer);
+  let checksum_offset = directory_offset;
+  if (signed) {
+    view.setUint32(checksum_offset, 0x08074b50, true);
+    checksum_offset += 4;
+  }
+  for (const [field_offset, local_offset] of [[0, 14], [4, 18], [8, 22]]) {
+    view.setUint32(checksum_offset + field_offset, original_view.getUint32(local_offset, true), true);
+    view.setUint32(local_offset, 0, true);
+  }
+  view.setUint16(6, original_view.getUint16(6, true) | 8, true);
+  view.setUint16(directory_offset + descriptor_size + 8, view.getUint16(6, true), true);
+  view.setUint32(bytes.length - 6, directory_offset + descriptor_size, true);
+  return { bytes, checksum_offset, descriptor_offset: directory_offset, descriptor_size };
+}
+
+test('ZIP descriptors with and without signatures validate before extraction', async () => {
+  for (const signed of [false, true]) {
+    for (const compression_level of [0, 6]) {
+      const { bytes } = descriptor_archive(signed, compression_level);
+      const archive = new Archive_Assets(bytes);
+      assert.equal(new TextDecoder().decode(await archive.read('map.osu')), fixture_text);
+      archive.dispose();
+    }
+  }
+});
+
+test('missing, truncated and mismatched ZIP descriptors reject', () => {
+  for (const signed of [false, true]) {
+    for (const field_offset of [0, 4, 8]) {
+      const { bytes, checksum_offset } = descriptor_archive(signed);
+      bytes[checksum_offset + field_offset] ^= 1;
+      assert.throws(() => new Archive_Assets(bytes), { code: 'MALFORMED_ARCHIVE' });
+    }
+    for (const missing_bytes of [1, signed ? 16 : 12]) {
+      const { bytes, descriptor_offset, descriptor_size } = descriptor_archive(signed);
+      const truncated = new Uint8Array(bytes.length - missing_bytes);
+      const retained_end = descriptor_offset + descriptor_size - missing_bytes;
+      truncated.set(bytes.subarray(0, retained_end));
+      truncated.set(bytes.subarray(descriptor_offset + descriptor_size), retained_end);
+      new DataView(truncated.buffer).setUint32(truncated.length - 6, retained_end, true);
+      assert.throws(() => new Archive_Assets(truncated), { code: 'MALFORMED_ARCHIVE' });
+    }
+  }
+});
