@@ -1,12 +1,13 @@
-import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 export const browser_root = new URL('../', import.meta.url);
 export const site_root = new URL('artifacts/site/', browser_root);
+await rm(new URL('platform/browser-js/src/', site_root), { recursive: true, force: true });
 await mkdir(new URL('platform/browser-js/src/', site_root), { recursive: true });
 await mkdir(new URL('engine/abi/', site_root), { recursive: true });
 await mkdir(new URL('vendor/', site_root), { recursive: true });
-await cp(new URL('src/', browser_root), new URL('platform/browser-js/src/', site_root), { recursive: true });
+await cp(new URL('build/', browser_root), new URL('platform/browser-js/src/', site_root), { recursive: true });
 await cp(new URL('style.css', browser_root), new URL('platform/browser-js/style.css', site_root));
 await cp(new URL('index.html', browser_root), new URL('index.html', site_root));
 await cp(new URL('../../engine/abi/records.mjs', browser_root), new URL('engine/abi/records.mjs', site_root));

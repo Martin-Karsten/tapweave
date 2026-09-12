@@ -49,7 +49,7 @@ test('malicious archive reports a typed error and diagnostics download works', a
 test('production session and coordinate exports execute in the browser', async ({ page }) => {
   await page.goto('/');
   const observed = await page.evaluate(async map_text => {
-    const { Engine_Bridge } = await import('/platform/browser-js/src/engine-bridge.mjs');
+    const { Engine_Bridge } = await import('/platform/browser-js/src/engine-bridge.js');
     const engine = await Engine_Bridge.create(await (await fetch('/tapweave.wasm')).arrayBuffer());
     try {
       const prepared = engine.prepare_map(new TextEncoder().encode(map_text));

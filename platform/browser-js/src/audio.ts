@@ -1,8 +1,67 @@
-import { require_condition } from './errors.mjs';
+import type { Audio_Clock } from './clock.js';
+import { require_condition } from './errors.js';
+
+export type Voice_Kind = 'one_shot' | 'loop_start' | 'loop_stop' | 'param_ramp';
+export type Voice_Policy = 'drop' | 'immediate';
+
+export interface Audio_Event {
+  sequence: bigint;
+  epoch: number;
+  kind: Voice_Kind;
+  policy: Voice_Policy;
+  beatmap_time_ms: number;
+  duration_ms: number;
+  voice_id: bigint;
+  asset_id: bigint;
+  volume: number;
+  pan: number;
+  rate: number;
+  lateness_threshold_ms: number;
+  parameter_mask?: number;
+}
+
+export interface Audio_Voice {
+  source: AudioBufferSourceNode | null;
+  gain: GainNode | null;
+  panner: StereoPannerNode | null;
+  stopping: boolean;
+  event: Audio_Event;
+  when_seconds: number;
+}
+
+export interface Audio_Metrics {
+  dispatched: number;
+  dropped: number;
+  stale: number;
+  maximum_lateness_ms: number;
+}
+
+export interface Audio_Service_Limits {
+  maximum_voices?: number;
+  maximum_pending?: number;
+  lookahead_ms?: number;
+}
 
 // Executes generated engine intent on the shared browser audio clock.
 export class Audio_Service {
-  constructor(audio_context, clock, { maximum_voices = 256, maximum_pending = 4096, lookahead_ms = 25 } = {}) {
+  context: AudioContext;
+  clock: Audio_Clock;
+  maximum_voices: number;
+  maximum_pending: number;
+  lookahead_ms: number;
+  assets = new Map<bigint, AudioBuffer>();
+  voices = new Map<bigint, Audio_Voice>();
+  retiring_voices = new Set<Audio_Voice>();
+  pending: Audio_Event[] = [];
+  available_events: Audio_Event[];
+  suspended_pending: Audio_Event[] = [];
+  suspended = false;
+  last_sequence = 0n;
+  epoch: number;
+  metrics: Audio_Metrics = { dispatched: 0, dropped: 0, stale: 0, maximum_lateness_ms: 0 };
+
+  constructor(audio_context: AudioContext, clock: Audio_Clock, { maximum_voices = 256, maximum_pending = 4096,
+    lookahead_ms = 25 }: Audio_Service_Limits = {}) {
     require_condition(Number.isSafeInteger(maximum_voices) && maximum_voices > 0 &&
       Number.isSafeInteger(maximum_pending) && maximum_pending > 0 &&
       Number.isFinite(lookahead_ms) && lookahead_ms >= 0 && lookahead_ms <= 1000,
@@ -12,32 +71,25 @@ export class Audio_Service {
     this.maximum_voices = maximum_voices;
     this.maximum_pending = maximum_pending;
     this.lookahead_ms = lookahead_ms;
-    this.assets = new Map();
-    this.voices = new Map();
-    this.retiring_voices = new Set();
-    this.pending = [];
-    this.available_events = Array.from({ length: maximum_pending }, () => ({}));
-    this.suspended_pending = [];
-    this.suspended = false;
-    this.last_sequence = 0n;
+    this.available_events = Array.from({ length: maximum_pending }, () => ({}) as Audio_Event);
     this.epoch = clock.epoch;
-    this.metrics = { dispatched: 0, dropped: 0, stale: 0, maximum_lateness_ms: 0 };
   }
 
-  set_assets(assets) {
+  set_assets(assets: Map<bigint, AudioBuffer>) {
     require_condition(this.voices.size === 0 && this.retiring_voices.size === 0 && this.pending.length === 0 && !this.suspended,
       'INVALID_STATE', 'Cancel audio before replacing assets.');
     this.assets = new Map(assets);
   }
 
-  enqueue(events) {
+  enqueue(events: Audio_Event[]) {
     require_condition(!this.suspended, 'INVALID_STATE', 'Resume suspended audio before admitting more events.');
     let current_epoch_event_count = 0;
     let previous_sequence = this.clock.epoch === this.epoch ? this.last_sequence : 0n;
     for (const event of events) {
       // The engine guarantees command value ranges; this executor validates only
       // the structural fields its own scheduling, watermark and dispatch use.
-      require_condition(typeof event.sequence === 'bigint' && event.sequence > previous_sequence && event.sequence <= 0xffffffffffffffffn &&
+      require_condition(typeof event.sequence === 'bigint' && event.sequence > previous_sequence &&
+        event.sequence <= 0xffffffffffffffffn &&
         Number.isInteger(event.epoch) && event.epoch >= 0 && event.epoch <= 0xffffffff &&
         typeof event.voice_id === 'bigint' && typeof event.asset_id === 'bigint' &&
         ['one_shot', 'loop_start', 'loop_stop', 'param_ramp'].includes(event.kind) &&
@@ -59,7 +111,7 @@ export class Audio_Service {
     }
     for (const event of events) {
       if (event.epoch === this.clock.epoch) {
-        this.pending.push(Object.assign(this.available_events.pop(), event));
+        this.pending.push(Object.assign(this.available_events.pop() as Audio_Event, event));
       } else {
         this.metrics.stale++;
       }
@@ -108,12 +160,12 @@ export class Audio_Service {
     }
   }
 
-  dispatch(event, when_seconds) {
+  dispatch(event: Audio_Event, when_seconds: number) {
     if (event.kind === 'loop_stop') {
       const voice = this.voices.get(event.voice_id);
       if (voice && !voice.stopping) {
         voice.stopping = true;
-        voice.source.stop(when_seconds);
+        voice.source!.stop(when_seconds);
         this.voices.delete(event.voice_id);
         this.retiring_voices.add(voice);
       }
@@ -123,7 +175,8 @@ export class Audio_Service {
       const voice = this.voices.get(event.voice_id);
       if (voice) {
         const until_seconds = when_seconds + event.duration_ms / 1000;
-        for (const [parameter, target, mask] of [[voice.gain.gain, event.volume, 1], [voice.panner.pan, event.pan, 2], [voice.source.playbackRate, event.rate, 4]]) {
+        for (const [parameter, target, mask] of [[voice.gain!.gain, event.volume, 1],
+          [voice.panner!.pan, event.pan, 2], [voice.source!.playbackRate, event.rate, 4]] as const) {
           if (((event.parameter_mask ?? 7) & mask) === 0) continue;
           parameter.cancelAndHoldAtTime(when_seconds);
           parameter.linearRampToValueAtTime(target, until_seconds);
@@ -137,13 +190,16 @@ export class Audio_Service {
       return;
     }
     require_condition(!this.voices.has(event.voice_id), 'INVALID_AUDIO_EVENT', 'Voice ID is already active.');
-    require_condition(this.voices.size + this.retiring_voices.size < this.maximum_voices, 'QUOTA_EXCEEDED', 'Audio voice quota exceeded.');
-    const voice = { source: null, gain: null, panner: null, stopping: false, event: { ...event }, when_seconds };
+    require_condition(this.voices.size + this.retiring_voices.size < this.maximum_voices,
+      'QUOTA_EXCEEDED', 'Audio voice quota exceeded.');
+    const voice: Audio_Voice = { source: null, gain: null, panner: null, stopping: false, event: { ...event }, when_seconds };
     try {
       voice.source = this.context.createBufferSource();
       voice.gain = this.context.createGain();
       voice.panner = this.context.createStereoPanner();
-      const { source, gain, panner } = voice;
+      const source = voice.source!;
+      const gain = voice.gain!;
+      const panner = voice.panner!;
       source.buffer = buffer;
       source.loop = event.kind === 'loop_start';
       source.playbackRate.setValueAtTime(event.rate, when_seconds);
@@ -162,7 +218,7 @@ export class Audio_Service {
     }
   }
 
-  release_voice(voice, stop = true) {
+  release_voice(voice: Audio_Voice, stop = true) {
     if (voice.source) {
       voice.source.onended = null;
       if (stop) {
@@ -194,7 +250,7 @@ export class Audio_Service {
       'QUOTA_EXCEEDED', 'Suspended future one-shots exceed retention capacity.');
     for (const event of this.pending) this.suspended_pending.push(event);
     for (const voice of future_voices) {
-      this.suspended_pending.push(Object.assign(this.available_events.pop(), voice.event));
+      this.suspended_pending.push(Object.assign(this.available_events.pop() as Audio_Event, voice.event));
     }
     this.suspended_pending.sort((left, right) => left.sequence < right.sequence ? -1 : 1);
     this.pending.length = 0;

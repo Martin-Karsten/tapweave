@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Input_Buffer, ACTION } from '../src/input.mjs';
+import { Input_Buffer, ACTION } from '../build/input.js';
 
 test('physical bindings aggregate and event coordinates survive later resize', () => {
   const input = new Input_Buffer();

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { load_sample_assets } from '../src/sample-assets.mjs';
-import { create_fallback_audio } from '../src/fallback-audio.mjs';
+import { load_sample_assets } from '../build/sample-assets.js';
+import { create_fallback_audio } from '../build/fallback-audio.js';
 import { audio_context_fixture } from './audio-fixture.mjs';
 
 const description = (...samples) => ({ *sample_candidates() { yield* samples; } });

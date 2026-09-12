@@ -1,36 +1,51 @@
-import { Audio_Clock } from './clock.mjs';
-import { Audio_Service } from './audio.mjs';
-import { Audio_Admission } from './audio-admission.mjs';
-import { Music_Transport } from './music.mjs';
-import { Voice_Output, Gameplay_Output } from './engine-bridge.mjs';
-import { bind_sample_assets } from './sample-assets.mjs';
-import { require_condition } from './errors.mjs';
+import { Audio_Clock } from './clock.js';
+import { Audio_Service, type Audio_Service_Limits } from './audio.js';
+import { Audio_Admission } from './audio-admission.js';
+import { Music_Transport } from './music.js';
+import { Voice_Output, Gameplay_Output, type Engine_Bridge } from './engine-bridge.js';
+import type { Loaded_Samples } from './sample-assets.js';
+import { bind_sample_assets } from './sample-assets.js';
+import { require_condition } from './errors.js';
+
+export interface Playback_Selection {
+  music_buffer: AudioBuffer | null;
+  samples: Loaded_Samples | null;
+}
 
 // Audio integration for an explicitly owned ready session. W06 supplies input
 // and the frame driver; W07 supplies the product lifecycle and aggregate Play gate.
 export class Audio_Playback {
-  constructor(engine, session_handle, context, selection, limits = {}) {
-    require_condition(selection.music_buffer && selection.samples, 'MISSING_ASSET', 'Music and prepared hitsounds are required.');
+  engine: Engine_Bridge;
+  session_handle: bigint;
+  context: AudioContext;
+  clock = new Audio_Clock();
+  audio: Audio_Service;
+  music: Music_Transport;
+  admission: Audio_Admission;
+  voice_output = new Voice_Output();
+  gameplay_output = new Gameplay_Output();
+  state: 'ready' | 'starting' | 'running' | 'paused' | 'recovering' | 'disposed' = 'ready';
+  error: unknown = null;
+  generation = 0;
+
+  constructor(engine: Engine_Bridge, session_handle: bigint, context: AudioContext,
+    selection: Playback_Selection, limits: Audio_Service_Limits = {}) {
+    require_condition(selection.music_buffer && selection.samples,
+      'MISSING_ASSET', 'Music and prepared hitsounds are required.');
     this.engine = engine;
     this.session_handle = session_handle;
     this.context = context;
-    this.clock = new Audio_Clock();
     this.audio = new Audio_Service(context, this.clock, limits);
     this.music = new Music_Transport(context, this.clock);
     this.admission = new Audio_Admission(engine, session_handle, this.audio);
-    this.voice_output = new Voice_Output();
-    this.gameplay_output = new Gameplay_Output();
-    this.state = 'ready';
-    this.error = null;
-    this.generation = 0;
     const capacity = engine.voice_reserve(session_handle);
     engine.voice_reserve(session_handle, capacity.required_commands, capacity.required_bytes);
-    bind_sample_assets(engine, session_handle, selection.samples);
-    this.audio.set_assets(selection.samples.assets);
-    this.music.set_buffer(selection.music_buffer);
+    bind_sample_assets(engine, session_handle, selection.samples!);
+    this.audio.set_assets(selection.samples!.assets);
+    this.music.set_buffer(selection.music_buffer!);
   }
 
-  async start(beatmap_ms = 0, receipt_now = () => performance.now()) {
+  async start(beatmap_ms = 0, receipt_now: () => number = () => performance.now()) {
     require_condition(this.state === 'ready' || this.state === 'paused', 'INVALID_STATE', 'Playback must be ready or paused.');
     const resuming = this.state === 'paused';
     const generation = ++this.generation;
@@ -42,7 +57,8 @@ export class Audio_Playback {
       const audio_seconds = this.context.currentTime;
       if (!resuming) {
         this.engine.voice_output(this.session_handle, this.voice_output);
-        require_condition(beatmap_ms === this.voice_output.summary.committed_ms, 'INVALID_CLOCK', 'Start must use the ready engine position.');
+        require_condition(beatmap_ms === this.voice_output.summary.committed_ms,
+          'INVALID_CLOCK', 'Start must use the ready engine position.');
       }
       if (resuming) {
         this.engine.resume(this.session_handle, { beatmap_ms: this.clock.paused_beatmap_ms, audio_seconds });
@@ -62,7 +78,7 @@ export class Audio_Playback {
     }
   }
 
-  pump(audio_seconds = this.context.currentTime) {
+  pump(audio_seconds: number = this.context.currentTime) {
     require_condition(this.state === 'running', 'INVALID_STATE', 'Audio playback is not running.');
     try {
       require_condition(this.context.state === 'running', 'INVALID_STATE', 'Audio output was suspended.');
@@ -100,7 +116,7 @@ export class Audio_Playback {
     }
   }
 
-  recover(error) {
+  recover(error: unknown) {
     this.generation++;
     this.error = error;
     this.state = 'recovering';

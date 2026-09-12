@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Audio_Clock } from '../src/clock.mjs';
-import { Music_Transport } from '../src/music.mjs';
-import { Audio_Decoder } from '../src/audio-decoder.mjs';
+import { Audio_Clock } from '../build/clock.js';
+import { Music_Transport } from '../build/music.js';
+import { Audio_Decoder } from '../build/audio-decoder.js';
 
 function music_context() {
   const sources = [];

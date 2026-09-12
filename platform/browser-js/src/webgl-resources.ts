@@ -1,30 +1,42 @@
-import { Render_Resources } from './render-resources.mjs';
-import { require_condition } from './errors.mjs';
+import { Render_Resources, type Render_Resource_Snapshot } from './render-resources.js';
+import { Browser_Error, require_condition } from './errors.js';
 
 // Conservative resource-only admission limits, not measured gameplay defaults.
 // Replacement can retain one published set and one candidate (twice these limits).
 export const RESOURCE_LIMITS = Object.freeze({ bytes: 4 * 1024 * 1024,
   vertices: 65536, indices: 196608, atlas_dimension: 1024, shader_bytes: 16384 });
 
+interface Uploaded_Candidate {
+  program: WebGLProgram | null;
+  shaders: WebGLShader[];
+  vertices: WebGLBuffer | null;
+  indices: WebGLBuffer | null;
+  atlas: WebGLTexture | null;
+  vertex_array: WebGLVertexArrayObject | null;
+}
+
+export type Render_Publish_Input = Render_Resources | { bytes: Uint8Array };
+type Retained_Attachment = Render_Resource_Snapshot | Render_Resources;
+
 // Owns one map attachment in a dedicated WebGL2 context. All methods are resource
 // phase operations; there is deliberately no frame/draw policy in this service.
 export class WebGL_Resources {
-  #canvas;
-  #gl;
-  #published = null;
-  #retained = null;
+  #canvas: HTMLCanvasElement;
+  #gl: WebGL2RenderingContext;
+  #published: Uploaded_Candidate | null = null;
+  #retained: Retained_Attachment | null = null;
   #disposed = false;
   #lost = false;
   #generation = 1;
   #uploads = 0;
-  #on_lost;
-  #on_restored;
+  #on_lost: (event: Event) => void;
+  #on_restored: () => void;
 
-  constructor(canvas) {
+  constructor(canvas: HTMLCanvasElement) {
     const context = canvas.getContext('webgl2');
     require_condition(context, 'CAP_RENDER_UNAVAILABLE', 'WebGL2 is unavailable.');
     this.#canvas = canvas;
-    this.#gl = context;
+    this.#gl = context!;
     this.#on_lost = event => {
       event.preventDefault();
       this.#lost = true;
@@ -45,7 +57,7 @@ export class WebGL_Resources {
     if (this.#lost || this.#gl.isContextLost()) require_condition(false, 'CAP_RENDER_UNAVAILABLE', 'WebGL2 context is lost.');
   }
 
-  publish(resources) {
+  publish(resources: Render_Publish_Input) {
     this.#available();
     const bytes = resources.bytes;
     require_condition(bytes instanceof Uint8Array && bytes.byteLength <= RESOURCE_LIMITS.bytes,
@@ -55,9 +67,10 @@ export class WebGL_Resources {
     const candidate = resources instanceof Render_Resources
       ? resources.own_snapshot()
       : new Render_Resources(bytes.slice());
-    if (this.#retained && candidate.bytes.length === this.#retained.bytes.length &&
-      candidate.bytes.every((byte, byte_index) => byte === this.#retained.bytes[byte_index])) {
-      if (!this.#published) this.#upload(this.#retained);
+    const retained = this.#retained;
+    if (retained && candidate.bytes.length === retained.bytes.length &&
+      candidate.bytes.every((byte, byte_index) => byte === retained.bytes[byte_index])) {
+      if (!this.#published) this.#upload(retained);
       return;
     }
     this.#validate(candidate);
@@ -68,15 +81,15 @@ export class WebGL_Resources {
   restore() {
     this.#available();
     require_condition(this.#retained, 'INVALID_STATE', 'No retained render attachment.');
-    if (!this.#published) this.#upload(this.#retained);
+    if (!this.#published) this.#upload(this.#retained!);
   }
 
-  #validate(resources) {
+  #validate(resources: Retained_Attachment) {
     const summary = resources.summary;
     require_condition(summary.vertices_count <= RESOURCE_LIMITS.vertices && summary.indices_count <= RESOURCE_LIMITS.indices &&
       summary.atlas_width <= RESOURCE_LIMITS.atlas_dimension && summary.atlas_height <= RESOURCE_LIMITS.atlas_dimension &&
       summary.vertex_shader_count <= RESOURCE_LIMITS.shader_bytes && summary.fragment_shader_count <= RESOURCE_LIMITS.shader_bytes,
-    'QUOTA_EXCEEDED', 'Render attachment exceeds GPU admission limits.');
+      'QUOTA_EXCEEDED', 'Render attachment exceeds GPU admission limits.');
     const view = new DataView(resources.bytes.buffer);
     for (let coordinate_index = 0; coordinate_index < summary.vertices_count * 2; coordinate_index++) {
       require_condition(Number.isFinite(Math.fround(view.getFloat64(summary.vertices_offset + coordinate_index * 8, true))),
@@ -84,21 +97,22 @@ export class WebGL_Resources {
     }
   }
 
-  #shader_sources(resources) {
+  #shader_sources(resources: Retained_Attachment) {
     const summary = resources.summary;
     try {
       const decoder = new TextDecoder('utf-8', { fatal: true });
-      return ['vertex_shader', 'fragment_shader'].map(span_name => ({
+      const span_names = ['vertex_shader', 'fragment_shader'] as const;
+      return span_names.map(span_name => ({
         span_name,
-        source: decoder.decode(resources.bytes.subarray(summary[span_name + '_offset'],
-          summary[span_name + '_offset'] + summary[span_name + '_count'])),
+        source: decoder.decode(resources.bytes.subarray(summary[`${span_name}_offset`],
+          summary[`${span_name}_offset`] + summary[`${span_name}_count`])),
       }));
     } catch {
-      require_condition(false, 'INVALID_RESOURCE', 'Invalid shader UTF-8.');
+      throw new Browser_Error('INVALID_RESOURCE', 'Invalid shader UTF-8.');
     }
   }
 
-  #destroy(candidate) {
+  #destroy(candidate: Uploaded_Candidate) {
     const context = this.#gl;
     // Deletion is deferred while a program is current. Preserve a different
     // published program when destroying a failed replacement candidate.
@@ -113,20 +127,21 @@ export class WebGL_Resources {
     context.deleteVertexArray(candidate.vertex_array);
   }
 
-  #upload(resources) {
+  #upload(resources: Retained_Attachment) {
     const context = this.#gl;
     const summary = resources.summary;
     const shader_sources = this.#shader_sources(resources);
-    const candidate = { shaders: [], program: null, vertices: null, indices: null, atlas: null, vertex_array: null };
-    const create = (resource) => {
+    const candidate: Uploaded_Candidate = { shaders: [], program: null, vertices: null, indices: null,
+      atlas: null, vertex_array: null };
+    const create = <Resource>(resource: Resource | null): Resource => {
       require_condition(resource, 'RENDER_RESOURCE_FAILED', 'WebGL resource allocation failed.');
-      return resource;
+      return resource!;
     };
     try {
       require_condition(context.getError() === context.NO_ERROR, 'RENDER_RESOURCE_FAILED', 'WebGL has a pending error.');
       require_condition(summary.atlas_width <= context.getParameter(context.MAX_TEXTURE_SIZE) &&
         summary.atlas_height <= context.getParameter(context.MAX_TEXTURE_SIZE),
-      'CAP_RENDER_UNAVAILABLE', 'Atlas exceeds the context texture limit.');
+        'CAP_RENDER_UNAVAILABLE', 'Atlas exceeds the context texture limit.');
       for (const { span_name, source } of shader_sources) {
         const shader_type = span_name === 'vertex_shader' ? context.VERTEX_SHADER : context.FRAGMENT_SHADER;
         const shader = create(context.createShader(shader_type));
@@ -172,7 +187,8 @@ export class WebGL_Resources {
       context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
       context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
       context.texImage2D(context.TEXTURE_2D, 0, context.RGBA8, summary.atlas_width, summary.atlas_height,
-        0, context.RGBA, context.UNSIGNED_BYTE, resources.bytes.subarray(summary.atlas_offset, summary.atlas_offset + summary.atlas_count));
+        0, context.RGBA, context.UNSIGNED_BYTE, resources.bytes.subarray(summary.atlas_offset,
+          summary.atlas_offset + summary.atlas_count));
       require_condition(!context.isContextLost() && context.getError() === context.NO_ERROR,
         'RENDER_RESOURCE_FAILED', 'Render resource upload failed.');
       const previous = this.#published;
@@ -191,15 +207,15 @@ export class WebGL_Resources {
 
   // Bind only; a future validated command executor owns submission. No handles
   // escape, so a stale generation cannot accidentally bind deleted resources.
-  bind(generation, resource_id) {
+  bind(generation: number, resource_id: bigint) {
     this.#available();
-    if (!this.#published || generation !== this.#generation || resource_id !== this.#retained.summary.resource_id) {
+    if (!this.#published || generation !== this.#generation || resource_id !== this.#retained!.summary.resource_id) {
       require_condition(false, 'INVALID_STATE', 'Render generation is unavailable.');
     }
-    this.#gl.useProgram(this.#published.program);
-    this.#gl.bindVertexArray(this.#published.vertex_array);
+    this.#gl.useProgram(this.#published!.program);
+    this.#gl.bindVertexArray(this.#published!.vertex_array);
     this.#gl.activeTexture(this.#gl.TEXTURE0);
-    this.#gl.bindTexture(this.#gl.TEXTURE_2D, this.#published.atlas);
+    this.#gl.bindTexture(this.#gl.TEXTURE_2D, this.#published!.atlas);
   }
 
   dispose() {

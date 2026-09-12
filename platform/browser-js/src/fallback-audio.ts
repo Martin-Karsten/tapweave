@@ -4,10 +4,10 @@ const SOUNDS = Object.freeze({
   hitnormal: [660, 0.09], hitwhistle: [1320, 0.16], hitfinish: [220, 0.24],
   hitclap: [440, 0.1], slidertick: [1760, 0.035], sliderslide: [220, 0.1],
   sliderwhistle: [880, 0.1], spinnerspin: [440, 0.1], spinnerbonus: [880, 0.18],
-});
+} as const);
 
-export function create_fallback_audio(context) {
-  const assets = new Map();
+export function create_fallback_audio(context: BaseAudioContext) {
+  const assets = new Map<string, AudioBuffer>();
   const sample_rate = 24000;
   for (const [name, [frequency, duration_seconds]] of Object.entries(SOUNDS)) {
     const buffer = context.createBuffer(1, Math.round(sample_rate * duration_seconds), sample_rate);

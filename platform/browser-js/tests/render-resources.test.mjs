@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { Engine_Bridge } from '../src/engine-bridge.mjs';
-import { Render_Resources } from '../src/render-resources.mjs';
+import { Engine_Bridge } from '../build/engine-bridge.js';
+import { Render_Resources } from '../build/render-resources.js';
 import { schema } from '../../../engine/abi/records.mjs';
 
 const wasm_bytes = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));

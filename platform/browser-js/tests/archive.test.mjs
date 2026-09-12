@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { zipSync, strToU8 } from 'fflate';
-import { Archive_Assets, Loose_Assets, ASSET_LIMITS, normalize_asset_path } from '../src/archive.mjs';
+import { Archive_Assets, Loose_Assets, ASSET_LIMITS, normalize_asset_path } from '../build/archive.js';
 
 const fixture_text = 'osu file format v14\n[HitObjects]\n256,192,1000,1,0';
 

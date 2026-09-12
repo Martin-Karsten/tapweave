@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { Engine_Bridge, Gameplay_Output, Presentation_Output } from '../src/engine-bridge.mjs';
+import { Engine_Bridge, Gameplay_Output, Presentation_Output } from '../build/engine-bridge.js';
 import { checkedSpan } from '../../../engine/abi/records.mjs';
 
 // Synthetic three-minute workload: input fixtures, never upstream observations.

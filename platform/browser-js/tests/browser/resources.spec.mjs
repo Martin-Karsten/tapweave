@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 test('real Odin attachment uploads once, renders a diagnostic quad and recovers context', async ({ page }, test_info) => {
   await page.goto('/');
   const result = await page.evaluate(async () => {
-    const { Engine_Bridge } = await import('/platform/browser-js/src/engine-bridge.mjs');
-    const { WebGL_Resources } = await import('/platform/browser-js/src/webgl-resources.mjs');
+    const { Engine_Bridge } = await import('/platform/browser-js/src/engine-bridge.js');
+    const { WebGL_Resources } = await import('/platform/browser-js/src/webgl-resources.js');
     const engine = await Engine_Bridge.create(await (await fetch('/tapweave.wasm')).arrayBuffer());
     const canvas = document.createElement('canvas');
     canvas.width = 256; canvas.height = 256;
@@ -71,8 +71,8 @@ test('real Odin attachment uploads once, renders a diagnostic quad and recovers 
 test('bound programs and shaders are released on replacement and disposal', async ({ page }) => {
   await page.goto('/');
   const result = await page.evaluate(async () => {
-    const { Engine_Bridge } = await import('/platform/browser-js/src/engine-bridge.mjs');
-    const { WebGL_Resources } = await import('/platform/browser-js/src/webgl-resources.mjs');
+    const { Engine_Bridge } = await import('/platform/browser-js/src/engine-bridge.js');
+    const { WebGL_Resources } = await import('/platform/browser-js/src/webgl-resources.js');
     const engine = await Engine_Bridge.create(await (await fetch('/tapweave.wasm')).arrayBuffer());
     const canvas = document.createElement('canvas');
     const gpu = new WebGL_Resources(canvas);

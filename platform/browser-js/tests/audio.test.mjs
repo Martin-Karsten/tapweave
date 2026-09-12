@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Audio_Clock } from '../src/clock.mjs';
-import { Audio_Service } from '../src/audio.mjs';
+import { Audio_Clock } from '../build/clock.js';
+import { Audio_Service } from '../build/audio.js';
 
 function fake_context() {
   const calls = [];

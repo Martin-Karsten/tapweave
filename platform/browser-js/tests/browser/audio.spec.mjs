@@ -3,13 +3,13 @@ import { test, expect } from '@playwright/test';
 test('real Web Audio renders Odin one-shots, slider loops and shared music with bounded cleanup', async ({ page }, test_info) => {
   await page.goto('/');
   const result = await page.evaluate(async () => {
-    const { Engine_Bridge, Gameplay_Output, Voice_Output } = await import('/platform/browser-js/src/engine-bridge.mjs');
-    const { Audio_Service } = await import('/platform/browser-js/src/audio.mjs');
-    const { Audio_Admission } = await import('/platform/browser-js/src/audio-admission.mjs');
-    const { Audio_Clock } = await import('/platform/browser-js/src/clock.mjs');
-    const { Music_Transport } = await import('/platform/browser-js/src/music.mjs');
-    const { create_fallback_audio } = await import('/platform/browser-js/src/fallback-audio.mjs');
-    const { load_sample_assets, bind_sample_assets } = await import('/platform/browser-js/src/sample-assets.mjs');
+    const { Engine_Bridge, Gameplay_Output, Voice_Output } = await import('/platform/browser-js/src/engine-bridge.js');
+    const { Audio_Service } = await import('/platform/browser-js/src/audio.js');
+    const { Audio_Admission } = await import('/platform/browser-js/src/audio-admission.js');
+    const { Audio_Clock } = await import('/platform/browser-js/src/clock.js');
+    const { Music_Transport } = await import('/platform/browser-js/src/music.js');
+    const { create_fallback_audio } = await import('/platform/browser-js/src/fallback-audio.js');
+    const { load_sample_assets, bind_sample_assets } = await import('/platform/browser-js/src/sample-assets.js');
     const offline = new OfflineAudioContext(2, 24000 * 3, 24000);
     // OfflineAudioContext has a suspended preparation phase. The facade exposes
     // that phase to the same executor; all nodes and automation are real Web Audio.

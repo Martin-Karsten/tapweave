@@ -1,32 +1,56 @@
-import { require_condition } from './errors.mjs';
+import { require_condition } from './errors.js';
 
 export const ACTION = Object.freeze({ LEFT: 1, RIGHT: 2 });
 
+export interface Input_Snapshot {
+  sequence: bigint;
+  raw_time_ms: number;
+  x: number;
+  y: number;
+  action_bits: number;
+  source: string;
+  focus_epoch: number;
+}
+
+export interface Input_Receive {
+  source_id: string;
+  action?: number;
+  held?: boolean;
+  raw_time_ms: number;
+  client_x?: number;
+  client_y?: number;
+  inverse_transform?: number[];
+}
+
 // Browser resources only: inverse coefficients come from Odin presentation.
 export class Input_Buffer {
+  maximum_records: number;
+  records: Input_Snapshot[] = [];
+  held_sources = new Map<string, number>();
+  sequence = 0n;
+  focus_epoch = 0;
+  x = 256;
+  y = 192;
+
   constructor(maximum_records = 8192) {
     require_condition(Number.isSafeInteger(maximum_records) && maximum_records > 0,
       'INVALID_ARGUMENT', 'Invalid input queue capacity.');
     this.maximum_records = maximum_records;
-    this.records = [];
-    this.held_sources = new Map();
-    this.sequence = 0n;
-    this.focus_epoch = 0;
-    this.x = 256;
-    this.y = 192;
   }
 
-  receive({ source_id, action = 0, held = false, raw_time_ms, client_x, client_y, inverse_transform }) {
+  receive({ source_id, action = 0, held = false, raw_time_ms, client_x, client_y, inverse_transform }: Input_Receive) {
     require_condition(this.records.length < this.maximum_records, 'QUOTA_EXCEEDED', 'Input queue is full.');
     require_condition(Number.isFinite(raw_time_ms) && [0, ACTION.LEFT, ACTION.RIGHT].includes(action) &&
       typeof source_id === 'string' && typeof held === 'boolean', 'INVALID_INPUT', 'Invalid input snapshot.');
     let x = this.x;
     let y = this.y;
     if (client_x !== undefined || client_y !== undefined) {
+      const transform = inverse_transform ?? [];
       require_condition(inverse_transform?.length === 6 &&
-        [client_x, client_y, ...inverse_transform].every(Number.isFinite), 'INVALID_INPUT', 'Invalid input transform.');
-      x = inverse_transform[0] * client_x + inverse_transform[2] * client_y + inverse_transform[4];
-      y = inverse_transform[1] * client_x + inverse_transform[3] * client_y + inverse_transform[5];
+        [client_x, client_y, ...transform].every(value => typeof value === 'number' && Number.isFinite(value)),
+        'INVALID_INPUT', 'Invalid input transform.');
+      x = transform[0] * client_x! + transform[2] * client_y! + transform[4];
+      y = transform[1] * client_x! + transform[3] * client_y! + transform[5];
       require_condition(Number.isFinite(x) && Number.isFinite(y), 'INVALID_INPUT', 'Input transform overflow.');
     }
     if (action !== 0) {
@@ -45,7 +69,7 @@ export class Input_Buffer {
     this.records.push({ sequence: ++this.sequence, raw_time_ms, x, y, action_bits, source: source_id, focus_epoch: this.focus_epoch });
   }
 
-  release_all(raw_time_ms) {
+  release_all(raw_time_ms: number) {
     require_condition(Number.isFinite(raw_time_ms) && this.records.length < this.maximum_records,
       'INVALID_INPUT', 'Cannot append release-all input.');
     this.held_sources.clear();
@@ -54,7 +78,7 @@ export class Input_Buffer {
       action_bits: 0, source: 'release_all', focus_epoch: this.focus_epoch });
   }
 
-  flush(submit) {
+  flush(submit: (records: Input_Snapshot[]) => void) {
     // A rejected submission retains every record for explicit recovery.
     submit(this.records);
     this.records.length = 0;

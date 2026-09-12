@@ -1,17 +1,39 @@
-import { require_condition } from './errors.mjs';
+import { require_condition } from './errors.js';
+
+export interface Clock_Offsets {
+  global_ms: number;
+  device_ms: number;
+  beatmap_ms: number;
+  user_ms: number;
+}
+
+export interface Clock_Anchor {
+  readonly audio_seconds: number;
+  readonly beatmap_ms: number;
+  readonly media_beatmap_ms: number;
+  readonly offsets: Readonly<Clock_Offsets>;
+  readonly rate: number;
+}
+
+export interface Session_Mapping {
+  readonly session_handle: bigint;
+  readonly engine_epoch: number;
+  readonly browser_epoch: number;
+  readonly receipt_ms: number;
+  readonly audio_seconds: number;
+  readonly anchor: Clock_Anchor;
+}
 
 export class Audio_Clock {
-  constructor() {
-    this.epoch = 0;
-    this.anchor = null;
-    this.paused_beatmap_ms = 0;
-    this.paused_media_ms = 0;
-    this.paused_offsets = null;
-    this.session_mapping = null;
-  }
+  epoch = 0;
+  anchor: Clock_Anchor | null = null;
+  paused_beatmap_ms = 0;
+  paused_media_ms = 0;
+  paused_offsets: Readonly<Clock_Offsets> | null = null;
+  session_mapping: Session_Mapping | null = null;
 
-  start(audio_seconds, beatmap_ms, offsets = {}) {
-    const applied_offsets = { global_ms: 0, device_ms: 0, beatmap_ms: 0, user_ms: 0, ...offsets };
+  start(audio_seconds: number, beatmap_ms: number, offsets: Partial<Clock_Offsets> = {}) {
+    const applied_offsets: Clock_Offsets = { global_ms: 0, device_ms: 0, beatmap_ms: 0, user_ms: 0, ...offsets };
     require_condition(this.anchor === null, 'INVALID_STATE', 'Pause before replacing the clock anchor.');
     require_condition(Object.keys(applied_offsets).length === 4 &&
       [audio_seconds, beatmap_ms, ...Object.values(applied_offsets)].every(Number.isFinite) && audio_seconds >= 0,
@@ -26,19 +48,21 @@ export class Audio_Clock {
     return this.epoch;
   }
 
-  bind_session(session_handle, engine_epoch, receipt_ms, audio_seconds) {
-    require_condition(this.anchor !== null && typeof session_handle === 'bigint' && session_handle > 0n &&
+  bind_session(session_handle: bigint, engine_epoch: number, receipt_ms: number, audio_seconds: number) {
+    const anchor = this.anchor;
+    require_condition(anchor !== null && typeof session_handle === 'bigint' && session_handle > 0n &&
       session_handle <= 0xffffffffffffffffn &&
       Number.isInteger(engine_epoch) && engine_epoch >= 0 && engine_epoch <= 0xffffffff &&
-      Number.isFinite(receipt_ms) && Number.isFinite(audio_seconds) && audio_seconds >= this.anchor.audio_seconds,
+      Number.isFinite(receipt_ms) && Number.isFinite(audio_seconds) && audio_seconds >= anchor.audio_seconds,
       'INVALID_CLOCK', 'A valid running session and receipt/audio pair are required.');
     require_condition(this.session_mapping === null, 'INVALID_STATE', 'Session clock mapping is immutable until pause.');
-    this.session_mapping = Object.freeze({ session_handle, engine_epoch, browser_epoch: this.epoch,
-      receipt_ms, audio_seconds, anchor: this.anchor });
-    return this.session_mapping;
+    const mapping: Session_Mapping = Object.freeze({ session_handle, engine_epoch, browser_epoch: this.epoch,
+      receipt_ms, audio_seconds, anchor });
+    this.session_mapping = mapping;
+    return mapping;
   }
 
-  mapped_epoch(session_handle, engine_epoch) {
+  mapped_epoch(session_handle: bigint, engine_epoch: number) {
     const mapping = this.session_mapping;
     require_condition(mapping && mapping.session_handle === session_handle && mapping.engine_epoch === engine_epoch &&
       mapping.browser_epoch === this.epoch && mapping.anchor === this.anchor,
@@ -46,14 +70,14 @@ export class Audio_Clock {
     return mapping.browser_epoch;
   }
 
-  input_time(session_handle, engine_epoch, receipt_ms) {
+  input_time(session_handle: bigint, engine_epoch: number, receipt_ms: number) {
     this.mapped_epoch(session_handle, engine_epoch);
     require_condition(Number.isFinite(receipt_ms), 'INVALID_CLOCK', 'Input receipt time must be finite.');
     const mapping = this.session_mapping;
-    return this.beatmap_time(mapping.audio_seconds + (receipt_ms - mapping.receipt_ms) / 1000);
+    return this.beatmap_time(mapping!.audio_seconds + (receipt_ms - mapping!.receipt_ms) / 1000);
   }
 
-  beatmap_time(audio_seconds) {
+  beatmap_time(audio_seconds: number) {
     require_condition(Number.isFinite(audio_seconds), 'INVALID_CLOCK', 'Audio time must be finite.');
     if (!this.anchor) {
       return this.paused_beatmap_ms;
@@ -63,19 +87,19 @@ export class Audio_Clock {
     return beatmap_ms;
   }
 
-  audio_time(beatmap_ms) {
+  audio_time(beatmap_ms: number) {
     require_condition(this.anchor !== null && Number.isFinite(beatmap_ms), 'INVALID_CLOCK', 'A running clock is required.');
-    const audio_seconds = this.anchor.audio_seconds + (beatmap_ms - this.anchor.beatmap_ms) / 1000;
+    const audio_seconds = this.anchor!.audio_seconds + (beatmap_ms - this.anchor!.beatmap_ms) / 1000;
     require_condition(Number.isFinite(audio_seconds), 'INVALID_CLOCK', 'Clock conversion overflow.');
     return audio_seconds;
   }
 
-  resume(audio_seconds) {
+  resume(audio_seconds: number) {
     require_condition(this.paused_offsets !== null, 'INVALID_STATE', 'Pause a running clock before resuming.');
     return this.start(audio_seconds, this.paused_media_ms, this.paused_offsets);
   }
 
-  pause(audio_seconds) {
+  pause(audio_seconds: number) {
     require_condition(Number.isFinite(audio_seconds) && (!this.anchor || audio_seconds >= this.anchor.audio_seconds),
       'INVALID_CLOCK', 'Pause cannot precede the active clock anchor.');
     if (!this.anchor) {

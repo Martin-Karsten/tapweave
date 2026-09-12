@@ -1,42 +1,54 @@
-import { Voice_Output } from './engine-bridge.mjs';
-import { require_condition } from './errors.mjs';
+import type { Engine_Bridge } from './engine-bridge.js';
+import { Voice_Output } from './voice-output.js';
+import type { Audio_Event, Audio_Service, Voice_Kind } from './audio.js';
+import type { Voice_Command_Record } from './abi-records.js';
+import { require_condition } from './errors.js';
 
 // One owner per engine session. The retained engine-epoch/sequence watermark
 // survives output-token replacement, dispatch failure and clock pause. A new
 // engine epoch invalidates it; a browser epoch alone does not.
 export class Audio_Admission {
-  constructor(engine, session_handle, audio_service) {
+  engine: Engine_Bridge;
+  session_handle: bigint;
+  audio_service: Audio_Service;
+  engine_epoch: number | null = null;
+  admitted_sequence = 0n;
+  audio_record: Voice_Command_Record;
+  events: Audio_Event[] = [];
+  staging: Audio_Event[];
+  suspended_engine_epoch: number | null = null;
+
+  constructor(engine: Engine_Bridge, session_handle: bigint, audio_service: Audio_Service) {
     this.engine = engine;
     this.session_handle = session_handle;
     this.audio_service = audio_service;
-    this.engine_epoch = null;
-    this.admitted_sequence = 0n;
-    this.audio_record = {};
-    this.events = [];
-    this.staging = Array.from({ length: audio_service.maximum_pending }, () => ({}));
+    this.audio_record = {} as Voice_Command_Record;
+    this.staging = Array.from({ length: audio_service.maximum_pending }, () => ({}) as Audio_Event);
   }
 
-  admit(output) {
+  admit(output: Voice_Output) {
     require_condition(output instanceof Voice_Output && output.valid,
       'INVALID_ARGUMENT', 'A valid voice output is required.');
     const engine_epoch = output.summary.epoch;
     const browser_epoch = this.audio_service.clock.mapped_epoch(this.session_handle, engine_epoch);
     const anchor = this.audio_service.clock.anchor;
-    require_condition(anchor.rate === 1 && Object.values(anchor.offsets).every(offset => offset === 0),
+    require_condition(anchor !== null && anchor.rate === 1 && Object.values(anchor.offsets).every(offset => offset === 0),
       'UNSUPPORTED_CLOCK_PROFILE', 'Production voice admission requires rate 1 and zero offsets.');
     require_condition(this.engine_epoch === null || engine_epoch >= this.engine_epoch,
       'INVALID_STATE', 'Cannot admit an earlier engine epoch.');
     const retained_sequence = engine_epoch === this.engine_epoch ? this.admitted_sequence : 0n;
     let previous_sequence = retained_sequence;
     this.events.length = 0;
-    const kinds = ['one_shot', 'loop_start', 'loop_stop', 'param_ramp'];
+    const kinds: Voice_Kind[] = ['one_shot', 'loop_start', 'loop_stop', 'param_ramp'];
     for (let command_index = 0; command_index < output.summary.commands_count; command_index++) {
-      const command = output.record_into(command_index, this.audio_record);
+      const command = this.audio_record;
+      output.record_into(command_index, command);
       require_condition((this.engine.transport_capabilities.voice_command_mask & (1 << (command.command_kind - 1))) !== 0,
         'UNSUPPORTED', 'The producer has not enabled this voice command family.');
       if (command.sequence <= retained_sequence) continue;
-      this.events.push(Object.assign(this.staging[this.events.length] ??= {}, { sequence: command.sequence, epoch: browser_epoch,
-        kind: kinds[command.command_kind - 1], policy: command.late_policy === 1 ? 'immediate' : 'drop',
+      this.events.push(Object.assign(this.staging[this.events.length] ??= ({} as Audio_Event), { sequence: command.sequence,
+        epoch: browser_epoch, kind: kinds[command.command_kind - 1],
+        policy: command.late_policy === 1 ? 'immediate' : 'drop',
         beatmap_time_ms: command.time_ms, voice_id: command.voice_id, asset_id: command.asset_id,
         volume: command.volume, pan: command.pan, rate: command.rate, duration_ms: command.duration_ms,
         parameter_mask: command.parameter_mask, lateness_threshold_ms: command.lateness_threshold_ms }));
@@ -60,7 +72,7 @@ export class Audio_Admission {
   resume_after_clock_bind() {
     require_condition(this.suspended_engine_epoch === this.engine_epoch,
       'INVALID_STATE', 'Reset/replacement must discard suspended output.');
-    this.audio_service.clock.mapped_epoch(this.session_handle, this.engine_epoch);
+    this.audio_service.clock.mapped_epoch(this.session_handle, this.engine_epoch!);
     this.audio_service.resume_one_shots();
     this.suspended_engine_epoch = null;
   }

@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Engine_Bridge, Gameplay_Output, Voice_Output } from '../src/engine-bridge.mjs';
-import { Audio_Admission } from '../src/audio-admission.mjs';
-import { Audio_Clock } from '../src/clock.mjs';
-import { Audio_Service } from '../src/audio.mjs';
+import { Engine_Bridge, Gameplay_Output, Voice_Output } from '../build/engine-bridge.js';
+import { Audio_Admission } from '../build/audio-admission.js';
+import { Audio_Clock } from '../build/clock.js';
+import { Audio_Service } from '../build/audio.js';
 import { create_engine, two_circle_map as map, voice_session } from './helpers.mjs';
 import { schema, writeRecord } from '../../../engine/abi/records.mjs';
 

@@ -1,21 +1,27 @@
-import { require_condition } from './errors.mjs';
+import { require_condition } from './errors.js';
+
+export type Decode_Audio = (encoded: ArrayBuffer | Uint8Array) => Promise<AudioBuffer>;
 
 // One owner per browser player, shared across every replacement asset scope.
 // Browser decoding is uninterruptible: cancelled work keeps its admission slot
 // until the underlying promise settles, even after its candidate is released.
 export class Audio_Decoder {
-  constructor(decode_audio, { maximum_concurrent = 2, maximum_encoded_bytes = 128 * 1024 * 1024 } = {}) {
+  decode_audio: Decode_Audio;
+  maximum_concurrent: number;
+  maximum_encoded_bytes: number;
+  active_count = 0;
+  encoded_bytes = 0;
+
+  constructor(decode_audio: Decode_Audio, { maximum_concurrent = 2, maximum_encoded_bytes = 128 * 1024 * 1024 } = {}) {
     require_condition(typeof decode_audio === 'function' && Number.isSafeInteger(maximum_concurrent) &&
       maximum_concurrent > 0 && Number.isSafeInteger(maximum_encoded_bytes) && maximum_encoded_bytes > 0,
       'INVALID_ARGUMENT', 'Invalid audio decoder limits.');
     this.decode_audio = decode_audio;
     this.maximum_concurrent = maximum_concurrent;
     this.maximum_encoded_bytes = maximum_encoded_bytes;
-    this.active_count = 0;
-    this.encoded_bytes = 0;
   }
 
-  async decode(bytes) {
+  async decode(bytes: Uint8Array) {
     require_condition(bytes instanceof Uint8Array, 'INVALID_ARGUMENT', 'Audio bytes are required.');
     require_condition(this.active_count < this.maximum_concurrent &&
       bytes.byteLength <= this.maximum_encoded_bytes - this.encoded_bytes,

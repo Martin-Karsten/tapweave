@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { Engine_Bridge, Gameplay_Output, Voice_Output } from '../src/engine-bridge.mjs';
-import { Audio_Playback } from '../src/audio-playback.mjs';
-import { Audio_Admission } from '../src/audio-admission.mjs';
-import { Audio_Clock } from '../src/clock.mjs';
-import { Audio_Service } from '../src/audio.mjs';
-import { create_fallback_audio } from '../src/fallback-audio.mjs';
-import { load_sample_assets, bind_sample_assets } from '../src/sample-assets.mjs';
+import { Engine_Bridge, Gameplay_Output, Voice_Output } from '../build/engine-bridge.js';
+import { Audio_Playback } from '../build/audio-playback.js';
+import { Audio_Admission } from '../build/audio-admission.js';
+import { Audio_Clock } from '../build/clock.js';
+import { Audio_Service } from '../build/audio.js';
+import { create_fallback_audio } from '../build/fallback-audio.js';
+import { load_sample_assets, bind_sample_assets } from '../build/sample-assets.js';
 import { audio_context_fixture } from './audio-fixture.mjs';
 
 const wasm = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));

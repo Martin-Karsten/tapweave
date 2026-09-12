@@ -1,32 +1,68 @@
-import { Archive_Assets, Loose_Assets, ASSET_LIMITS, normalize_asset_path } from './archive.mjs';
-import { require_condition } from './errors.mjs';
-import { Audio_Decoder } from './audio-decoder.mjs';
-import { load_sample_assets } from './sample-assets.mjs';
+import { Archive_Assets, Loose_Assets, ASSET_LIMITS, normalize_asset_path, type Asset_Limits, type Asset_Scope } from './archive.js';
+import { require_condition, Browser_Error } from './errors.js';
+import { Audio_Decoder, type Decode_Audio } from './audio-decoder.js';
+import { load_sample_assets, type Loaded_Samples } from './sample-assets.js';
+import type { Engine_Bridge, Prepared_Description } from './engine-bridge.js';
+
+export interface Prepared_Map {
+  map_handle: bigint;
+  descriptor: Prepared_Description;
+}
+
+export interface Active_Selection extends Prepared_Map {
+  source: Asset_Scope;
+  filename: string;
+  music_buffer: AudioBuffer | null;
+  music_error: string | null;
+  samples: Loaded_Samples | null;
+  music_status: 'decoded' | 'available' | 'missing';
+}
+
+export interface Selection_Candidate {
+  source: Asset_Scope;
+  prepared_map: Prepared_Map | null;
+  released: boolean;
+}
+
+export interface Selection_Options {
+  decode_audio?: Decode_Audio | null;
+  on_change?: (controller: Selection_Controller) => void;
+  limits?: Asset_Limits;
+  fallback_assets?: Map<string, AudioBuffer>;
+}
 
 export class Selection_Controller {
-  constructor(engine, { decode_audio = null, on_change = () => {}, limits = ASSET_LIMITS, fallback_assets = new Map() } = {}) {
+  engine: Engine_Bridge;
+  fallback_assets: Map<string, AudioBuffer>;
+  audio_decoder: Audio_Decoder | null;
+  decode_audio: Decode_Audio | null;
+  on_change: (controller: Selection_Controller) => void;
+  limits: Asset_Limits;
+  generation = 0;
+  active: Active_Selection | null = null;
+  pending_candidate: Selection_Candidate | null = null;
+  disposed = false;
+  state: 'empty' | 'loading' | 'prepared' | 'disposed' = 'empty';
+  error: Browser_Error | null = null;
+
+  constructor(engine: Engine_Bridge, { decode_audio = null, on_change = () => {}, limits = ASSET_LIMITS,
+    fallback_assets = new Map<string, AudioBuffer>() }: Selection_Options = {}) {
     this.engine = engine;
     this.fallback_assets = fallback_assets;
     this.audio_decoder = decode_audio ? new Audio_Decoder(decode_audio) : null;
-    this.decode_audio = this.audio_decoder ? bytes => this.audio_decoder.decode(bytes) : null;
+    this.decode_audio = this.audio_decoder ? bytes => this.audio_decoder!.decode(bytes as Uint8Array) : null;
     this.on_change = on_change;
     this.limits = limits;
-    this.generation = 0;
-    this.active = null;
-    this.pending_candidate = null;
-    this.disposed = false;
-    this.state = 'empty';
-    this.error = null;
   }
 
-  async load_files(files) {
+  async load_files(files: File[]) {
     require_condition(!this.disposed, 'DISPOSED', 'Player is disposed.');
     const generation = ++this.generation;
     this.release_candidate(this.pending_candidate);
     this.state = 'loading';
     this.error = null;
     this.on_change(this);
-    let source;
+    let source: Asset_Scope | null = null;
     try {
       const archives = files.filter(file => file.name.toLowerCase().endsWith('.osz'));
       if (archives.length > 0) {
@@ -55,7 +91,7 @@ export class Selection_Controller {
     }
   }
 
-  async select_map(filename) {
+  async select_map(filename: string) {
     require_condition(this.active && !this.disposed, 'INVALID_STATE', 'Load a beatmap set first.');
     const generation = ++this.generation;
     this.release_candidate(this.pending_candidate);
@@ -63,14 +99,14 @@ export class Selection_Controller {
     this.error = null;
     this.on_change(this);
     try {
-      await this.prepare_candidate(this.active.source, filename, generation);
+      await this.prepare_candidate(this.active!.source, filename, generation);
     } catch (error) {
       this.report_failure(error, generation);
     }
   }
 
-  async prepare_candidate(source, filename, generation) {
-    const candidate = { source, prepared_map: null, released: false };
+  async prepare_candidate(source: Asset_Scope, filename: string, generation: number) {
+    const candidate: Selection_Candidate = { source, prepared_map: null, released: false };
     this.pending_candidate = candidate;
     try {
       const bytes = await source.read(filename);
@@ -86,13 +122,13 @@ export class Selection_Controller {
       if (generation !== this.generation || this.disposed) {
         return;
       }
-      let music_buffer = null;
-      let music_error = audio_bytes ? null : 'Main music is missing. Production start requires music.';
+      let music_buffer: AudioBuffer | null = null;
+      let music_error: string | null = audio_bytes ? null : 'Main music is missing. Production start requires music.';
       if (audio_bytes && this.decode_audio) {
         try {
-          music_buffer = await source.decode_music(audio_path, audio_bytes, this.decode_audio);
+          music_buffer = await source.decode_music(audio_path!, audio_bytes, this.decode_audio);
         } catch (error) {
-          if (error.code === 'QUOTA_EXCEEDED') {
+          if (error instanceof Browser_Error && error.code === 'QUOTA_EXCEEDED') {
             throw error;
           }
           music_buffer = null;
@@ -102,7 +138,7 @@ export class Selection_Controller {
       if (generation !== this.generation || this.disposed) {
         return;
       }
-      const samples = this.decode_audio && candidate.prepared_map.descriptor.sample_candidates ?
+      const samples = this.decode_audio !== null && candidate.prepared_map.descriptor.sample_candidates !== undefined ?
         await load_sample_assets(candidate.prepared_map.descriptor, source, filename, this.decode_audio, {
           fallback_assets: this.fallback_assets, cancelled: () => generation !== this.generation || this.disposed,
         }) : null;
@@ -125,7 +161,7 @@ export class Selection_Controller {
     }
   }
 
-  release_candidate(candidate) {
+  release_candidate(candidate: Selection_Candidate | null) {
     if (!candidate || candidate.released) {
       return;
     }
@@ -142,10 +178,10 @@ export class Selection_Controller {
     }
   }
 
-  report_failure(error, generation) {
+  report_failure(error: unknown, generation: number) {
     if (generation === this.generation && !this.disposed) {
       this.state = this.active ? 'prepared' : 'empty';
-      this.error = error;
+      this.error = error as Browser_Error;
       this.on_change(this);
     }
   }

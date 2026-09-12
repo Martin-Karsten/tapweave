@@ -6,7 +6,7 @@ test('measure reusable production readers with Chromium heap sampling', async ({
   test.skip(browserName !== 'chromium', 'CDP allocation sampling is Chromium-specific.');
   await page.goto('/');
   await page.evaluate(async () => {
-    const { Engine_Bridge, Draw_Output, Voice_Output } = await import('/platform/browser-js/src/engine-bridge.mjs');
+    const { Engine_Bridge, Draw_Output, Voice_Output } = await import('/platform/browser-js/src/engine-bridge.js');
     const engine = await Engine_Bridge.create(await (await fetch('/tapweave.wasm')).arrayBuffer());
     const prepared = engine.prepare_map(new TextEncoder().encode('osu file format v14\n[HitObjects]\n256,192,1000,1,0'));
     const resources = engine.render_resources(prepared.map_handle);

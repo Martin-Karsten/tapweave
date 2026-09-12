@@ -17,6 +17,9 @@
 /engine/scripts/test-spike.mjs
 /engine/reference/spike-manifest.json
 
+# TypeScript emit for the browser player.
+/platform/browser-js/build/
+
 # Toolchains, dependencies, generated output, and credentials.
 **/.toolchain/
 /engine/.reference/

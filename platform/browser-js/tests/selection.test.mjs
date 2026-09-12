@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { zipSync, strToU8 } from 'fflate';
-import { Engine_Bridge } from '../src/engine-bridge.mjs';
-import { Selection_Controller } from '../src/selection.mjs';
+import { Engine_Bridge } from '../build/engine-bridge.js';
+import { Selection_Controller } from '../build/selection.js';
 
 const wasm_bytes = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));
 const valid_map = 'osu file format v14\n[General]\nAudioFilename: music.wav\n[HitObjects]\n256,192,1000,1,0';

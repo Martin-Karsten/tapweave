@@ -1,7 +1,26 @@
 import { Inflate } from 'fflate';
-import { require_condition } from './errors.mjs';
+import { require_condition } from './errors.js';
+import type { Decode_Audio } from './audio-decoder.js';
 
-export const ASSET_LIMITS = Object.freeze({
+export interface Asset_Limits {
+  archive_bytes: number;
+  entry_count: number;
+  entry_bytes: number;
+  extracted_bytes: number;
+  decoded_audio_bytes: number;
+}
+
+export interface Asset_Access {
+  read(filename: string): Promise<Uint8Array | null>;
+  decode_music(filename: string, bytes: Uint8Array, decode_audio: Decode_Audio): Promise<AudioBuffer>;
+}
+
+export interface Asset_Scope extends Asset_Access {
+  dispose(): void;
+  list_maps(): string[];
+}
+
+export const ASSET_LIMITS: Asset_Limits = Object.freeze({
   archive_bytes: 128 * 1024 * 1024,
   entry_count: 4096,
   entry_bytes: 64 * 1024 * 1024,
@@ -9,7 +28,7 @@ export const ASSET_LIMITS = Object.freeze({
   decoded_audio_bytes: 256 * 1024 * 1024,
 });
 
-export function normalize_asset_path(filename) {
+export function normalize_asset_path(filename: string) {
   require_condition(typeof filename === 'string' && filename.length > 0 && !/[\u0000-\u001f\u007f]/u.test(filename),
     'INVALID_ASSET_PATH', 'Invalid asset filename.');
   const normalized = filename.replaceAll('\\', '/').normalize('NFC');
@@ -21,7 +40,7 @@ export function normalize_asset_path(filename) {
   return normalized.toLowerCase();
 }
 
-function require_bytes(view, offset, count) {
+function require_bytes(view: DataView, offset: number, count: number) {
   require_condition(Number.isSafeInteger(offset) && Number.isSafeInteger(count) && offset >= 0 && count >= 0 &&
     offset <= view.byteLength && count <= view.byteLength - offset, 'MALFORMED_ARCHIVE', 'Truncated ZIP record.');
 }
@@ -35,7 +54,7 @@ for (let table_index = 0; table_index < crc_table.length; table_index++) {
   crc_table[table_index] = checksum;
 }
 
-function crc32(bytes) {
+function crc32(bytes: Uint8Array) {
   let checksum = 0xffffffff;
   for (const byte of bytes) {
     checksum = crc_table[(checksum ^ byte) & 255] ^ (checksum >>> 8);
@@ -43,31 +62,42 @@ function crc32(bytes) {
   return (checksum ^ 0xffffffff) >>> 0;
 }
 
+interface Archive_Entry {
+  filename: string;
+  payload_offset: number;
+  compressed_size: number;
+  original_size: number;
+  checksum: number;
+  compression: number;
+}
+
 // Shared map-set lifetime for raw and decoded assets.
-class Asset_Source {
-  constructor(limits) {
+class Asset_Source<Entry_Type> {
+  limits: Asset_Limits;
+  entries = new Map<string, Entry_Type>();
+  cache = new Map<string, Uint8Array>();
+  decoded_audio = new Map<string, AudioBuffer>();
+  pending_audio = new Map<string, Promise<AudioBuffer>>();
+  decoded_audio_bytes = 0;
+  extracted_bytes = 0;
+  disposed = false;
+
+  constructor(limits: Asset_Limits) {
     this.limits = limits;
-    this.entries = new Map();
-    this.cache = new Map();
-    this.decoded_audio = new Map();
-    this.pending_audio = new Map();
-    this.decoded_audio_bytes = 0;
-    this.extracted_bytes = 0;
-    this.disposed = false;
   }
 
   list_maps() {
     return [...this.entries.keys()].filter(filename => filename.endsWith('.osu')).sort();
   }
 
-  async decode_music(filename, bytes, decode_audio) {
+  async decode_music(filename: string, bytes: Uint8Array, decode_audio: Decode_Audio) {
     const normalized_name = normalize_asset_path(filename);
     require_condition(!this.disposed, 'DISPOSED', 'Asset scope is disposed.');
     if (this.decoded_audio.has(normalized_name)) {
-      return this.decoded_audio.get(normalized_name);
+      return this.decoded_audio.get(normalized_name)!;
     }
     if (this.pending_audio.has(normalized_name)) {
-      return this.pending_audio.get(normalized_name);
+      return this.pending_audio.get(normalized_name)!;
     }
     const pending = this.decode_and_retain(normalized_name, bytes, decode_audio);
     this.pending_audio.set(normalized_name, pending);
@@ -78,7 +108,7 @@ class Asset_Source {
     }
   }
 
-  async decode_and_retain(normalized_name, bytes, decode_audio) {
+  async decode_and_retain(normalized_name: string, bytes: Uint8Array, decode_audio: Decode_Audio) {
     const buffer = await decode_audio(bytes);
     require_condition(!this.disposed, 'DISPOSED', 'Asset scope was disposed during decoding.');
     const decoded_bytes = buffer.length * buffer.numberOfChannels * 4;
@@ -103,8 +133,10 @@ class Asset_Source {
 
 // Index and validate the ZIP envelope here; fflate owns DEFLATE decoding.
 // ZIP64, encrypted, multi-disk and non-UTF8 non-ASCII names are explicit errors.
-export class Archive_Assets extends Asset_Source {
-  constructor(bytes, limits = ASSET_LIMITS) {
+export class Archive_Assets extends Asset_Source<Archive_Entry> {
+  bytes: Uint8Array | null;
+
+  constructor(bytes: Uint8Array, limits: Asset_Limits = ASSET_LIMITS) {
     super(limits);
     require_condition(bytes instanceof Uint8Array && bytes.length <= limits.archive_bytes,
       'QUOTA_EXCEEDED', 'Archive exceeds the compressed byte quota.');
@@ -132,8 +164,8 @@ export class Archive_Assets extends Asset_Source {
     require_bytes(view, directory_start, directory_size);
     let directory_offset = directory_start;
     let declared_total_bytes = 0;
-    const occupied_ranges = [];
-    const known_paths = new Set();
+    const occupied_ranges: [number, number][] = [];
+    const known_paths = new Set<string>();
     for (let entry_index = 0; entry_index < entry_count; entry_index++) {
       require_bytes(view, directory_offset, 46);
       require_condition(view.getUint32(directory_offset, true) === 0x02014b50, 'MALFORMED_ARCHIVE', 'Invalid ZIP directory entry.');
@@ -182,7 +214,7 @@ export class Archive_Assets extends Asset_Source {
       } else {
         // The optional signature can also be a valid unsigned descriptor CRC.
         // Match the complete tuple before choosing either representation.
-        const descriptor_matches = checksum_offset => checksum_offset + 12 <= directory_start &&
+        const descriptor_matches = (checksum_offset: number) => checksum_offset + 12 <= directory_start &&
           view.getUint32(checksum_offset, true) === checksum &&
           view.getUint32(checksum_offset + 4, true) === compressed_size &&
           view.getUint32(checksum_offset + 8, true) === original_size;
@@ -211,11 +243,11 @@ export class Archive_Assets extends Asset_Source {
     }
   }
 
-  async read(filename) {
+  async read(filename: string) {
     require_condition(!this.disposed, 'DISPOSED', 'Archive is disposed.');
     const normalized_name = normalize_asset_path(filename);
     if (this.cache.has(normalized_name)) {
-      return this.cache.get(normalized_name);
+      return this.cache.get(normalized_name)!;
     }
     const entry = this.entries.get(normalized_name);
     if (!entry) {
@@ -225,13 +257,13 @@ export class Archive_Assets extends Asset_Source {
       'QUOTA_EXCEEDED', 'Extracted assets exceed quota.');
     const output = new Uint8Array(entry.original_size);
     let output_offset = 0;
-    const receive_chunk = chunk => {
+    const receive_chunk = (chunk: Uint8Array) => {
       require_condition(chunk.length <= output.length - output_offset,
         'MALFORMED_ARCHIVE', 'ZIP output exceeds declared size.');
       output.set(chunk, output_offset);
       output_offset += chunk.length;
     };
-    const compressed = this.bytes.subarray(entry.payload_offset, entry.payload_offset + entry.compressed_size);
+    const compressed = this.bytes!.subarray(entry.payload_offset, entry.payload_offset + entry.compressed_size);
     if (entry.compression === 0) {
       receive_chunk(compressed);
     } else {
@@ -248,14 +280,14 @@ export class Archive_Assets extends Asset_Source {
     return output;
   }
 
-  dispose() {
+  override dispose() {
     super.dispose();
     this.bytes = null;
   }
 }
 
-export class Loose_Assets extends Asset_Source {
-  constructor(files, limits = ASSET_LIMITS) {
+export class Loose_Assets extends Asset_Source<File> {
+  constructor(files: File[], limits: Asset_Limits = ASSET_LIMITS) {
     super(limits);
     let total_bytes = 0;
     require_condition(files.length <= limits.entry_count, 'QUOTA_EXCEEDED', 'Too many selected files.');
@@ -269,7 +301,7 @@ export class Loose_Assets extends Asset_Source {
     }
   }
 
-  async read(filename) {
+  async read(filename: string) {
     require_condition(!this.disposed, 'DISPOSED', 'Asset scope is disposed.');
     const file = this.entries.get(normalize_asset_path(filename));
     if (!file) {
@@ -280,5 +312,4 @@ export class Loose_Assets extends Asset_Source {
     require_condition(bytes.length === file.size, 'MALFORMED_ASSET', 'File size changed during reading.');
     return bytes;
   }
-
 }

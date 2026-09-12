@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { Engine_Bridge } from '../src/engine-bridge.mjs';
+import { Engine_Bridge } from '../build/engine-bridge.js';
 
 export const wasm_bytes = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));
 export const two_circle_map = new TextEncoder().encode('osu file format v14\n[Difficulty]\nHPDrainRate:0\n[HitObjects]\n256,192,1000,1,0\n256,192,2000,1,0');

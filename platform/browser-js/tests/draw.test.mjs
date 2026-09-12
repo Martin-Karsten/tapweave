@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { Engine_Bridge, Gameplay_Output, Draw_Output } from '../src/engine-bridge.mjs';
+import { Engine_Bridge, Gameplay_Output, Draw_Output } from '../build/engine-bridge.js';
 
 const wasm_bytes = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));
 const map_bytes = new TextEncoder().encode('osu file format v14\n[HitObjects]\n256,192,1000,1,0');
