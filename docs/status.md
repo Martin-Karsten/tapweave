@@ -251,3 +251,28 @@ Full A22 acceptance, slider/spinner draws, cursor/trail, follow points and HUD
 glyphs remain open in checkpoints 5–6. Circle-only draw reserve rejects mixed
 maps. Full W01/W02/W03 milestones and aggregate Play remain open; the delivered
 checkpoint contracts do not imply complete browser gameplay or H11 acceptance.
+
+## Bounded W04 GPU resource increment
+
+The independent browser resource service now uploads the existing kind-35 quad,
+white atlas pixel and Odin shaders transactionally into a dedicated WebGL2
+context. It enforces separate payload/geometry/texture/shader caps, owns recovery
+bytes, reuses unchanged publication, validates resource/context identity at bind,
+and handles loss, explicit rebuild, replacement failure and disposal. The
+[rendering ADR](architecture/adr-003-rendering.md#bounded-w04-resource-service)
+records ownership and limits; [local findings](../engine/reference/findings/m3-webgl-resources.json)
+record the executed checks.
+
+Node 24.13.0 and the checksum-pinned Odin compiler passed the full engine suite.
+All 53 browser service tests, 34 production-WASM session schedules (exact
+judgement/audio/final digests and no growth), and five Chromium scenarios passed.
+The inspected diagnostic quad has matching sampled pixels before/after context
+recovery and one upload per retained context generation. Firefox/WebKit checks
+could not launch because the required Playwright executables were absent.
+
+This completes only the independent resource-lifecycle slice. There is no
+production draw-command executor, new atlas/analytic shader, slider tessellation,
+or integrated context-loss pause/recovery. No upstream oracle was executed for
+this original graphics resource policy. W03, W04 and A22 remain incomplete; Play
+stays disabled. The tiny/dense/long-overlap/10,000-object/three-minute **rendering**
+matrix remains open; existing session schedules are not rendering evidence.

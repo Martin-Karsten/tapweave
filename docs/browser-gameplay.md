@@ -601,3 +601,14 @@ Checkpoint 5 still supplies complete slider/spinner draw intent. Checkpoint 6
 supplies cursor/trail/follow points/HUD, full scene batches and the complete scene
 workload/evidence matrix. Full W01/W02/W03 acceptance and aggregate Play remain
 open until their respective exit requirements are met.
+
+### Independent W04 resource-lifecycle slice
+
+The [bounded GPU resource service](architecture/adr-003-rendering.md#bounded-w04-resource-service)
+now uploads and retains the existing version-1 attachment transactionally, with
+independent admission caps, unchanged-publication reuse, context generations and
+explicit rebuild/disposal. Its Chromium quad probe exercises supplied Odin
+shaders and static uploads only. See [current evidence](status.md#bounded-w04-gpu-resource-increment).
+Counted slider meshes, original primitive/glyph shader and atlas generation,
+validated frame submission, integrated recovery and the complete rendered
+scene/workload matrix remain W04 work. No W03 policy or Play gate changes.

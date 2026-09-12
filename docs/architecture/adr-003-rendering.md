@@ -124,3 +124,36 @@ time after the actual results; this isolates curves from miss-time quantisation.
 and upstream skin appearance remain open. W04 still owns
 original glyph/analytic shader resources and execution. See the
 [wire contract](interface-v2.md#reserved-circle-draw-transport).
+
+## Bounded W04 resource service
+
+`platform/browser-js/src/webgl-resources.mjs` implements only the GPU resource
+phase for kind 35/version 1. One service owns one retained attachment and a
+dedicated WebGL2 context. It copies and revalidates input, checks independent
+byte/geometry/atlas/shader limits and finite f32 conversion, then compiles the
+Odin sources and uploads geometry/atlas transactionally. Successful replacement
+releases the previous GPU set; failure preserves it. Repeated publication of the
+same retained bytes performs no upload. This is resource-phase work, not a frame
+operation. A future multi-map cache needs explicit aggregate admission/eviction.
+
+The service rejects unavailable WebGL2, invalidates GPU references on context
+loss, and requires explicit `restore()` after the restoration event. Recovery
+uses owned bytes and publishes once per restored generation. `bind` checks both
+context generation and retained resource ID; it allocates no JS records or typed
+arrays on its successful path. Disposal removes listeners and releases ownership.
+The context is exclusive to this service and the eventual command executor;
+resource operations reset buffer/texture bindings instead of preserving external
+GL state. The existing version-1 attribute contract is location 0, two f32
+coordinates converted from the canonical f64 vertex span, and u32 indices.
+
+Admission caps are conservative resource-only policy: 4 MiB attachment bytes,
+65,536 vertices, 196,608 indices, 1024 per atlas axis and 16 KiB per shader.
+Replacement may retain two admitted sets plus one conversion staging buffer
+(up to 1.25 MiB). These limits bound submitted payload, not browser/driver-internal
+compiler or GPU allocation overhead. They are not measured gameplay defaults.
+
+There is no command executor or new primitive shader/atlas in this increment.
+The inspected Chromium quad is a test-only explicit-uniform probe of the existing
+Odin shader payload. It does not interpret circle draw records. Integrated
+pause/input/audio recovery, slider meshes, circle/glyph execution and the full
+W04 scene/workload matrix remain open; Play and aggregate capabilities stay off.

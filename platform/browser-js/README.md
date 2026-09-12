@@ -93,3 +93,15 @@ Run `npm --prefix platform/browser-js run test:session` for the local three-minu
 production-WASM cadence/stall matrix. Hashed artifacts are written to
 `artifacts/session/`; they are not pinned upstream observations. See the
 [reference harness](../../docs/compatibility/reference-harness.md#remaining-gameplay-adapters) for remaining gates.
+
+## Independent WebGL2 resources
+
+`webgl-resources.mjs` provides bounded kind-35 resource publication, reuse,
+transactional replacement, explicit context restoration and disposal. It owns a
+dedicated context and one retained attachment; it is not wired into the player.
+`publish(resources)` runs during preparation/resource replacement. After context
+restoration, `restore()` rebuilds the retained bytes; it does not resume gameplay.
+`bind(generation, resource_id)` rejects stale identities and only binds resources.
+It does not execute draw records. See the [rendering ADR](../../docs/architecture/adr-003-rendering.md#bounded-w04-resource-service)
+for quotas and peak ownership. The Playwright resource test renders a diagnostic
+quad using the unchanged Odin shader payload; full W04 graphics remain open.

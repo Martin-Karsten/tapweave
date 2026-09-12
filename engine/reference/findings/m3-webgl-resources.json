@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "classification": "local-resource-lifecycle-regression",
+  "acceptance": [
+    "A22",
+    "A24",
+    "A25"
+  ],
+  "acceptance_complete": false,
+  "source_evidence": "Pinned source manifest and presentation reference chapter inspected; the chapter identifies pinned drawable tests; no gameplay or presentation behavior changed. GPU ownership/admission is original Tapweave policy; no upstream observation executed.",
+  "fixture_sha256": "0a94dfd8806db3ac34fa838e764379f576a75d66b8b9f9589fc65c6fe8c6e595",
+  "attachment_sha256": "54bf4cb527331ff66814754a7ea8343879342c39065f9852fbbc5249f6ea2926",
+  "screenshot": {
+    "path": "platform/browser-js/artifacts/browser-results/resources-real-Odin-attach-90f51-c-quad-and-recovers-context-chromium/resource-quad.png",
+    "sha256": "06c98d2eff6e1ff73cec5b2d5e84bd6603ae6df7adbc890f34cd7570bd12c847",
+    "inspected": true
+  },
+  "environment": {
+    "node": "v24.13.0",
+    "odin": "dev-2026-09-nightly:a2fb372",
+    "platform": "macOS arm64",
+    "browser": "Playwright Chromium"
+  },
+  "commands": [
+    "npm --prefix engine run setup",
+    "ODIN_WASM_LD_DIR=/opt/homebrew/opt/lld@20/bin npm --prefix engine test",
+    "npm --prefix platform/browser-js ci",
+    "npm --prefix platform/browser-js test",
+    "npm --prefix platform/browser-js run test:session",
+    "npm --prefix platform/browser-js run build",
+    "npm --prefix platform/browser-js run test:browser -- --project=chromium",
+    "npm --prefix platform/browser-js run test:browser -- --project=firefox --project=webkit"
+  ],
+  "results": {
+    "engine_suite": "passed; source verification, allocation tracking, native/WASM and ABI lifecycle checks",
+    "browser_service_tests": 53,
+    "chromium_scenarios": 5,
+    "session_schedules": 34,
+    "session_digests": "exact judgement/audio/final digests across schedules; no WASM growth",
+    "resource_uploads": {
+      "initial_and_repeated": 1,
+      "after_context_restore_and_repeated": 2
+    },
+    "quad_pixels_before_and_after": {
+      "center": [
+        0,
+        191,
+        255,
+        255
+      ],
+      "corner": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "gl_error": 0
+    },
+    "failures": "all seven GPU allocation points, compilation, linking and upload rollback; byte/vertex/index/atlas/shader limits; f32 overflow and UTF-8 rejection; owned recovery, stale identity and disposal",
+    "firefox_webkit": "not executed: required firefox-1543 and WebKit executables absent; launch failed",
+    "test_harness_correction": "Initial Chromium restoration request inside loss-event turn timed out; scheduling it in a later turn passed."
+  },
+  "limitations": [
+    "Resource phase only; no production command executor or supported circle/glyph draw execution",
+    "No new atlas/primitive shaders or slider meshes",
+    "No integrated gameplay/audio/input pause or resume on context loss",
+    "No full tiny/dense/long-overlap/10000-object/three-minute rendering matrix",
+    "No GPU timing or driver memory/allocation certification; no ordinary frame-loop implementation",
+    "W03/W04/A22 remain incomplete; Play and aggregate capabilities remain off"
+  ]
+}
