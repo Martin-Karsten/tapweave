@@ -47,4 +47,4 @@ Odin owns presentation state, visibility, animation curves, draw-list constructi
 
 Pinned tests include [`TestSceneOsuHitObjectSamples`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/TestSceneOsuHitObjectSamples.cs), [`TestSceneSliderApplication`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/TestSceneSliderApplication.cs), and spinner application tests ([directory](https://github.com/ppy/osu/tree/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests)).
 
-**UR-AUD-1.** Exact lazer loop ramp restart semantics after rapid tracking toggles: H11 captures drawable-requested play/stop/parameter events. Odin’s public event types already cover either result.
+**UR-AUD-1.** Exact lazer loop ramp restart semantics after rapid tracking toggles: H11 captures drawable-requested play/stop/parameter events. Production kind 27 supports one-shots only; versioned loop/ramp records remain W01/W05 work.

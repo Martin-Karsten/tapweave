@@ -49,7 +49,8 @@ Local parity is not upstream acceptance.
 | `prepared` | Immutable records, schedules, identity and portable binary descriptions |
 | `runtime` (`engine_runtime`) | Registry, engine/map/session ownership and `oe_*` facade |
 | `abi` | Layout schema and generated C/TypeScript bindings |
-| `trace_schema`, `geometry_trace`, `prepared_trace` | Versioned test-only trace formats |
+| `trace_schema`, `geometry_trace`, `prepared_trace`, `simulation_trace`, `presentation_trace` | Test-only evidence formats and cases |
+| `trace_support` | Shared test-only buffer ownership and numeric serialization |
 | `native`, `wasm`, `abi_native`, `geometry_*`, `prepared_*` | Thin test transports |
 | `reference-host`, `geometry-reference-host` | Pinned upstream observations |
 
@@ -115,8 +116,10 @@ M2 acceptance remains open.
 `build` also emits `artifacts/tapweave.wasm` from the thin `browser_wasm`
 transport, without test `trace_*` exports. The generated executable JavaScript
 ABI and TypeScript declarations share the schema with existing Odin/C bindings.
-The independent `presentation` package provides an allocation-free playfield
-transform with native/WASM local contract tests. Full presentation is unsupported.
+The `presentation` package provides an allocation-free playfield transform and
+active projection with independent output lifetime. Runtime also exposes compact
+gameplay output. Native/WASM local contract tests cover these transports; object
+animation and WebGL rendering remain unsupported.
 
 See the [browser guide](../platform/browser-js/README.md) and
 [M3 report](../docs/implementation/m3.md). Browser dependencies remain isolated

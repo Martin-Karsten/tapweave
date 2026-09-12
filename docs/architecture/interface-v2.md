@@ -251,7 +251,9 @@ The concrete records are generated from `engine/abi/records.json`:
 
 States are READY=0, RUNNING=1, PAUSED=2, PASSED=3, FAILED=4. The first advance
 starts a READY session. Time is finite and monotonic; pause freezes advancement;
-terminal sessions retain their terminal time/results. Snapshot accepts any finite
+terminal sessions retain their terminal time/results. The resume anchor validates
+audio seconds but does not store a browser clock mapping; the browser owns that
+mapping. Snapshot accepts any finite
 presentation time but never judges or advances health. It samples committed object
 state and slider position, not a WebGL presentation batch. Object IDs remain source
 IDs; component ID `0xffffffff` means the parent. Result IDs retain `Hit_Result`
@@ -275,12 +277,16 @@ values, sequence/time disorder, stale tokens and late inputs reject the whole
 batch. Coordinates are logical osu! pixels; raw and effective time must match.
 Rate=1 and all four offsets=0 are the current clock profile. Future inputs stay
 queued. Input equal to committed time is admitted; only earlier input is late.
+Both input exports validate the error mailbox address but currently return status
+only; they do not publish a fresh `ErrorV1`. Consumers must not read stale error
+contents for these calls.
 
 `oe_session_bind_sample(engine, session, mailbox)` consumes kind 28 before start.
 Each call reports availability of one prepared candidate (`asset_id=0` removes
 it). Odin chooses the first nonzero candidate in prepared order. A successful
-reset retains the availability table and reopens READY configuration. Tail hits
-request their sample at nominal tail time even when judgement happened early.
+reset retains the availability table and reopens READY configuration. First
+advance or replay load freezes availability. Tail hits request their sample at
+nominal tail time even when judgement happened early.
 Missing candidates emit diagnostic silence; no browser audio resource is owned.
 
 Replay extensions use the same checked engine inbox and output span:

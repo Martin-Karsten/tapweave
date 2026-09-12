@@ -30,7 +30,7 @@ Every scenario runs native and WASM. Discrete traces must be byte-identical; com
 
 ### Replay and scheduling
 
-- Record/export/import/identity mismatch/corruption/unknown capability; legacy `.osr` conversion with Classic insertion.
+- Record/export/import/identity mismatch/corruption/unknown capability. Legacy `.osr` conversion with Classic insertion is deferred to M5/H12.
 - Direct advance and 30/60/120/144 Hz rendering; 50/100/250 ms injected stalls at input, tick, tail, spinner and completion boundaries.
 - Checkpoint seek before/at/after a judgement; replay final digest unchanged.
 - Late live input rejects transactionally; inputs batched before an advance remain on their receipt timestamp.
@@ -72,7 +72,7 @@ Exit criteria: A08–A11 pass on generated and upstream corpus; H03/H04 resolved
 ### M2 — Complete unmodded simulation and scoring
 
 Status: [independent primitives](implementation/m2.md) and [headless session integration](implementation/m2-sessions.md) are implemented. Full upstream M2 acceptance remains open.
-Implementation sequence: [M2 plan](implementation/m2-plan.md).
+Remaining work: [M2 acceptance backlog](implementation/m2-plan.md).
 
 Prerequisites: M1 objects/schedules and result tables.
 
@@ -102,7 +102,3 @@ Exit criteria: 10,000 corpus maps prepare or fail only with classified supported
 ### M5 — Deferred compatibility features
 
 Classic first, then rate/difficulty mods, legacy replay verification, skins/storyboards, remaining mods, difficulty attributes and pp. Each is a behavior-profile or presentation capability with its own trace matrix; none blocks unmodded M4.
-
-## Definition of done for this documentation phase
-
-The baseline and framework are pinned; upstream behavior, spike evidence and proposed design are separated; discrete and numeric comparison policies are explicit; frame dependence is not hidden; architecture-critical choices are accepted ADRs; ownership/lifetimes/browser boundaries/public records are specified; every unresolved question names an experiment; and milestones have measurable exits. Implementation may refine private layouts, but changing gameplay ordering, ownership, JS responsibility, or ABI contracts requires an ADR update.

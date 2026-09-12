@@ -56,8 +56,10 @@ they do not certify audible output or H11 compatibility.
   records. Dispatch failure cancels queued and active playback before reporting
   the error; callers must recover explicitly. No gameplay, sample fallback, or
   animation policy is implemented in JS.
-- The Odin `presentation` package owns the initial playfield transform. It has
-  native/WASM test evidence, but is not yet exposed to browser gameplay.
+- The Odin `presentation` package owns coordinate conversion and active projection.
+  The bridge reads compact gameplay output and independent projections through
+  reusable borrowed readers; diagnostic snapshots/results retain owned copies.
+  These are tested transports, not animation commands or integrated gameplay.
 
 Archive defaults: 128 MiB input, 4,096 entries, 64 MiB per extracted entry,
 256 MiB total extraction, and 256 MiB cached decoded audio per source. The engine
@@ -69,7 +71,7 @@ Browser media decoding is not cancellable; encoded inputs are bounded, and
 actual decoded size is checked before caching. This does not bound the browser's
 internal decoder peak memory.
 
-No H11 oracle, WebGL2 executor, object presentation, gameplay input listener,
+No H11 oracle, WebGL2 executor, object animation, gameplay input listener,
 integrated music playback, gameplay pause/resume, results, or performance baseline is
 claimed. These remain tracked in the M3 plan and implementation report.
 

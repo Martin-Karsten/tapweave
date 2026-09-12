@@ -5,54 +5,27 @@ This is implementation prerequisite evidence, not acceptance of the full M3 plan
 The manifest pins osu `3c1c96f742e7aae2ff67a7361e058fe91ca3b955` and framework
 `f02756c5aa5032e6d04729922702b8d56c4bc2eb`.
 
-## Existing production operations
+## Current contract sources
 
-| Operation | Actual behavior | Browser integration constraint |
-|---|---|---|
-| `oe_session_create` | Kind 18, flag 2; transactional arena and map retention | Explicit reserve before play; kinds 1–28 unchanged |
-| `oe_session_inputs_from_reserved` | Kind 23, checked engine inbox token; entire batch validated | Reserve before running; retain rejected browser records; status only, no fresh ErrorV1 |
-| `oe_session_advance` | Commits to finite monotonic beatmap time; returns kind 19 | Drains input first; serializes all objects, unsuitable as final render transport |
-| `oe_session_snapshot` | Samples readonly committed outcomes and slider positions at arbitrary finite time | No judgement/audio production; invalidates prior snapshot token |
-| `oe_session_acknowledge` | Acknowledges both journals through current snapshot token; same-token retry is idempotent | Admit all durable output before acknowledgement; save admission watermark separately |
-| `oe_session_pause` | Release at boundary, freeze, increment engine epoch; queued future inputs survive | Do not cancel or retime accepted future input |
-| `oe_session_resume` | Kind 22, exact paused beatmap time, rate 1; new engine epoch | Audio seconds validated but not stored as a browser clock mapping |
-| `oe_session_reset` | Allocation-free; invalidates token, increments epoch; retains sample availability | Clear browser session watermarks only with successful reset |
-| `oe_session_result` | Terminal kind 24 and kind 26 counts; profile/digests/zero offsets | Copy before next output; UI must not recalculate score |
-| `oe_session_replay_load/export/seek` | Identity/checksum validation; terminal export; initial-checkpoint resimulation | Import may reserve inbox; seek suppresses historical sound and changes epoch |
-| `oe_session_bind_sample` | Kind 28, READY only; first available prepared candidate wins | Supply availability, not browser-selected fallback; asset 0 means missing |
+The historical audit established session prerequisites and corrected equal-time
+input prose. Current operations, record kinds and output/token lifetimes are
+maintained in [ABI v2](../architecture/interface-v2.md#m2-headless-session-transport),
+including [compact output and active projection](../architecture/interface-v2.md#compact-gameplay-output-and-active-projection).
+The [session report](m2-sessions.md) records implemented behavior and limitations;
+[ADR-004](../architecture/adr-004-audio.md#explicit-enginebrowser-mapping-and-decode-admission)
+owns the browser clock mapping and decode admission decisions.
 
-Kind 19 has committed time, score/health/combo, result/head times, tracking,
-rotation and slider position. It lacks child feedback history after journal
-acknowledgement, cursor trail, active-set indices, render transforms, static
-resources and GPU generations. Kind 27 is **one-shot only**: it has no voice ID,
-loop state, pan, rate, ramp or lateness policy. Its kind field is always 1.
-Auxiliary sample preparation does not establish loop voice execution.
-
-The input profile currently requires `raw_time_ms == effective_time_ms`, rate 1,
-and zero offsets. `raw_time_ms` here is beatmap-relative; DOM receipt time must
-remain a separate browser diagnostic. Equal committed-time input is admitted;
-only earlier input is late. This corrects stale prose in the ABI chapter.
-
-## Implemented coordinate extension
-
-Append kinds 29 (viewport) and 30 (playfield transform); expose
-`oe_playfield_transform(engine, viewport_mailbox, output_mailbox)`. It calls the
-existing independent Odin transform without allocating. It publishes only after
-full validation; failures preserve prior output. The returned span uses the
-instance mailbox and lasts until another transform call. Consumers copy scalar
-coefficients immediately. Export discovery establishes coordinate conversion only;
-no presentation, WebGL or playable capability is implied.
-
-The browser session bridge uses existing generated records, explicit inbox
-reservation and owned diagnostic output copies. Its full kind-19 scan/copy is
-intentionally not a completed allocation-free render path. No JS hit-object
-state or judgement logic is introduced.
+Kinds 29/30 now expose coordinate conversion; kinds 31–34 implement compact output
+and independent active projection. These additions do not supply animation,
+static GPU resources or loop/voice/ramp records. Kind 27 remains one-shot only.
+The requirements below constrain remaining W01/W03/W05 work; they are not
+advertised capabilities or a replacement for the current ABI.
 
 ## Remaining presentation/resource contract
 
 These definitions constrain the next implementation; they are not advertised
 wire records or completed capabilities. Assign concrete new kinds when writers,
-readers and conformance tests land together, preserving kinds 1–30.
+readers and conformance tests land together, preserving kinds 1–34.
 
 - Runtime passes a borrowed readonly `simulation.Session` projection to
   presentation. Presentation may import simulation, prepared and core types;
@@ -134,7 +107,7 @@ ABI raw/effective fields both receive the mapped beatmap time for this profile.
 | H10 / A17–A18 | Complete score/count/health sequences and terminal rank | Existing score component adapter; integrated player projection absent |
 | Replay / A23 | Same replay under direct, 30/60/120/144 Hz and 50/100/250 ms stalls | Local bridge/native/WASM evidence; upstream recorder cadence remains open |
 | H11 / A20–A21 | Missing candidates, nominal tails, loops, rapid toggles, ramps, pause/resume | Drawable sample adapter absent; mock Web Audio cannot close this |
-| Presentation / A22 | Circle preempt/fade/approach/feedback, slider body/ball/follow/repeats, spinner states | Source chapters and local coordinates only; drawable adapter absent |
+| Presentation / A22 | Circle preempt/fade/approach/feedback, slider body/ball/follow/repeats, spinner states | Source chapters, local coordinates and active projections; drawable adapter absent |
 
 The pinned component command was executed successfully with the real clean
 checkouts and locked restore in this worktree: 104 local primitive fixtures and

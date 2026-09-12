@@ -22,6 +22,12 @@ prepared <---- osu_prepare <---- beatmap_decode
 
 No arrow points from deterministic packages toward the browser, renderer, audio implementation, or local spike. Package imports must remain acyclic.
 
+This is the target dependency design, not a list of completed packages. In
+particular, `render_webgl` remains unimplemented; presentation currently supplies
+coordinates and active projections. See [status](../status.md). Test transports
+share buffer ownership and numeric serialization in `trace_support`; production
+runtime and browser exports do not import that test-only package.
+
 | Package | Responsibility | May depend on |
 |---|---|---|
 | `core_types` | IDs, time/coordinate/result primitives, errors, hashes | Odin core only |

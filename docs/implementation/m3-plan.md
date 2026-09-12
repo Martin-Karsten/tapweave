@@ -2,8 +2,8 @@
 
 Status: remaining implementation plan, reconciled with the prerequisite work on 2026-09-12.
 The [contract audit](m3-contract-audit.md) and [implementation report](m3.md#m3-prerequisites-implementation-2026-09-12)
-record prerequisite code and validation; no numbered step is complete.
-Updated 2026-09-12. M3 is not complete; Play remains disabled.
+record prerequisite code and validation. W01 and the W03 active-projection foundation
+are partially implemented; no unit is complete. Play remains disabled.
 See [current evidence](m3.md), [implementation status](../status.md), and
 [headless M2](m2-sessions.md). This plan supersedes the initial foundation task
 list without relaxing its acceptance gates.
@@ -31,11 +31,11 @@ its bounded workload, lifecycle and release-browser validation below.
 | Area | Implemented | Remaining |
 |---|---|---|
 | Engine | M0/M1 preparation and explicit headless M2 sessions | Whole-scenario M2 upstream acceptance |
-| ABI | Production WASM, kinds 1–30, generated Odin/C/JS/TS, headless session/replay/sample bridge and coordinate export | Efficient gameplay output, presentation/resources and loop/voice contracts |
+| ABI | Production WASM, kinds 1–34, generated Odin/C/JS/TS, session/replay/sample bridge, coordinates, compact output and independent active projection | Animation/static-resource and loop/voice contracts |
 | Assets | Local ZIP/loose loading, transactional replacement, music cache, descriptor validation, immediate candidate cleanup, shared decode admission and in-flight reuse | Hitsounds/default assets, integrated availability binding, GPU ownership and bounded concurrent reads |
-| Presentation | Production Odin viewport transform, native C/WASM and Chromium coordinate checks | Object animation, active set, HUD, meshes and draw batches |
+| Presentation | Production Odin viewport transform and bounded active projection, native C/WASM and Chromium coordinate checks | Object animation/feedback, HUD, meshes and draw batches |
 | Input/audio | Independent buffers/executor, explicit session epoch mapping and music transport; failure/resume regressions | DOM listeners, production audio ingestion, loops/ramps and integrated frame/lifecycle ownership |
-| Evidence | Full engine suite, 35 browser service tests, four Chromium checks, 17 local WASM cadence/stall runs and 72 pinned component comparisons | Whole-scenario M2, H11/A12/A21/A22, complete browser/input/audio matrix and measured performance |
+| Evidence | Full engine suite, 38 browser service tests, four Chromium checks, 34 diagnostic/compact WASM cadence/stall runs and 72 pinned component comparisons | Whole-scenario M2, H11/A12/A21/A22, complete browser/input/audio matrix and measured performance |
 
 Do not replace M2 rules/replay/scoring with browser logic. The existing kind-27
 record is one-shot intent; the JS executor's fixture objects are not production
@@ -44,11 +44,10 @@ support or upstream compatibility.
 
 ## Baseline preservation and completion checkpoints
 
-The prerequisite additions above are currently uncommitted in the isolated
-worktree based on `cf379bc`; they are not all present in the main checkout.
-Before implementation, inspect Git state and preserve/review that work as the
-baseline. Do not restore old files over it or replay the pre-merge M2 baseline.
-Keep the reconciled merge history containing `88b73ea`, `3062eee` and `cf379bc`.
+Prerequisites are preserved in `061f19a`; `1b4b8f3` adds compact output and active
+projection on the reconciled history (`88b73ea`, `3062eee`, `cf379bc`). Continue
+from these committed implementations. The [W01 ledger](m3.md#w01-implementation-ledger--compact-output-and-active-projection)
+retains provenance and validation.
 
 There are two distinct checkpoints, both inside M3:
 
@@ -74,7 +73,7 @@ numbered sections below retain the full acceptance requirements.
 
 | Unit | Depends on | Concrete deliverable | Review/exit evidence |
 |---|---|---|---|
-| W01: transport contracts | Preserved prerequisite baseline | Append-only render/static-resource/audio schemas, quota/reserve paths, capability flags, readonly projection and efficient advance/output calls; update ADRs and generate all bindings | Native C/WASM layout and malformed-span tests; old kinds 1–30/exports remain valid; exact lifetime/ack contract |
+| W01: transport contracts | Preserved prerequisite baseline | Append-only render/static-resource/audio schemas, quota/reserve paths, capability flags, readonly projection and efficient advance/output calls; update ADRs and generate all bindings | Native C/WASM layout and malformed-span tests; old kinds 1–34/exports remain valid; exact lifetime/ack contract |
 | W02: executable reference adapters | W01 fixture contracts | Pinned whole-session/drawable adapters and named fixture entry points for H05–H11 and A22; compare local and upstream projections with schedule envelopes | Real locked restore and observation hashes; coverage manifest distinguishes executable scenarios from absent ones |
 | W03: Odin presentation | W01, relevant W02 observations | Bounded active/feedback sets; circle/slider/spinner states, approach/fade/feedback, cursor/trail, follow points and HUD | Native/WASM traces, readonly/repeated-snapshot tests, stable order, reserve/failure tests; no ordinary full-map frame scan |
 | W04: meshes and WebGL2 | W03 | Counted reusable slider geometry, original atlas/shaders, static resource publication and thin bounded JS command executor | Degenerate/reversing/overlapping scenes, invalid-command tests, upload-once counters and context-generation tests |
@@ -109,12 +108,10 @@ Primary areas: `engine/runtime/`, `engine/audio_protocol/`, `engine/abi/`,
   the audit as the deliverable. Preserve all existing record layouts, exports,
   prepared identity and foundation behavior. Finish concrete schema/transport
   definitions and executable fixture entry points listed below.
-- Add an efficient gameplay advance/output path. The existing `oe_session_advance`
-  invokes full-map `gameplay_snapshot`; the browser then copies/scans kind 19.
-  Keeping that call in the RAF path would defeat the active-set design even with
-  a new renderer. Preserve the old diagnostic API and append operations that
-  advance/read durable events/HUD without serializing every object. Keep output
-  token scope, retry behavior and invalidation rules explicit.
+- Consume the implemented compact advance/output and independent projection APIs.
+  Keep kind-19 diagnostic snapshots available; use kind 31 for durable events/HUD
+  and kinds 32/33 for active projections. Extend these contracts for remaining
+  animation/resource output with explicit token, retry and invalidation rules.
 - Define separate lifetimes for retained gameplay/audio journals, reusable render
   output and static resources. Presentation reads must not invalidate pending
   audio acknowledgement or erase feedback required after gameplay journal ack.
@@ -130,10 +127,9 @@ Primary areas: `engine/runtime/`, `engine/audio_protocol/`, `engine/abi/`,
   explicitly: any nonzero production profile needs a compatible clock/creation
   extension and replay/result identity metadata, with the old zero-offset profile
   preserved. Do not silently enable it through the independent JS clock.
-- Implement the accepted readonly simulation projection consumed by presentation,
-  with no runtime import, cycle or owning-state copy. Specify which prepared,
-  committed-outcome and feedback data it borrows. Follow the package dependency
-  table and update the relevant ADR for further ownership/contract changes.
+- Extend the implemented readonly simulation projection for animation/feedback
+  without runtime imports, cycles or owning-state copies. Follow the package
+  dependency table and update the relevant ADR for ownership/contract changes.
 - Establish the remaining M2 acceptance matrix: H05–H10 with complete
   circle/note-lock, slider tracking, spinner, score/health/failure and replay
   observations; A13–A20/A23 remain open until their full scenarios are verified.
@@ -172,9 +168,9 @@ runtime/ABI transport and the browser renderer.
   outcomes at requested presentation times. Implement approach/fade/feedback,
   cursor/trail, follow points and HUD. Snapshot calls cannot judge, advance health
   or duplicate audio intent.
-- Maintain a bounded active set with stable draw order. Ordinary frame work must
-  scale with active objects; avoid serializing or scanning every map object on
-  each frame. Reset reusable state and preserve source IDs.
+- Extend the existing bounded active projection with animation/feedback lifetimes
+  and stable draw order. Ordinary frame work must scale with active objects;
+  preserve reusable storage and source IDs.
 - Count/validate/reserve slider meshes and static resources before publication.
   Reuse prepared paths; use checked u64 arithmetic and WASM32 bounds. Handle
   degenerate paths, reversals and dense overlapping geometry.
@@ -220,7 +216,8 @@ Primary areas: `platform/browser-js/src/engine-bridge.mjs`, input/clock services
 controller, runtime snapshot/output transport and browser integration tests.
 
 - Reuse existing generated-record session operations; add efficient event/render
-  readers from W01 rather than the diagnostic full-map copier. Reserve/reuse
+  readers, extending W01 for draw commands. Keep the diagnostic full-map copier
+  outside the frame path. Reserve/reuse
   input, command and event storage before play. Reacquire WASM views after every
   potentially growing call, including failures; copy only data needing retention
   into bounded owned storage and validate every output span. Test allocation and
@@ -311,19 +308,7 @@ commands and add reproducible new adapter commands with their implementation.
 Document the checks actually run and distinguish local, upstream and release-
 browser evidence. Do not claim completion from partial fixtures.
 
-## Start here and track completion
-
-1. Preserve the current prerequisite changes and confirm the current compiler,
-   source pins and baseline checks. Existing commands are `npm --prefix engine test`,
-   `npm --prefix platform/browser-js test`,
-   `npm --prefix platform/browser-js run test:session`, browser build/integration
-   and the pinned reference scripts.
-2. Implement W01 in `engine/abi/records.json`, `engine/runtime/`,
-   `engine/audio_protocol/` and ADR/interface documents. Deliver actual bindings,
-   reserve/validation code and tests, including the efficient advance/output path.
-   Coordinate conversion and the session audit already exist.
-3. Deliver W02's executable fixture adapters and start comparison runs. Record
-   exact missing observations per acceptance ID; then proceed through W03–W10.
+## Track completion
 
 After every unit update a short ledger in the M3 report: implemented files,
 commands and results, fixture/source/lock hashes where applicable, open defects,
@@ -335,13 +320,3 @@ For external blockers, record the attempted command/environment and affected
 gate. Continue independent implementation. Obtain physical input/audible-output
 results and performance approval only against a concrete running player and
 recorded measurements; never substitute mock tests or invented thresholds.
-
-Planning validation for this revision is Markdown link/path and diff checks.
-No new engine or browser test execution is implied by editing this plan.
-
-## Implementation ledger link
-
-The [compact-output increment](m3.md#w01-implementation-ledger--compact-output-and-active-projection)
-implements part of W01 and the W03 active-projection substrate. W01 is still open
-for static render/audio resource contracts; no numbered unit is complete. Continue
-from these implemented exports rather than repeating the prerequisite import.

@@ -14,7 +14,7 @@ M0 rows below describe the tested foundation matrix; the [M0 report](../status.m
 | GEO-02 | Declared lengths and degeneracy | `SliderPath.calculateLength` | M1 H03 passes | upstream duplicate-tail behavior preserved | A09 |
 | OBJ-01 | Stable order, combo and old/modern stacking | decoder, `OsuBeatmapProcessor` | M1 projection passes | source IDs retained; spinner handling matches each algorithm | A10 |
 | OBJ-02 | Slider/spinner components and markers | `Slider`, `Spinner`, `SliderEventGenerator` | M1 H04 passes | zero-duration legacy-marker progress canonicalised to 0 | A11 |
-| IN-01 | 512×384 coordinate inverse | playfield adjustment | unsupported | later milestone | A12 point round-trip ≤1e-6 |
+| IN-01 | 512×384 coordinate inverse | playfield adjustment | native/WASM and browser coordinate checks | physical/gameplay input integration open | A12 point round-trip ≤1e-6 |
 | IN-02 | inclusive windows | `OsuHitWindows`, `HitWindows` | headless integration; local regressions | full upstream scenario gate open | A13 ±boundary and next float exact result |
 | IN-03 | equal-time/start-time note lock | policy + tests | headless integration; local regressions | full upstream scenario gate open | A14 exact judgement sequence |
 | SL-01 | tracking loss/recovery/action lock | `SliderInputManager` + tests | headless integration; local regressions | full upstream scenario gate open | A15 discrete results exact; history classified |

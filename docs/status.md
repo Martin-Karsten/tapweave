@@ -86,24 +86,32 @@ interpolation and repeated-slider position probes. Overflowing replay intervals
 are rejected before state publication.
 The 14 allocation-tracked M2 test groups also exercise checksummed malformed
 replay payloads and unchanged destinations on rejection.
-The [M2 plan](implementation/m2-plan.md) describes remaining full object state
-machines, health/failure, sample intent, sessions and replay recording/checkpoints.
+The [M2 acceptance backlog](implementation/m2-plan.md) tracks whole-scenario
+reference adapters, recorder sampling, checkpoint caching and workload measurements.
 M1 is complete and its final contracts are consumed by headless sessions. No complete
 A13–A20 or A23 acceptance gate is claimed from these component subsets.
 
-## M3: independent browser foundation
+## M3: browser foundation and partial W01/W03
 
-The [M3 increment](implementation/m3.md) adds a production-only browser WASM
-transport, shared generated JavaScript/TypeScript bindings, local archive/loose
-asset loading, transactional difficulty selection, decoded music reuse and a
-validation shell. Review fixes release cancelled candidates immediately, validate
-ZIP data descriptors and clean up audio dispatch failures. Independent input/audio
-services and Odin viewport transforms have local regression coverage. The browser Play control stays disabled.
+The [M3 report](implementation/m3.md) records production-only WASM, shared generated
+bindings, local archive/loose loading, transactional difficulty selection, music
+cache/transport, bounded shared decoding and independent input/audio services.
+The browser bridge exposes headless sessions, replay/results/sample availability
+and production coordinate conversion. Review fixes cover cancelled candidates,
+ZIP descriptors and audio dispatch recovery.
 
-Full upstream M2 acceptance, object presentation, WebGL2, integrated music/input/lifecycle,
-results and H11 remain open. This increment does not complete A12/A21/A22, does
-not advertise gameplay capabilities, and does not claim upstream or release-
-browser audio acceptance. See the [M3 plan](implementation/m3-plan.md).
+The [W01 ledger](implementation/m3.md#w01-implementation-ledger--compact-output-and-active-projection)
+records compact gameplay output and an arena-backed active projection with
+independent output lifetime (kinds 31–34). This is partial W01 and the W03
+foundation; object animation, static resources, WebGL2, voice/loop intent and
+integrated input/music/lifecycle/results remain work in the [M3 plan](implementation/m3-plan.md).
+Play stays disabled; no aggregate gameplay capability is advertised.
+
+Local service, session and Chromium transport checks are retained in the report
+and findings. The [contract audit](implementation/m3-contract-audit.md) identifies
+missing whole-scenario adapters and remaining protocols. A12/A21/A22, H11 and full
+M2 acceptance remain open. Missing Firefox/WebKit executables and installation
+timeouts are validation limitations, separate from unfinished implementation.
 
 ## Resource contract and limits
 
@@ -125,14 +133,15 @@ A zero-duration slider can produce non-finite progress for upstream's legacy
 marker. The canonical profile writes progress `0` for that marker. It is retained
 for traceability, excluded from scoring-child comparisons, and is not a gameplay
 judgement. Disabled tick distance is encoded as `0` with `generate_ticks=false`.
-The schedule describes prepared arrivals/components; M2 will define simulation
-phases and judgement deadlines.
+The preparation schedule describes arrivals/components; integrated M2 sessions
+apply the simulation phases and judgement deadlines specified in ADR-002.
 
 Explicit kind-18 gameplay sessions support production simulation, score/health,
 replay execution, snapshots and one-shot sample intent. Foundation kind-3 sessions
 retain their original ownership-only behavior. Browser rendering and audio playback
 remain unsupported. See the [session report](implementation/m2-sessions.md) for limits.
-Dynamic-library packaging and browser asset/context-loss handling are not claimed.
+Dynamic-library packaging and integrated browser context-loss recovery are not claimed.
+Transactional browser asset replacement is implemented in the M3 foundation.
 Validation was executed locally on macOS arm64 with native and WASM builds; CI
 results are not implied by this report.
 
@@ -149,23 +158,3 @@ Use the checksum-pinned Odin compiler and Node 24. Upstream runs also require th
 [reference host setup](../engine/reference-host/README.md). Generated full traces,
 statistics and reports go to ignored `engine/artifacts/`; checked-in finding
 indices retain evidence without committing build products.
-
-### M3 prerequisites follow-up
-
-The [M3 report](implementation/m3.md#m3-prerequisites-implementation-2026-09-12)
-now records production coordinate conversion, a generated-record headless browser
-session bridge, explicit epoch mapping, independent music transport and bounded
-shared audio decoding. Local session and Chromium transport checks pass; these
-services are not an integrated playable browser. The [contract audit](implementation/m3-contract-audit.md)
-records missing adapters and protocols. All required M2/M3 acceptance gates remain
-open; missing Firefox/WebKit executables and timed-out installation are recorded
-separately from remaining implementation work.
-
-### M3 compact-output increment
-
-The [W01 ledger](implementation/m3.md#w01-implementation-ledger--compact-output-and-active-projection)
-records partial implementation of compact gameplay output and an arena-backed
-active projection with independent output lifetime. Kinds 31–34 are generated;
-existing exports and kinds remain supported. This does not provide animation,
-WebGL resources, audio voices or a playable lifecycle. W01–W10 and the required
-acceptance rows remain open; unfinished gameplay is still M3 work.
