@@ -275,3 +275,303 @@ milestone report or progress ledger.
 For external validation limits, record the attempted command/environment and
 its affected gate. Obtain physical input/audible-output results and performance
 approval against a concrete running player and recorded measurements.
+
+## Detailed remaining W01–W03 plan
+
+This section is the execution breakdown for W01–W03, not an additional milestone.
+It supersedes stale task descriptions that list compact output or the initial
+active set as absent. No W01–W03 unit is complete. Completing these units supplies
+contracts, executable reference evidence and Odin presentation for W04–W07;
+it does not itself produce the playable MVP.
+
+### Current implementation and gaps
+
+| Responsibility | Reuse | Still required |
+|---|---|---|
+| Advance/HUD/journals | `oe_session_advance_output`, kind 31; existing result/replay/sample operations | Durable admission integration; avoid kind-19 diagnostics in normal frames |
+| Projection | `simulation.project`/`project_object`; kinds 32/33 | Component outcomes/history, cursor history and visual parameters instead of raw projections alone |
+| Active membership | Creation-time reveal sort, stable source indices, epoch/backwards rebuild | Proven expiry policies, feedback membership, burst cost bounds and terminal behavior |
+| Lifetimes | Presentation buffer separate from gameplay output; kind-34 narrow capabilities | Shared map render attachments, per-context generations, final frame and voice lifetimes |
+| Browser readers | Generated `readRecordInto`, reusable `Gameplay_Output`/`Presentation_Output` | Readers/validators for actual draw/resources/voice commands; allocation measurements |
+| Reference host | Real pinned decoder/preparation and 72 simulation component comparisons | Actual controlled drawable/session/input/audio observations; component calls cannot substitute |
+
+The current 800 ms retention constant is conservative object membership, not a
+verified hit-animation or feedback policy. `Projection` borrows only top-level
+outcomes; acknowledging the journal must not prevent future child feedback.
+The active set's source-order insertion can become quadratic for adverse reveal
+ordering, and backward reads rebuild preceding reveals. Both need explicit work
+accounting; the existing sparse 10,000-object test does not establish dense limits.
+Simulation still scans objects in `press`/`apply_input` and sample bindings when
+emitting hitsounds. The removed completion scan does not resolve those costs.
+
+### W01 — Finish executable transport and ownership contracts
+
+**W01.1 — Define the minimum records and fixture envelope.**
+Use `engine/abi/records.json` and the existing generator as the wire authority.
+Preserve kinds 1–34, all exports and prepared/replay identity. Assign additional
+kind IDs only alongside writers, readers and conformance tests. Do not publish
+empty capability declarations as implemented features.
+
+Define these concrete payloads:
+
+| Payload | Required content and purpose |
+|---|---|
+| Render-resource descriptor | Prepared identity, logical attachment ID/version, total bytes, relative vertex/index/atlas/shader spans; enough metadata for validation and one-time upload |
+| Frame header | Session epoch, referenced resource identity, viewport/transform identity, sampled and committed times, HUD, typed batch/instance spans |
+| Batches and instances | Explicit primitive/layer order, source/component IDs, bounded resource/geometry ranges, transforms, colour/alpha and texture region; JS executes these values without deriving animation |
+| Voice commands | Sequence, epoch, time, voice ID, asset ID, command kind, volume/pan/rate, ramp duration/mask and late policy |
+| Capacity/reserve records | Requested and required capacities for each independently bounded resource; typed quota/failure results and a defined publication boundary |
+| Reference fixture envelope | Fixture/source hash, profile, map/input stream, lifecycle actions, update schedule and requested observation fields |
+
+Keep logical immutable resource identity distinct from browser GPU context
+generation. Do not store WebGL handles in the ABI. Keep kind 27 one-shot semantics
+unchanged; specify how legacy and new audio consumers avoid duplicate delivery.
+For every record specify units, valid enums/ranges, alignment, reserved fields,
+empty-span behavior, unknown-version rejection and lifetime. Header offsets and
+field access come from generated bindings.
+
+**W01.2 — Implement count/reserve/publication paths.**
+Runtime owns a render attachment retained with its prepared map; four sessions
+can borrow it without duplicating immutable geometry. Session storage owns dynamic
+instances, feedback/trail buffers and audio journals. Browser scopes own decoded
+assets and GPU resources. Reserve or replace dynamic capacity only in the accepted
+READY/PAUSED states; preserve the previous usable candidate on failure.
+
+Count with checked u64 arithmetic and WASM32 bounds before allocation. Derive
+required capacities from the map, accepted input capacity and actual primitive
+expansion. Loop toggles and ramps cannot be bounded by object count alone. Define
+finite safety quotas independently of later performance thresholds; justify the
+chosen defaults with count-pass workloads rather than inventing p99 targets.
+Overflow must report required capacity without truncation or partial publication.
+W01 implements and tests the resource container using small real payloads;
+W04 remains responsible for full mesh/atlas/shader generation and GPU upload.
+
+**W01.3 — Finish durable output semantics.**
+Specify and implement the state transitions for an unacknowledged batch, an
+admitted browser batch, acknowledgement retry, dispatch failure and epoch change.
+Use a retained session/epoch/sequence watermark so a new snapshot token cannot
+re-enqueue previously admitted events. Admit all required events transactionally
+before acknowledging them. Rejected admission leaves pending events recoverable;
+failed acknowledgement retries without playing them again. Preserve nominal
+future tail timestamps exactly. Specify which events survive pause or are
+cancelled/reconstructed, using H11 findings before enabling new voice capability.
+
+Keep frame reads independent of audio acknowledgement and component feedback.
+Test result/replay/diagnostic reads interleaved with production reads. Preserve
+existing acknowledgement behavior for legacy consumers. W01 delivers the wire,
+retention and admission protocol with executable transport tests; W05 implements
+and validates the complete browser voice executor and asset integration.
+
+**W01.4 — Extend the readonly projection and account for remaining frame costs.**
+Expose component outcomes and semantic cursor/feedback history through borrowed
+non-owning views or narrow accessors. Do not expose owning session state or allow
+presentation to dispatch rules. Give each history its own consumption/expiry
+rules rather than reusing the browser journal acknowledgement cursor.
+
+Instrument candidate visits, sample-binding visits, active insertion work and
+serialized/uploaded bytes. Where measurements expose full-map hot work, introduce
+creation-time indices/ranges over existing state: sample ranges per object or
+component, and ordered eligible input candidates. Preserve note-lock predecessors,
+equal-time source order and forced misses. Do not replace rules with a culling
+approximation or duplicate an independently maintained object model. Verify the
+same judgements and audio before accepting any indexing change.
+
+**W01.5 — Bind capabilities and clock identity precisely.**
+Advertise compact output, projection, animation, static resources, draw protocol
+and voice intent separately, only when their implementations pass contract tests.
+Aggregate Play remains unavailable. Reuse the existing immutable session/browser
+clock mapping and specify start/pause/resume/reset/seek/replacement invalidation.
+Production remains rate 1 with all offsets zero. Record nonzero A21 vectors as
+unsupported production profiles until creation/replay/result identity contracts
+are extended and verified; independent clock-service tests do not enable them.
+
+**W01 validation and exit.**
+Generate Odin/C/JS/TS bindings together. Test malformed/overlapping/truncated spans,
+unknown kinds/versions, stale resource IDs/epochs/handles, quota boundaries,
+allocation failure at each candidate allocation and unchanged prior publication.
+Exercise four sharing sessions, reset/seek/disposal, independent output lifetimes,
+future one-shots and duplicate admission/ack retries. Prove no Odin hot-path
+allocation or WASM growth; measure browser reader allocations rather than assuming
+container reuse eliminates all VM allocations. Update ADR-003/004/005 and the ABI
+chapter for actual ownership/contract changes. W01 closes when these transports,
+reserve paths and readers are executable, not when schemas alone are written.
+
+### W02 — Build and run actual pinned scenario adapters
+
+**W02.1 — Establish a controlled executable host.**
+Extend the existing reference host/runner rather than creating a second competing
+oracle framework. Verify both manifest commits and clean checkouts; restore in
+locked mode. Load the actual pinned drawable/ruleset/player objects needed for
+each observation, with explicit clock, input, configuration and resource setup.
+Feed timestamped input through the actual upstream input path and advance its
+update clock through declared schedules. Merely invoking private judgement
+methods or reproducing their calculations is not a whole-scenario adapter.
+
+First prove one circle fixture traverses input, judgement, score and teardown
+through upstream code. Record loaded source/version/profile and all required
+configuration. If drawable loading requires a graphics/display backend, implement
+that host path and record the real dependency; continue independent W01/W03 work
+while unavailable external host resources are resolved. A placeholder command
+that reports unsupported does not count as an executable scenario.
+
+**W02.2 — Add observations at the right boundaries.**
+Capture actual emitted judgement/result order, score/count/health transitions,
+fail/terminal state, recorder frames, sample resolution/play/stop/parameter
+requests, and drawable visual properties after each scheduled update. Observe
+audio intent before device mixing so traces remain meaningful without claiming
+audible-output validation. Preserve actual timestamps, source/component mapping
+and ordering. Normalization may remove incidental runtime IDs; it must not sort
+away event order, clamp times or calculate substitute upstream results.
+
+**W02.3 — Implement and execute the scenario matrix.**
+The IDs below follow the canonical traceability mappings. Expand each family
+into named positive, boundary and failure fixtures; retain coverage per fixture,
+not a single boolean for the entire harness.
+
+| Family | Minimum scenario groups | Required observations | Acceptance |
+|---|---|---|---|
+| Circle/head dispatch | Every exact and adjacent IEEE hit-window boundary; overlap, held/repeated edges, note lock, earlier skipped objects and equal-time source ties | Input selection, result order, offset/cause and score transition | H06; A13–A14 |
+| Slider/tracking/order | Early/late/missed head, acquisition/loss/recovery, action restrictions, sparse motion, repeats/ticks, early tail with nominal future sample, equal-time nested/parent results | Tracking transitions, child/parent results, ordered samples and score | H05/H07; A14–A15/A20 |
+| Spinner/recorder | Thresholds, bonus, centre/dead-zone movement, reversal, 180-degree crossing, >90-degree input segments, sparse/dense samples and recorder subdivision | Rotation/progress, results, emitted recorder frames and replay outcome | H08; A16/A23 |
+| Player score/health | HP0/5/10, breaks, combo ends, mixed results, failure crossing/freeze and terminal rank | Every score/count/combo/health transition and final record | H09/H10; A17–A19 |
+| Samples/loops | Ordered candidates and missing assets, future tails, tracking toggles, spinner volume/frequency ramps, replacement of in-flight ramps, pause/resume | Selected asset, requested time, voice play/stop and parameter changes | H11; A20–A21 |
+| Drawable presentation | Reveal/preempt/fade boundaries, approach circle, hit/miss feedback; slider body/head/ball/repeats/follow; spinner activation/progress/feedback | Visibility, transforms, alpha, progress and child lifetime | A22 |
+| Replay/lifecycle | Same recorded stream across schedules, pause release/future input, final results and recorder/replay round trip | Frames, judgement/audio/final traces and identity | A23, with relevant H05–H10 families |
+
+**W02.4 — Compare schedules and retain evidence.**
+Run relevant upstream drawables at 30/60/144 Hz and 50/100/250 ms stalls placed
+before, at and after critical boundaries. Include the specified higher-density
+spinner schedules. Run local native/WASM direct/event stepping plus
+30/60/120/144 Hz against the same timestamped fixture inputs. Upstream must have
+an explicit update schedule; do not assume direct-final advancement is equivalent
+to a drawable run.
+
+Compare discrete fields exactly when the upstream schedule matrix agrees.
+For frame-dependent fields retain each schedule and an explicit measured envelope;
+do not select one cadence as universal. Apply the existing numeric tolerances,
+report signed error and the first difference with surrounding events. Determinism
+within Odin and agreement with upstream are separate results. Investigate conflicts
+using pinned tests/code before proposing a documented divergence.
+
+Retain fixture, source, dependency-lock and observation hashes; command lines;
+profiles/schedules; and classifications: executed-and-matched, executed-different,
+source-grounded provisional, or unexecuted. New host dependencies require a real
+reviewed restore, never a manufactured lock. Preserve earlier component evidence.
+
+**W02 exit.**
+All required families have real executable entry points and recorded schedule
+observations, with local/upstream comparisons and exact coverage gaps listed.
+Relevant visual/audio uncertainties must be resolved or explicitly block the
+corresponding W03/W05 policy. Unrelated full-session corrections can proceed in
+W08; do not claim their acceptance rows closed merely because adapters now run.
+Physical keyboard/mouse/touch, release Safari and audible-output certification
+are later browser gates, not prerequisites for defining these oracle fixtures.
+
+### W03 — Turn projections into complete Odin presentation
+
+**W03.1 — Complete active membership and feedback storage.**
+Reuse `engine/presentation/active.odin` and `simulation/projection.odin`.
+Add bounded component-level feedback and cursor history that survives gameplay
+journal acknowledgement. Consume semantic events once using presentation-owned
+watermarks; repeated snapshots must not append duplicate feedback or trails.
+Specify pruning by time, terminal state and epoch, including results produced
+when advance jumps over several events.
+
+Derive expiry from the relevant W02 findings; do not use the current 800 ms bound
+as every animation duration. Account for bursts, reversed reveal/source ordering,
+long overlapping sliders/spinners, terminal sessions with unresolved objects,
+backward diagnostics and reset/seek. If insertion measurements show quadratic
+bursts, use a bounded ordered structure or batch merge over reserved scratch,
+keeping source order and avoiding a second authoritative gameplay state.
+
+**W03.2 — Implement circle presentation.**
+Emit circle, number/overlay and approach primitives with source identity and
+stable layering. Derive reveal, fade-in, approach scale/alpha, start-time fade,
+hit and miss transitions from the requested time and committed result times.
+Use pinned observations for gameplay-relevant timing; use original Tapweave
+styling for appearance. Exercise early hits, late hits, misses and overlapping
+circles at exact boundaries and adjacent times. Reading future presentation time
+must not create a result or advance health.
+
+**W03.3 — Implement complete slider presentation.**
+Emit body/resource reference, head, ball, tick/repeat markers, reverse indicators,
+follow circle and end feedback. Reuse prepared path/span data; derive repeated
+ball direction, tracking/follow state and head/body disappearance from Odin state.
+Handle missed heads, late recovery, repeat boundaries, tick/tail results and
+nominal tail time separately. W03 specifies body geometry/progress intent;
+W04 tessellates/uploads it. Do not rebuild path geometry per snapshot.
+
+**W03.4 — Implement spinner presentation.**
+Emit activation/fade, centre/ring, rotation/progress, completion/bonus and hit/miss
+feedback. Separate logical accumulated rotation from visual damping. If damping
+requires history, derive it from time and retained semantic samples or a declared
+sampling policy; do not make judgement or audio depend on RAF frequency. Compare
+W02 schedule envelopes instead of inventing a universal upstream visual trace.
+
+**W03.5 — Implement cursor, trail, follow points and HUD.**
+Use committed cursor semantics and the accepted transform. Reconstruct a bounded
+trail from timestamped semantic samples, with deterministic expiry and no repeated
+snapshot insertion. Emit follow points from prepared ordering with explicit
+combo/visibility rules. Emit HUD score, accuracy, health, combo and state from
+engine authority; the browser must not calculate scoring or animation. Font/glyph
+IDs and palette references are Odin intent; the original atlas is built in W04.
+
+**W03.6 — Build actual ordered draw output.**
+Convert presentation into W01's final compact batch/instance records, ordered by
+layer, source object, component and primitive ordinal. Keep debug projections
+(kinds 32/33) separate from the draw protocol; do not require JS to interpret them
+as visual policy. Count/reserve before use, reuse frame storage, validate referenced
+resource ranges and publish only complete frames. Keep HUD and feedback consistent
+with the same committed state. Introduce no per-hit-object JS state.
+
+**W03.7 — Prove behavior, lifetime and cost.**
+Add shared native/WASM traces for every object family and every state transition.
+Compare actual visual parameters with W02 observations under the declared matching
+policy. Include repeated snapshots, differently ordered presentation requests,
+journal acknowledgement before feedback expiry, pause/reset/replay seek, failure,
+future tails, missing resources and exact/insufficient capacities. Verify canonical
+judgement/audio/final digests are unchanged by all presentation schedules.
+
+Measure tiny, dense, long-overlap, 10,000-object and three-minute mixed fixtures.
+Separate simulation visits, active maintenance, feedback/trail work, serialization
+and bridge cost. Report visited counts, high-water capacities, bytes and
+p50/p95/p99 timings; do not claim W09 approval from these preliminary measurements.
+Require no Odin allocation/WASM growth in ordinary advance/presentation calls.
+Inspect browser allocation evidence for the generated readers. GPU timing and
+rendered-scene inspection become possible in W04 and stay assigned there.
+
+**W03 exit.**
+Odin emits complete circle/slider/spinner, cursor/trail/follow-point, feedback and
+HUD draw intent with stable ordering, bounded storage and tested readonly behavior.
+The W04 executor receives explicit primitives/resources, not animation decisions.
+Any unresolved A22 behavior remains visible in the acceptance ledger. W03 alone
+neither enables Play nor closes integrated A12/A21, H11 or full M2 acceptance.
+
+### Recommended execution sequence and review checkpoints
+
+| Order | Work | Concrete review checkpoint |
+|---|---|---|
+| 1 | Reconcile cleanup, then W01.1 and W02.1 | Minimal shared fixture envelope and one actual upstream circle input-to-result run |
+| 2 | W01.2–W01.3, while W02 expands observations | Tested reserve/publication/lifetime/admission paths and generated payloads |
+| 3 | W02 visual/audio families plus W01.4–W01.5 | Source-backed policy decisions, narrow capabilities, child/history access and measured input/sample costs |
+| 4 | W03.1–W03.2 | Circle draw intent and feedback after acknowledgement; readonly/native/WASM regressions |
+| 5 | W03.3–W03.4 | Complete slider/spinner draw intent with relevant pinned comparisons |
+| 6 | W03.5–W03.7 and remaining W02 families | HUD/cursor/follow points, complete batch output, scenario coverage and bounded workload report |
+
+These are implementation increments, not permission gates. Each checkpoint must
+land code, targeted tests and evidence; update the existing report/finding index
+rather than creating another audit document. Do not wait for all W02 observations
+before independent resource work, but do not advertise unobserved timing policies
+as compatible. Update the ABI/ADRs only where actual contracts change.
+
+For engine or tooling changes run `npm --prefix engine test`; for affected browser
+paths run browser service tests and `test:session`, then relevant browser scenarios.
+Add named reference-host commands with the actual adapters and run locked comparisons.
+Keep existing prepared identity, kind/ABI compatibility and source-hash checks.
+Review changed handwritten code for expressive names, ownership, duplicated state
+and avoidable allocation before accepting each increment.
+
+The final W01–W03 handoff contains usable transports, actual pinned scenario
+observations, complete Odin draw intent and precise open findings. W04 graphics,
+W05 browser audio, W06 physical input/frame integration and W07 lifecycle/results
+still lead to the playable validation MVP; W08–W10 close full M3 acceptance.
