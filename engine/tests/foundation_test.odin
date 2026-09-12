@@ -6,6 +6,7 @@ import "core:mem"
 import core_types "../core_types"
 import beatmap_decode "../beatmap_decode"
 import engine_runtime "../runtime"
+import trace_support "../trace_support"
 
 @(test)
 versions_defaults_and_owned_text :: proc(test: ^testing.T) {
@@ -409,4 +410,41 @@ checked_decimal_rejects_wraparound_and_non_decimal_syntax :: proc(test: ^testing
 	decoded_map, header_error := beatmap_decode.decode("osu file format v18446744073709551630")
 	defer beatmap_decode.destroy(&decoded_map)
 	testing.expect_value(test, header_error.code, core_types.Error_Code.HEADER)
+}
+
+@(test)
+trace_buffers_preserve_owned_state_on_failure :: proc(test: ^testing.T) {
+	buffers: trace_support.Buffers
+	defer trace_support.dispose_buffers(&buffers)
+	inbox_address := trace_support.reserve_inbox(&buffers, 4, 4)
+	testing.expect(test, inbox_address != 0)
+	copy(buffers.inbox, "kept")
+	output_bytes, _ := mem.alloc_bytes(3)
+	copy(output_bytes, "old")
+	testing.expect_value(test, trace_support.publish_output(&buffers, output_bytes, true), u32(3))
+	output_address := uintptr(raw_data(buffers.output))
+	{
+		context.allocator = mem.panic_allocator()
+		testing.expect_value(test, trace_support.reserve_inbox(&buffers, 5, 4), uintptr(0))
+	}
+	{
+		context.allocator = mem.Allocator{procedure = reject_allocations}
+		testing.expect_value(test, trace_support.reserve_inbox(&buffers, 4, 4), uintptr(0))
+	}
+	testing.expect_value(test, uintptr(raw_data(buffers.inbox)), inbox_address)
+	testing.expect_value(test, string(buffers.inbox), "kept")
+	failed_bytes, _ := mem.alloc_bytes(7)
+	testing.expect_value(test, trace_support.publish_output(&buffers, failed_bytes, false), u32(0))
+	testing.expect_value(test, uintptr(raw_data(buffers.output)), output_address)
+	testing.expect_value(test, string(buffers.output), "old")
+	replacement_bytes, _ := mem.alloc_bytes(3)
+	copy(replacement_bytes, "new")
+	testing.expect_value(test, trace_support.publish_output(&buffers, replacement_bytes, true), u32(3))
+	testing.expect_value(test, string(buffers.output), "new")
+	trace_support.dispose_buffers(&buffers)
+	trace_support.dispose_buffers(&buffers)
+	testing.expect(test, buffers.inbox == nil && buffers.output == nil)
+	// Empty inboxes retain an allocation so the exported address signals success.
+	testing.expect(test, trace_support.reserve_inbox(&buffers, 0, 0) != 0)
+	testing.expect_value(test, len(buffers.inbox), 0)
 }

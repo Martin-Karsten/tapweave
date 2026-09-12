@@ -399,7 +399,7 @@ export class Prepared_Description {
     this.view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
     this.summary = readRecord(this.view, 0, 8);
     require_condition(this.summary.total_bytes === BigInt(bytes.length), 'INVALID_SPAN', 'Descriptor size mismatch.');
-    const playback_span = this.array_span(this.summary, 'playback', 72);
+    const playback_span = this.array_span(this.summary, 'playback', RECORDS.get(17).size);
     require_condition(playback_span.count === 1, 'INVALID_SPAN', 'Expected one playback record.');
     this.playback = readRecord(this.view, playback_span.offset, 17);
     this.audio_filename = this.text(this.playback, 'audio_filename');
