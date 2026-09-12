@@ -13,3 +13,5 @@ compile(['build', 'wasm', '-target:js_wasm32', '-o:speed', '-out:artifacts/decod
 // library -init quoting defect without changing or bypassing the compiler.
 execFileSync(process.env.CC || 'cc',['-std=c11','-Dmain=abi_c_probe','-c',resolve(root,'tests/abi.c'),'-o',resolve(root,'artifacts/abi-c-probe.o')],{stdio:'inherit'});
 compile(['build','abi_native','-o:speed','-out:artifacts/abi-native']);
+
+compile(['build', 'browser_wasm', '-target:js_wasm32', '-o:speed', '-out:artifacts/tapweave.wasm', '-extra-linker-flags:--export-memory --max-memory=268435456']);

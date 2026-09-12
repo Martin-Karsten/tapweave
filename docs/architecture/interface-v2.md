@@ -303,3 +303,12 @@ The WASM host must now provide `odin_env.pow` alongside the existing math/import
 functions, because production scoring is linked. Browser rendering, audio loops,
 asset loading and synchronized playback remain M3. Whole-scenario upstream gates
 are tracked separately in the [M2 integration report](../implementation/m2-sessions.md).
+
+## Browser foundation bindings
+
+The existing mailbox and auxiliary ByteSpan offsets are also named under
+`transport` in the ABI schema. `records.mjs` is the shared executable binding;
+`records.ts` re-exports it with generated `records.d.mts` declarations. Generated
+writers validate complete scalar input before modifying a record. The browser
+bridge copies retained map descriptions and reacquires views after WASM calls.
+This transport refinement changes no offsets, record kinds or capability bits.

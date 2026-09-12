@@ -82,6 +82,9 @@ Exit criteria: A13–A20 and A23 pass; H05–H10 resolved/classified; exact disc
 
 ### M3 — Odin presentation and browser runtime
 
+Status: [independent browser foundation](implementation/m3.md); browser gameplay remains open.
+Implementation sequence: [M3 plan](implementation/m3-plan.md).
+
 Prerequisites: M2 readonly snapshot API and audio intent.
 
 Deliverables: presentation state/animation curves; WebGL2 command generation/executor; static slider meshes/atlas; DOM input mapping; archive/assets; Web Audio music, samples and loops; pause/resume/focus/context loss; playable results UI sufficient for validation.

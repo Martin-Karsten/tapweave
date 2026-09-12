@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Tapweave · Validation player</title>
+  <link rel="stylesheet" href="/platform/browser-js/style.css">
+  <script type="importmap">{"imports":{"fflate":"/vendor/fflate.mjs"}}</script>
+  <script type="module" src="/platform/browser-js/src/main.mjs"></script>
+</head>
+<body>
+  <header><a href="/" class="brand">tapweave<span class="brand-dot">●</span></a><span class="badge">VALIDATION PLAYER</span></header>
+  <main>
+    <section class="intro"><p class="eyebrow">YOUR MAPS. YOUR RHYTHM.</p><h1>Every beat starts here.</h1><p class="subtitle">Open a local beatmap set to prepare its difficulty and check its assets.</p></section>
+    <section class="workspace" aria-label="Beatmap preparation">
+      <div class="selection">
+        <h2>Choose your beatmap</h2><p>Load an .osz archive, or select an .osu file together with its music.</p>
+        <label class="file-control">Open local files<input id="files" type="file" multiple aria-label="Open local files"></label>
+        <label class="difficulty-label" for="difficulty">Difficulty</label><select id="difficulty" disabled><option>No beatmap loaded</option></select>
+        <p id="status" role="status" aria-live="polite">Starting engine…</p>
+        <p id="error" role="alert" hidden></p>
+      </div>
+      <div class="preview"><div class="orbit" aria-hidden="true"><span></span></div><p class="eyebrow">BEATMAP OVERVIEW</p><h2 id="map-name">Ready when you are.</h2><p id="map-detail">Your files stay in this browser.</p>
+        <dl id="stats" hidden><div><dt>Objects</dt><dd id="objects">—</dd></div><div><dt>Circle size</dt><dd id="circle-size">—</dd></div><div><dt>Approach rate</dt><dd id="approach-rate">—</dd></div></dl>
+        <button id="start" disabled>Play unavailable</button><p class="gate">Browser gameplay integration is still in progress. Map preparation is available now.</p>
+      </div>
+    </section>
+    <details><summary>Diagnostics</summary><pre id="diagnostics">Waiting for engine capabilities.</pre><button id="export" type="button">Download diagnostics</button></details>
+  </main>
+  <footer>Independent rhythm game. Not affiliated with osu! or ppy. <span>Unmodded lazer osu!standard target.</span></footer>
+</body>
+</html>

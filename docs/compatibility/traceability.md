@@ -65,3 +65,11 @@ is not complete spinner judgement; H09 calibration is not player failure.
 Headless integration now exposes separate production session capabilities. Neither
 its local consistency tests nor these component observations complete the listed
 whole-scenario upstream acceptance gates.
+
+## Independent M3 observations
+
+The [M3 report](../implementation/m3.md) records local production-ABI browser
+loading, archive/resource and input/audio service checks plus initial native/WASM
+viewport values. A12 remains open until the transform is integrated with real
+browser gameplay input. A21/A22 and H11 remain unsupported/unexecuted; fake audio
+contexts and a preparation shell are not evidence of audio-backed gameplay.

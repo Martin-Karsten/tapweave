@@ -109,3 +109,16 @@ connects them to production gameplay and replay APIs.
 checkouts and .NET setup as the reference host for component comparisons.
 Integration with M1 and headless sessions is implemented; whole-scenario upstream
 M2 acceptance remains open.
+
+## Independent M3 foundation
+
+`build` also emits `artifacts/tapweave.wasm` from the thin `browser_wasm`
+transport, without test `trace_*` exports. The generated executable JavaScript
+ABI and TypeScript declarations share the schema with existing Odin/C bindings.
+The independent `presentation` package provides an allocation-free playfield
+transform with native/WASM local contract tests. Full presentation is unsupported.
+
+See the [browser guide](../platform/browser-js/README.md) and
+[M3 report](../docs/implementation/m3.md). Browser dependencies remain isolated
+from this engine package. `test:presentation` runs after the other engine suites;
+it does not execute an upstream presentation oracle.

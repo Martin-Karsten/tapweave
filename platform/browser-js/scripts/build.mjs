@@ -1,0 +1,17 @@
+import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+
+export const browser_root = new URL('../', import.meta.url);
+export const site_root = new URL('artifacts/site/', browser_root);
+await mkdir(new URL('platform/browser-js/src/', site_root), { recursive: true });
+await mkdir(new URL('engine/abi/', site_root), { recursive: true });
+await mkdir(new URL('vendor/', site_root), { recursive: true });
+await cp(new URL('src/', browser_root), new URL('platform/browser-js/src/', site_root), { recursive: true });
+await cp(new URL('style.css', browser_root), new URL('platform/browser-js/style.css', site_root));
+await cp(new URL('index.html', browser_root), new URL('index.html', site_root));
+await cp(new URL('../../engine/abi/records.mjs', browser_root), new URL('engine/abi/records.mjs', site_root));
+await cp(new URL('../../engine/artifacts/tapweave.wasm', browser_root), new URL('tapweave.wasm', site_root));
+await cp(new URL('node_modules/fflate/esm/browser.js', browser_root), new URL('vendor/fflate.mjs', site_root));
+const dependency_notice = await readFile(new URL('node_modules/fflate/LICENSE', browser_root), 'utf8');
+await writeFile(new URL('vendor/fflate.LICENSE.txt', site_root), dependency_notice);
+console.log('Browser assets: ' + fileURLToPath(site_root));

@@ -1,0 +1,15 @@
+{
+  "name": "tapweave-browser",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24 <25" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "serve": "node scripts/serve.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "playwright test"
+  },
+  "dependencies": { "fflate": "0.8.3" },
+  "devDependencies": { "@playwright/test": "1.63.0" }
+}
