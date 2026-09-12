@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { Engine_Bridge } from '../src/engine-bridge.mjs';
+import { Engine_Bridge, Gameplay_Output, Presentation_Output } from '../src/engine-bridge.mjs';
 import { checkedSpan } from '../../../engine/abi/records.mjs';
 
 // Synthetic three-minute workload: input fixtures, never upstream observations.
@@ -43,43 +43,51 @@ const engine = await Engine_Bridge.create(wasm_bytes);
 const results = [];
 try {
   const prepared = engine.prepare_map(map_bytes);
-  for (const frequency of [0, 30, 60, 120, 144]) {
-    for (const stall_ms of frequency === 0 ? [0] : [0, 50, 100, 250]) {
-      const session = engine.create_session(prepared.map_handle, { input_capacity: 128, batch_capacity: 64 });
-      engine.submit_inputs(session, inputs);
-      const memory_before = engine.wasm.memory.buffer;
-      const judgement_hash = createHash('sha256');
-      const audio_hash = createHash('sha256');
-      const consume = target_ms => {
-        const snapshot = engine.advance(session, target_ms);
-        for (const [field_name, digest] of [['judgements', judgement_hash], ['audio', audio_hash]]) {
-          const span = snapshot.spans.get(field_name);
-          digest.update(checkedSpan(snapshot.view, span.offset, span.count, span.stride, 8));
-        }
-        engine.acknowledge(session, snapshot.summary.batch_token);
-        assert.equal(engine.snapshot(session, target_ms + 100).summary.audio_count, 0);
-      };
-      if (frequency) {
-        let previous_target = 0;
-        for (let target_ms = 0; target_ms < 181000; target_ms += 1000 / frequency) {
-          if (stall_ms && target_ms >= 4900 && target_ms < 4900 + stall_ms) {
-            continue;
+  for (const transport of ['diagnostic', 'compact']) {
+    for (const frequency of [0, 30, 60, 120, 144]) {
+      for (const stall_ms of frequency === 0 ? [0] : [0, 50, 100, 250]) {
+        const session = engine.create_session(prepared.map_handle, { input_capacity: 128, batch_capacity: 64 });
+        engine.submit_inputs(session, inputs);
+        const memory_before = engine.wasm.memory.buffer;
+        const judgement_hash = createHash('sha256');
+        const audio_hash = createHash('sha256');
+        const compact_output = new Gameplay_Output();
+        const presentation_output = new Presentation_Output();
+        const consume = target_ms => {
+          const snapshot = transport === 'compact' ? engine.advance_output(session, target_ms, compact_output) :
+            engine.advance(session, target_ms);
+          for (const [field_name, digest] of [['judgements', judgement_hash], ['audio', audio_hash]]) {
+            const span = transport === 'compact' ? snapshot[field_name] : snapshot.spans.get(field_name);
+            const base_address = transport === 'compact' ? snapshot.address : 0;
+            digest.update(checkedSpan(snapshot.view, base_address + span.offset, span.count, span.stride, 8));
           }
-          assert.ok(target_ms >= previous_target);
-          consume(target_ms);
-          previous_target = target_ms;
+          // Rendering must preserve the pending event bytes and batch token.
+          engine.presentation(session, target_ms, presentation_output);
+          engine.acknowledge(session, snapshot.summary.batch_token);
+          assert.equal(engine.snapshot(session, target_ms + 100).summary.audio_count, 0);
+        };
+        if (frequency) {
+          let previous_target = 0;
+          for (let target_ms = 0; target_ms < 181000; target_ms += 1000 / frequency) {
+            if (stall_ms && target_ms >= 4900 && target_ms < 4900 + stall_ms) {
+              continue;
+            }
+            assert.ok(target_ms >= previous_target);
+            consume(target_ms);
+            previous_target = target_ms;
+          }
         }
+        consume(181000);
+        const final = engine.result(session);
+        assert.equal(final.summary.state, 3);
+        assert.equal(engine.wasm.memory.buffer, memory_before, 'advance/snapshot/ack grew WASM memory');
+        const digests = { judgements: judgement_hash.digest('hex'), audio: audio_hash.digest('hex'), final: hash(final.bytes) };
+        if (results.length) {
+          assert.deepEqual(digests, results[0].digests, 'render cadence/stalls changed canonical output');
+        }
+        results.push({ transport, frequency, stall_ms, digests });
+        engine.release_session(session);
       }
-      consume(181000);
-      const final = engine.result(session);
-      assert.equal(final.summary.state, 3);
-      assert.equal(engine.wasm.memory.buffer, memory_before, 'advance/snapshot/ack grew WASM memory');
-      const digests = { judgements: judgement_hash.digest('hex'), audio: audio_hash.digest('hex'), final: hash(final.bytes) };
-      if (results.length) {
-        assert.deepEqual(digests, results[0].digests, 'render cadence/stalls changed canonical output');
-      }
-      results.push({ frequency, stall_ms, digests });
-      engine.release_session(session);
     }
   }
   engine.release_map(prepared.map_handle);

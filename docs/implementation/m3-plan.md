@@ -338,3 +338,10 @@ recorded measurements; never substitute mock tests or invented thresholds.
 
 Planning validation for this revision is Markdown link/path and diff checks.
 No new engine or browser test execution is implied by editing this plan.
+
+## Implementation ledger link
+
+The [compact-output increment](m3.md#w01-implementation-ledger--compact-output-and-active-projection)
+implements part of W01 and the W03 active-projection substrate. W01 is still open
+for static render/audio resource contracts; no numbered unit is complete. Continue
+from these implemented exports rather than repeating the prerequisite import.

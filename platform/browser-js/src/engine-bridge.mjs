@@ -1,8 +1,9 @@
-import { schema, checkedSpan, readRecord, writeRecord } from '../../../engine/abi/records.mjs';
+import { schema, checkedSpan, validateSpan, readRecord, readRecordInto, writeRecord } from '../../../engine/abi/records.mjs';
 import { Browser_Error, require_condition } from './errors.mjs';
 
 const MAILBOX = schema.transport.mailbox;
 const BYTE_SPAN = schema.transport.byte_span;
+const RECORD_HEADER = schema.transport.record_header;
 const RECORDS = new Map(schema.records.map(record => [record.kind, record]));
 
 export class Engine_Bridge {
@@ -48,6 +49,8 @@ export class Engine_Bridge {
         'UNSUPPORTED', 'Preparation version 2 is required.');
       this.check_status(this.wasm.oe_simulation_capabilities(this.engine_handle, this.result_address), false);
       this.simulation_capabilities = readRecord(this.view(), this.read_span().address, 25);
+      this.check_status(this.wasm.oe_output_capabilities(this.engine_handle, this.result_address), false);
+      this.output_capabilities = readRecord(this.view(), this.read_span().address, 34);
     } catch (error) {
       this.dispose();
       throw error;
@@ -167,6 +170,24 @@ export class Engine_Bridge {
     return this.session_output(this.wasm.oe_session_advance, session_handle, time_ms);
   }
 
+  // The caller owns and reuses output. Its borrowed records last until the next
+  // output-writing call on this session. Admission must finish before acknowledgement.
+  advance_output(session_handle, time_ms, output) {
+    require_condition(output instanceof Gameplay_Output, 'INVALID_ARGUMENT', 'Reusable gameplay output is required.');
+    this.check_status(this.wasm.oe_session_advance_output(this.engine_handle, session_handle,
+      time_ms, this.result_address), false);
+    output.bind(this.wasm.memory.buffer, this.result_address);
+    return output;
+  }
+
+  presentation(session_handle, time_ms, output) {
+    require_condition(output instanceof Presentation_Output, 'INVALID_ARGUMENT', 'Reusable presentation output is required.');
+    this.check_status(this.wasm.oe_session_presentation(this.engine_handle, session_handle,
+      time_ms, this.result_address), false);
+    output.bind(this.wasm.memory.buffer, this.result_address);
+    return output;
+  }
+
   snapshot(session_handle, time_ms) {
     return this.session_output(this.wasm.oe_session_snapshot, session_handle, time_ms);
   }
@@ -239,6 +260,98 @@ export class Engine_Bridge {
       this.session_handles.clear();
       this.input_span = null;
     }
+  }
+}
+
+// One reusable reader per consumer, created before play. It borrows WASM memory;
+// use record_into to copy only events that need durable browser queue ownership.
+class Borrowed_Output {
+  constructor(kind, arrays) {
+    this.kind = kind;
+    this.valid = false;
+    this.arrays = arrays;
+    this.view = null;
+    this.address = 0;
+    this.byte_count = 0;
+    this.summary = {};
+  }
+
+  bind(buffer, span_address) {
+    this.valid = false;
+    if (this.view?.buffer !== buffer) {
+      this.view = new DataView(buffer);
+    }
+    const view = this.view;
+    validateSpan(view, span_address, BYTE_SPAN.size, 1, 8);
+    require_condition(view.getUint32(span_address + BYTE_SPAN.reserved, true) === 0,
+      'INVALID_SPAN', 'Unsupported output span flags.');
+    const address = view.getBigUint64(span_address + BYTE_SPAN.address, true);
+    require_condition(address <= 0xffffffffn, 'INVALID_SPAN', 'WASM32 address overflow.');
+    this.address = Number(address);
+    this.byte_count = view.getUint32(span_address + BYTE_SPAN.count, true);
+    validateSpan(view, this.address, this.byte_count, 1, 8);
+    require_condition(this.byte_count >= RECORDS.get(this.kind).size, 'INVALID_SPAN', 'Truncated output header.');
+    const header_size = view.getUint32(this.address + RECORD_HEADER.byte_size, true);
+    require_condition(header_size <= this.byte_count, 'INVALID_SPAN', 'Oversized output header.');
+    readRecordInto(view, this.address, this.kind, this.summary);
+    require_condition(this.summary.total_bytes === BigInt(this.byte_count) &&
+      (this.kind !== 31 || this.summary.objects_count === 0 &&
+      this.summary.batch_token === view.getBigUint64(span_address + BYTE_SPAN.token, true)),
+    'INVALID_SPAN', 'Invalid borrowed output summary.');
+    let previous_end = header_size;
+    for (const span of this.arrays) {
+      previous_end = this.bind_array(span, this.summary[span.offset_field],
+        this.summary[span.count_field], this.summary[span.stride_field], previous_end);
+    }
+    this.valid = true;
+  }
+
+  bind_array(span, offset, count, stride, previous_end) {
+    require_condition(offset >= previous_end && offset % 8 === 0 &&
+      stride >= RECORDS.get(span.kind).size && stride % 8 === 0 && offset <= this.byte_count &&
+      count <= Math.floor((this.byte_count - offset) / stride), 'INVALID_SPAN', 'Invalid output array.');
+    // Validate headers without materializing event objects or allocating subviews.
+    for (let record_index = 0; record_index < count; record_index++) {
+      const address = this.address + offset + record_index * stride;
+      const size = this.view.getUint32(address + RECORD_HEADER.byte_size, true);
+      require_condition(this.view.getUint16(address + RECORD_HEADER.kind, true) === span.kind &&
+        this.view.getUint16(address + RECORD_HEADER.version, true) === 1 && size >= RECORDS.get(span.kind).size &&
+        size <= stride && size % 8 === 0, 'INVALID_SPAN', 'Invalid output record.');
+    }
+    span.offset = offset;
+    span.count = count;
+    span.stride = stride;
+    return offset + count * stride;
+  }
+
+  record_into(span, record_index, target) {
+    require_condition(this.valid && this.arrays.includes(span) &&
+      Number.isSafeInteger(record_index) && record_index >= 0 && record_index < span.count,
+    'INVALID_SPAN', 'Output record index is out of bounds.');
+    return readRecordInto(this.view, this.address + span.offset + record_index * span.stride, span.kind, target);
+  }
+}
+
+function output_array(field_name, kind) {
+  return { offset: 0, count: 0, stride: 0, kind,
+    offset_field: field_name + '_offset', count_field: field_name + '_count', stride_field: field_name + '_stride' };
+}
+
+export class Gameplay_Output extends Borrowed_Output {
+  constructor() {
+    const judgements = output_array('judgements', 21);
+    const audio = output_array('audio', 27);
+    super(31, [judgements, audio]);
+    this.judgements = judgements;
+    this.audio = audio;
+  }
+}
+
+export class Presentation_Output extends Borrowed_Output {
+  constructor() {
+    const objects = output_array('objects', 33);
+    super(32, [objects]);
+    this.objects = objects;
   }
 }
 

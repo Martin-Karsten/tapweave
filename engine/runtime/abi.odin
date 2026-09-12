@@ -378,6 +378,16 @@ oe_session_inputs_from_reserved :: proc "c" (engine, session_handle: core_types.
 @(export)
 oe_session_advance :: proc "c" (engine, session_handle: core_types.Handle, time_ms: f64, output: uintptr) -> u32 {
 	context = runtime.default_context()
+	return session_advance_output(engine, session_handle, time_ms, output, true)
+}
+
+@(export)
+oe_session_advance_output :: proc "c" (engine, session_handle: core_types.Handle, time_ms: f64, output: uintptr) -> u32 {
+	context = runtime.default_context()
+	return session_advance_output(engine, session_handle, time_ms, output, false)
+}
+
+session_advance_output :: proc(engine, session_handle: core_types.Handle, time_ms: f64, output: uintptr, include_objects: bool) -> u32 {
 	session, status := gameplay_get(engine, session_handle)
 	if status != .OK {
 		return abi_status(status)
@@ -392,7 +402,7 @@ oe_session_advance :: proc "c" (engine, session_handle: core_types.Handle, time_
 	if status != .OK {
 		return abi_status(status)
 	}
-	return abi_status(gameplay_snapshot(session, time_ms))
+	return abi_status(gameplay_snapshot(session, time_ms, include_objects))
 }
 
 @(export)

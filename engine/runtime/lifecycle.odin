@@ -5,6 +5,7 @@ import beatmap_decode "../beatmap_decode"
 import osu_prepare "../osu_prepare"
 import prepared "../prepared"
 import simulation "../simulation"
+import presentation "../presentation"
 import "core:mem"
 import "core:math"
 
@@ -37,6 +38,8 @@ Session :: struct {
 	gameplay: bool,
 	simulation: simulation.Session,
 	output: []byte,
+	presentation_output: []byte,
+	active_presentation: presentation.Active_Set,
 	input_candidate: []core_types.Input_Snapshot,
 	output_token: u64,
 	output_judgement_count: int,

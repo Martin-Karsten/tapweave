@@ -11,11 +11,14 @@ export const schema: {
   version: number;
   records: ABI_Record[];
   transport: {
+    record_header: { kind: number; version: number; byte_size: number; size: number; alignment: number };
     mailbox: { creation: number; creation_size: number; result: number; error: number };
     byte_span: { size: number; address: number; count: number; reserved: number; token: number };
   };
 };
 export const field_widths: Record<'u32' | 'u64' | 'f64', number>;
 export function checkedSpan(view: DataView, offset: number, count: number, stride: number, alignment?: number): Uint8Array;
+export function validateSpan(view: DataView, offset: number, count: number, stride: number, alignment?: number): void;
+export function readRecordInto(view: DataView, offset: number, kind: number, result: Record<string, number | bigint>): Record<string, number | bigint>;
 export function readRecord(view: DataView, offset: number, kind: number): Record<string, number | bigint>;
 export function writeRecord(view: DataView, offset: number, kind: number, values?: Record<string, number | bigint>): void;

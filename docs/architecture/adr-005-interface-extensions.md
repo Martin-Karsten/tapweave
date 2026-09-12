@@ -108,3 +108,15 @@ changing kind-27 one-shot semantics or any prior record/export. Generated native
 bindings now name bootstrap mailbox offsets as well as record layouts. Native C
 and browser WASM consumers test valid conversion and failure preservation. No
 aggregate gameplay, render or audio-loop capability is enabled by this extension.
+
+## Compact output and active projection extension
+
+Kinds 31–34 add compact gameplay output, active projection records and narrowly
+scoped output capabilities. Kind 31 deliberately preserves the diagnostic summary
+layout but emits no objects. Both paths share simulation and event serialization.
+Projection output is reserved separately at session creation; it has no gameplay
+batch token and does not invalidate one. Existing creation records and prepared
+identity are unchanged; the additional reserved storage counts against the existing
+session arena quota. The [ABI lifetime contract](interface-v2.md#compact-gameplay-output-and-active-projection)
+also specifies rebuild costs and the distinction between projections and render
+commands. Aggregate gameplay capability remains zero.

@@ -1526,6 +1526,242 @@ export const schema = {
           "f64"
         ]
       }
+    },
+    {
+      "name": "gameplay_output",
+      "kind": 31,
+      "size": 120,
+      "fields": {
+        "state": [
+          8,
+          "u32"
+        ],
+        "epoch": [
+          12,
+          "u32"
+        ],
+        "committed_ms": [
+          16,
+          "f64"
+        ],
+        "presentation_ms": [
+          24,
+          "f64"
+        ],
+        "score": [
+          32,
+          "u64"
+        ],
+        "accuracy": [
+          40,
+          "f64"
+        ],
+        "health": [
+          48,
+          "f64"
+        ],
+        "combo": [
+          56,
+          "u32"
+        ],
+        "highest_combo": [
+          60,
+          "u32"
+        ],
+        "objects_offset": [
+          64,
+          "u32"
+        ],
+        "objects_count": [
+          68,
+          "u32"
+        ],
+        "objects_stride": [
+          72,
+          "u32"
+        ],
+        "judgements_offset": [
+          76,
+          "u32"
+        ],
+        "judgements_count": [
+          80,
+          "u32"
+        ],
+        "judgements_stride": [
+          84,
+          "u32"
+        ],
+        "batch_token": [
+          88,
+          "u64"
+        ],
+        "total_bytes": [
+          96,
+          "u64"
+        ],
+        "audio_offset": [
+          104,
+          "u32"
+        ],
+        "audio_count": [
+          108,
+          "u32"
+        ],
+        "audio_stride": [
+          112,
+          "u32"
+        ],
+        "reserved": [
+          116,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "presentation_frame",
+      "kind": 32,
+      "size": 88,
+      "fields": {
+        "state": [
+          8,
+          "u32"
+        ],
+        "epoch": [
+          12,
+          "u32"
+        ],
+        "committed_ms": [
+          16,
+          "f64"
+        ],
+        "presentation_ms": [
+          24,
+          "f64"
+        ],
+        "objects_offset": [
+          32,
+          "u32"
+        ],
+        "objects_count": [
+          36,
+          "u32"
+        ],
+        "objects_stride": [
+          40,
+          "u32"
+        ],
+        "reserved": [
+          44,
+          "u32"
+        ],
+        "total_bytes": [
+          48,
+          "u64"
+        ],
+        "visited_count": [
+          56,
+          "u64"
+        ],
+        "revealed_count": [
+          64,
+          "u64"
+        ],
+        "cursor_x": [
+          72,
+          "f64"
+        ],
+        "cursor_y": [
+          80,
+          "f64"
+        ]
+      }
+    },
+    {
+      "name": "presentation_object",
+      "kind": 33,
+      "size": 96,
+      "fields": {
+        "object_id": [
+          8,
+          "u32"
+        ],
+        "object_kind": [
+          12,
+          "u32"
+        ],
+        "result": [
+          16,
+          "u32"
+        ],
+        "head_result": [
+          20,
+          "u32"
+        ],
+        "tracking": [
+          24,
+          "u32"
+        ],
+        "reserved": [
+          28,
+          "u32"
+        ],
+        "result_time_ms": [
+          32,
+          "f64"
+        ],
+        "head_time_ms": [
+          40,
+          "f64"
+        ],
+        "position_x": [
+          48,
+          "f64"
+        ],
+        "position_y": [
+          56,
+          "f64"
+        ],
+        "rotation": [
+          64,
+          "f64"
+        ],
+        "start_time_ms": [
+          72,
+          "f64"
+        ],
+        "radius": [
+          80,
+          "f64"
+        ],
+        "preempt_ms": [
+          88,
+          "f64"
+        ]
+      }
+    },
+    {
+      "name": "output_capabilities",
+      "kind": 34,
+      "size": 24,
+      "fields": {
+        "compact_version": [
+          8,
+          "u32"
+        ],
+        "projection_version": [
+          12,
+          "u32"
+        ],
+        "flags": [
+          16,
+          "u32"
+        ],
+        "reserved": [
+          20,
+          "u32"
+        ]
+      }
     }
   ],
   "transport": {
@@ -1541,34 +1777,51 @@ export const schema = {
       "count": 8,
       "reserved": 12,
       "token": 16
+    },
+    "record_header": {
+      "kind": 0,
+      "version": 2,
+      "byte_size": 4,
+      "size": 8,
+      "alignment": 8
     }
   }
 };
 export const field_widths = {"u32":4,"u64":8,"f64":8};
 const record_by_kind = new Map(schema.records.map(record => [record.kind, record]));
+const RECORD_HEADER = schema.transport.record_header;
+const fields_by_kind = new Map(schema.records.map(record => [record.kind, Object.entries(record.fields)]));
 
-export function checkedSpan(view, offset, count, stride, alignment = 1) {
-  if (![offset, count, stride, alignment].every(Number.isSafeInteger) ||
+export function validateSpan(view, offset, count, stride, alignment = 1) {
+  if (!Number.isSafeInteger(offset) || !Number.isSafeInteger(count) ||
+      !Number.isSafeInteger(stride) || !Number.isSafeInteger(alignment) ||
       offset < 0 || count < 0 || stride <= 0 || alignment <= 0 || offset % alignment !== 0 ||
       offset > view.byteLength || count > Math.floor((view.byteLength - offset) / stride)) {
     throw new RangeError('Invalid ABI span');
   }
+}
+
+export function checkedSpan(view, offset, count, stride, alignment = 1) {
+  validateSpan(view, offset, count, stride, alignment);
   return new Uint8Array(view.buffer, view.byteOffset + offset, count * stride);
 }
 
 export function readRecord(view, offset, kind) {
-  checkedSpan(view, offset, 8, 1, 8);
+  return readRecordInto(view, offset, kind, {});
+}
+
+export function readRecordInto(view, offset, kind, result) {
+  validateSpan(view, offset, RECORD_HEADER.size, 1, RECORD_HEADER.alignment);
   const record = record_by_kind.get(kind);
-  if (!record || view.getUint16(offset, true) !== kind || view.getUint16(offset + 2, true) !== 1) {
+  if (!record || view.getUint16(offset + RECORD_HEADER.kind, true) !== kind || view.getUint16(offset + RECORD_HEADER.version, true) !== 1) {
     throw new Error('Unsupported record');
   }
-  const size = view.getUint32(offset + 4, true);
+  const size = view.getUint32(offset + RECORD_HEADER.byte_size, true);
   if (size < record.size || size % 8 !== 0) {
     throw new RangeError('Truncated record');
   }
-  checkedSpan(view, offset, size, 1, 8);
-  const result = {};
-  for (const [field_name, [field_offset, field_type]] of Object.entries(record.fields)) {
+  validateSpan(view, offset, size, 1, 8);
+  for (const [field_name, [field_offset, field_type]] of fields_by_kind.get(kind)) {
     const address = offset + field_offset;
     switch (field_type) {
       case 'u32': result[field_name] = view.getUint32(address, true); break;
@@ -1598,9 +1851,9 @@ export function writeRecord(view, offset, kind, values = {}) {
     }
   }
   bytes.fill(0);
-  view.setUint16(offset, kind, true);
-  view.setUint16(offset + 2, 1, true);
-  view.setUint32(offset + 4, record.size, true);
+  view.setUint16(offset + RECORD_HEADER.kind, kind, true);
+  view.setUint16(offset + RECORD_HEADER.version, 1, true);
+  view.setUint32(offset + RECORD_HEADER.byte_size, record.size, true);
   for (const [field_name, value] of Object.entries(values)) {
     const [field_offset, field_type] = record.fields[field_name];
     const address = offset + field_offset;

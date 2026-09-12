@@ -331,3 +331,55 @@ support only; full presentation and gameplay capability remain unavailable.
 
 See the [M3 contract audit](../implementation/m3-contract-audit.md) for existing
 session export coverage, missing audio/render records and clock epoch mapping.
+
+## Compact gameplay output and active projection
+
+Kinds 31–34 append transport support while preserving kinds 1–30 and all existing
+exports. `oe_output_capabilities(engine, output_mailbox)` returns kind 34 from
+mailbox bytes 752–775. Compact-output and active-projection versions are 1; flags
+are zero. This does not advertise animation, WebGL resources, audio voices or
+integrated Play. All new output arguments require the mailbox span slot.
+
+`oe_session_advance_output(engine, session, time_ms, output_mailbox)` shares the
+existing simulation advance and emits kind 31. Its 120-byte summary intentionally
+has the same fields and offsets as kind 19, enforced by the binding generator.
+The object span is empty; kind-21 judgements and kind-27 one-shots follow directly.
+Work to serialize output depends on unacknowledged events, not map object count.
+The simulation completion check uses its existing completed-object counter.
+Input-driven simulation still has separate full-map scans; this is not a claim
+that all simulation work is now proportional to active objects.
+
+Kind 31 shares the diagnostic output buffer and acknowledgement contract. A new
+kind-19 or kind-31 publication invalidates the previous batch token. Repeating
+acknowledgement of the current token is safe. Rejected calls preserve publication;
+reset invalidates tokens. Failed browser admission must leave the token
+unacknowledged, then retry admission before consuming another output publication.
+This transport does not implement durable browser audio admission itself.
+
+`oe_session_presentation(engine, session, presentation_ms, output_mailbox)` emits
+kind 32 with a relative array of kind-33 active object projections. Records expose
+committed outcomes, slider position at the requested time, rotation, tracking,
+source identity, radius and preempt. Cursor coordinates are committed input
+coordinates. These are projection records, **not** animation/draw commands.
+Animation, meshes, atlas/shaders and voice/loop records remain to be appended.
+
+Projection storage is separate from gameplay/replay/result output. A presentation
+call changes neither gameplay bytes, pending output token, journal cursors nor
+simulation. Its bytes last until the next presentation call, reset/seek or session
+release. Gameplay calls do not overwrite these bytes, although their contents
+then describe an older committed state. Mailbox spans themselves are overwritten
+by subsequent successful output calls. Browser readers must consume/copy any
+needed span metadata immediately and reacquire views after memory growth.
+
+Creation checks addressable sizes and reserves reveal keys, active indices and
+projection output in the session arena. Reveal keys are sorted once; ordinary
+monotonic reads visit retained active objects and newly revealed entries. Source
+order is stable even when reveal order differs. Judged objects remain candidates
+through result time plus 800 ms, a conservative lifetime bound from pinned
+`DrawableHitCircle`, not an accepted animation policy. Journal acknowledgement
+cannot erase this committed feedback. Backwards diagnostic reads and changed
+simulation epochs rebuild the active set; their cost can include all preceding
+reveals. Counters expose visited/revealed work. No allocation occurs in these Odin
+reads. Generated `readRecordInto` and reusable browser output readers avoid
+per-record object containers and full-buffer copies; JavaScript VM scalar and
+iterator allocation behavior has not been certified as allocation-free.

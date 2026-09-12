@@ -41,3 +41,14 @@ simulation but not runtime. Simulation cannot import presentation. Runtime owns
 composition and resource lifetimes. The current kind-19 full-map diagnostic
 snapshot is not the production active-set render protocol. Remaining resource
 and batching requirements are recorded in the [contract audit](../implementation/m3-contract-audit.md).
+
+## Active projection transport implementation
+
+Simulation now supplies a borrowed `Projection` facade and object accessor.
+Presentation maintains arena-backed reveal/active indices; runtime serializes
+kind-32/33 projections into a separate session buffer. It cannot acknowledge or
+advance gameplay, and rendering reads cannot invalidate audio acknowledgement.
+The active set retains committed outcomes independently of the journal cursor.
+Backwards diagnostic reads rebuild; normal forward reads do not scan the map.
+This is the projection substrate for rendering, not the accepted final draw
+protocol. Animation, static resources and WebGL command generation remain open.

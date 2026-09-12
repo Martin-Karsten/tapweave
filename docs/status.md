@@ -160,3 +160,12 @@ services are not an integrated playable browser. The [contract audit](implementa
 records missing adapters and protocols. All required M2/M3 acceptance gates remain
 open; missing Firefox/WebKit executables and timed-out installation are recorded
 separately from remaining implementation work.
+
+### M3 compact-output increment
+
+The [W01 ledger](implementation/m3.md#w01-implementation-ledger--compact-output-and-active-projection)
+records partial implementation of compact gameplay output and an arena-backed
+active projection with independent output lifetime. Kinds 31–34 are generated;
+existing exports and kinds remain supported. This does not provide animation,
+WebGL resources, audio voices or a playable lifecycle. W01–W10 and the required
+acceptance rows remain open; unfinished gameplay is still M3 work.

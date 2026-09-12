@@ -719,11 +719,7 @@ advance_session :: proc(session: ^Session, target_ms: f64, pause_at_target := fa
 		release_actions(session, target_ms)
 	}
 	if !terminal(session) {
-		all_judged := true
-		for object_state in session.objects {
-			all_judged = all_judged && object_state.result != .NONE
-		}
-		if all_judged {
+		if session.completed_objects == len(session.objects) {
 			session.state = .PASSED
 			session.terminal_ms = session.journal[session.journal_count - 1].time_ms
 		}

@@ -84,3 +84,13 @@ digests and no WASM growth in the exercised calls. See the [M3 report](../implem
 and [retained local findings](../../engine/reference/findings/m3-browser-sessions.json).
 A12 remains open for physical/gameplay input integration; A21/A22/H11 and full M2
 rows remain open. No new upstream drawable acceptance is claimed.
+
+### Compact output and active projection evidence
+
+The [transport finding](../../engine/reference/findings/m3-output-transport.json)
+records local compact/diagnostic output parity across 34 cadence/stall schedules,
+independent projection/journal lifetimes and a 10,000-object active-work regression.
+It is local transport evidence only. The rerun of 72 pinned component comparisons
+adds no whole-session/drawable oracle. A12/A21/A22, H11 and M2 A13–A20/A23 remain
+open. See the [implementation ledger](../implementation/m3.md#w01-implementation-ledger--compact-output-and-active-projection)
+for unfinished implementation versus external validation constraints.
