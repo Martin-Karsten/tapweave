@@ -4,7 +4,8 @@ M0 (compatibility foundation) and M1 (beatmap preparation) are implemented for
 unmodded osu!standard against osu!lazer **2026.804.2**, commit
 `3c1c96f742e7aae2ff67a7361e058fe91ca3b955`, and framework **2026.731.0**, commit
 `f02756c5aa5032e6d04729922702b8d56c4bc2eb`. Tapweave is not yet playable.
-The next milestone is M2: deterministic input, judgement, scoring, health and replay.
+M2 has independent primitives for deterministic input, scoring, health calibration
+and replay; complete gameplay sessions remain the next implementation step.
 
 ## M0: foundation
 
@@ -69,6 +70,24 @@ cover typed spans, failed replacement, memory growth, shared sessions, reset,
 disposal and stale handles. The existing 50-cycle/four-session lifecycle matrix,
 4,000 resets and deliberate memory-ceiling failure remain part of the suite.
 
+## M2: independent primitives
+
+The M2 worktree has been integrated into main. It adds explicit result properties,
+standalone scoring and drain calibration, hit-window and forward spinner-history
+primitives, bounded event/input queues, and replay validation/interpolation/codec.
+These packages are not yet connected to prepared maps or production gameplay ABI.
+
+The [M2 report](implementation/m2.md) records 100 native/WASM primitive fixtures,
+including 67 exact pinned component comparisons, with source/fixture/lock hashes.
+Four local review regressions extend the original 96-fixture evidence, covering
+transactional buffer-overlap rejection and interpolation at finite extremes.
+The 14 allocation-tracked M2 test groups also exercise checksummed malformed
+replay payloads and unchanged destinations on rejection.
+The [M2 plan](implementation/m2-plan.md) describes remaining full object state
+machines, health/failure, sample intent, sessions and replay recording/checkpoints.
+M1 is complete; integration with its final contracts remains M2 work. No complete
+A13–A20 or A23 acceptance gate is claimed from these component subsets.
+
 ## Resource contract and limits
 
 Preparation counts output before allocating, builds candidates transactionally,
@@ -92,8 +111,9 @@ judgement. Disabled tick distance is encoded as `0` with `generate_ticks=false`.
 The schedule describes prepared arrivals/components; M2 will define simulation
 phases and judgement deadlines.
 
-Simulation, score/health state, replay execution, rendering and audio playback
-remain unsupported. Sessions currently establish ownership and reusable storage.
+Production simulation, score/health sessions, replay execution, rendering and
+audio playback remain unsupported. Sessions currently establish ownership and
+reusable storage.
 Dynamic-library packaging and browser asset/context-loss handling are not claimed.
 Validation was executed locally on macOS arm64 with native and WASM builds; CI
 results are not implied by this report.

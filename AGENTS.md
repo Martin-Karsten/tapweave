@@ -69,6 +69,10 @@ from visual similarity or from agreement between two local implementations.
   per line. Use generated ABI field offsets instead of handwritten byte offsets.
 - Apply the same readability standard to tests and test transports. Prefer
   descriptive package aliases, such as `geometry`, over single-letter aliases.
+- Review names in every changed file before delivery, including fixture runners
+  and reference adapters. Use role-specific names such as `frame_index`,
+  `raw_score`, and `byte_count` instead of generic `index` or `value` when the
+  role is known. Keep serialized field names and retained upstream names stable.
 - When renaming compatibility math, preserve operation order, casts, constants,
   and behavior. Do not rename identifiers in retained upstream reference sources.
 

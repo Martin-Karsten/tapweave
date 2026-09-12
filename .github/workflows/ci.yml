@@ -78,3 +78,40 @@ jobs:
           path: |
             engine/artifacts/prepared/
             engine/artifacts/acceptance.json
+  simulation-reference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      OSU_REFERENCE_CHECKOUT: ${{ github.workspace }}/engine/.reference/osu
+      OSU_FRAMEWORK_CHECKOUT: ${{ github.workspace }}/engine/.reference/framework
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ppy/osu
+          ref: 3c1c96f742e7aae2ff67a7361e058fe91ca3b955
+          path: engine/.reference/osu
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ppy/osu-framework
+          ref: f02756c5aa5032e6d04729922702b8d56c4bc2eb
+          path: engine/.reference/framework
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Install linkers
+        run: sudo apt-get update && sudo apt-get install -y clang lld
+      - name: Install pinned Odin
+        run: npm --prefix engine run setup
+      - name: Compare independent M2 primitives with pinned upstream
+        run: npm --prefix engine run test:simulation:upstream
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simulation-comparisons
+          path: engine/artifacts/simulation/
