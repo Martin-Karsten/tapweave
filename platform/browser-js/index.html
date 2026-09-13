@@ -24,22 +24,84 @@
       <div class="preview"><div class="orbit" aria-hidden="true"><span></span></div><p class="eyebrow">BEATMAP OVERVIEW</p><h2 id="map-name">Ready when you are.</h2><p id="map-detail">Your files stay in this browser.</p>
         <dl id="stats" hidden><div><dt>Objects</dt><dd id="objects">—</dd></div><div><dt>Circle size</dt><dd id="circle-size">—</dd></div><div><dt>Approach rate</dt><dd id="approach-rate">—</dd></div></dl>
         <button id="start" disabled>Play</button><p id="play-gate" class="gate">Prepare a map to check playback readiness.</p>
+        <div class="debug-entry"><button id="debug-open" aria-expanded="false">Debug</button></div>
+        <p class="gate">Debug: Ctrl+F10 panel · Ctrl+F11 HUD during play (when the browser delivers them).</p>
       </div>
     </section>
     <section id="player" hidden aria-label="Gameplay">
       <canvas id="playfield" tabindex="0" aria-label="Tapweave playfield. Z and X or mouse buttons to play. Escape pauses."></canvas>
+      <div class="floating-controls">
+        <button id="debug-open-running" type="button">Debug</button>
+        <button id="hud-toggle" type="button" aria-pressed="false">HUD</button>
+      </div>
+      <div id="debug-hud" hidden aria-hidden="true"><dl id="hud-metrics"></dl></div>
       <button id="pause" type="button">Pause</button>
       <section id="lifecycle-panel" hidden tabindex="-1" aria-labelledby="lifecycle-title">
         <h2 id="lifecycle-title"></h2><p id="lifecycle-message" role="status" aria-live="polite"></p>
+        <div id="recovery-diagnostics" hidden>
+          <label for="recovery-report">Copy this diagnostic report when reporting the interruption.</label>
+          <textarea id="recovery-report" readonly spellcheck="false" rows="10"></textarea>
+          <button id="copy-recovery" type="button">Copy diagnostic report</button>
+          <button id="download-recovery" type="button">Download report</button>
+          <span id="copy-status" role="status"></span>
+        </div>
         <dl id="result-stats" hidden></dl>
         <button id="resume" type="button" hidden>Resume</button>
         <button id="retry" type="button">Retry</button>
+        <button id="debug-open-lifecycle" type="button">Debug</button>
         <button id="back" type="button">Back to selection</button>
       </section>
     </section>
     <p class="gate">Validation build: full upstream compatibility and release-browser certification remain open.</p>
     <details><summary>Diagnostics</summary><pre id="diagnostics">Waiting for engine capabilities.</pre><button id="export" type="button">Download diagnostics</button></details>
   </main>
+  <section id="debug-dialog" hidden aria-labelledby="debug-title">
+    <div class="debug-frame" role="dialog" aria-labelledby="debug-title">
+      <h2 id="debug-title">Diagnostics</h2>
+      <div class="debug-toolbar">
+        <label class="debug-toggle"><input type="checkbox" id="debug-detailed"> Detailed capture (next attempt)</label>
+        <button id="debug-export" type="button">Export report</button>
+        <button id="debug-import" type="button">Import report</button>
+        <input id="debug-import-file" type="file" accept="application/json" hidden>
+        <button id="debug-close" type="button">Close</button>
+      </div>
+      <p id="debug-import-status" role="status"></p>
+      <div role="tablist" aria-label="Diagnostic categories">
+        <button role="tab" id="tab-logs" aria-selected="true" aria-controls="panel-logs">Logs</button>
+        <button role="tab" id="tab-timing" aria-selected="false" aria-controls="panel-timing">Timing</button>
+        <button role="tab" id="tab-audio" aria-selected="false" aria-controls="panel-audio">Audio</button>
+        <button role="tab" id="tab-resources" aria-selected="false" aria-controls="panel-resources">Resources</button>
+      </div>
+      <div role="tabpanel" id="panel-logs" aria-labelledby="tab-logs">
+        <div class="debug-filters">
+          <label>Search <input id="debug-search" type="search"></label>
+          <label>Severity <select id="debug-severity"><option value="all">all</option><option>info</option><option>warning</option><option value="error">error</option></select></label>
+          <label class="debug-toggle"><input type="checkbox" id="debug-freeze"> Freeze display</label>
+        </div>
+        <fieldset class="debug-categories"><legend>Categories</legend></fieldset>
+        <p id="debug-log-count" role="status"></p>
+        <div id="debug-log" class="debug-log" aria-label="Diagnostic events"></div>
+      </div>
+      <div role="tabpanel" id="panel-timing" hidden aria-labelledby="tab-timing">
+        <dl id="debug-timing-counters"></dl>
+        <h3>Frame samples</h3><pre id="debug-frames"></pre>
+        <h3>Detailed inputs</h3><pre id="debug-inputs"></pre>
+      </div>
+      <div role="tabpanel" id="panel-audio" hidden aria-labelledby="tab-audio">
+        <dl id="debug-audio-counters"></dl>
+        <h3>Audio events</h3><pre id="debug-audio-events"></pre>
+      </div>
+      <div role="tabpanel" id="panel-resources" hidden aria-labelledby="tab-resources">
+        <dl id="debug-resource-counters"></dl>
+        <p id="debug-storage-warning" role="status"></p>
+        <h3>Stored reports (latest five)</h3>
+        <ul id="debug-stored"></ul>
+        <button id="debug-refresh-stored" type="button">Refresh stored reports</button>
+        <h3>Report text</h3>
+        <pre id="debug-imported" hidden></pre>
+      </div>
+    </div>
+  </section>
   <footer>Independent rhythm game. Not affiliated with osu! or ppy. <span>Unmodded lazer osu!standard target.</span></footer>
 </body>
 </html>

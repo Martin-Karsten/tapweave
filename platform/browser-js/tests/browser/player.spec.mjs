@@ -38,7 +38,7 @@ test('malicious archive reports a typed error and diagnostics download works', a
   const archive = zipSync({ '../bad.osu': strToU8(beatmap) });
   await page.getByLabel('Open local files', { exact: true }).setInputFiles({ name: 'bad.osz', mimeType: 'application/zip', buffer: Buffer.from(archive) });
   await expect(page.getByRole('alert')).toContainText('Ambiguous asset path');
-  await page.getByText('Diagnostics', { exact: true }).click();
+  await page.locator('details > summary').click();
   const download_pending = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download diagnostics' }).click();
   const download = await download_pending;

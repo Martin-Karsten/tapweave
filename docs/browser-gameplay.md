@@ -617,3 +617,40 @@ shaders and static uploads only. See [current evidence](status.md#bounded-w04-gp
 Counted slider meshes, original primitive/glyph shader and atlas generation,
 validated frame submission, integrated recovery and the complete rendered
 scene/workload matrix remain W04 work. No W03 policy or Play gate changes.
+
+### Debug suite ownership (2026-09-13)
+
+The debug suite adds one optional typed diagnostics service plus two browser
+tools; it changes no gameplay contract. Ownership rules:
+
+- `Diagnostics_Service` (`platform/browser-js/src/diagnostics.ts`) is a
+  passive recorder. It never calls the engine, never gates gameplay, and every
+  consumer works without supplying it. Recording paths use preallocated rings
+  and interned input sources; JSON serialization, DOM updates and report
+  building happen only on export/failure paths.
+- Engine operations carry explicit diagnostic names set by the bridge; the
+  first failure of an attempt is recorded before recovery mutates state, and
+  the frame driver may amend it with the timing capture (receipt/mapped/audio
+  times, clock anchors, sequence, batch position, advance target, lateness)
+  while keeping observation times distinct from authoritative engine time.
+- Diagnostic UI refresh rides the existing frame driver through an `on_frame`
+  observation hook, throttled to at most four refreshes per second. No timer,
+  RAF loop or gameplay scheduler is added; the HUD is non-interactive and
+  never captures gameplay input, and the interactive panel requests the normal
+  pause path when opened during play.
+- Reports are bounded (2 MiB), versioned (`tapweave-debug-report`), stored
+  locally (latest five, IndexedDB) and importable as text only. They are never
+  uploaded and cannot execute code or inject scenarios.
+- Fault injection exists only in the `/debug.html` developer workspace and its
+  scenario runner; the player binary paths contain none. Recorded player
+  reports are evidence, not executable reproductions; replay-driven debugging
+  and object picking remain deferred.
+- The suite diagnoses the receipt/audio clock mismatch without fixing it:
+  no input clamping, no judgement timing change, no ABI v2 change.
+
+Structural inspiration is documented separately from local regression
+evidence: the pinned osu!framework `LogOverlay`, `PerformanceOverlay`,
+`GlobalStatisticsDisplay` and `TestBrowser` (see the
+[source manifest](../engine/reference/source-manifest.json) for retained MIT
+sources). No upstream acceptance gate closes from this suite; see the
+[status entry](status.md#debug-suite-2026-09-13).

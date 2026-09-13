@@ -12,6 +12,7 @@ import { read_record, record_size,
   type Presentation_Output_Header, RECORD, ENGINE_STATUS, PREPARED_OBJECT_KIND, PREPARED_COMPONENT_KIND,
   SAMPLE_FLAG_LOOP, VOICE_COMMAND_FAMILY_BIT, ALL_VOICE_COMMAND_FAMILIES } from './abi-records.js';
 import { Browser_Error, require_condition } from './errors.js';
+import type { Diagnostics_Service } from './diagnostics.js';
 
 const MAILBOX = schema.transport.mailbox;
 const BYTE_SPAN = schema.transport.byte_span;
@@ -53,6 +54,11 @@ interface Output_Array_Span {
   stride_field: string;
 }
 
+export interface Engine_Bridge_Options {
+  on_engine_log?: (message: Engine_Diagnostic) => void;
+  diagnostics?: Diagnostics_Service | null;
+}
+
 export class Engine_Bridge {
   wasm: Odin_Exports;
   mailbox_address: number;
@@ -65,17 +71,23 @@ export class Engine_Bridge {
   simulation_capabilities!: Simulation_Capabilities_Record;
   output_capabilities!: Output_Capabilities_Record;
   transport_capabilities!: Transport_Capabilities_Record;
+  wasm_sha256: string | null = null;
+  diagnostics: Diagnostics_Service | null = null;
   private scene_mailbox_view: DataView | null = null;
   private scene_mailbox_bytes: Uint8Array | null = null;
+  private operation_name = 'engine_create';
+  private operation_arguments: Record<string, unknown> | null = null;
 
-  static async create(wasm_bytes: ArrayBuffer | Uint8Array, diagnostics: (message: Engine_Diagnostic) => void = () => {}) {
+  static async create(wasm_bytes: ArrayBuffer | Uint8Array,
+    options: ((message: Engine_Diagnostic) => void) | Engine_Bridge_Options = {}) {
+    const resolved: Engine_Bridge_Options = typeof options === 'function' ? { on_engine_log: options } : options;
     let wasm_memory: WebAssembly.Memory;
     const { instance } = await WebAssembly.instantiate(wasm_bytes, { odin_env: {
       sin: Math.sin,
       cos: Math.cos,
       pow: Math.pow,
       write(file_descriptor: number, address: number, byte_count: number) {
-        diagnostics({ kind: 'engine_log', file_descriptor,
+        resolved.on_engine_log?.({ kind: 'engine_log', file_descriptor,
           message: new TextDecoder().decode(new Uint8Array(wasm_memory.buffer, address, byte_count)) });
         return byte_count;
       },
@@ -88,7 +100,17 @@ export class Engine_Bridge {
     } }) as unknown as { instance: WebAssembly.Instance };
     const wasm_exports = instance.exports as unknown as Odin_Exports;
     wasm_memory = wasm_exports.memory;
-    return new Engine_Bridge(wasm_exports);
+    const bridge = new Engine_Bridge(wasm_exports);
+    if (resolved.diagnostics) {
+      bridge.diagnostics = resolved.diagnostics;
+      // The digest covers the exact production module the session executes.
+      const digest = await crypto.subtle.digest('SHA-256', wasm_bytes as BufferSource);
+      bridge.wasm_sha256 = [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
+      resolved.diagnostics.record_event('engine', 'info', 'engine_create', 'Production WASM engine instantiated.',
+        { wasm_sha256: bridge.wasm_sha256, build_id: bridge.capabilities.build_id.toString(),
+          behavior_id: bridge.capabilities.behavior_id, abi: `${bridge.capabilities.abi_major}.${bridge.capabilities.abi_minor}` });
+    }
+    return bridge;
   }
 
   constructor(wasm_exports: Odin_Exports) {
@@ -146,10 +168,25 @@ export class Engine_Bridge {
   // Never cache DataView or typed arrays across a WASM call.
   view() { return new DataView(this.wasm.memory.buffer); }
 
+  // Every engine operation carries an explicit diagnostic name. Cold paths may
+  // also retain argument summaries; hot per-frame paths set only the name so
+  // instrumentation allocates nothing during play.
+  note_operation(operation: string, arguments_record: Record<string, unknown> | null = null) {
+    this.operation_name = operation;
+    this.operation_arguments = arguments_record;
+  }
+
   check_status(status: number, has_error_record = true) {
     if (status !== 0) {
       const details = has_error_record ? readRecord(this.view(), this.error_address, 7) : {};
-      throw new Browser_Error('ENGINE_' + status, 'Engine operation failed (status ' + status + ').', details);
+      const status_name = ['OK', 'INVALID_ARGUMENT', 'INVALID_STATE', 'UNSUPPORTED', 'QUOTA_EXCEEDED',
+        'MALFORMED_MAP', 'MISSING_ASSET', 'LATE_INPUT', 'OUTPUT_REQUIRED', 'STALE_HANDLE', 'OUT_OF_MEMORY', 'INTERNAL'][status] ?? 'UNKNOWN';
+      const error = new Browser_Error('ENGINE_' + status, `Engine operation failed: ${status_name} (status ${status}).`,
+        { ...details, status, status_name });
+      this.diagnostics?.record_engine_failure(this.operation_name, error,
+        { operation: this.operation_name, status, status_name, arguments: this.operation_arguments,
+          engine_details: { ...details } });
+      throw error;
     }
   }
 
@@ -180,6 +217,7 @@ export class Engine_Bridge {
       'QUOTA_EXCEEDED', 'Beatmap exceeds the engine input quota.');
     const inbox = this.reserve_input(bytes.length);
     new Uint8Array(this.wasm.memory.buffer, inbox.address, bytes.length).set(bytes);
+    this.note_operation('oe_map_prepare', { flags: MAP_PREPARE_FLAG_PREPARATION, count: bytes.length });
     this.write_creation(RECORD.map_prepare, { token: inbox.token, count: bytes.length, flags: MAP_PREPARE_FLAG_PREPARATION });
     this.check_status(this.wasm.oe_map_prepare(this.engine_handle, this.mailbox_address, this.result_address, this.error_address));
     const map_handle = this.read_handle();
@@ -196,6 +234,7 @@ export class Engine_Bridge {
   reserve_input(byte_count: number) {
     require_condition(Number.isSafeInteger(byte_count) && byte_count > 0 && byte_count <= 0xffffffff,
       'INVALID_SPAN', 'Invalid inbox capacity.');
+    this.note_operation('oe_buffer_reserve', { kind: 1, byte_count });
     this.check_status(this.wasm.oe_buffer_reserve(this.engine_handle, 1, BigInt(byte_count), this.result_address), false);
     this.input_span = this.read_span();
     return this.input_span;
@@ -206,6 +245,7 @@ export class Engine_Bridge {
     require_condition(Number.isSafeInteger(batch_capacity) && batch_capacity > 0 && batch_capacity <= input_capacity,
       'INVALID_ARGUMENT', 'Invalid input batch capacity.');
     this.reserve_input(batch_capacity * record_size(RECORD.input_snapshot));
+    this.note_operation('oe_session_create', { flags: GAMEPLAY_CREATE_FLAG_PREPARED_MAP, arena_bytes: arena_bytes.toString(), lead_in_ms, input_capacity });
     this.write_creation(RECORD.gameplay_create, { flags: GAMEPLAY_CREATE_FLAG_PREPARED_MAP, arena_bytes, lead_in_ms, input_capacity });
     this.check_status(this.wasm.oe_session_create(this.engine_handle, map_handle,
       this.mailbox_address, this.result_address, this.error_address));
@@ -225,11 +265,13 @@ export class Engine_Bridge {
         records[input_index] as unknown as Record<string, Record_Values>);
     }
     // The current M2 input export returns a status only, not an ErrorV1 record.
+    this.note_operation('oe_session_inputs_from_reserved');
     this.check_status(this.wasm.oe_session_inputs_from_reserved(this.engine_handle, session_handle,
       inbox!.token, records.length, this.error_address), false);
   }
 
   bind_sample(session_handle: bigint, binding: Sample_Binding_Values) {
+    this.note_operation('oe_session_bind_sample');
     this.write_creation(RECORD.sample_binding, binding);
     this.check_status(this.wasm.oe_session_bind_sample(this.engine_handle, session_handle, this.mailbox_address), false);
   }
@@ -276,6 +318,7 @@ export class Engine_Bridge {
   }
 
   scene_reserve(session_handle: bigint, instance_capacity = 0, arena_bytes = 0n) {
+    this.note_operation('oe_session_scene_reserve', { instance_capacity, arena_bytes: arena_bytes.toString() });
     this.write_creation(RECORD.scene_reserve, { instance_capacity, arena_bytes });
     this.check_status(this.wasm.oe_session_scene_reserve(this.engine_handle, session_handle,
       this.mailbox_address, this.result_address), false);
@@ -288,6 +331,7 @@ export class Engine_Bridge {
       this.scene_mailbox_view = new DataView(this.wasm.memory.buffer);
       this.scene_mailbox_bytes = new Uint8Array(this.wasm.memory.buffer, this.mailbox_address, MAILBOX.creation_size);
     }
+    this.note_operation('oe_session_scene_draw');
     this.#write_viewport_record(viewport);
     const status = this.wasm.oe_session_scene_draw(this.engine_handle, session_handle, time_ms, this.mailbox_address, this.result_address);
     if (status === ENGINE_STATUS.OUTPUT_REQUIRED) {
@@ -331,6 +375,7 @@ export class Engine_Bridge {
   }
 
   voice_reserve(session_handle: bigint, command_capacity = 0, arena_bytes = 0n) {
+    this.note_operation('oe_session_voice_reserve', { command_capacity, arena_bytes: arena_bytes.toString(), flags: VOICE_RESERVE_FLAG_JOURNAL });
     this.write_creation(RECORD.voice_reserve, { command_capacity, arena_bytes, flags: VOICE_RESERVE_FLAG_JOURNAL });
     this.check_status(this.wasm.oe_session_voice_reserve(this.engine_handle, session_handle,
       this.mailbox_address, this.result_address), false);
@@ -339,6 +384,7 @@ export class Engine_Bridge {
 
   voice_output(session_handle: bigint, output: Voice_Output) {
     require_condition(output instanceof Voice_Output, 'INVALID_ARGUMENT', 'Reusable voice output is required.');
+    this.note_operation('oe_session_voice_output');
     const status = this.wasm.oe_session_voice_output(this.engine_handle, session_handle, this.result_address);
     if (status === ENGINE_STATUS.OUTPUT_REQUIRED) readRecordInto(this.view(), this.read_span().address, RECORD.voice_capacity, output.required);
     this.check_status(status, false);
@@ -359,6 +405,7 @@ export class Engine_Bridge {
   }
 
   playfield_transform(viewport: Viewport_Values) {
+    this.note_operation('oe_playfield_transform');
     this.write_creation(RECORD.viewport, viewport);
     this.check_status(this.wasm.oe_playfield_transform(this.engine_handle, this.mailbox_address, this.result_address), false);
     return readRecord(this.view(), this.read_span().address, RECORD.playfield_transform);
@@ -375,6 +422,7 @@ export class Engine_Bridge {
   }
 
   advance(session_handle: bigint, time_ms: number) {
+    this.note_operation('oe_session_advance', { time_ms });
     return this.session_output(this.wasm.oe_session_advance, session_handle, time_ms);
   }
 
@@ -382,6 +430,7 @@ export class Engine_Bridge {
   // output-writing call on this session. Admission must finish before acknowledgement.
   advance_output(session_handle: bigint, time_ms: number, output: Gameplay_Output) {
     require_condition(output instanceof Gameplay_Output, 'INVALID_ARGUMENT', 'Reusable gameplay output is required.');
+    this.note_operation('oe_session_advance_output');
     this.check_status(this.wasm.oe_session_advance_output(this.engine_handle, session_handle,
       time_ms, this.result_address), false);
     output.bind(this.wasm.memory.buffer, this.result_address);
@@ -397,27 +446,33 @@ export class Engine_Bridge {
   }
 
   snapshot(session_handle: bigint, time_ms: number) {
+    this.note_operation('oe_session_snapshot', { time_ms });
     return this.session_output(this.wasm.oe_session_snapshot, session_handle, time_ms);
   }
 
   pause(session_handle: bigint, time_ms: number) {
+    this.note_operation('oe_session_pause', { time_ms });
     return this.session_output(this.wasm.oe_session_pause, session_handle, time_ms);
   }
 
   resume(session_handle: bigint, { beatmap_ms, audio_seconds }: { beatmap_ms: number; audio_seconds: number }) {
+    this.note_operation('oe_session_resume', { beatmap_ms, audio_seconds, rate: 1 });
     this.write_creation(RECORD.clock_anchor, { beatmap_ms, audio_seconds, rate: 1 });
     this.check_status(this.wasm.oe_session_resume(this.engine_handle, session_handle, this.mailbox_address), false);
   }
 
   acknowledge(session_handle: bigint, batch_token: bigint) {
+    this.note_operation('oe_session_acknowledge');
     this.check_status(this.wasm.oe_session_acknowledge(this.engine_handle, session_handle, batch_token), false);
   }
 
   reset_session(session_handle: bigint, lead_in_ms = 0) {
+    this.note_operation('oe_session_reset', { lead_in_ms });
     this.check_status(this.wasm.oe_session_reset(this.engine_handle, session_handle, lead_in_ms), false);
   }
 
   result(session_handle: bigint) {
+    this.note_operation('oe_session_result');
     this.check_status(this.wasm.oe_session_result(this.engine_handle, session_handle, this.result_address), false);
     return new Session_Output(this.copy_output(), RECORD.final_result);
   }
@@ -440,6 +495,7 @@ export class Engine_Bridge {
 
   release_session(session_handle: bigint) {
     if (this.session_handles.has(session_handle)) {
+      this.note_operation('oe_session_release');
       this.check_status(this.wasm.oe_session_release(this.engine_handle, session_handle), false);
       this.session_handles.delete(session_handle);
     }
@@ -455,6 +511,7 @@ export class Engine_Bridge {
 
   release_map(map_handle: bigint) {
     if (this.map_handles.has(map_handle)) {
+      this.note_operation('oe_map_release');
       this.check_status(this.wasm.oe_map_release(this.engine_handle, map_handle), false);
       this.map_handles.delete(map_handle);
     }

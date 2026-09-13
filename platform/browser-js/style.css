@@ -52,3 +52,69 @@ footer { font-size: 11px; padding-block: 30px; display: flex; gap: 16px; justify
 #result-stats dt { color: #aab4ca; }
 #result-stats dd { margin: 0 0 .5rem; font-size: 1.2rem; }
 :focus-visible { outline: 3px solid #78e6c8; outline-offset: 4px; }
+
+#recovery-report { display: block; width: 100%; margin-top: .75rem; padding: .75rem; color: #eee; background: #080d18; border: 1px solid #58627a; font: 12px ui-monospace, monospace; resize: vertical; }
+
+/* Debug suite: player diagnostics panel and live HUD. */
+.debug-entry { display: flex; gap: .5rem; justify-content: center; margin-top: .75rem; }
+.debug-entry button, #debug-open-lifecycle, .floating-controls button { padding: 8px 14px; font-size: 13px; }
+.floating-controls { position: absolute; top: 12px; right: 12px; z-index: 5; opacity: .8; display: flex; gap: 6px; }
+#debug-hud { position: absolute; top: 12px; left: 12px; z-index: 5; pointer-events: none; user-select: none;
+  background: #0b1020d9; border: 1px solid #58627a; border-radius: 10px; padding: 10px 14px; max-width: 340px; }
+#debug-hud dl { display: grid; grid-template-columns: auto auto; gap: 2px 14px; margin: 0; }
+#debug-hud dt { font-size: 10px; color: #93a1bd; align-self: center; }
+#debug-hud dd { font-size: 11px; margin: 0; font-variant-numeric: tabular-nums; }
+#debug-dialog { position: fixed; inset: 0; z-index: 40; background: #06070cd0; display: grid; place-items: center; padding: 20px; }
+#debug-dialog[hidden] { display: none; }
+.debug-frame { max-width: 880px; width: 100%; max-height: 88vh; overflow: auto; background: #10141f;
+  border: 1px solid #58627a; border-radius: 14px; padding: 20px 24px; }
+.debug-frame h2 { margin: 0 0 10px; }
+.debug-frame h3 { font-size: 13px; color: #aab4ca; margin: 14px 0 6px; }
+.debug-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+.debug-toolbar button, #debug-stored button { padding: 7px 12px; font-size: 12px; }
+.debug-toggle { font-size: 12px; color: #c7cfdc; display: inline-flex; gap: 6px; align-items: center; }
+[role="tablist"] { display: flex; gap: 4px; margin: 8px 0; flex-wrap: wrap; }
+[role="tab"] { padding: 8px 16px; font-size: 13px; border-radius: 8px 8px 0 0; background: #1a2133; border: 1px solid #3c465e; border-bottom: 0; }
+[role="tab"][aria-selected="true"] { background: #273350; color: #fff; }
+.debug-filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 12px; color: #c7cfdc; }
+.debug-filters input[type="search"] { min-width: 160px; }
+.debug-categories { border: 0; margin: 6px 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.debug-categories legend { display: none; }
+.debug-categories label { font-size: 12px; color: #c7cfdc; display: inline-flex; gap: 4px; align-items: center; }
+.debug-log { max-height: 300px; overflow: auto; font: 11px ui-monospace, monospace; display: flex; flex-direction: column; gap: 2px; }
+.debug-event { white-space: pre-wrap; overflow-wrap: anywhere; }
+.debug-event .debug-detail { display: block; color: #8b98b5; }
+.debug-error { color: #ffb6a6; }
+.debug-warning { color: #ffd9a6; }
+#panel-timing dl, #panel-audio dl, #panel-resources dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 16px; margin: 8px 0; }
+#panel-timing dt, #panel-audio dt, #panel-resources dt { font-size: 12px; color: #93a1bd; }
+#panel-timing dd, #panel-audio dd, #panel-resources dd { margin: 0; font-size: 12px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+#debug-frames, #debug-inputs, #debug-audio-events, #debug-imported { max-height: 240px; overflow: auto; font: 11px ui-monospace, monospace;
+  white-space: pre-wrap; overflow-wrap: anywhere; background: #0a0e18; border: 1px solid #3c465e; border-radius: 8px; padding: 10px; }
+#debug-stored { list-style: none; padding: 0; margin: 6px 0; display: flex; flex-direction: column; gap: 6px; }
+#debug-stored li { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12px; color: #c7cfdc; }
+#debug-import-status { font-size: 12px; color: #93a1bd; min-height: 1em; }
+
+/* Debug workspace (debug.html). */
+.workspace-page { display: grid; grid-template-columns: minmax(280px, 360px) 1fr; gap: 22px; padding-block: 26px; }
+.workspace-list h1 { font-size: 22px; letter-spacing: -.5px; margin: 0 0 8px; }
+.workspace-list p { font-size: 13px; color: #aaa5b3; }
+.workspace-search { display: flex; gap: 8px; align-items: center; font-size: 13px; color: #c3a2b9; margin: 12px 0; }
+.workspace-search input { flex: 1; padding: 8px; border: 1px solid #4c414f; border-radius: 7px; background: #27212d; color: inherit; }
+#scenario-list { list-style: none; margin: 0; padding: 0; max-height: 62vh; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
+#scenario-list li { padding: 10px 12px; border: 1px solid #3c3441; border-radius: 9px; cursor: pointer; background: #1c1922; display: flex; flex-direction: column; gap: 2px; }
+#scenario-list li strong { font-size: 14px; }
+#scenario-list li span { font-size: 11px; color: #aaa5b3; letter-spacing: .4px; }
+#scenario-list li[aria-selected="true"] { border-color: #c894a7; background: #2c2331; }
+#scenario-list li.scenario-real strong::after { content: " · real"; color: #e9b98a; font-size: 11px; font-weight: 500; }
+.workspace-detail h2 { margin-top: 0; }
+.workspace-detail > p { color: #b7acbd; font-size: 14px; }
+#scenario-parameters { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 10px 0 16px; }
+#scenario-parameters dt { font-size: 11px; color: #b7acbd; }
+#scenario-parameters dd { margin: 2px 0 0; font-size: 14px; font-variant-numeric: tabular-nums; }
+.workspace-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+#scenario-status { font-size: 13px; color: #c7b9ce; }
+#scenario-results { color: #c7b9ce; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 300px; overflow: auto; }
+#scenario-canvas { display: none; }
+#scenario-canvas:not([hidden]) { display: block; width: 100%; aspect-ratio: 4 / 3; background: #080d18; border-radius: 12px; }
+@media (max-width: 900px) { .workspace-page { grid-template-columns: 1fr; } }

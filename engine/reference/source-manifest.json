@@ -451,6 +451,42 @@
       "local": "sources/osu__osu.Game__Rulesets__Scoring__HealthProcessor.cs",
       "sha256": "81effc182e55e0abee663ef6e9f6a438ebc62bc2a818c5d49e0ae43f8b5e099b",
       "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+      "path": "osu.Framework/Graphics/Visualisation/LogOverlay.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu-framework/f02756c5aa5032e6d04729922702b8d56c4bc2eb/osu.Framework/Graphics/Visualisation/LogOverlay.cs",
+      "local": "sources/osu-framework__Graphics__Visualisation__LogOverlay.cs",
+      "sha256": "5f6fb00dc6becf41afb1f4ddcd36b18667d44de3a4fac6ea7ec77b617d5c4c5d",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+      "path": "osu.Framework/Graphics/Performance/PerformanceOverlay.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu-framework/f02756c5aa5032e6d04729922702b8d56c4bc2eb/osu.Framework/Graphics/Performance/PerformanceOverlay.cs",
+      "local": "sources/osu-framework__Graphics__Performance__PerformanceOverlay.cs",
+      "sha256": "f66b843b3199d4266357257c440c0cdd341267b765cff8daf7b40ce1c40de3eb",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+      "path": "osu.Framework/Graphics/Performance/GlobalStatisticsDisplay.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu-framework/f02756c5aa5032e6d04729922702b8d56c4bc2eb/osu.Framework/Graphics/Performance/GlobalStatisticsDisplay.cs",
+      "local": "sources/osu-framework__Graphics__Performance__GlobalStatisticsDisplay.cs",
+      "sha256": "41717a65e60dcba118eb20353fcc53be5ac6d4d0a89555d38c17602ecf136b92",
+      "licence": "MIT"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+      "path": "osu.Framework/Testing/TestBrowser.cs",
+      "url": "https://raw.githubusercontent.com/ppy/osu-framework/f02756c5aa5032e6d04729922702b8d56c4bc2eb/osu.Framework/Testing/TestBrowser.cs",
+      "local": "sources/osu-framework__Testing__TestBrowser.cs",
+      "sha256": "291705eb30da660ce45ca741bac61ad5793df8015496ea22869c87d859a5b57c",
+      "licence": "MIT"
     }
   ]
 }

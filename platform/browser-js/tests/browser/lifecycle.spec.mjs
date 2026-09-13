@@ -106,3 +106,36 @@ test('mixed failure results, repeated Back and failed replacement remain usable'
     await expect(page.locator('#start')).toBeEnabled();
   }
 });
+
+test('interruption renders a copyable report and selects it when clipboard access fails', async ({ page }) => {
+  await load(page);
+  await page.evaluate(async () => {
+    const { Audio_Clock } = await import('/platform/browser-js/src/clock.js');
+    Audio_Clock.prototype.input_time = () => -1;
+    Object.defineProperty(navigator, 'clipboard', { configurable: true,
+      value: { writeText: async () => { throw new Error('Clipboard unavailable'); } } });
+  });
+  await page.locator('#start').click();
+  await expect(page.locator('#pause')).toBeVisible();
+  await page.keyboard.press('z');
+  await expect(page.locator('#lifecycle-title')).toHaveText('Playback interrupted');
+  const report = page.locator('#recovery-report');
+  await expect(report).toBeVisible();
+  const diagnostic = JSON.parse(await report.inputValue());
+  expect(diagnostic.format).toBe('tapweave-debug-report');
+  expect(diagnostic.reason).toBe('failure');
+  expect(diagnostic.failure.operation).toBe('oe_session_inputs_from_reserved');
+  expect(diagnostic.failure.detail.status_name).toBe('LATE_INPUT');
+  // keyboard.press delivers keydown and keyup; both map through the broken clock.
+  expect(diagnostic.failure.detail.timing_capture.batch_count).toBe(2);
+  expect(diagnostic.failure.detail.timing_capture.input_samples[0].mapped.effective_time_ms).toBe(-1);
+  expect(diagnostic.identity.map.filename).toBe('mixed.osu');
+  expect(diagnostic.identity.sources.osu.commit).toBe('3c1c96f742e7aae2ff67a7361e058fe91ca3b955');
+  expect(typeof diagnostic.identity.map.prepared_digest).toBe('string');
+  await page.locator('#copy-recovery').click();
+  await expect(report).toBeFocused();
+  expect(await report.evaluate(element => element.selectionEnd - element.selectionStart)).toBe((await report.inputValue()).length);
+  const download_pending = page.waitForEvent('download');
+  await page.locator('#download-recovery').click();
+  expect((await download_pending).suggestedFilename()).toMatch(/^tapweave-report-/);
+});

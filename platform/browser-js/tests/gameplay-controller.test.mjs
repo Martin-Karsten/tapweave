@@ -332,3 +332,33 @@ test('controller pause at a scheduled slider boundary matches direct engine rele
     } finally { controller.dispose(); }
   }
 });
+
+// Local transport regression: deliberately offset receipt and audio timelines.
+test('late keyboard input exposes frozen copyable timing evidence before recovery clears the clock', async () => {
+  const fixture_ = await fixture();
+  try {
+    await fixture_.controller.play();
+    fixture_.frame(1002);
+    fixture_.key(1000, true);
+    fixture_.frame(1010);
+    const view = fixture_.controller.view;
+    assert.equal(view.state, 'recovering');
+    assert.equal(view.recovery.error_code, 'ENGINE_7');
+    const details = view.recovery.error_details;
+    assert.equal(details.operation, 'oe_session_inputs_from_reserved');
+    assert.equal(details.status_name, 'LATE_INPUT');
+    assert.equal(details.last_committed_ms, 1002);
+    assert.equal(details.input_samples[0].receipt.raw_time_ms, 1000);
+    assert.equal(details.input_samples[0].mapped.effective_time_ms, 1000);
+    assert.equal(details.input_samples[0].behind_committed_ms, 2);
+    assert.ok(details.clock_mapping);
+    assert.match(view.recovery.error_stack, /submit_inputs/);
+    assert.doesNotThrow(() => JSON.stringify(view.recovery, (_field_name, field_value) =>
+      typeof field_value === 'bigint' ? field_value.toString() : field_value));
+    fixture_.controller.recover(new Error('Secondary recovery'));
+    assert.equal(fixture_.controller.view.recovery, view.recovery);
+    await fixture_.controller.retry();
+    assert.equal(fixture_.controller.view.recovery, null);
+    assert.equal(details.input_samples[0].behind_committed_ms, 2);
+  } finally { fixture_.controller.dispose(); }
+});

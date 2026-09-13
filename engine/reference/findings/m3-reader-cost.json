@@ -4,74 +4,62 @@
   "browser": "153.0.8010.12",
   "sampling_interval_bytes": 512,
   "includes_collected_objects": true,
-  "profile_sha256": "20c8b36aacbe02eaf306679d8b3d17e9f574aea0daa1efc1c1b56df84c6dde6a",
-  "wasm_sha256": "699c347cd72e05d7f2efb5d740afe1a29648d59ec604b21f8f39121c4e22c000",
+  "profile_sha256": "64a66ee7c5ab66e5afae7912ed4d01b1e710eff8d2d48318239377c30b7bf6a4",
+  "wasm_sha256": "30bc62e8cd6c916e157994b0f0088fb2257b459a7ed5923be39de15d5b7583f4",
   "iterations": 5000,
   "memory_before": 18022400,
   "memory_after": 18022400,
   "draw_bytes": 704,
   "voice_bytes": 64,
-  "sampled_reader_bytes": 2038228,
+  "sampled_reader_bytes": 2093420,
   "allocations": [
-    {
-      "function": "writeRecord",
-      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
-      "line": 2873,
-      "sampled_bytes": 174180
-    },
     {
       "function": "checkedSpan",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
       "line": 2838,
-      "sampled_bytes": 41760
-    },
-    {
-      "function": "validateSpan",
-      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
-      "line": 2829,
-      "sampled_bytes": 1068
+      "sampled_bytes": 34200
     },
     {
       "function": "readRecordInto",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
       "line": 2847,
-      "sampled_bytes": 100176
+      "sampled_bytes": 313976
     },
     {
       "function": "writeRecord",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
       "line": 2873,
-      "sampled_bytes": 113400
+      "sampled_bytes": 111772
     },
     {
       "function": "readRecordInto",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
       "line": 2847,
-      "sampled_bytes": 66940
+      "sampled_bytes": 57732
     },
     {
       "function": "readRecordInto",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
       "line": 2847,
-      "sampled_bytes": 372360
+      "sampled_bytes": 175560
     },
     {
       "function": "readRecordInto",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
       "line": 2847,
-      "sampled_bytes": 162984
+      "sampled_bytes": 311488
     },
     {
       "function": "readRecordInto",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
       "line": 2847,
-      "sampled_bytes": 795192
+      "sampled_bytes": 909112
     },
     {
-      "function": "readRecordInto",
+      "function": "writeRecord",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
-      "line": 2847,
-      "sampled_bytes": 210168
+      "line": 2873,
+      "sampled_bytes": 179580
     }
   ],
   "timings": {

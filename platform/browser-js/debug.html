@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Tapweave · Debug workspace</title>
+  <link rel="stylesheet" href="/platform/browser-js/style.css">
+  <script type="importmap">{"imports":{"fflate":"/vendor/fflate.mjs"}}</script>
+  <script type="module" src="/platform/browser-js/src/debug-workspace.js"></script>
+</head>
+<body>
+  <header><a href="/" class="brand">tapweave<span class="brand-dot">●</span></a><span class="badge">DEBUG WORKSPACE</span></header>
+  <main class="workspace-page">
+    <section class="workspace-list" aria-label="Scenarios">
+      <h1>Scenario browser</h1>
+      <p>Checked-in input, clock, audio, rendering and lifecycle failures executed through production engine paths.
+        Synthetic scenarios use injected clocks and the production WASM; real audio scenarios use this click as the
+        user gesture. Fault injection exists only in this workspace.</p>
+      <label class="workspace-search">Search <input id="scenario-search" type="search" placeholder="clock, stall, retry…"></label>
+      <ul id="scenario-list" role="listbox" aria-label="Debug scenarios"></ul>
+    </section>
+    <section class="workspace-detail" aria-label="Scenario detail">
+      <h2 id="scenario-title">Select a scenario</h2>
+      <p id="scenario-description"></p>
+      <dl id="scenario-parameters"></dl>
+      <div class="workspace-controls">
+        <button id="scenario-run" type="button" disabled>Run</button>
+        <button id="scenario-step" type="button" disabled>Step</button>
+        <button id="scenario-reset" type="button" disabled>Reset</button>
+        <button id="run-all" type="button">Run All</button>
+        <button id="scenario-report" type="button" disabled>Export report</button>
+      </div>
+      <p id="scenario-status" role="status" aria-live="polite">Loading production WASM…</p>
+      <pre id="scenario-results" hidden></pre>
+      <canvas id="scenario-canvas" width="1024" height="768" aria-label="Scenario render surface"></canvas>
+    </section>
+  </main>
+  <footer>Independent rhythm game. Not affiliated with osu! or ppy. <span>Developer tool; not a compatibility claim.</span></footer>
+</body>
+</html>

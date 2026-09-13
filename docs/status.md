@@ -466,3 +466,73 @@ typecheck, build and 93 service tests pass, including new engine-backed
 sample-probe and uniform-parity regressions against the production WASM.
 Firefox/WebKit executables remain unavailable; no new upstream oracle was
 executed, and no acceptance gate changes.
+
+## Playback interruption diagnostics
+
+The interruption overlay displays a selectable JSON report with a clipboard
+button and manual-copy fallback. Reports include symbolic engine status, stack,
+map/browser metadata, lifecycle state and bounded pending-input samples. Rejected
+input reports retain receipt and mapped timestamps, the last confirmed committed
+time and lateness delta. Playback failures preserve the operation, requested time,
+audio state and clock mapping before recovery clears the anchor. Retry clears the
+active report; duplicate recovery preserves the original failure.
+
+A local production-WASM regression offsets input and audio timelines by 2 ms and
+asserts the retained `LATE_INPUT` evidence. This adds diagnostics only; clock
+synchronization and upstream compatibility acceptance are unchanged.
+
+## Debug suite (2026-09-13)
+
+The scattered interruption diagnostics above are consolidated into one optional
+typed diagnostics service shared by the bridge, frame driver, audio services,
+renderer and lifecycle controller; existing consumers work without supplying it.
+Basic recording is always enabled (bounded lifecycle/engine failure/input
+batch/clock/audio/graphics/resource events in preallocated 2,048/8,192/2,048-slot
+rings with drop counts); detailed mode adds individual inputs and per-frame CPU
+stage timings per attempt. Instrumentation is parity-checked: gameplay results,
+ordered engine outputs and retained WASM page counts are identical with basic and
+detailed capture, matching a direct headless schedule (`tests/debug-scenarios.test.mjs`).
+A local micro-measurement on this machine put the always-on frame sample at ~41 ns
+per frame and a detailed input record at ~9 ns per input, with fixed retained
+storage of 2,048/8,192/2,048 preallocated slots and no diagnostic-driven WASM
+growth.
+
+The player gains a Debug button on selection/pause/recovery screens plus a live
+non-interactive HUD, both refreshed by the existing frame driver at most four
+times per second; opening the panel during play requests the normal pause path.
+Reports use the versioned 2 MiB-bounded `tapweave-debug-report` JSON with bigint
+identifiers as decimal strings, first-failure preservation before recovery,
+bounded secondary failures, timing provenance and explicit unavailable markers.
+The latest five persist in IndexedDB with view/copy/download/delete controls;
+storage failures keep the in-memory report usable. Exports import for
+text-only inspection with size/schema validation. Nothing is uploaded;
+beatmap/audio contents, screenshots, absolute paths and unrelated keyboard input
+are excluded.
+
+The `/debug.html` developer workspace lists 25 checked-in scenarios (clock
+skews ±2/±10 and a −400 ms rejection case with exact mapped timestamps and
+lateness, 30/60/120/144 Hz delivery with 0/50/100/250 ms stalls, input
+aggregation/repeats/release-all/rejected batches, pause/resume, audio
+suspension, rejected audio start, retry isolation, GPU loss/restoration,
+scene dispatch failure and capacity exhaustion) with search, Run/Step/Reset/
+Run All, declared assertions and report export. Synthetic scenarios use
+injected clocks and production WASM and are executed by the Node suite;
+graphics and real-audio scenarios run only in the browser workspace, and
+Run All reports gesture-gated scenarios as skipped. Fault injection is confined
+to the workspace. Structural inspiration is taken from the pinned osu!framework
+`LogOverlay`, `PerformanceOverlay`, `GlobalStatisticsDisplay` and `TestBrowser`
+(now retained with verified hashes in the source manifest, MIT); the
+implementation is original Tapweave work.
+
+Validation executed locally on macOS arm64: `npm --prefix engine test`
+(including the 53-file source verification), `npm --prefix platform/browser-js
+test` (120 Node tests) and the Playwright suite on Chromium and Firefox
+including `tests/browser/debug.spec.mjs`. Limitations: WebKit binaries could
+not be downloaded (CDN gateway failure for the pinned build) and remain a
+validation blocker recorded here rather than silently omitted; with Firefox
+newly installed, one pre-existing Web Audio gap surfaced outside this suite
+(`cancelAndHoldAtTime` is unimplemented in Firefox's audio executor param ramps,
+reproducing on the prior commit as well) and stays open. Recorded player
+reports are diagnostic evidence, not executable reproductions; the suite
+diagnoses the clock mismatch without clamping input or changing judgement
+timing, and no upstream acceptance gate closes from this work.

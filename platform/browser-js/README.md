@@ -199,3 +199,72 @@ Run `tests/gameplay-controller.test.mjs` through `npm test` and
 `tests/browser/lifecycle.spec.mjs` through `npm run test:browser` for the W07
 regressions. Chromium checks are local browser evidence, not physical-device or
 full upstream acceptance. See the [status](../../docs/status.md#w07-lifecycle-and-validation-ui).
+
+## Debug suite
+
+Two connected tools share one typed diagnostics service. **Player diagnostics**
+(`src/diagnostics.ts`) records bounded lifecycle transitions, engine failures,
+input-batch summaries, clock observations, audio interruptions, graphics events
+and resource counters during every run; **detailed capture** (opt-in per
+attempt) additionally retains individual inputs and per-frame CPU stage
+timings. Recording uses preallocated rings (2,048 events, 8,192 detailed
+inputs, 2,048 frame samples) that overwrite their oldest entries and expose
+drop counts. No JSON serialization, DOM updates or per-input object allocation
+happenss on the always-on paths, and the service never calls into the engine.
+
+Every engine operation carries an explicit diagnostic name. The first failure
+of an attempt is preserved verbatim before recovery mutates state; secondary
+failures append separately (bounded at eight). Input rejections retain receipt
+time, mapped input time, sampled audio time, clock anchors, input sequence,
+batch position, advance target and lateness, with observation timestamps kept
+distinct from the authoritative engine `committed_ms`. `begin_attempt`
+isolates failures between attempts while ring history is retained.
+
+- The **player interface** adds a Debug button on the selection, pause and
+  recovery screens (and a floating control during play whose use requests the
+  normal pause path). The panel provides Logs/Timing/Audio/Resources tabs with
+  severity and category filters, text search and display freezing while
+  recording continues; a non-interactive live HUD shows frame intervals, CPU
+  stage timings, clock discrepancy, input queue depth, audio queues/voices,
+  WASM memory, draw counts and the existing asynchronous GPU measurement,
+  marking unavailable or disjoint results honestly. Diagnostic UI refresh rides
+  the existing frame driver at most four times per second; no scheduler is
+  added. Ctrl+F10 (logs) and Ctrl+F11 (HUD) work when the browser delivers
+  them; visible controls remain the required path.
+- **Reports** use the versioned `tapweave-debug-report` JSON format with typed
+  categories, bigint identifiers as decimal strings, capture mode, truncation
+  and timing provenance. Reports are bounded to 2 MiB, preserving failure
+  context and metadata first and then the newest history that fits. The latest
+  five reports persist in IndexedDB with list/view/copy/download/delete
+  controls; storage failures leave the in-memory report usable and surface a
+  warning. Exports can be re-imported for inspection with size/schema
+  validation and text-only rendering; reports never execute code or inject
+  scenarios, are never uploaded automatically, and exclude beatmap/audio
+  contents, screenshots, absolute paths and unrelated keyboard input.
+- The **developer workspace** at `/debug.html` lists the checked-in scenario
+  corpus with search, parameters, Run/Step/Reset/Run All, declared assertions
+  and report export. Scenarios cover aligned clocks and deliberate ±2/±10 ms
+  discrepancies plus a rejection case; 30/60/120/144 Hz delivery with
+  0/50/100/250 ms stalls; keyboard/mouse aggregation, repeats, release-all and
+  rejected batches; pause/resume, audio suspension, rejected audio start and
+  retry; GPU loss/restoration, dispatch failure and capacity exhaustion.
+  Synthetic scenarios use explicit injected clocks and production WASM through
+  `src/debug-scenarios.ts`, which the Node suite also executes. Real audio
+  scenarios require an individual user gesture; Run All reports them as
+  skipped. Fault injection is confined to this workspace. The mixed-scene
+  scrubber remains at `/renderer-debug.html`.
+- Recorded player reports are evidence for diagnosis, not guaranteed
+  executable reproductions; replay-driven debugging and object picking stay
+  deferred. The suite diagnoses clock mismatches; it does not clamp input or
+  change judgement timing.
+
+Structural inspiration comes from the pinned osu!framework `LogOverlay`,
+`PerformanceOverlay`, `GlobalStatisticsDisplay` and `TestBrowser` (retained
+under MIT in `engine/reference/sources/`, see the
+[source manifest](../../engine/reference/source-manifest.json)); the
+implementation is original Tapweave work for the Odin/browser ownership model.
+Run `npm test` for ring/bound/serialization/isolation/storage/import
+regressions, production-WASM clock-mismatch timestamps and capture-mode
+parity, and `npm run test:browser` with `tests/browser/debug.spec.mjs` for the
+browser flows. These are local regression and usability checks; no upstream
+acceptance gate closes from this suite.

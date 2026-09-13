@@ -6,6 +6,7 @@ import { Gameplay_Input } from './gameplay-input.js';
 import { Renderer } from './renderer.js';
 import { SESSION_STATE, ALL_VOICE_COMMAND_FAMILIES } from './abi-records.js';
 import { Browser_Error, require_condition } from './errors.js';
+import type { Diagnostics_Service } from './diagnostics.js';
 
 export type Gameplay_State = 'loading' | 'ready' | 'starting' | 'running' | 'paused' | 'recovering' | 'terminal' | 'disposed';
 export interface Gameplay_View {
@@ -25,6 +26,8 @@ export interface Gameplay_Options {
   request_frame?: (callback: FrameRequestCallback) => number;
   cancel_frame?: (identifier: number) => void;
   receipt_now?: () => number;
+  diagnostics?: Diagnostics_Service | null;
+  on_frame?: () => void;
 }
 
 // Product lifecycle only. Engine records remain the authority for gameplay/results.
@@ -47,10 +50,12 @@ export class Gameplay_Controller {
   private graphics_lost = false;
   private restoration_timer: ReturnType<typeof setTimeout> | null = null;
   private readonly receipt_now: () => number;
+  private readonly diagnostics: Diagnostics_Service | null;
 
   constructor(readonly engine: Engine_Bridge, readonly selection: Selection_Controller,
     readonly context: AudioContext, readonly canvas: HTMLCanvasElement, readonly options: Gameplay_Options = {}) {
     this.receipt_now = options.receipt_now ?? (() => performance.now());
+    this.diagnostics = options.diagnostics ?? null;
     selection.on_change = () => this.selection_changed();
     const signal = this.listeners.signal;
     const document = canvas.ownerDocument;
@@ -60,9 +65,14 @@ export class Gameplay_Controller {
       if (document.hidden) this.pause('Page is hidden.');
     }, { signal });
     context.addEventListener('statechange', () => {
-      if (context.state !== 'running') this.pause('Audio output was interrupted.');
+      if (context.state !== 'running') {
+        this.diagnostics?.note_audio_interruption('Audio output was interrupted.',
+          { audio_state: context.state, lifecycle_state: this.state });
+        this.pause('Audio output was interrupted.');
+      }
     }, { signal });
     canvas.addEventListener('webglcontextrestored', () => {
+      this.diagnostics?.note_graphics_event('info', 'Graphics context restored by the browser.');
       // The resource owner's listener clears its loss flag first; restoration
       // publication is deferred and guarded against replacement/disposal.
       const generation = this.generation;
@@ -73,6 +83,7 @@ export class Gameplay_Controller {
         try {
           this.renderer.restore();
           this.graphics_lost = false;
+          this.diagnostics?.note_graphics_event('info', 'Graphics resources republished after restoration.');
           if (this.playback?.state === 'paused') this.state = 'paused';
           if (this.state !== 'terminal') this.message = this.#restoration_message();
           this.publish();
@@ -96,7 +107,23 @@ export class Gameplay_Controller {
       recovery: this.recovery_details, in_attempt: this.in_attempt, message: this.message, error: this.error, result: this.result });
   }
 
-  private publish() { this.options.on_change?.(this.view); }
+  private publish() {
+    this.diagnostics?.update_resources({ map_handles: this.engine.map_handles.size,
+      session_handles: this.engine.session_handles.size,
+      wasm_pages: this.engine.wasm.memory.buffer.byteLength / 65536,
+      input_queue_depth: this.frame?.input.records.length ?? 0,
+      audio_pending: this.playback?.audio.pending.length ?? 0,
+      audio_voices: this.playback?.audio.voices.size ?? 0,
+      audio_retiring_voices: this.playback?.audio.retiring_voices.size ?? 0,
+      audio_dispatched: this.playback?.audio.metrics.dispatched ?? 0,
+      audio_dropped: this.playback?.audio.metrics.dropped ?? 0,
+      audio_stale: this.playback?.audio.metrics.stale ?? 0,
+      draw_instances: this.renderer?.gpu.metrics.instances ?? 0,
+      draw_batches: this.renderer?.gpu.metrics.commands ?? 0,
+      static_uploads: this.renderer?.gpu.upload_count ?? 0,
+      dynamic_bytes: this.renderer?.gpu.metrics.dynamic_bytes ?? 0 });
+    this.options.on_change?.(this.view);
+  }
 
   private selection_changed() {
     if (this.state === 'disposed') return;
@@ -132,11 +159,17 @@ export class Gameplay_Controller {
       this.engine.scene_capabilities();
       this.session_handle = this.engine.create_session(active.map_handle);
       this.prepared_selection = active;
+      this.diagnostics?.note_session_context(this.session_handle.toString(), null, null);
+      this.diagnostics?.record_event('lifecycle', 'info', 'session_created',
+        `Session prepared for ${active.filename}.`, { session_handle: this.session_handle.toString(),
+          map_handle: active.map_handle.toString() });
       this.create_playback();
       const epoch = Number(this.engine.snapshot(this.session_handle, 0).summary.epoch);
       this.renderer = (this.options.create_renderer ?? ((...arguments_) => new Renderer(...arguments_)))(
         this.engine, this.session_handle, active.map_handle, this.canvas, epoch, () => {
           this.graphics_lost = true;
+          this.diagnostics?.note_graphics_event('error', 'Graphics context lost. Waiting for restoration.',
+            { lifecycle_state: this.state });
           this.pause('Graphics context lost. Waiting for restoration.');
           if (this.state !== 'terminal') this.message = 'Graphics context lost. Waiting for restoration.';
           this.publish();
@@ -166,13 +199,19 @@ export class Gameplay_Controller {
   }
 
   private create_playback(reuse_voice_storage = false) {
-    this.playback = new Audio_Playback(this.engine, this.session_handle!, this.context, this.prepared_selection!, {}, reuse_voice_storage);
+    this.playback = new Audio_Playback(this.engine, this.session_handle!, this.context, this.prepared_selection!, {}, reuse_voice_storage, this.diagnostics);
     this.frame = new Gameplay_Frame(this.playback, (time_ms, output) => {
       const bounds = this.canvas.getBoundingClientRect();
       this.renderer!.render(time_ms, { css_left: bounds.left, css_top: bounds.top,
         css_width: bounds.width, css_height: bounds.height,
         device_pixel_ratio: this.canvas.ownerDocument.defaultView!.devicePixelRatio }, output.summary.epoch);
-    }, 8192, this.options.request_frame, this.options.cancel_frame);
+      // Diagnostic UI refresh rides the existing frame driver; no scheduler is
+      // added and the callback itself never touches gameplay state.
+      this.options.on_frame?.();
+    }, 8192, this.options.request_frame, this.options.cancel_frame,
+      { diagnostics: this.diagnostics,
+        frame_metrics: () => ({ instances: this.renderer?.gpu.metrics.instances ?? 0,
+          batches: this.renderer?.gpu.metrics.commands ?? 0, gpu_ms: this.renderer?.gpu.metrics.gpu_ms ?? null }) });
     this.frame.on_error = error => this.recover(error);
     this.frame.on_terminal = () => this.terminal();
     this.frame.on_terminal_frame = () => this.drain_terminal();
@@ -181,6 +220,7 @@ export class Gameplay_Controller {
   async play() {
     if (!this.view.can_play) return;
     this.in_attempt = true;
+    this.diagnostics?.begin_attempt();
     await this.start();
   }
 
@@ -225,6 +265,7 @@ export class Gameplay_Controller {
       const state = this.playback!.pause();
       this.frame!.input.held_sources.clear();
       this.frame!.input.focus_epoch++;
+      this.diagnostics?.note_lifecycle(`Paused: ${reason}`, { engine_state: state });
       if (state === SESSION_STATE.PASSED || state === SESSION_STATE.FAILED) {
         this.terminal();
         if (this.terminal_draining) this.frame!.start();
@@ -244,6 +285,9 @@ export class Gameplay_Controller {
     this.frame!.terminal = true;
     this.state = 'terminal';
     this.message = this.result.summary.state === SESSION_STATE.PASSED ? 'Passed' : 'Failed';
+    this.diagnostics?.note_lifecycle(`Run complete: ${this.message}.`,
+      { state: Number(this.result.summary.state), score: this.result.summary.score.toString(),
+        accuracy: Number(this.result.summary.accuracy), highest_combo: Number(this.result.summary.highest_combo) });
     this.terminal_draining = this.result.summary.state === SESSION_STATE.PASSED && this.context.state === 'running';
     if (!this.terminal_draining || !this.playback!.pending_sounds) this.finish_terminal();
     this.publish();
@@ -262,12 +306,25 @@ export class Gameplay_Controller {
   }
 
   recover(error: unknown) {
-    if (this.state === 'disposed') return;
+    if (this.state === 'disposed' || this.state === 'recovering') return;
     this.generation++;
+    // Playback context is captured before recovery cleanup runs; the engine
+    // failure itself was already recorded by its owning layer.
+    const playback_failure = this.playback?.failure_context() ?? { last_committed_ms: this.playback?.last_committed_ms,
+      audio_seconds: this.context.currentTime, audio_state: this.context.state, receipt_ms: this.receipt_now() };
     this.recovery_details = Object.freeze({ pending_input_count: this.frame?.input.records.length ?? 0,
       pending_input_preview: this.frame?.input.records.slice(0, 16).map(record => ({ ...record })) ?? [],
       session_handle: this.session_handle, clock_mapping: this.playback?.clock.session_mapping,
-      error_code: error instanceof Browser_Error ? error.code : null });
+      error_code: error instanceof Browser_Error ? error.code : null,
+      error_message: error instanceof Error ? error.message : String(error),
+      error_stack: error instanceof Error ? error.stack : null,
+      error_details: error instanceof Browser_Error ? structuredClone(error.details) : null,
+      playback: playback_failure,
+      lifecycle_state: this.state, document_hidden: this.canvas.ownerDocument.hidden,
+      captured_at: new Date().toISOString() });
+    this.diagnostics?.record_event('lifecycle', 'error', 'recover',
+      `${error instanceof Error ? error.message : String(error)} Retry or return to selection.`,
+      { ...playback_failure, error_stack: error instanceof Error ? error.stack : null });
     this.frame?.stop();
     this.input?.dispose();
     this.input = null;
@@ -339,6 +396,8 @@ export class Gameplay_Controller {
     this.renderer?.dispose();
     this.renderer = null;
     if (this.session_handle) {
+      this.diagnostics?.record_event('lifecycle', 'info', 'session_release', null,
+        { session_handle: this.session_handle.toString() });
       try { this.engine.release_session(this.session_handle); } catch { /* Invalid sessions are already unusable. */ }
     }
     this.session_handle = null;

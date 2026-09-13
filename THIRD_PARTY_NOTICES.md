@@ -30,3 +30,10 @@ Presentation timing ports and the snaking assertion port follow pinned osu!
 `DefaultEasingFunction`. Copyright (c) ppy Pty Ltd, MIT; the retained licences above
 apply. The renderer atlas, palette, shaders and mesh coverage design are original
 Tapweave work. Scene findings record the pinned test paths and adaptations.
+
+The Tapweave debug suite takes structural inspiration only from the pinned
+osu!framework `LogOverlay`, `PerformanceOverlay`, `GlobalStatisticsDisplay` and
+`TestBrowser` (copyright (c) ppy Pty Ltd, MIT), which are retained verbatim as
+compatibility references in the source manifest. The diagnostics service, report
+format, player panel/HUD and scenario workspace are original Tapweave work; no
+upstream code was copied into the implementation.
