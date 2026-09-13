@@ -106,7 +106,7 @@ transactional rejection, ownership and output acknowledgement. These are local
 session regressions and pinned component evidence, not whole-drawable acceptance.
 
 The [gameplay backfill findings](../engine/reference/findings/m2-gameplay-backfill.json)
-add 115 integrated scenarios, each checked byte-for-byte native/WASM under 17
+add 116 integrated scenarios, each checked byte-for-byte native/WASM under 17
 schedules (direct, 30/60/120/144 Hz and 0/50/100/250 ms stalls). Pinned drawable
 adapters compare ordered results and final score state; real Player cases compare
 health, breaks, failure and frozen scoring. Two recorder ports retain left/right/
@@ -200,17 +200,24 @@ indices retain evidence without committing build products.
 
 ## Current W01–W03 implementation additions
 
-A controlled pinned drawable host now executes ten bounded scenarios over 120
+A controlled pinned drawable host now executes eleven bounded scenarios over 132
 cadence/stall runs through actual input, playfield policy, drawable judgement and
-score processing. The [scenario findings](../engine/reference/findings/m3-scenarios.json)
-record 73 selected result/score/combo matches and 47 differences, retaining actual
+score processing. The eleven scenarios include the exact setup/parameter port of
+upstream `TestSceneHitCircleArea::TestCircleHitCentre` with its receptor
+`HitAction` assertion retained, and `TestSceneSpinnerJudgement::TestHitNothing`
+is ported through the real Player adapter in the gameplay corpus with an empty
+replay. The [scenario findings](../engine/reference/findings/m3-scenarios.json)
+record 85 selected result/score/combo matches and 47 differences, retaining actual
 update schedules and live-input quantisation. This is additional drawable evidence,
 not full Player, replay, health/failure or audio acceptance; W02 remains open.
 The separate [delivery diagnostic](../engine/reference/findings/m3-scenario-delivery.json)
-matches selected result/score/combo fields in all 120 runs when Odin inputs use the
+matches selected result/score/combo fields in all 132 runs when Odin inputs use the
 host's delivery times. This eliminates the original 47 differences for those
 fields under that intervention; original timestamped comparisons and production
 input policy remain unchanged. It does not establish full session equivalence.
+Under the [ADR-002 M3 amendment](architecture/adr-002-scheduling.md#m3-input-delivery-divergence)
+those delivery-eliminated differences are annotated `accepted-input-delivery` in
+the scenario findings; residual differences would remain open.
 The host explicitly runs ManualClock at rate 1; the earlier spinner-motion run
 at its default rate 0 was a host setup defect and has been replaced by verified
 rate-1 observations. Twenty-four schedules additionally retain actual silent
@@ -343,7 +350,7 @@ uses production WASM and scripted inputs. Product Play remains disabled; automat
 player input/audio pause and resume still belong to the separate lifecycle owner.
 
 Validation: the full engine suite passes (47 foundation tests, geometry/prepared/
-simulation/presentation parity and 115 gameplay fixtures across 17 schedules).
+simulation/presentation parity and 116 gameplay fixtures across 17 schedules).
 The existing circle approach comparison retains 36 exact f32 schedule projections.
 The extended real pinned drawable runner executed 96 cases and 43,618 comparisons:
 slider clipping and ball positions match the compared fields, while 171 spinner
@@ -448,7 +455,7 @@ policy, and no upstream evidence exists yet to relocate that boundary.
 Validation: the full engine suite passes (50 foundation tests including the
 new probe-policy bytes, 4 viewport fixtures including the new uniform parity
 cases, 17 scene-policy rejection cases, geometry/prepared/simulation/
-presentation parity and 115 gameplay fixtures across 17 schedules). Browser
+presentation parity and 116 gameplay fixtures across 17 schedules). Browser
 typecheck, build and 93 service tests pass, including new engine-backed
 sample-probe and uniform-parity regressions against the production WASM.
 Firefox/WebKit executables remain unavailable; no new upstream oracle was

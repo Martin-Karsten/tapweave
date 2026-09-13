@@ -72,7 +72,30 @@ await writeFile(new URL('../reference/findings/m3-scenario-delivery.json', impor
   limitations: ['No judgement timing, health, replay or audio comparison',
     'Matching after intervention does not prove receipt-time equivalence or justify changing production input timestamps',
     'Multiple queued inputs can still differ in framework dispatch semantics',
-    'Equivalent upstream test ports remain open as recorded in m3-scenarios.json'],
+    'Equivalent upstream test ports for the samples families remain deferred as recorded in m3-scenarios.json'],
   findings,
 }, null, 2) + '\n');
-console.log(`${findings.length} delivery diagnostics: ${findings.filter(finding => finding.delivery_classification === 'executed-and-matched').length} match selected fields; ${findings.filter(finding => finding.delivery_classification === 'executed-different').length} residual differences.`);
+// Annotate delivery-eliminated differences as the accepted input-delivery
+// divergence (ADR-002 "M3 input delivery divergence"). A finding receives the
+// disposition only when its executed delivery diagnostic eliminated the
+// original difference; residual differences stay open and undisposed.
+const delivery_by_id = new Map(findings.map(delivery_finding => [delivery_finding.id, delivery_finding]));
+let accepted_count = 0;
+for (const finding of scenarios.findings) {
+  delete finding.divergence_disposition;
+  const delivery_finding = delivery_by_id.get(finding.id);
+  if (finding.classification === 'executed-different' && delivery_finding
+    && delivery_finding.delivery_classification === 'executed-and-matched'
+    && delivery_finding.diagnosis === 'selected-difference-eliminated-by-input-delivery-times') {
+    finding.divergence_disposition = 'accepted-input-delivery';
+    accepted_count += 1;
+  }
+}
+const open_count = scenarios.findings.filter(finding =>
+  finding.classification === 'executed-different' && !finding.divergence_disposition).length;
+scenarios.divergence_dispositions = {
+  basis: "ADR-002 'M3 input delivery divergence'; derived from executed diagnostics in reference/findings/m3-scenario-delivery.json",
+  accepted: accepted_count, open: open_count,
+};
+await writeFile(new URL('../reference/findings/m3-scenarios.json', import.meta.url), JSON.stringify(scenarios, null, 2) + '\n');
+console.log(`${findings.length} delivery diagnostics: ${findings.filter(finding => finding.delivery_classification === 'executed-and-matched').length} match selected fields; ${findings.filter(finding => finding.delivery_classification === 'executed-different').length} residual differences; ${accepted_count} accepted input-delivery divergences annotated, ${open_count} open.`);

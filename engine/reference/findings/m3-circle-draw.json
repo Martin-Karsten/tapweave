@@ -24,7 +24,7 @@
     {
       "id": "circle-centre-30hz-stall-0",
       "fixture_sha256": "891d3ce78ee69cc8b2f70e3e38e7022a4336d03cf1bb40c8ef4d9f0610acc53e",
-      "observation_sha256": "58abf0d158e5f1dcc7ea600be01193c69d8e5b9cf23b28b29d768d6827efe061",
+      "observation_sha256": "ee0155bca1a86a4b963f7fa6fec8e56f3da296dae6e2db55133c785ce6421233",
       "comparison_sha256": "23d96d12d2f34073e2e7c73dae9ab47b743ecf1e7db55f92631fffa7d0d25972",
       "samples": 30,
       "classification": "executed-and-matched",
@@ -37,7 +37,7 @@
     {
       "id": "circle-centre-30hz-stall-50",
       "fixture_sha256": "685ae84ea4ec2a6b17dda4c9eee365082a866e93b0c594eea24dc65b3000c517",
-      "observation_sha256": "364333e48de33f3ebfc5b35a31b9fdd2b4857e1c6b6ec69e49239814d32fc226",
+      "observation_sha256": "390f72b13c2f4d17b48bd177a1038a93275a8100cdbdfc367c04d7c34ddbcd20",
       "comparison_sha256": "23d96d12d2f34073e2e7c73dae9ab47b743ecf1e7db55f92631fffa7d0d25972",
       "samples": 30,
       "classification": "executed-and-matched",
@@ -50,7 +50,7 @@
     {
       "id": "circle-centre-30hz-stall-100",
       "fixture_sha256": "daa7ba8ca455460cc3e9420a40a21cf483bd0d6e96ad78e992aa18089c2ed95b",
-      "observation_sha256": "672dd3eb0f759591588d8c7b373c8087f196257346b25eb96b3d7f702e927685",
+      "observation_sha256": "26a184c565f21d67faa6a9cc08696a8e5b2d731ee6f04b2777a4c0ba95df49b1",
       "comparison_sha256": "23d96d12d2f34073e2e7c73dae9ab47b743ecf1e7db55f92631fffa7d0d25972",
       "samples": 30,
       "classification": "executed-and-matched",
@@ -63,7 +63,7 @@
     {
       "id": "circle-centre-30hz-stall-250",
       "fixture_sha256": "7b9a25d92e11ddaa91e9e8908751b6c7270c64f2b559a85c6c0ead29d83106a1",
-      "observation_sha256": "71f4e96bec67988160bc99ee2da416435343fa7c0a19c64bb3d28c174edf3e77",
+      "observation_sha256": "5f82ce6a9283ceb91ed2bc2b7c831da4131b5a50bbae1bead0d741efe7af7fd8",
       "comparison_sha256": "23d96d12d2f34073e2e7c73dae9ab47b743ecf1e7db55f92631fffa7d0d25972",
       "samples": 30,
       "classification": "executed-and-matched",
@@ -76,7 +76,7 @@
     {
       "id": "circle-centre-60hz-stall-0",
       "fixture_sha256": "996ca97a09165222a244079b221adf13a46ec3dd31bb878c9d833b7045f86dbe",
-      "observation_sha256": "1dd3cfc1eb433d54fdbcde6723a3981348bd07d19a21e1a7c2198bcb078ba7ab",
+      "observation_sha256": "08e8526c9d630f338da59cfee555a3ac1cb813a9d170f810c80ec88f628d1e27",
       "comparison_sha256": "764c5cf1aa739eccd5b6452716fd4a987b9ed22f7d036d62f51492bfee62814c",
       "samples": 60,
       "classification": "executed-and-matched",
@@ -89,7 +89,7 @@
     {
       "id": "circle-centre-60hz-stall-50",
       "fixture_sha256": "a1cb2921cfef809b4f71040e3bc4623292b8bffe455faa0db1910aeacf49e1c8",
-      "observation_sha256": "a4243a5e0e0052fbbb36f9f0adc03fe7e3c130ddfb5cc225ba5ebcab48627bc9",
+      "observation_sha256": "c57d02a963f6d10512fe470b1b9855b3b7094b56eb574d2ac6430363d0324349",
       "comparison_sha256": "764c5cf1aa739eccd5b6452716fd4a987b9ed22f7d036d62f51492bfee62814c",
       "samples": 60,
       "classification": "executed-and-matched",
@@ -102,7 +102,7 @@
     {
       "id": "circle-centre-60hz-stall-100",
       "fixture_sha256": "6f0f2eed1d4898d39d0451e27ad6931a276524940d7081913a78a684e6734538",
-      "observation_sha256": "262e446f2befd6dcaea0e017baabd312eb30c92a945e31031bd2ab83e6561295",
+      "observation_sha256": "d11742852073a0bdf2076231aa59175c47c750930756c47a053bfb0ef7545325",
       "comparison_sha256": "764c5cf1aa739eccd5b6452716fd4a987b9ed22f7d036d62f51492bfee62814c",
       "samples": 60,
       "classification": "executed-and-matched",
@@ -115,7 +115,7 @@
     {
       "id": "circle-centre-60hz-stall-250",
       "fixture_sha256": "3f6a745e7446faf29a87e26e01faeb3faa15df221e630d8fc8b062aa6634f8ab",
-      "observation_sha256": "8027c2e61067d1b1aa12531d6a11f575dc3859678dd786dcb01fac130eb20877",
+      "observation_sha256": "7acbd4557693634d949ec67a2647caecb7eb2ac269ca0ebb9734a597d37d790d",
       "comparison_sha256": "764c5cf1aa739eccd5b6452716fd4a987b9ed22f7d036d62f51492bfee62814c",
       "samples": 60,
       "classification": "executed-and-matched",
@@ -128,7 +128,7 @@
     {
       "id": "circle-centre-144hz-stall-0",
       "fixture_sha256": "9eda04862e1617f903c5a413fb60160aca88d9a023773cb75058cfa4cab34e43",
-      "observation_sha256": "5882d661cf17b11c1a48a27d5d78cc11d693f5e99321f21fd55c37d0cfec72b0",
+      "observation_sha256": "509d0d98b33ee71091c676ee3f86443c1738c38d591335a5e5ec8448796d5beb",
       "comparison_sha256": "f83fbaf71093a0146d22de13a1f970a52fa37dac30f877f4b919dc991c180434",
       "samples": 144,
       "classification": "executed-and-matched",
@@ -141,7 +141,7 @@
     {
       "id": "circle-centre-144hz-stall-50",
       "fixture_sha256": "f13d45c9c6ab330d60a60a76ea6f099aae08a483af52428120442127c684d097",
-      "observation_sha256": "46cd59743f9efc6234650ab35201a13157e6aa8efcddfc7dea276e73d83f6be8",
+      "observation_sha256": "9c422c777bb76b7a7b85dfe21437d89e81f10095a64b6a3e4d116a8823212308",
       "comparison_sha256": "f9e1108cc402f029d06b5fc7044503f5602ad7388520db3749a4a78962ead44e",
       "samples": 143,
       "classification": "executed-and-matched",
@@ -154,7 +154,7 @@
     {
       "id": "circle-centre-144hz-stall-100",
       "fixture_sha256": "5b45de2d37127d7c255351a14bed0da7f76dc10eeebb2209151253a2e5319b6f",
-      "observation_sha256": "edc944e51623e889891f823a2b18f94d300fc2840d98922350f582de8516b1c9",
+      "observation_sha256": "328291a912a4f02d64a62c56d32f95acdc5845b3b759cc596bbeb9b1046f0575",
       "comparison_sha256": "f9e1108cc402f029d06b5fc7044503f5602ad7388520db3749a4a78962ead44e",
       "samples": 143,
       "classification": "executed-and-matched",
@@ -167,7 +167,7 @@
     {
       "id": "circle-centre-144hz-stall-250",
       "fixture_sha256": "44b7db670a37c1e6af14595d56ebc6bf5e0f7db1630430b4d8789a14af1bc7e6",
-      "observation_sha256": "0e887a48471c03e7d879ae6a6bd000c02259cec51b243530eac2ff2556e9f35e",
+      "observation_sha256": "1e2666ffb19c1f3838d815c9b633f5bae6761260b195a1bb4aeead4926c10d79",
       "comparison_sha256": "f9e1108cc402f029d06b5fc7044503f5602ad7388520db3749a4a78962ead44e",
       "samples": 143,
       "classification": "executed-and-matched",
@@ -180,7 +180,7 @@
     {
       "id": "circle-miss-30hz-stall-0",
       "fixture_sha256": "d3c73246106dcc8aa8f9bc62245ef280037bb8e1f00c4d581f2388e1726693fd",
-      "observation_sha256": "35e3e6c91b1cbf28ef921b2bd1de6a70eac3ae2cba1a731235d84a342ed8dfc5",
+      "observation_sha256": "71faf09f5bb3f82c82ed2df3cedcfcd5803a59c7da2b7f4cdc7a799262f9cf88",
       "comparison_sha256": "23d96d12d2f34073e2e7c73dae9ab47b743ecf1e7db55f92631fffa7d0d25972",
       "samples": 30,
       "classification": "executed-and-matched",
@@ -193,7 +193,7 @@
     {
       "id": "circle-miss-30hz-stall-50",
       "fixture_sha256": "676bc9357faa05ad2beb858e85e2fdd48ad8830694773e4faf3532ed6facc5a3",
-      "observation_sha256": "44eaa12e048dee948f57d3ca21776220ecc47139d92900a4ab2ac0a3eb9c0ead",
+      "observation_sha256": "b794fb98745ccba4d93d9baaddf8f05d941fa15464da21e1c28278076f443fed",
       "comparison_sha256": "23d96d12d2f34073e2e7c73dae9ab47b743ecf1e7db55f92631fffa7d0d25972",
       "samples": 30,
       "classification": "executed-and-matched",
@@ -206,7 +206,7 @@
     {
       "id": "circle-miss-30hz-stall-100",
       "fixture_sha256": "9dc7c612c2bbeb67258c1bced0ba3ff3269af8032f661e1eb2877bc6c05fd1f5",
-      "observation_sha256": "44825b42eb8a8de06e97050d89d9906a38e009a7e8756c13a8da921af9dd1285",
+      "observation_sha256": "cb48f00b28651cee033d50f77113848648a1a902129e7d6cd198098e74a63763",
       "comparison_sha256": "23d96d12d2f34073e2e7c73dae9ab47b743ecf1e7db55f92631fffa7d0d25972",
       "samples": 30,
       "classification": "executed-and-matched",
@@ -219,7 +219,7 @@
     {
       "id": "circle-miss-30hz-stall-250",
       "fixture_sha256": "519a0fef25d673e51fc83114938416757739cb3478cf3637fdd0cd703e575817",
-      "observation_sha256": "93f4152decaf8346e03bb00e7ea9585f4d0721c5edefe268d6bb8041b7ab9dd1",
+      "observation_sha256": "693de3dccd5ce0640ebd60222c8a897881ce4afc2b280cf6423853dd4529ea3f",
       "comparison_sha256": "23d96d12d2f34073e2e7c73dae9ab47b743ecf1e7db55f92631fffa7d0d25972",
       "samples": 30,
       "classification": "executed-and-matched",
@@ -232,7 +232,7 @@
     {
       "id": "circle-miss-60hz-stall-0",
       "fixture_sha256": "c3c5b147aba888d0d4977c7fd09c22bc88cbb6b98ad96798c1d892108427543c",
-      "observation_sha256": "8bd1a22308fcfe3cf06e9e3572b2911d17656366af7318bca58ed52bdc865b11",
+      "observation_sha256": "cd7405902475b3229f4f772c96dc34759dc6352a250f5f0a6a2aaaf294f02d4f",
       "comparison_sha256": "764c5cf1aa739eccd5b6452716fd4a987b9ed22f7d036d62f51492bfee62814c",
       "samples": 60,
       "classification": "executed-and-matched",
@@ -245,7 +245,7 @@
     {
       "id": "circle-miss-60hz-stall-50",
       "fixture_sha256": "7fce31f818b5ec852fe0d59c8317f8b31497eeeafffe69ea9e97b968e3f7f422",
-      "observation_sha256": "7cbeacfe8f857e624e8bcc92c23cf80cacebba5a19eb3e81bb2fbf0bcc5d610b",
+      "observation_sha256": "4b52e1915a9ea932a9adaec9165f894b11cbdacc7607e5db1cb92a930a81949e",
       "comparison_sha256": "764c5cf1aa739eccd5b6452716fd4a987b9ed22f7d036d62f51492bfee62814c",
       "samples": 60,
       "classification": "executed-and-matched",
@@ -258,7 +258,7 @@
     {
       "id": "circle-miss-60hz-stall-100",
       "fixture_sha256": "145f8b584d73f38204502a6ebdb7b04bba74d0993702abb59b1814685c53c2ad",
-      "observation_sha256": "033b7dad3fba999433df27bba3f0c215f37c7fcfc61e642a4e97f4cee37fae57",
+      "observation_sha256": "9e68dfae19d5549a9d4b2adf38452ed8b569c4aaf2007cc060f6cfc7003f30ff",
       "comparison_sha256": "764c5cf1aa739eccd5b6452716fd4a987b9ed22f7d036d62f51492bfee62814c",
       "samples": 60,
       "classification": "executed-and-matched",
@@ -271,7 +271,7 @@
     {
       "id": "circle-miss-60hz-stall-250",
       "fixture_sha256": "fad4250523686ff22b10a9ef133b89d1c0fb8d2be4e05617de05e3bbd455b117",
-      "observation_sha256": "8827d7ab3ad05737dcdc93f20063d8980e8303b778a5a35b125297420739889a",
+      "observation_sha256": "7e4c71bf0a8bb19bc5c7198bad1101564651814b6ae5ccca73161d1be735ac7d",
       "comparison_sha256": "764c5cf1aa739eccd5b6452716fd4a987b9ed22f7d036d62f51492bfee62814c",
       "samples": 60,
       "classification": "executed-and-matched",
@@ -284,7 +284,7 @@
     {
       "id": "circle-miss-144hz-stall-0",
       "fixture_sha256": "91bdda8461cb16076cf9341b0547a37f772ac2370ad73dd8654ac8c80014682b",
-      "observation_sha256": "2e5c06723ea27afab35a114a6af3ede8694b39891c982707298703cbc03eb08a",
+      "observation_sha256": "88e8ff6d05d5661ee9877f01f9c5804ffaee078ef5a6f72a345e6ca05102cba8",
       "comparison_sha256": "f83fbaf71093a0146d22de13a1f970a52fa37dac30f877f4b919dc991c180434",
       "samples": 144,
       "classification": "executed-and-matched",
@@ -297,7 +297,7 @@
     {
       "id": "circle-miss-144hz-stall-50",
       "fixture_sha256": "9a5463d3fa5cc35210bc94460c570772770a46bc2f0e6bc8d5cae7456ee0b628",
-      "observation_sha256": "85b2f514d9d14447bcf6ab45b2a011da433e80db73668652de81c9438dd8647c",
+      "observation_sha256": "eb0d4a1264eff65aafe9ac686d3d81f252909093aa983aa555bfeac1af71f414",
       "comparison_sha256": "f9e1108cc402f029d06b5fc7044503f5602ad7388520db3749a4a78962ead44e",
       "samples": 143,
       "classification": "executed-and-matched",
@@ -310,7 +310,7 @@
     {
       "id": "circle-miss-144hz-stall-100",
       "fixture_sha256": "c40a4f8cd6180973c4b28e3288934102d50e5c774a3553a168a792475080b49d",
-      "observation_sha256": "2d9b0bb5b582eb9110e38b785c06a85024fdbd0791679ad143e3486b30ce2000",
+      "observation_sha256": "aabf33a04f0affcea31deea7fe48503035eeca0625aa84193ac081778e15b06a",
       "comparison_sha256": "f9e1108cc402f029d06b5fc7044503f5602ad7388520db3749a4a78962ead44e",
       "samples": 143,
       "classification": "executed-and-matched",
@@ -323,7 +323,7 @@
     {
       "id": "circle-miss-144hz-stall-250",
       "fixture_sha256": "d75ef206392ef830a4b00a1308dd6075f8cde3d3c4453362725a3897139f25fa",
-      "observation_sha256": "1642ecbceab7085e96117ff08f89668cea92e37e75ecf6f2be87261b5659c279",
+      "observation_sha256": "ff549f293a350af57e7822bd2e0c05fc6b4208fa9ecf0acaef7eda24405007bd",
       "comparison_sha256": "f9e1108cc402f029d06b5fc7044503f5602ad7388520db3749a4a78962ead44e",
       "samples": 143,
       "classification": "executed-and-matched",
@@ -336,7 +336,7 @@
     {
       "id": "circle-great-edge-30hz-stall-0",
       "fixture_sha256": "e75d8ee9ccf71289baf78a541985eb3f5747a38c51cc0004ee7f65e8c1994cfe",
-      "observation_sha256": "044121a9d62455699d2444ba993fc8ca7b3394179db0239aa791838dbe56e541",
+      "observation_sha256": "c26a67a205b1266210b305ddc9d50500d859b211039718a973e980c56f053a1e",
       "comparison_sha256": "23d96d12d2f34073e2e7c73dae9ab47b743ecf1e7db55f92631fffa7d0d25972",
       "samples": 30,
       "classification": "executed-and-matched",
@@ -349,7 +349,7 @@
     {
       "id": "circle-great-edge-30hz-stall-50",
       "fixture_sha256": "744b0e15e892bd496f27d11ca477a518288cbb9fb2f88e1becad3a81906c7671",
-      "observation_sha256": "64efa7419fdbc66cce1067bdb68138211b5263c3fb8c0df4de5fbf8cc594f031",
+      "observation_sha256": "7fb2d4217f266a24800c9c19e6a1c0eb4cc25b69c15329f2790d4c63039ad6ee",
       "comparison_sha256": "23d96d12d2f34073e2e7c73dae9ab47b743ecf1e7db55f92631fffa7d0d25972",
       "samples": 30,
       "classification": "executed-and-matched",
@@ -362,7 +362,7 @@
     {
       "id": "circle-great-edge-30hz-stall-100",
       "fixture_sha256": "ae87fbf3f095024c52784d34efd0de62dc297d68f97394ecdbd535317e63c23d",
-      "observation_sha256": "36540244471d63bc253f378318b280cd59550e1b64fb8fb87a98c3d4c6b6becf",
+      "observation_sha256": "238909c70743d995abf4c2e193dcfd142efc78c20719229eb636a202cc916310",
       "comparison_sha256": "23d96d12d2f34073e2e7c73dae9ab47b743ecf1e7db55f92631fffa7d0d25972",
       "samples": 30,
       "classification": "executed-and-matched",
@@ -375,7 +375,7 @@
     {
       "id": "circle-great-edge-30hz-stall-250",
       "fixture_sha256": "b967ed8532a22896477380535fd06bb4a6320920bb630991622ceb52479c8beb",
-      "observation_sha256": "6d09e12a2e2f99a6a0c256e0971938e8eeb877e214474abc29433c99e6ed7753",
+      "observation_sha256": "19f12a99d6a109f85057611109c56a42b843f7b3bb4ba96f9f6252da8099bcb4",
       "comparison_sha256": "23d96d12d2f34073e2e7c73dae9ab47b743ecf1e7db55f92631fffa7d0d25972",
       "samples": 30,
       "classification": "executed-and-matched",
@@ -388,7 +388,7 @@
     {
       "id": "circle-great-edge-60hz-stall-0",
       "fixture_sha256": "8e129708f42137a6407777974d5701f91e523373c4df0f9948a8572da0858034",
-      "observation_sha256": "5047eaf13e6f978cce07438737675ac41d77fcd19161fa88d84d0cf46fedd334",
+      "observation_sha256": "cfb126c85664bcbd2b0c7969803c7367d26b7730ea6053e1d6d3b7d60fc14a5b",
       "comparison_sha256": "764c5cf1aa739eccd5b6452716fd4a987b9ed22f7d036d62f51492bfee62814c",
       "samples": 60,
       "classification": "executed-and-matched",
@@ -401,7 +401,7 @@
     {
       "id": "circle-great-edge-60hz-stall-50",
       "fixture_sha256": "167baedeff0c5ab828a14cd47587ed1739da9ba0395743bde40f2408a89ddeca",
-      "observation_sha256": "007b18465bead0348bd1b8c6b53137e19aa91e6e5985b6e9c676d322256e2117",
+      "observation_sha256": "15730395b8b76e51d921abf65d4d6a20313dc89618381e9b94bd93e1ac6a8942",
       "comparison_sha256": "764c5cf1aa739eccd5b6452716fd4a987b9ed22f7d036d62f51492bfee62814c",
       "samples": 60,
       "classification": "executed-and-matched",
@@ -414,7 +414,7 @@
     {
       "id": "circle-great-edge-60hz-stall-100",
       "fixture_sha256": "13b702bc586a3e1b175348bf2103153b865b26183d4af601ae30c1c829d79db1",
-      "observation_sha256": "4727a891498f91c51b5812a4eb986a3fe5019b42a360fd4897facf1331b5f85e",
+      "observation_sha256": "6d241321475fc1960d613111aee66e3bffcd2a0e67f7fa621ea4c7f7639cef3d",
       "comparison_sha256": "764c5cf1aa739eccd5b6452716fd4a987b9ed22f7d036d62f51492bfee62814c",
       "samples": 60,
       "classification": "executed-and-matched",
@@ -427,7 +427,7 @@
     {
       "id": "circle-great-edge-60hz-stall-250",
       "fixture_sha256": "ab23a349d73cf5e6a6020ca53016c24bd0f72a8d50d47afb6097040c7fcb8ce3",
-      "observation_sha256": "87f7ceeeae9011c1b2fd487014400b842fad5b345aec2045a783e05813fcf5ac",
+      "observation_sha256": "9f36b0e0feaaa67bb2b5c66f28e7db205050839c9ecc4a52a207c9a04892d476",
       "comparison_sha256": "764c5cf1aa739eccd5b6452716fd4a987b9ed22f7d036d62f51492bfee62814c",
       "samples": 60,
       "classification": "executed-and-matched",
@@ -440,7 +440,7 @@
     {
       "id": "circle-great-edge-144hz-stall-0",
       "fixture_sha256": "8ef9f6522220192528ef4ce50f69cb08e97c16c36001b275026479d951052b3e",
-      "observation_sha256": "3e282c660d6b42d5ed6233d47c0ad2303668df2b26fc43cccf0c19a337e66bbc",
+      "observation_sha256": "772e22089f39249ff13ff676ae0e27e00d306be65d4d7f8fc5e51a135a13f1c6",
       "comparison_sha256": "f83fbaf71093a0146d22de13a1f970a52fa37dac30f877f4b919dc991c180434",
       "samples": 144,
       "classification": "executed-and-matched",
@@ -453,7 +453,7 @@
     {
       "id": "circle-great-edge-144hz-stall-50",
       "fixture_sha256": "20a5b418e150da6b9c301bb912107cf443d1ce9068791a87aa58d838165a727e",
-      "observation_sha256": "05af552c116fa02d73e01a3d63dbb466385802792765cd4708aec718c9c0b336",
+      "observation_sha256": "fa2d6d31661bb0ee2545e796c56b0e217d841a86362c7fac48cd914ac0d90eb2",
       "comparison_sha256": "f9e1108cc402f029d06b5fc7044503f5602ad7388520db3749a4a78962ead44e",
       "samples": 143,
       "classification": "executed-and-matched",
@@ -466,7 +466,7 @@
     {
       "id": "circle-great-edge-144hz-stall-100",
       "fixture_sha256": "4fe598f10d5a787e836328cce78fbf12db7468e216c4822306c68445837be9f5",
-      "observation_sha256": "e17287f7d89543500c1ed0572d6ec88bddc90f662e262a7b4439448ff080e2be",
+      "observation_sha256": "6832740b6b528cc688bf86a9ce91ed1adfec3e71eac047dde5ce781527b3cc63",
       "comparison_sha256": "f9e1108cc402f029d06b5fc7044503f5602ad7388520db3749a4a78962ead44e",
       "samples": 143,
       "classification": "executed-and-matched",
@@ -479,7 +479,7 @@
     {
       "id": "circle-great-edge-144hz-stall-250",
       "fixture_sha256": "ece7934b807c48a907873b72983c094d40341a27893a09bafb9830e943d61b23",
-      "observation_sha256": "2f7ed44bb87861f5eeba144810d5a6ca57a8174acd03e180ce0c276e152b5675",
+      "observation_sha256": "0c54b7ece644bb7a444672e5d3ba62a3301a4dc091ad641d6e7cf8dccd830bad",
       "comparison_sha256": "f9e1108cc402f029d06b5fc7044503f5602ad7388520db3749a4a78962ead44e",
       "samples": 143,
       "classification": "executed-and-matched",

@@ -111,6 +111,12 @@ export function gameplayFixtures() {
       adaptation: 'Same path, replay, OD5 and velocity. Represent programmatic TickDistanceMultiplier through legacy tick rate; all component assertions are checked independently upstream.' });
   }
   add({ id: 'spinner-no-input-port', map: beatmap(['256,192,2000,8,0,4000']), expected: { assertion: 'all_min' }, acceptance: ['A16'], upstream_tests: [source('TestSceneSpinnerJudgement', 'TestHitNothing')] });
+  // The upstream test loads a ScoreAccessibleReplayPlayer with an empty replay
+  // and asserts every judgement keeps its minimum result. The host Player
+  // retains normal failure handling, unlike the upstream ReplayPlayer subclass.
+  add({ id: 'spinner-no-input-player-port', map: beatmap(['256,192,2000,8,0,4000']), inputs: [], replay: true, player: true,
+    expected: { assertion: 'all_min' }, acceptance: ['A16', 'A23'], upstream_tests: [source('TestSceneSpinnerJudgement', 'TestHitNothing')],
+    adaptation: 'Same 2000-4000 ms spinner, default difficulty and empty replay through the real Player; all-min judgements assertion retained.' });
   for (const spins of [1, 2, 5, 20]) {
     const frames = [];
     const start_angle = Math.fround(-Math.fround(Math.PI) / 2);

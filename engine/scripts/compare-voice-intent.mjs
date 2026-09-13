@@ -66,6 +66,6 @@ await writeFile(new URL('../reference/findings/m3-voice-intent.json', import.met
   limitations: ['Original input timestamps are preserved; upstream event delivery and drawable expiry differ.',
     'Continuous spinner damping is an event-driven source interpretation; exact update-quantised envelope acceptance remains open.',
     'Fallback skin matrix, seek, physical audible playback and release-browser lifecycle certification remain open.',
-    'No differing expectation is treated as an accepted deterministic divergence; H11 is not complete.'], findings,
+    'The nominal command-time differences share the input delivery root cause classified in the ADR-002 M3 input delivery divergence amendment, but no voice expectation is accepted while H11 loop/ramp production is unimplemented.'], findings,
 }, null, 2) + '\n');
 console.log(`${findings.length} H11 comparisons: ${findings.filter(finding => finding.transition_kinds_match).length} transition-kind matches; ${findings.filter(finding => finding.exact_times_match).length} exact timing matches. Full H11 remains open.`);

@@ -119,12 +119,16 @@ open; this command does not substitute for them or rerun missing observations.
 `npm --prefix engine run compare:scenario-delivery` diagnoses input scheduling
 using the same hash-verified observations. In a separate local run it replaces
 input timestamps with the first declared upstream update at/after receipt. All
-120 runs then match ordered result/score/combo; the 47 original differences are
+132 runs then match ordered result/score/combo; the 47 original differences are
 eliminated for those selected fields. Original receipt-time comparisons remain
 unchanged. This intervention does not establish judgement-time, health, replay
-or audio equivalence and does not justify retiming production inputs. The finding
-index is `reference/findings/m3-scenario-delivery.json`; residual differences,
-if introduced later, remain explicit rather than failing an acceptance claim.
+or audio equivalence and does not justify retiming production inputs. The
+delivery-eliminated differences are annotated `divergence_disposition:
+'accepted-input-delivery'` in `reference/findings/m3-scenarios.json` under the
+ADR-002 M3 input delivery divergence amendment; the finding index is
+`reference/findings/m3-scenario-delivery.json`; residual differences,
+if introduced later, remain explicit and undisposed rather than failing an
+acceptance claim.
 
 ## Gameplay regression acceptance
 

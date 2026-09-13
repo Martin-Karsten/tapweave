@@ -2,7 +2,7 @@
 
 This batch covers already implemented unmodded osu!standard behavior against
 the revisions in [the source manifest](../../engine/reference/source-manifest.json).
-It adds **153 fixture cases**: 115 gameplay scenarios, 36 health component cases,
+It adds **154 fixture cases**: 116 gameplay scenarios, 36 health component cases,
 and two local workloads. Schedule repetitions are not counted as new cases.
 The [retained findings](../../engine/reference/findings/m2-gameplay-backfill.json)
 contain source-file hashes, upstream method mappings, adaptations, fixture and
@@ -46,12 +46,12 @@ partial decoding and failure after an earlier fixture has produced output.
 | Note lock and equal-time input consumption | 4 | TestSceneStartTimeOrderedHitPolicy adaptations and a source-derived same-time regression |
 | Slider key history, follow area, early/late judgements | 34 | TestSceneSliderInput, TestSceneSliderFollowCircleInput, TestSceneSliderEarlyHitJudgement, TestSceneSliderLateHitJudgement |
 | Spinner cursor input | 5 | TestSceneSpinnerJudgement and SpinFramesGenerator |
-| Real Player health, breaks and failure | 9 | Player, OsuHealthProcessor and DrainingHealthProcessor source-derived sessions at HP0/5/10 |
+| Real Player health, breaks and failure | 10 | Player, OsuHealthProcessor and DrainingHealthProcessor source-derived sessions at HP0/5/10, plus the TestHitNothing empty-replay Player port |
 | Real Player recording | 2 | Both TestSceneReplayRecording methods |
 | Health components | 36 | 18 OsuHealthProcessorTest minimum/maximum ports; 18 combo-quality regressions |
 | Dense and long local workloads | 2 | 10,000 successful circle judgements and a ten-minute replay |
 
-The 115 gameplay cases run at direct advancement and 30/60/120/144 Hz, each with
+The 116 gameplay cases run at direct advancement and 30/60/120/144 Hz, each with
 0/50/100/250 ms stalls. Complete local observations must match across schedules
 and serialize identically in native and WASM. Workloads compare direct advancement
 with a stalled 60 Hz schedule and assert the complete expected judgement count,

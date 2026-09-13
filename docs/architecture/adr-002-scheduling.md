@@ -55,3 +55,31 @@ representable timestamp outside the window. Health integration and slider/spinne
 sampling follow the event-driven design above, but their whole-session agreement
 with the pinned player remains unverified. These are implementation claims to
 validate, not additional gameplay rules or accepted compatibility divergences.
+
+## M3 input delivery divergence
+
+The scenario delivery diagnostic (`npm --prefix engine run
+compare:scenario-delivery`) ran the controlled drawable host's actual delivery
+times through Odin: every selected `ordered result`/`score`/`combo` difference
+between the receipt-time run and the pinned host is eliminated when each input
+is applied at the first declared upstream update at or after its receipt time.
+The pinned framework queues each input into the next drawable update, so its
+effective input time is frame-quantised; ADR-002 applies inputs at their own
+receipt timestamps. The pinned host itself produces different selected results
+across 30/60/144 Hz and under stalls, so no single frame schedule is an exact
+oracle for these fields.
+
+Decision: production keeps receipt-time semantics. Quantising input to an
+advance or frame grid would reintroduce the cadence dependence this ADR exists
+to remove. The delivery-time difference for those frame-dependent selected
+fields is therefore an accepted deterministic divergence. `m3-scenarios.json`
+findings carry `divergence_disposition: 'accepted-input-delivery'` only where
+the executed delivery diagnostic eliminated the original difference; residual
+differences without eliminating evidence remain open.
+
+This amendment is scoped to the input delivery divergence. It does not relax
+the M2 session implementation rules above, does not retime production inputs
+or replay timestamps, and does not accept any other frame-dependent quantity:
+wherever every tested upstream schedule agrees, exact matching is still
+required, and the voice-intent command-time differences stay open pending H11
+because loop/ramp production is unimplemented.

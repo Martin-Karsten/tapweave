@@ -81,9 +81,9 @@ substitute for the complete acceptance scenarios below.
 | H05 / A15 | Slider tracking loss/recovery, key restriction, sparse samples and deadlines across schedules/stalls | 34 slider ports now execute a real drawable adapter; broader curved/short-slider timing remains open |
 | H06 / A13–A14 | Strict/adjacent window boundaries, circle selection, note lock, equal-time input | 61 circle/window and four note-lock cases execute real input selection; full scheduling acceptance remains open |
 | H07 / A14–A16/A20 | Nested/top-level equal-time result order, early nominal tail | Early/nominal-tail and result-order ports exist; broader equal-time combinations remain open |
-| H08 / A16/A23 | Spinner reversals, >90-degree segments, input/recorder angular subdivision | Spin-history component and five cursor ports exist; reversal/angular recorder coverage remains open |
+| H08 / A16/A23 | Spinner reversals, >90-degree segments, input/recorder angular subdivision | Spin-history component, five cursor ports and the TestHitNothing empty-replay Player port exist; reversal/angular recorder coverage remains open |
 | H09 / A19 | HP0/5/10, breaks, drain, failure time/freeze | 36 health cases and nine real Player health/failure cases added; arbitrary frame-cadence health remains open |
-| H10 / A17–A18 | Complete score/count/health sequences and terminal rank | Integrated ordered/final score projection added for 115 scenarios; bounded corpus only |
+| H10 / A17–A18 | Complete score/count/health sequences and terminal rank | Integrated ordered/final score projection added for 116 scenarios; bounded corpus only |
 | Replay / A23 | Same replay under direct, 30/60/120/144 Hz and 50/100/250 ms stalls | 17 local schedules per gameplay case and two real recorder ports; full upstream recorder cadence remains open |
 | H11 / A20–A21 | Missing candidates, nominal tails, loops, rapid toggles, ramps, pause/resume | Discrete request ports added; loops, fallback and device output remain separate |
 | Presentation / A22 | Circle preempt/fade/approach/feedback, slider body/ball/follow/repeats, spinner states | Source chapters, local coordinates and active projections; drawable adapter absent |

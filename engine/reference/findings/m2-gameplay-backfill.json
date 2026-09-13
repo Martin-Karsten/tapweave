@@ -170,7 +170,8 @@
       "sha256": "da624fe92af66bbc7ff9b6e215f1ceb2c4a79fa4b4f16be1738162a6b7798ea1",
       "methods": {
         "TestHitNothing": [
-          "spinner-no-input-port"
+          "spinner-no-input-port",
+          "spinner-no-input-player-port"
         ],
         "TestNumberOfSpins": [
           "spinner-1-spins",
@@ -275,7 +276,7 @@
       "fixture_sha256": "76a6119ec2ff22cd9d3e0308c6763632afee5d0cf536d7592c3b07103109027b",
       "upstream": {
         "fixture_sha256": "e97121624dbc87803577f9d1130d11ca972f8744473774376978aa289c6457ff",
-        "observation_sha256": "cd772b3deeeb6f1e0acf327cec25315ae04f93fedfbeb66390c4f03e9631f45d",
+        "observation_sha256": "9105e5d8157e67c3c55aa22323fef7be3078b2afa87ca78008ae08333107cc30",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -299,7 +300,7 @@
       "fixture_sha256": "42af0a63618680801e6670a027e9260f9f236ac4e08a7d8678209510d6d27400",
       "upstream": {
         "fixture_sha256": "e195d815c76309a0b654c818ae618d517b5aee5b64f1b2c527d23d3250dbefab",
-        "observation_sha256": "1dd4539a42f9538c87905794d8e2d225490e473da580bfaaec66900ef45a9b3f",
+        "observation_sha256": "0c9deb74ff60de2b61ee87d8e2d24e5dfc1cf1487fe9650a5f08142df3437259",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -322,7 +323,7 @@
       "fixture_sha256": "a2edaa5d6b64ef004453bea351f18e1c0afa192920b11b8327a9ff2b8f0ec136",
       "upstream": {
         "fixture_sha256": "7e46c1d5f27e18324449c41df67060a275dd54a0effdf6b2044c793e19d53b17",
-        "observation_sha256": "36a46fae28ea7429d063e9e64afb99be3b64588a32dafd7c2e8dd7725fc64228",
+        "observation_sha256": "0052fae86cf2bca4f26daf2120a7c8b3ea9c23703f5303338c020ce68e5cef25",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -346,7 +347,7 @@
       "fixture_sha256": "1aae22f97146f630612860cdc693bfd38dae660304d3870b32dfdbb479ed3ba8",
       "upstream": {
         "fixture_sha256": "a58abe9dfb771334dc32f2ca347f764295cfdd08c2012371439e672acefef67c",
-        "observation_sha256": "c03ad2a9cb9721c8a4ea3961b769507a2dd1ef600414b5f42e9399803dd54476",
+        "observation_sha256": "04f27af93e4480929bd7d7c35b818d98668ef5ca0f3d151a49dac41eda3adb6c",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -370,7 +371,7 @@
       "fixture_sha256": "137a0630925da9ab4f98e5caeb9b2c8d67002cdf05d586010ebe47f32882537e",
       "upstream": {
         "fixture_sha256": "d3ba00178b21f1d43198c5dab02cedda2f4ba3a389db9fae91ee1f1d50a4782f",
-        "observation_sha256": "8ee8ab9eb6880f8356ff3c3be0f32d53bfd1578ed68b966be0059cc29c875493",
+        "observation_sha256": "dc3e33d792cfcb8c1204dc7630207b4bb5d379d5ebf038078b7c405720366052",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -394,7 +395,7 @@
       "fixture_sha256": "18722682b67d6475344c53f126efc195d03b11ffc1e4d6661352f5de5467ac05",
       "upstream": {
         "fixture_sha256": "117ed6270ca83a6c6f01052abd3ee798959a5f2bb064af2d12c270daff112dce",
-        "observation_sha256": "124f59ebcfc7fdc8be6a8c0a0e0ee73bc1a6e765afb36c277ba5b6f3df2fe70c",
+        "observation_sha256": "e1f01a2ca7a2bff680f652c04657c7f6286049618d32116999dcd001acad0870",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -417,7 +418,7 @@
       "fixture_sha256": "a289612fa34feb4111ff21478f96d71a2d23f987533caf3f88e1e47bb905f065",
       "upstream": {
         "fixture_sha256": "5fbe168b164a246e1776532bb0ea3192365c9d44901cc8a4f4650fbfbf241c54",
-        "observation_sha256": "959b22582b3d3edcab8217d73136c936f15536b3f6d680c3bc3333a809267069",
+        "observation_sha256": "0ac04ac74209ee0305d8f3b348c8900cc3c54d33542823d201c9a283fba77e70",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -441,7 +442,7 @@
       "fixture_sha256": "c53d48884ee7f3ed5124e05727794c054c945150100ff4b66ef6fb78ea5023d5",
       "upstream": {
         "fixture_sha256": "46fd7755415cef0ada6ec875abfbfa11362c663d8aa2169e92452147f474a27d",
-        "observation_sha256": "f9ec054a4c35398f6879ce0d9c36c675ebb578a4be10d40e7e9d55f6fae7efbd",
+        "observation_sha256": "ce1a228824c32b987db7b23589c489377a13bf88214f8d8f70728acbbcd0b541",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -465,7 +466,7 @@
       "fixture_sha256": "0049fc4ce2761c0466ea5d627530fcdbb29cf22f0928af3f7200f8f6877bc340",
       "upstream": {
         "fixture_sha256": "5485fc9a0b4ea80a1be518ec90feb66ede681d65157db8b95e1d15382cea760a",
-        "observation_sha256": "8dab614cce2d1e759bad157db0ad78910d9ff4fcb4994fd5d66e2ea9ca0655a0",
+        "observation_sha256": "4b0b8b0756fe9e160a71eab83db09f0cf77ab8c6598c6c54334d6670d0d9355e",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -489,7 +490,7 @@
       "fixture_sha256": "0bfb30abf5ca1033d853e654f238bb9468457b4cb4544b177824d087ca4bde4c",
       "upstream": {
         "fixture_sha256": "81afc822faf0339287700c56638874caa4d0cd4f23e293deefff25b8cd0b2178",
-        "observation_sha256": "af80e7fcc668511e6ae5a8ffbac2d5838c02cde10f1a4ff8b0f075a10dff5118",
+        "observation_sha256": "28cf412f36ea613df3c4980f841061b80f370f06642997968c08ff1ac61d4cc9",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -513,7 +514,7 @@
       "fixture_sha256": "a532fd42359149f3ad2280c915f93e05a2526a12399f9a4404f2c4e01b715fa5",
       "upstream": {
         "fixture_sha256": "4653065f53bbd0570327c508ac7174734293f7640071e26d70e7abc89b1cb2f8",
-        "observation_sha256": "07b96cb8d208a6493939fee933090cdc7a1487c9ef60f60ca540275052cd0086",
+        "observation_sha256": "c800e50e4128add1a620714dfe6cf74ee06543a187a56f036cad656563642999",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -537,7 +538,7 @@
       "fixture_sha256": "1136ad79566e377241424aaa55508beee89fc54eb4a04aff03023011ca7b59ec",
       "upstream": {
         "fixture_sha256": "a8d3e8949df7a557fb0a8bd0a838a7e4d7c7bb7e5275ecfd3446d63b468204f5",
-        "observation_sha256": "8084b9c5d978fad379ed40edd96dbba71260505c5da6015eb5fca4da36bf792c",
+        "observation_sha256": "2939bca3930daa0ae1fbdb499bbb5bf72d55fbbc22b840528d857055c62828e6",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -561,7 +562,7 @@
       "fixture_sha256": "113190d81b65cf89be4cc3bbcc57e6a76bb90b2ed45d06d0d5179694590cdf3d",
       "upstream": {
         "fixture_sha256": "7a7a7dc70f0fbabf5dfbc29dbdd9c47c9f30d4cc28d31eef914f06067263d01b",
-        "observation_sha256": "48834ab1d76e50504d8b836c36c94b03d4aee184b180d5d7fcd3461497ad42ba",
+        "observation_sha256": "676c981a0d56d4a15aad014064326f1dfb38a0821c02418e381557686b52f01b",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -585,7 +586,7 @@
       "fixture_sha256": "6f49daa9e31513b47e3c6a7f3d80bf970ed2835fec7835f405b79e21bbd4fb1f",
       "upstream": {
         "fixture_sha256": "4afbe1a0739981aa997f6892f532387181bc310c2df7e09b28a468a612f4099d",
-        "observation_sha256": "1b72c15ffc34dba3e25598d5816ee5eb4dd7c4c33396666e8d0e1ded0ff769cc",
+        "observation_sha256": "99a22ac39e03327aecaf482ef7487eb5e74934e8bab8c377c7872d8475d11132",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -609,7 +610,7 @@
       "fixture_sha256": "8999b5f670d7d96cc2c7315c1cb6a29c26c25c08dc3ff568104b43d0e3c4d48a",
       "upstream": {
         "fixture_sha256": "54f29bcd9445774287f635b74ec57d4ec394e8b9900ec41e78e589616a4436cb",
-        "observation_sha256": "4d429cf05280abd57148aca1711f3c8342ceb2ad5914bac5e96206834d42cd3c",
+        "observation_sha256": "a526d4d6daf3bfc959834e1d8d675d3a2b801b4a9a3831828194addd8a1fe7f4",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -633,7 +634,7 @@
       "fixture_sha256": "108a5330fe88bf60a0e9d9da6d29d862b6765cbd4eea34e2ebb00074f1487317",
       "upstream": {
         "fixture_sha256": "9ae8020f385d7a5e667b31e2eb8365d46cab66e0fe1dde2def9101d8b2b74b15",
-        "observation_sha256": "d6f26ae0c59f0e5a03672ff0ba3d2350a1e9207f4058a7aeefb0cbcedbb0ae0b",
+        "observation_sha256": "22b6f4f0cd362d0d2a7afc4d392312d8de16cfc2f644e82ba419881fc8b39f87",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -657,7 +658,7 @@
       "fixture_sha256": "89ad8c62a960e28cbe1c678667996293e4a8e2f8bfec28e3ece62ae053eb6a44",
       "upstream": {
         "fixture_sha256": "bc185665e71e1f64e133cc8d87bc7c4f1baecbd265f581ba6b30d4b356ab451c",
-        "observation_sha256": "fc565a048be0740d123d3fa745a1019e1414e976d6e27ec776f613cb43a964d9",
+        "observation_sha256": "11be8fb224485681db3732f0a0af63bbfe963e1c56a1b18dab55487b331492eb",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -681,7 +682,7 @@
       "fixture_sha256": "47bbc10f7e69b48e7dc40898434cb20dff0e76963adcd4c7e101139ea9508b3d",
       "upstream": {
         "fixture_sha256": "76cb5646394fe25f1a76055f58c1c3311f3db1616d511a8d3fb4ef11ff9fc0fb",
-        "observation_sha256": "ffe5371277ef6b779f82897563c5f5b4c2b7a60b9d0f64a2ac7908634c9baab3",
+        "observation_sha256": "1f72443ca5a9a992a64e2ade681be00dbb6875f44aeea35e5e2a2be7df38300d",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -705,7 +706,7 @@
       "fixture_sha256": "bdf3d50bf1e3e15b71fde9a48629df09a2ce09e04f029271862a27fbc6526114",
       "upstream": {
         "fixture_sha256": "ec63a9d35bd8555284ac00d6ed870fa6d99c5d5ef92778180d1ac88da89d1a74",
-        "observation_sha256": "5578324eb4839adb23198bde71be521b7f6e60c8763f71e7373fe96b1925e6d9",
+        "observation_sha256": "2ad562b9fab7134ec8404777a3d678766ea71b509c6a42870c196bfef9d1ceac",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -729,7 +730,7 @@
       "fixture_sha256": "c6927a7fb741b45df11b2c3202295b60ee751260e079f4d4d61ba0901fbef6a1",
       "upstream": {
         "fixture_sha256": "e8d7f95b3a6dddab1e1d58b787fd1fa12cf962f5c5acaee6a0d0d5159897f952",
-        "observation_sha256": "5da882d3cc993d8a2fa9b89bbcce26275c90ddc086c779cb5880a797a1c49b34",
+        "observation_sha256": "367efd07a116576a998c4dba45567ea3325d754eaaff4c9b403acfd36cf12944",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -753,7 +754,7 @@
       "fixture_sha256": "758bb747687dda9e55c2254f8856a64023f68b7efe78055c5fb2a0cb3f1c8c62",
       "upstream": {
         "fixture_sha256": "11d88056902b4ce9daa485ac34bbccad9af7b6904b96820bf07a6f8c56bb9673",
-        "observation_sha256": "fc708ff6905457f46d344895e0c269d6a5b2a68855db008f98696e90392f5eef",
+        "observation_sha256": "b807ff60dd2429ebc8a76145a49db321ecb6e0ff330250e9bd5165deada553ed",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -777,7 +778,7 @@
       "fixture_sha256": "c0bd5e2ff702893f2a66a9c06f736b6faded572267161ed8651c073503f350ee",
       "upstream": {
         "fixture_sha256": "1480bb5ddb9f9637940d228ac9279da34bba198e2d063aa7015ea570040731b8",
-        "observation_sha256": "a77e1cd8b602b9a4fda99a1013e108832f549ddbb0b31b33bfc970e3b5ec4a0d",
+        "observation_sha256": "55f947a09842218088df16cdb89995c0617eef53b3dc5e552247ba91eaba2e4d",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -801,7 +802,7 @@
       "fixture_sha256": "3940ac235e98dd65de6460c66d5fb39139e659269734795cb6dc151fc94d80f2",
       "upstream": {
         "fixture_sha256": "611055f49e315899db9733cd54c8dc05703bcf6ca801b160d3e5aa812b371675",
-        "observation_sha256": "ef16e049928a16b18903023adde178af2d388ebd2e7cffc4a668cc9e317a5bf9",
+        "observation_sha256": "4ebc813e607fd104d7e8d92fedc04f321d0ba2af69100f6fb09e01766341fb46",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -825,7 +826,7 @@
       "fixture_sha256": "fa55fcccda129c833913d1038438b958df492e7bd129f92a6414fb176d66038b",
       "upstream": {
         "fixture_sha256": "ffcf3204906e6ba036c216f7fd1360e0d3504060c42c8d2238a17c5828aa42a5",
-        "observation_sha256": "831404d30c51333c32a44401ec0025323d4d0cbbb1470e7ec326be151e4f02c3",
+        "observation_sha256": "4b1f62e042a4d25dab6b2e7500ec92df1e7c2657f4fd7183b2ca192c47afb2e8",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -849,7 +850,7 @@
       "fixture_sha256": "1aedac9b719e0c61dea590d539975430afd92cb0a36d97d9c88ddfeb517b0495",
       "upstream": {
         "fixture_sha256": "699432d1733a113c8708cf995075d6b99335647e297a30eb27605b4e3e0f3088",
-        "observation_sha256": "d4a15b7dce39a6f60edd498f99229262856d9420d68ee09c29dc7c87267642e2",
+        "observation_sha256": "2f94cc569596500b50e1e5d3966877c931ba9b098cc50118d9478cdfe396f807",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -873,7 +874,7 @@
       "fixture_sha256": "37ac486275f6bc4e8836e3bd8c65bbd61c49560b364a8547802646f7800bff18",
       "upstream": {
         "fixture_sha256": "2a5babfc4f57c176ddbf930f51f4eb8d6ba04d923aa765791f4d34155a751e92",
-        "observation_sha256": "57f3c1890399e382b90032a1992a57a38f0a6e6e0eda64a65fff5cf8695d48ba",
+        "observation_sha256": "f9453893997a77daf2f73366c1906248fdcc5133eb8b27c9907bf3fb316115b5",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -897,7 +898,7 @@
       "fixture_sha256": "4dfb6348e5763801cd8ddd738d311b739a4e86eb8badf7f3db2d23902c06ee75",
       "upstream": {
         "fixture_sha256": "99c6575af7e9c10d48e7bcb12c5cf0ab17808207dba8160a9140493e90be2d56",
-        "observation_sha256": "15b251b2a66222e9a4efb54c67325aedf0a1ea958161c6bae3301c13654d72c3",
+        "observation_sha256": "da18a540adecfd960d444896a8a5f4addfba163ebd3b37fd1384463228ddbebc",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -921,7 +922,7 @@
       "fixture_sha256": "64f2369e1e9053253380cf525c3b2d0a0c8e6c4c6f118351bd913392c82a920d",
       "upstream": {
         "fixture_sha256": "67e50cf76ea891b0b3f868516f35484afeac839d350e58edfd57489149d15bfa",
-        "observation_sha256": "2f09c9d272264b28f08c325888e3a58b5663e4d508d340e8d60fbdda9230c70b",
+        "observation_sha256": "907c1609b0d2d7af4eee5bfd66309c5840b95697f6cba9324edd607d25c2215a",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -945,7 +946,7 @@
       "fixture_sha256": "7703299a3537922df1563d8b50ef395acf9205e4481076eda08f117f076c0b91",
       "upstream": {
         "fixture_sha256": "89bf20063ea7ab35a7517282f215a37fb912a34be55cd6cddaa28c4018aa6bf3",
-        "observation_sha256": "145fed75b9b5afc4e35452ee871898e9624bb77370562a8830329c8d0d3304cf",
+        "observation_sha256": "b0cd6cc4780133843a17800623b0ee266f5714fcdf93e46279b72812d911a6a7",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -969,7 +970,7 @@
       "fixture_sha256": "8c2292b1d28a45690d6e21a7c7ae3ec9e553a538a3f9a893e935dd7a20e86ad6",
       "upstream": {
         "fixture_sha256": "1df56bfaf03d7fa1f251312d7bc50df2e4f6ab7729520e1333509330c36b7766",
-        "observation_sha256": "5fb6176a90b0911966bd31856142eae210f05257177403ec3e0a70cc5516ff15",
+        "observation_sha256": "60ae8ca0244dbd8c0e2c09c9e9a6f14397a455f3e5f95664b2414be3df246f8f",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -993,7 +994,7 @@
       "fixture_sha256": "23888fd07994b027b2992b7c3d7e346ec128301a273a03d796351c7f8888bdaf",
       "upstream": {
         "fixture_sha256": "92aa51867888b56822c79ccff2226b58679069f9b2b98407cb233e45bbbc9dab",
-        "observation_sha256": "746c740576c619434cde94385c0b68caceca1764422dc1a51cb3e125da5a2892",
+        "observation_sha256": "ca2dfac772bdb5e2f5424cf389decaf686f2e26d27078ee306a379ddccffe087",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1017,7 +1018,7 @@
       "fixture_sha256": "c180e11e3df6cb07b5d20a985fefeabd9f14f67b48c97aef0570e79f9a0f8270",
       "upstream": {
         "fixture_sha256": "599dfc8eccbea82368d2a48a9d47daa11c544fa78df54a0b16efebc60d79b972",
-        "observation_sha256": "8c7aecaa6f3e1787205522936ce92df6fa7c1ae2f295b7f9bf86decc2f047593",
+        "observation_sha256": "d0e39d1d5f88a06ac1d25c308efe9a6c76d107e3ac22f1aba33f84219a6151c0",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1041,7 +1042,7 @@
       "fixture_sha256": "5a247bfdf8f745a68fd77704195fd5c5cfe3595a072fd4e613cb52cae6f29dc3",
       "upstream": {
         "fixture_sha256": "5248966c8e772793cdfc3daab587b527491cff27c73b1d996eda3deed45c808b",
-        "observation_sha256": "c78cee1cb5ec6cc50d848eacdf5022d62049f1176deefa4854761706b8a19a97",
+        "observation_sha256": "e3c5ed81247b1b7660cb46e98827e4657bd4035a510307e43986076e53796b81",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1065,7 +1066,7 @@
       "fixture_sha256": "60ae4295b6d59da35afc32c31daa91b1d57a66ceae1d89e2624e248a0190c10a",
       "upstream": {
         "fixture_sha256": "c4e90249065f1aeff341828727d641c25d8aaad71be7f72d0c63a3b52c0fa2d6",
-        "observation_sha256": "6e1401b5dd762a945b425ce80157ba3e1151973f2f95d1ee9908012a8ca31224",
+        "observation_sha256": "18a94de2d3f8d8fda00d8112cf016ad8b36b401d960daf595113f149552ccbd6",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1089,7 +1090,7 @@
       "fixture_sha256": "550631adc811e5c29f589d13d941c52ae4b5e79d07ca43a7c9527d2d9072b1eb",
       "upstream": {
         "fixture_sha256": "af8f722a5c2c87735efa4c47efb940942921b9f12fd769bb69d07b21cbca124e",
-        "observation_sha256": "f34f48e8f882213131f2448c0acaf248aab6d263389bf47f942e03c20d2a0a51",
+        "observation_sha256": "d5f56249296ea16be0c37b7b602538e4cb1bbff62109f87e23c76daaa4a30350",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1113,7 +1114,7 @@
       "fixture_sha256": "4d682a42f07b21dd2f121db8922d4f2c5f13fbf6e63845dc081f9c5b32cdf504",
       "upstream": {
         "fixture_sha256": "c4757259a3cbf552adefa52c98bb51b2010b5324df672be08c997b8cf3f50119",
-        "observation_sha256": "e53d60f61ad070c34f4a0afd4b69abc67f3f72be843dbce40ab76899c0faf435",
+        "observation_sha256": "443fb1d7716a111936c78097dd389d6ba3c241b372e7b0b2a0620b122b97b2f2",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1137,7 +1138,7 @@
       "fixture_sha256": "3171d7a199113f037ae5dabb2e28aba23856ff31cd39da8ac9956e249a0e88c8",
       "upstream": {
         "fixture_sha256": "8b8fb4058399dcc4c3ec59a2886531c460c300401ba426a374d49dd19ffc9b5b",
-        "observation_sha256": "11c7ac3c33fef69b354f4da02c12a6ae638a910c3fb7fd66cf3cee6068b13fab",
+        "observation_sha256": "3b00620d7286c593f8bd19cd15bc44ce9d53150c947629d9ac9469ee6e7ff780",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1161,7 +1162,7 @@
       "fixture_sha256": "f354768d1cc854d2236888a50ff31ed6d4b60a8d4684d36f564ee4e22e8c90df",
       "upstream": {
         "fixture_sha256": "9358fb03c8286442d31055f49863535fb9c16dd1e670a4c1270234ff9a36310c",
-        "observation_sha256": "a17f6f591584b3adf56e212ddb5dc44feffa68f697a88faec2bda034e1a95a32",
+        "observation_sha256": "f9efc94fd53eae3d413c0d47aa0df0e46472a7b032d790e8d209bf45142ca29c",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1185,7 +1186,7 @@
       "fixture_sha256": "1237466025b78e122d8e296048e7bf5786526d7e30bed5ec6216ac8f78712f9a",
       "upstream": {
         "fixture_sha256": "7b00e19520d9f379edf4955fe764875771d4373794a87fecff52c399f24383c5",
-        "observation_sha256": "a6e34ddbde46770611e9533583c0b70f4d73ffb71b0ff31b255581256317902d",
+        "observation_sha256": "8069659d8ce110a05ea3dc6ba5e106764a6254d75d1745a1bc33164dbd65c43f",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1209,7 +1210,7 @@
       "fixture_sha256": "ec3b284ca5c0041c08211dbe60eed472397077e54beaf7b3e3172327d7a1b203",
       "upstream": {
         "fixture_sha256": "fe6e21ffc6925d5e221587342f0cccf05f53ae63c2c02f4311e8ceb4f4c962a5",
-        "observation_sha256": "eab864f3a1eaa724923ed2801154379deb6cb1b132dc533fc4f80f49f1b35b38",
+        "observation_sha256": "8d1bb8c60156cd3cf2a104e38a75144f064844f64d435509e55546f412f3d2ff",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1233,7 +1234,7 @@
       "fixture_sha256": "c520e32b2dbfcf70c017d983265e488b6c8c7726f06a628ccf051350b1768d2a",
       "upstream": {
         "fixture_sha256": "d4f389945f5c3afaccbd0cd6371db380fca0bb94abaa525c5fea580a6e985751",
-        "observation_sha256": "e595fbab5217fc7aa141e99aecd131c86bbc808a15cd5443269c37f95fab13bf",
+        "observation_sha256": "6df6973e9c22d0d7d1e8b56e8ea9619e7210206beddf099e1694b099221ff457",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1257,7 +1258,7 @@
       "fixture_sha256": "fa430a9530d1ddf2dc6644832a9f9da3613aaaf499157dffbe77b2498c8294a0",
       "upstream": {
         "fixture_sha256": "685a160131cec23e894ef794ec3463d14ef037682628c3cfa631a1ca6ef7645d",
-        "observation_sha256": "05d08865a1d215113b3e7acce8e22b6f7b4cb0faa03020b71e04a395276f3277",
+        "observation_sha256": "28e5d76f9077dbe3cec0c7d39c01f1ae4922893a112199a091e180198414a384",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1281,7 +1282,7 @@
       "fixture_sha256": "c15e478e173f76870d6a1d06fce38bb7dd583dba1d58b3357c34f8931aa7b56e",
       "upstream": {
         "fixture_sha256": "301821a8131520b7fea2473086cc5cceede8e0cd14ae005dabb1500cc5b7df5c",
-        "observation_sha256": "a36192dfff823475e2528c03a0217b820459d91f684cd6576e33f5a6975be71f",
+        "observation_sha256": "9e3d82b0649622519f00bb1b11264ba568ac44732614d73ffbcc05129b4d62cb",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1305,7 +1306,7 @@
       "fixture_sha256": "1d034b7e9ac40c1d360cc94a91e19f8ab98c2e8b3921a31bdd2397af36479da2",
       "upstream": {
         "fixture_sha256": "b3b6baa923cd526abd51609992e6cd1b8e7ec9d0c77157dfc8f25afa2d62c177",
-        "observation_sha256": "31307dc89c4e450598c9a1653fa1439783fd04d80d7a8aa8ef936267ef6a02ac",
+        "observation_sha256": "262853e7330084940520577020f98cfc4b91233a7a765876078b7ba8be87bd77",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1329,7 +1330,7 @@
       "fixture_sha256": "574fc717b15dd4a68339090a6d91fb810db6699dddd9efc229e01807739014a0",
       "upstream": {
         "fixture_sha256": "40014e528cd532d8f35baf66876bc34d8aa84e065176498accb58f3c1627a51d",
-        "observation_sha256": "32d58f392903ba894ec2491e8c9b2d0fcd58108e0c943ede5648c51e159e17a8",
+        "observation_sha256": "484abd493f3de80ca329dd9816dd08d56114cbc3c0cdaf3110b9eec17a0b1b96",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1353,7 +1354,7 @@
       "fixture_sha256": "7e51d74da0953cfca853432901af8130aaf97f6f365afcb1dd528ab3b76c8d08",
       "upstream": {
         "fixture_sha256": "ce991ecbc581f7e11bf33d66c6d334873c13173facda818e7424fa47a897082a",
-        "observation_sha256": "30918e80bdce2a9b61d37b1002de2df883a6400b0f08f220b3dbe1b20cd1b2b7",
+        "observation_sha256": "9262c5454553cee95828dd7fab6a3915f48044d2bc2f14954ee2efdda2ba0348",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1377,7 +1378,7 @@
       "fixture_sha256": "3fc84abff5ee43fb50b7e31579456b37d2bd735ab2bb9f6b1c94ca868aa01f0a",
       "upstream": {
         "fixture_sha256": "129ad84dcfc4ba72b50f7d47c9457ca2ebb44ce96b014f65ca086484194d5b21",
-        "observation_sha256": "d16aa4d94bccf914be19ed983819bb71791cb48d3c3fd5d6ef216355cc5f9d57",
+        "observation_sha256": "3fc04edb7d0591af8722c23caa19d799852178c162ebf99b9491a4be7629ab36",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1401,7 +1402,7 @@
       "fixture_sha256": "f353061234148819903b394002d3220ba97855e2f0931bf74edd5b6c78e96d85",
       "upstream": {
         "fixture_sha256": "9f137335943a27f3184373170aa81c525e0c8d12a88fb68622ef2fc317e2d9f1",
-        "observation_sha256": "4627593e345865a931138f7639874b0885ab6ef3099487710ae7b3c30f0b720a",
+        "observation_sha256": "44ae056f83a969d85c125a75a5b27fec33dc6b748694e97d221f774ab2ddd618",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1425,7 +1426,7 @@
       "fixture_sha256": "10cbad7131f7e008b16bf50e31d3a8a38cebc71b644c116bedf6e24c1b3be5b3",
       "upstream": {
         "fixture_sha256": "414b349014bb03cf11290fd339c820a1155618e233aef29185ee9788a3cb55eb",
-        "observation_sha256": "ed2e3dfec27e904fecd9f91e06e4a0c68fd941e6984051211fe301218ddb9d4d",
+        "observation_sha256": "5309c9189fe558c0f90475e9f95501431161b6bf230d86be2b15744f7ab733b5",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1449,7 +1450,7 @@
       "fixture_sha256": "7f0e4d827612f526d214feb8b655105bec91ccd34a276738449c476f5ec7b947",
       "upstream": {
         "fixture_sha256": "55b4ee76bb02f13406c5c2bd696c9e9f1bddafbfd8889e8d5d3b071b7e74d415",
-        "observation_sha256": "f69986116ef1ef163f66f28e616fdd5f1b7ba230d690ec52c1ffc50002c423ef",
+        "observation_sha256": "ecca7abf432c1ea50232a06595bf2290692053a07a6ae071cf3896a47e91b775",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1473,7 +1474,7 @@
       "fixture_sha256": "f0836da60ed41d72e2be936249a8bd3471f486781ce74bf7e8bceee9d2b0ce1f",
       "upstream": {
         "fixture_sha256": "0dc570b1e25424cc3c820737272391756f660de64065b58eb3f07902f99a7f8f",
-        "observation_sha256": "5e4da364565679db7acab003d56f8447103508306c688b09bc159a76f4e89622",
+        "observation_sha256": "34c2e4927c690b068d8e371e743b980d42adb22299e0a972078951fc68352a84",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1497,7 +1498,7 @@
       "fixture_sha256": "ee3b24f42f934d01bd3ebaa0f67b4db4f8a8ff9e513e3fb865aaa36f4196fe6b",
       "upstream": {
         "fixture_sha256": "080c2d6831bac28289a286dd62d7463bfc837bfc09081a0df5c1b8b43700355c",
-        "observation_sha256": "923c5fd239896a973c32b9cec42023a8bb3f68b9f724f49a5992e2b34cbd23b0",
+        "observation_sha256": "78fc0fac725aff28877c8c1f2f8063d1c2b11ab3cd0389703f614c13cbdbd7e1",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1521,7 +1522,7 @@
       "fixture_sha256": "fa1e1c8dd24ef4f0c497391ac1fe71eb26a0ba86215a00ecb08c15c56a5aaeb4",
       "upstream": {
         "fixture_sha256": "d4e05f98ddd41d4c259d0542a93579648b48df81a277a9e44be20bc6546757c3",
-        "observation_sha256": "67ad7dec2dd3be6a908c584469cbf966326d0c8c64392cbcd4b48cd0c1d86874",
+        "observation_sha256": "cb1d716b493bc51a1fa2bf9c4bfdc4f8e2aa3c114fe5a134138cda567937ccf8",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1545,7 +1546,7 @@
       "fixture_sha256": "905b794df13a7d2f07da5d86e581aed3e69eb1dd1b581b6824700cc5c2bdbabc",
       "upstream": {
         "fixture_sha256": "00e81f970ca1469331b949bdca34a89d86b1b61468b6fef30805b4d4ac93822e",
-        "observation_sha256": "893c780368564d4eb75529a6a73fe1928296a50ce023498b7cf6bbd1306dac91",
+        "observation_sha256": "4e1db5e99903e8e4d3a59b19527e1fdc9cd896721a877330ffa01bce9604d76a",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1569,7 +1570,7 @@
       "fixture_sha256": "56e4ba729c68dcd71f5fec2c683bf363595cd55b8e8f12c8ab3a6f7139a6a698",
       "upstream": {
         "fixture_sha256": "14d9928e26bb53b77a966febd8e8b36ebb11febb3af3d197d44e551ed13ea48d",
-        "observation_sha256": "3484aa2699f5ad6257307954977eedf353e20cf8b81b27b556708f9457a45979",
+        "observation_sha256": "f3c913ec5d155f171a00411cc4d33be842199c4e3c6a0e0cfdf234319a335451",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1593,7 +1594,7 @@
       "fixture_sha256": "e505803e138621423d0f4a84430cb1c2447fe07e3cbba763771f54f9fa66027a",
       "upstream": {
         "fixture_sha256": "6484249e0f105e4d308aca0423f1d15332b774976830f2806aa29e1a397c301c",
-        "observation_sha256": "84d97d05897755b0a832568b3e5a62b9e9810502369a5c2a2df89dfe10bcc976",
+        "observation_sha256": "55ad068e0a3fb37fda73f613e56eb0a6dd1955bc0dd70331831af0eb6f179b7c",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1617,7 +1618,7 @@
       "fixture_sha256": "bc5f9eecba52941a6ee228139c6926344fce9b5c2ad94c03e07b359926d05415",
       "upstream": {
         "fixture_sha256": "615c924def474ad425144fe55dfd5064ad382763ba20ac6e1a0dbaebe5116a4a",
-        "observation_sha256": "29eff3f5be9acf5aadd8210579e9819787cbd58bde92d39264b28f1e4c88d351",
+        "observation_sha256": "9ecb9e3b4d2d56a01d9c01ee320acb64c305a71a490d9f1202b6338944443356",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1641,7 +1642,7 @@
       "fixture_sha256": "85f782ab024acfe2e4d4645aad3a8636fe112bae24f2e65407cf755ff543aa7a",
       "upstream": {
         "fixture_sha256": "c70c385ffd5f05f389a925292dcfbeedc35d2c146ec03177e8619416964c4095",
-        "observation_sha256": "7ba7213f1e44208d688633f2a3c545138e4f095c59ba870624e72731b93b7226",
+        "observation_sha256": "58c37c9d19d7a9a30472e5bb2d0699fad8b23dc5296e8356d25719c4c66487d4",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1665,7 +1666,7 @@
       "fixture_sha256": "a6812c080543270fa22c49d22315b5339f56415b7aec1296e9449b408c0a6fd3",
       "upstream": {
         "fixture_sha256": "8400bf1a49f2e76815841b1f29d319e4fc7b9d2d5874e6555d2a961cd8733734",
-        "observation_sha256": "cda31b764890a84c389513e0bea90cf5789742564fa0200ed03ddb09fcbf13f5",
+        "observation_sha256": "93fb913b6c1e4e6122c9cd023847db76d2be636ad3f5c53c136563ef647b1a88",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1689,7 +1690,7 @@
       "fixture_sha256": "ef067f2eb5af3fc4464915b0789be79733ac54c47c16f6dccdc125e66316e13b",
       "upstream": {
         "fixture_sha256": "7c065f45a0167748a90f0a42caf82233a424836522d001135aa06c9a317ee8f5",
-        "observation_sha256": "605a4c458f961d1b0655ab1318183ad913124c1e86415df091314342a7c82e6f",
+        "observation_sha256": "700129cdc531fd119b7e84529a871712732a9b83811d5c14ca05a79e8ed3b421",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1713,7 +1714,7 @@
       "fixture_sha256": "4bdbc6d4a8bf315a148fd1f19849d11ed742cd43e241fe93f41eec0290bd006d",
       "upstream": {
         "fixture_sha256": "a2e6462d6b5d13b723ef69b364f6b224fd21ae2e610d3d875b080949e048362a",
-        "observation_sha256": "e9ffaf50a93cbe0e22296239a24a3743707ea7521a8df046b01777a8f44306cc",
+        "observation_sha256": "76da638b27fd9a6ca5eb56b327cd4349c5ceeb02b20ed08a4b44b976b963de32",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1736,7 +1737,7 @@
       "fixture_sha256": "c3a17c07e19fb02bd4fb8401e9539fd1a01bc683bf7bd9dcabc58b238cb5b264",
       "upstream": {
         "fixture_sha256": "a85f3d28865328a6c83fbb06d7c62a8aff8e16cf04a33db69c478dfff0f25686",
-        "observation_sha256": "fd6d19fbf93a979132fed654806d5814a7f684d2d6df3386d7b332be80621805",
+        "observation_sha256": "dd29f61dfe0146e02e30eb739e452a6bc50fa82868e415dea0b5c27f34529dbc",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1759,7 +1760,7 @@
       "fixture_sha256": "debfbfdb8fa30281c95be238bf3e320876c80500d41bb6fd121dcd8e87f7484d",
       "upstream": {
         "fixture_sha256": "4aa666975acbbbf96973f3a49a9a461c610fa83584bc501855258ea3e65fa986",
-        "observation_sha256": "f46976f9db969c79ecd700988ce44b76aff5df812531b479f22f0eba03fa52c0",
+        "observation_sha256": "b1ca6f694d181592b35456b14382a027577a27236e5961554b0735a4fca23492",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1782,7 +1783,7 @@
       "fixture_sha256": "45c40ef9909bd3376d7f8e4f3d98ff1c289d4ff68b72554a7f3fac5ba70aa34f",
       "upstream": {
         "fixture_sha256": "86204161ad2edff5ab8e2fcb10f519d7342b3d4b9c11f3439b4db0bbf4fdd33c",
-        "observation_sha256": "072bf70a9b32471564cfe751ffc44596a24762fbc304d9d4a99b06e13770e500",
+        "observation_sha256": "479df34ef7d9e934c60e42df4e1e758cfbb919b1246816305540bf66adfed19c",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1805,7 +1806,7 @@
       "fixture_sha256": "101237b714f8c911e45989e7d8ee5e7ed3801ff338650442a21274b061e9d43c",
       "upstream": {
         "fixture_sha256": "192189d14ded9b5e84125329c685bc14e197d839e79b3e76b76da186db70895a",
-        "observation_sha256": "f15ce721bc3dd18262df2fdc6c4e9335267160d1d3667957de6388e5130cf166",
+        "observation_sha256": "7fa46c27b4a0e0dadba362b238458e5cdd88a755010b9a829a3b29fbcf35f0fe",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1829,7 +1830,7 @@
       "fixture_sha256": "fce60e34f3fd7769041ddf1ab68dd65dd4db5801f7f174527ebcfb3985aa328f",
       "upstream": {
         "fixture_sha256": "577a7f3c16bc93a0c91c3b3d3b5615c8c153969f71c84a25be007c8110275129",
-        "observation_sha256": "bf1675aea6dea63609ab861127b95aa4de7423e1700e9587ab0f99e9351fa362",
+        "observation_sha256": "20d9494bc89453d98b6c2d4b7efb847dee67dc461f49e4aee19197e5a98942f8",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1853,7 +1854,7 @@
       "fixture_sha256": "57d872b8b61304c48fe43ccc15cf8662df9a5c56263ed0b888500278973e5baf",
       "upstream": {
         "fixture_sha256": "c1ca3a6c4a2f921c01a351d913f7d7a53b370a16d3eb20ccb8acca8f67b4353d",
-        "observation_sha256": "29c1dda9f4d76840cc588dbc9d790f1e7acf439663baa06cda7738fb3f9499f3",
+        "observation_sha256": "92faca81f40420e35f663a3ee44c61f1f0dc517fac49b7700000133f5d3961c4",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1877,7 +1878,7 @@
       "fixture_sha256": "d1e31007eabfbf3f12b74cbd557ba146a9868c9f7257355ba58f67f9c7d81ec6",
       "upstream": {
         "fixture_sha256": "9e835b128cfad23654a093552d2db02f213e5a81e1e4df4eb1db7f8c502ae6ac",
-        "observation_sha256": "ff49a9c127b33fdc0a8160aaced5bf32290cb148520fdc5c423ad90cb011df1e",
+        "observation_sha256": "b4936664de3fa3569dfb305ccee0538c12fbf7d61fbfb4bdac6b253d4f426839",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1901,7 +1902,7 @@
       "fixture_sha256": "5ea5577e576ed642f41eb09df38fc18c6539abc663f67b9e8e5e0a185e416228",
       "upstream": {
         "fixture_sha256": "2277ac9b6fa4a00231637646caa6fbe07ef0bcb8d78db3a29e5d82373cd3c194",
-        "observation_sha256": "0a079266b56421310dae0055d3ef265b68be96122f428264a2903a2a01945673",
+        "observation_sha256": "304035477c83c2c5e0a3559718b154dea73340f55fe0770e6f0bf71dd9ce07c6",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1925,7 +1926,7 @@
       "fixture_sha256": "cdae800982726be955f115f6371f58bf5a3d195d268236ba966ed544087379ec",
       "upstream": {
         "fixture_sha256": "888ee00a50530e951c9b52df7618682d141debf4242d8d4e9e97d30b1a062102",
-        "observation_sha256": "0b85d59e76891533dd3e6cc4cc6a275725d577bb94db85b7d77ca7ad3eee7870",
+        "observation_sha256": "7b2df717db108678622beac7ad921cf5b8aa4150b67e02b0b27e28fb133a3234",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1949,7 +1950,7 @@
       "fixture_sha256": "275fee82ada3a49af6e7baebee1c03ac6d483dcb703e4c2d3e81848978c0a689",
       "upstream": {
         "fixture_sha256": "5150c91c071f57feff1b723658e8340ba0364e8719be5309cf3679708e393f57",
-        "observation_sha256": "d71ee854769e657e01af6e5ddb24eae972044ca0848418c30dd0f71ee9e27b22",
+        "observation_sha256": "8123d6b3736f08906abd0e1db61264729e9904e1b518389b8d57a1d94a2ca1a4",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1973,7 +1974,7 @@
       "fixture_sha256": "b9607dbd69d3fe5b060b2e0573f93f80c2585424531dc71d5725884c032afd3f",
       "upstream": {
         "fixture_sha256": "2ed9fd3335e3d274aa56969955b03bf231cd2372108b345f7f743b197de88875",
-        "observation_sha256": "83fbc6f9c3a189c15f9acb885d73f45e162641db3f885ed6bd813242bb759904",
+        "observation_sha256": "4348b21633377502190a85735b04e8cc8fc0504ba4932f12e8374a260998f387",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -1997,7 +1998,7 @@
       "fixture_sha256": "72f6376759ca65c5765f9706447fbba0375abfc879d917e700c1430e6b8dae84",
       "upstream": {
         "fixture_sha256": "23611a5857402d7c08a3017b47ac21766111bb58089769ea72149514338b7a13",
-        "observation_sha256": "75a7c38d30f5119f3a3fdc10d1bb39e2fe05eb187c6c194d9c33f7bf2dcee90a",
+        "observation_sha256": "8beca9878593a3824ab99879e4e87968894f0b862abfe34f2bd41e7144376709",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2021,7 +2022,7 @@
       "fixture_sha256": "d11f6a916479539ad91000e835f47b86376b4c9bac752e3f9a7978ae11e38bd9",
       "upstream": {
         "fixture_sha256": "ea00df8987b0995a9229e229096cb710cbe03a05e10c072c8daff556f244c738",
-        "observation_sha256": "66d0ed825bffe135b2136d0e5703906bddb432bfc46702d0613bf369a80f3d65",
+        "observation_sha256": "e3ededcb9c032bb378fd1617148d4eca87230ab7149c0b8d988511bc3f0a9307",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2045,7 +2046,7 @@
       "fixture_sha256": "f763f1f937c5ebf2f38eb5edd6b6f5e64f18ebd5ee282de1dd48d726c5545fd6",
       "upstream": {
         "fixture_sha256": "41df5359991ae53ca6395103e09b0b8989fd39a61bbbc2bc6a376ca4ca812168",
-        "observation_sha256": "2589bf558ebebc47c1062810d6293e9015c244ca42fc4eac31412c60abd737e0",
+        "observation_sha256": "868399ba91eb8a3025b4bc78954667f122f3ae79273ad3387fffe6656ab5db39",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2069,7 +2070,7 @@
       "fixture_sha256": "1d799602d858f071916e5a0bb8bb45eb915d07b591f850cf1cd745c4fb166b70",
       "upstream": {
         "fixture_sha256": "b252543bf97d8cbb99b279075a44ea9d8890621fd2be7540e36e48714190ba4b",
-        "observation_sha256": "9f3bcb4fc17b0d2dd3285dd009405e9b913ad8b604ef78a7eb1145a78f639889",
+        "observation_sha256": "07fd116b3f96264046b77163f8d4a90e2175e2c5a9456d672815655762778b98",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2093,7 +2094,7 @@
       "fixture_sha256": "df104451d172bc78197de674b13641fa559501da328e5a447619bbeae66bb280",
       "upstream": {
         "fixture_sha256": "b6f0a58359454b7fcd214581db981b85fd9b9d156ca37200d96a0edc9911c223",
-        "observation_sha256": "2355e454cf2b2bb7a4394c6aa3d9259f0dd62f97f8efbca25f556e35bc1cec55",
+        "observation_sha256": "7cb2de6bfb752a79aa93e5e29e110707fb4127d6ee80881edd955c8c197bc8db",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2117,7 +2118,7 @@
       "fixture_sha256": "6a3d8af8cfb6afcaa9f73eac3d7f696587a6cc3c1eda1597c99157ef1fb19c03",
       "upstream": {
         "fixture_sha256": "167bb7d0dc238d49b1acabae980ec08169555efaa5e44127abe4dfb63520cd0f",
-        "observation_sha256": "117a8b14970064889bb40b55f7df67704e004d7ea86619fa684fc332e774108d",
+        "observation_sha256": "ba3b5e5df1aae369044ee1907d83603d8d61180580a03b284acf476a43404b94",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2141,7 +2142,7 @@
       "fixture_sha256": "ca7858636de0e519d3fc01ad04be61c3fa2a21adfb574708bbc915f62304926d",
       "upstream": {
         "fixture_sha256": "1625ad9d5abaa67d8578abb9b3b682b2a45bc082f3a4ce46977411928449fb04",
-        "observation_sha256": "4f2b8cacf74d9d5508fa27977f60d29ae74b9b860342cfda308bab5013f38bfa",
+        "observation_sha256": "cd3d7c7b981f4a1a6b1dedae86844f74c0f8858bb9f728e7bcdb53cf8925a2fb",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2164,7 +2165,7 @@
       "fixture_sha256": "b07b7882f4b09b67ca3eeb7517022e329b8b6050e0545def14a9498310b2d116",
       "upstream": {
         "fixture_sha256": "330e7a700b364754662b20e619e4025cfa05ecc41bc71fdae40b7b5f7d8db35a",
-        "observation_sha256": "3b94384e080c34728090ee83b1423f623476ddb47181c983c9564f61aae76638",
+        "observation_sha256": "331280fa8dc7a6d6fbea5e50bcd4f247d7998061ad0ba959fc4d07bd668d548c",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2187,7 +2188,7 @@
       "fixture_sha256": "092bfa17897a587a580d4c9cd6795b423ab3dc038195dd978522f1ad35961e08",
       "upstream": {
         "fixture_sha256": "fc12e713ad62a517379442217ea0f397fb2bd82bba3864b8e294dd2ea33502cc",
-        "observation_sha256": "eaf3383ff731066c99732724e6a71bb1263b6eafb329957a4b0ad053e132fd94",
+        "observation_sha256": "cb5f58e4b75dca9a54e8b75893e75cec2548505bc3a0e11de2760640363e5849",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2210,7 +2211,7 @@
       "fixture_sha256": "f16f21a5862856238bbcff50638376caa4fa9b2e55672d9026e15c41c7c3f027",
       "upstream": {
         "fixture_sha256": "6993d7c84e75f2a4bf576e68ff3224b879633ee5aa442bc4e51b67190c57ce64",
-        "observation_sha256": "f256c292b1b522a9aa349390566e8f733c7195f8c9a797e728f029cdb9377868",
+        "observation_sha256": "7fc85eb5e7c9d9b616ff4b646512bb3da81a5a8d5974e98039a2cd341e8274ab",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2233,7 +2234,7 @@
       "fixture_sha256": "8c5589c1aee4af1f624e005d7f0409170e88c68d6b641c4e1ec4a1324df2fe67",
       "upstream": {
         "fixture_sha256": "bda66e784fcc25d2380490fef6d99432c3059a8da6729e1474f19067d42cec5c",
-        "observation_sha256": "17b66ba4a6131ecd91b76fbb5da1393dee3714ee73bc0db8fc4360338bb537aa",
+        "observation_sha256": "e27b3b3a394aaef62dcac1c5efa4ebbaa8d9a83de17a0f568c1cb9833f5723f0",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2256,7 +2257,7 @@
       "fixture_sha256": "249436dbd62fe2adc15662d95eec0b68a158d90f059816de2454d5d80539f603",
       "upstream": {
         "fixture_sha256": "24ae75f20b54bc51c0bd447469490d47fd61be88384cc69e61bdbdfd16e82de4",
-        "observation_sha256": "a4941d4db2ab68eb5e61d7019042ca0f52b4322b95d7db55709f37007d8b4b7e",
+        "observation_sha256": "f860b93449d7c4d07b5454ed0405c09b2c9bfb485495119b680b78baae6a0815",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2279,7 +2280,7 @@
       "fixture_sha256": "6463685b8f65fe50603dac0ac06e92fdea3a2c506660cf7f39aca3523daad9c2",
       "upstream": {
         "fixture_sha256": "d2959aeb3f1088c6b4445b3559b64671a5409222810343ff6706a1fc7e0c6f80",
-        "observation_sha256": "e199a09bcff2ae520c9cdb10d0929f89c9fcf426b9f9332385bd2c1b5e48a8e3",
+        "observation_sha256": "a579968e8da1802f2b9a6ccbdeeb443db3b0fd8bc316242cadad4d0892dd3d22",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2302,7 +2303,7 @@
       "fixture_sha256": "8907fea132d23f840cd5c5cbf3b9b11fceae93ece1a4c629ae314c664ee7ae48",
       "upstream": {
         "fixture_sha256": "024712a9580e9e7d860e05e0a1e5409c0ae8898b1090cd60b33b83d9316d9a23",
-        "observation_sha256": "ce1243166f2dbd2b2066e0768c74a8c5520c8ff2d6c5394a5d7b5cd639aa50bc",
+        "observation_sha256": "47842264a5effbc24fd60bb7817aba2707676c557eb7b2deb6ac4df6550e78f3",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2325,7 +2326,7 @@
       "fixture_sha256": "64fb410174ddf79c18cf0b03e14305adb666c3bf69d81f309e9bbfd4211e559c",
       "upstream": {
         "fixture_sha256": "f144182da02a840c08eeab4ff683c237912517610b09316c7bc63e75bb3b4b9b",
-        "observation_sha256": "913d16062406deaa158319607f7a90d909554fc06c37235a93c220a8d7fbdcc2",
+        "observation_sha256": "0caec04fa99d0b96adefe37fbf486022d84a56197bce961a20a1c560b1cf4051",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2348,7 +2349,7 @@
       "fixture_sha256": "c58cc3ec407129ae8abea441e75b5b9f26ab4a5ccd134eb9b103920d4edfcf6f",
       "upstream": {
         "fixture_sha256": "482eeb42826506cb9bea451633dbac3e7a43b9af94a2bf7ceeed602621c9447b",
-        "observation_sha256": "ee145799fa9539554b1a107b5e51eaf2ee1ee75963ea1c37396c19a616b3b3d3",
+        "observation_sha256": "38fe48a86ca9a71493eede802813b30466de4da885c2a1125ec48e4c5b7c2050",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2373,7 +2374,7 @@
       "fixture_sha256": "0d6328f4e8216846f498023139dd0fbecd1989a623c6865d5dc435d0f758f5e0",
       "upstream": {
         "fixture_sha256": "2981e8ce49f73866a42f7545283698393f07b26ef64654e30d681a48d449efcf",
-        "observation_sha256": "fa44448e8205d4e7d85db58b78f95cefe39538fdff8831b2f51c499764066319",
+        "observation_sha256": "4a43565854d0c844103fc64ac880cde0c7781b6f64d3c73ba5ac1387ac314096",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2399,7 +2400,7 @@
       "fixture_sha256": "766e2a11febf50cef9e6de57d4af0c5e9dac9955865a5418aac48b985907dd41",
       "upstream": {
         "fixture_sha256": "913d14c037927d1e8cfabcfdec1a037b80e45960b172995af36bd5fee9c8e072",
-        "observation_sha256": "f3d8fd9df8c20719ccfe13dcf33cdcffb05b71c6f6f3fd6966ebed98bdcb0708",
+        "observation_sha256": "e404f73ad22945ddebabf0ac9ef6c8d72d00a55ba8588de893e5ba0c9faf8317",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2425,7 +2426,7 @@
       "fixture_sha256": "597160d153fd68faad28b8467bb605ad64e82664b41412f4ca3eb92f6a823620",
       "upstream": {
         "fixture_sha256": "3adc5f56f2301c0e4ed2e0024e26b7a413a21168881b6f306784581acf27e5f1",
-        "observation_sha256": "a1eb1afe9d009f40ef3b33804775e31f5536c72da155105a515dbcc16d4c04e2",
+        "observation_sha256": "f1b6f13ffbb56afe5b25899617da65577705303f4ec9abfd1e76192f590eb798",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2451,7 +2452,7 @@
       "fixture_sha256": "5ecfaae96948dd411b642aaa2093194c4a156dc12ac81c6f1906b8add19b2e90",
       "upstream": {
         "fixture_sha256": "06eec2b30525a3b58e9d34ce0dae74dd4bc8ed0a2b51a17497c2ece8a6761a05",
-        "observation_sha256": "5cded13620feb7b3a1757f8140ba8e4c722cb79286a8e79c2e26356682685aba",
+        "observation_sha256": "897d380b75a8bb9614759a48975bd41bc595cceb190a03ac0b3362069425d847",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2477,7 +2478,7 @@
       "fixture_sha256": "b75f6d1a272ab08018b66145d853d812dace9425f303fd007b01c6ced23a51d1",
       "upstream": {
         "fixture_sha256": "28091075c4598d9b58e769e1aa969a087545f9daad7069f07733b4f73bc6970d",
-        "observation_sha256": "f7fc2ac446fc7ad862733060dae31761c30c3147fa48706bf7cbf386774dac52",
+        "observation_sha256": "edafb8ef504e51d1b6058974fb9c7ca1fc6cdd2b289e660bc66c2dba6b00320f",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2503,7 +2504,7 @@
       "fixture_sha256": "e93c16d6fbe3ddef25a988951df7ffcc642d83b99631a9b74fd0d0842361683d",
       "upstream": {
         "fixture_sha256": "7555b2062bbaa9db1271c731d87a6635d24e3758295f911cf1fe3067412e6686",
-        "observation_sha256": "303b662162e42da54eeb0efc8127f64f81c593017feed7e5f8174613083022c3",
+        "observation_sha256": "315e6aca922c72783a119913c5bdeb8618c48c68ac14cef7e59c3a8869c42e92",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2529,7 +2530,7 @@
       "fixture_sha256": "859d48b7320e5af526c7bc38903ac4d008d2e9aa1668a78b9a64aa0a5e6e978c",
       "upstream": {
         "fixture_sha256": "d6b487ab55352448fbad774e3e227277e1abf928237f621909cf0fbcf8665eb6",
-        "observation_sha256": "b300c8fb056e4e1ae7d0774b74d783714cb7b3236aa2d59652b00b675d8532bb",
+        "observation_sha256": "9b70f931659991810ae106c530a42899e0319cc55342bc96aa1e2ee509b6cd60",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2555,7 +2556,7 @@
       "fixture_sha256": "d099dc28ef9397244132cab7db50cc7d7b7a40eaa851498d7026ac9e68b0a4b8",
       "upstream": {
         "fixture_sha256": "66056f0ee6f84779f7e87041f9f7886e0cab0c2ab4ef7e9a0c4a10f047814034",
-        "observation_sha256": "7c37f39b0ab3a35d35d7501902433da5369b238b408acf27eb3b5a3def67a121",
+        "observation_sha256": "5e3abca0b2889b8105479db78489ddf13bbfeec83b284cdd150fe5d82c10f69a",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2581,7 +2582,7 @@
       "fixture_sha256": "38b6e29e9177dad6d9c78c47c03ae2ee52a109a7daee9477fd9942d01cf2259a",
       "upstream": {
         "fixture_sha256": "2a2a01a60dd808d651964f27b0470a5c8dcd642f39fefa24131c0a785cad9612",
-        "observation_sha256": "25dccb1e9f718b529219a5fd9246fced9df17c6f31412dc021d48026df72465c",
+        "observation_sha256": "01fdc5591ca10507d435612d8e34d12a9924ef4fcccf54136e4350521807b718",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2607,7 +2608,7 @@
       "fixture_sha256": "1e6caa85ceeace7c4381970f01f0cd3738374c4665eeb577674762d7d65d283f",
       "upstream": {
         "fixture_sha256": "b3b156d92edd8219a79c1ce276d99729751597cc2a5f15f3ef555cdabfa40382",
-        "observation_sha256": "b701cea2a785fae43de04a719992f44a008468bed689936a87994ac806314041",
+        "observation_sha256": "52c651def2a1d4c250acf41676a330d48fbe69616a3ffb7d1011c243aa01149b",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2633,7 +2634,7 @@
       "fixture_sha256": "632504192dc51731d85e8e005db503ff949749bf364dc9bfcafa1946efc1fe2c",
       "upstream": {
         "fixture_sha256": "f93807b7d9b8ec9b822fe61f868915f547e2e3054e29dd8cbc8bf143f5c60b85",
-        "observation_sha256": "79a7de0872035399cf3588ae448e19d678b6c0e5c4aa6c83f80d262e71078b96",
+        "observation_sha256": "4784387df42260fcaab584a607e128db58dd5442465c675355b453391fe8233c",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2657,7 +2658,7 @@
       "fixture_sha256": "2b5499c7739156acaafdd41e9140b57296b3a4534be0e8a960e8908c61178a91",
       "upstream": {
         "fixture_sha256": "d78ce77ee6535d64951cb4faeaaf027d5d1a1a0813c03c7ab202d168080d1734",
-        "observation_sha256": "8d18bcdff57780a98b5bdefedecbf5930549295fc50fdcd80e2cc04000b98d13",
+        "observation_sha256": "3d611156950c74c88d37550fd8f43fcc02eb7ca204b414f5b045fccba21ca209",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2666,6 +2667,31 @@
       },
       "schedule_count": 17,
       "schedules_sha256": "31d4b75e59dcaf19bfaba837972aa30df6e5cbc17c54348573d86b96f88cbc0d"
+    },
+    {
+      "id": "spinner-no-input-player-port",
+      "acceptance": [
+        "A16",
+        "A23"
+      ],
+      "upstream_tests": [
+        "osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerJudgement.cs::TestHitNothing"
+      ],
+      "source_symbols": [],
+      "adaptation": "Same 2000-4000 ms spinner, default difficulty and empty replay through the real Player; all-min judgements assertion retained.",
+      "fixture_sha256": "2c43a788b22802f6715ab22c18c8367ec26442a6987e869aec9e9cd205b14cdd",
+      "upstream": {
+        "fixture_sha256": "680d7f6df2dbb2e27e9c9c6d295db3bb5a712d56910807dc7c07eb94c58949c2",
+        "observation_sha256": "021c74976c573a6132f0865bd90d3995a50193803ab98884f56e610bfff048e3",
+        "adapter": "pinned-player-with-replay-input",
+        "compared_fields": [
+          "ordered object/result/maximum/score/combo",
+          "final score/combo/highest_combo/rank/counts/accuracy",
+          "player failure/final health/per-result health"
+        ]
+      },
+      "schedule_count": 17,
+      "schedules_sha256": "24f4db77a47c796a9f9e1d54d22b2a1b46c8351b5fda870b0b3b6418c9ca29f5"
     },
     {
       "id": "spinner-1-spins",
@@ -2683,7 +2709,7 @@
       "fixture_sha256": "1faf78e6d3a2dbb5a3e81beb419bde2524ba6e6075602ae48e505cbc90007075",
       "upstream": {
         "fixture_sha256": "836f521fe611531dcce6ecdea88c2ee9b4399b342a7fdfb2023b824f3736056e",
-        "observation_sha256": "8fcfe374032dd273cc3e24af95129ac3e0bff3543befd0b2b4f42531a46e7a20",
+        "observation_sha256": "c3114465fad914c3f11afd3d38d1f5d865d26a10611b0c0a532cc9a2005e6ffb",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2709,7 +2735,7 @@
       "fixture_sha256": "5b3a3e0d854d48125d7660e02bd616d70257a39b7ee1025236a21ff9e1721bcb",
       "upstream": {
         "fixture_sha256": "2dc5d5cecac40a5db48c73822cadff9a36059092c30fcd79373996b6bebf6879",
-        "observation_sha256": "e68f11ec41935e13d46a975fbb5d0ce485cdfc15c1f5aa660fccab5341ffebe4",
+        "observation_sha256": "542de838bb908e62167fff153af5eee4b17c4878bc67899d6d75fd8f787d352a",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2735,7 +2761,7 @@
       "fixture_sha256": "756c30d5fb5de5bc97ae13106dc6044a0e80f66538fe4232e983f02cd5ccab10",
       "upstream": {
         "fixture_sha256": "cce2c9cdd2b55282786164eb3462ea2b8cec119c7f3897a47d18f858e9f3797a",
-        "observation_sha256": "d46cc2b92eba71bd1ee554f59baa5010a6378655900001f4e83d58d6343e9e58",
+        "observation_sha256": "7a607cf2562d805b17f158cbb4b584f29734ecb97db04d93f75f5251714693a8",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -2761,7 +2787,7 @@
       "fixture_sha256": "b7f3feeca6a1f84f7fd04206fbce345c49f189b7ca99c305a509e2f7e4a339ba",
       "upstream": {
         "fixture_sha256": "afa67cefcb3544fcc7886a7cab232aabbb63a3ef55524f8dfcf6a435bdb694b1",
-        "observation_sha256": "9647cfe0b8ef94ef44823718f806e04d9911b51e9fdddfd261df3ff195994465",
+        "observation_sha256": "9bd4c9986407d62aa37334ddd0d3b39c6a111c3753d9c6ecbc836b215838141e",
         "adapter": "controlled-drawable-input",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -3027,7 +3053,7 @@
       "fixture_sha256": "322aea35f60984176f1ddb18d31aa4b342aeb42360173135c2850716ae2e6772",
       "upstream": {
         "fixture_sha256": "5a8f406546a5fa2d638f463ffe31e5f520aa49ea2130e502824086d4fe46f29e",
-        "observation_sha256": "f79600247e304faf2a9dd349c90711ca78fd98d12ad6645e560d7a45ef46ab30",
+        "observation_sha256": "09faa20fedd22c71257200639fe5aa73b8fcfe4ffa06f91737852855c1910891",
         "adapter": "pinned-player-with-live-recording",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",
@@ -3052,7 +3078,7 @@
       "fixture_sha256": "ddc522c3647abf7cf15752ca088defaab66a5f9e4a05797757c99d398bbb0271",
       "upstream": {
         "fixture_sha256": "9ad02952d48ffcc8e00ca00987e69f31da3197c0376ab2315e838452a592820b",
-        "observation_sha256": "4009f16ed4b3efb5623fb74f4ef11f50b2fe148a887899bad9140bdc799e1eeb",
+        "observation_sha256": "0ba266c874db40d0698a9b46c51baea63bfc2053c9e58e33424ae091aa7cb48c",
         "adapter": "pinned-player-with-live-recording",
         "compared_fields": [
           "ordered object/result/maximum/score/combo",

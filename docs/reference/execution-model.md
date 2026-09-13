@@ -53,6 +53,7 @@ Loading is transactional: failure leaves the previous prepared map usable unless
 - A map with no hit objects is rejected by `Player.loadPlayableBeatmap`, not treated as an instant pass.
 - Rewinding requires result reversion in lazer. Odin v2 does not expose arbitrary live rewind; replay seeking restores a checkpoint then deterministically resimulates.
 - If an OD5 circle at 10,000 ms is hit at 10,049.5 ms, it is exactly within the 49.5 ms Great boundary. If the drawable update jumps from 10,040 to 10,060, a timestamped input still carries its own effective time; automatic miss processing must happen after equal-time inputs in Odin.
+- The pinned framework dispatches each queued input at the first drawable update at or after receipt, while Odin applies inputs at their receipt timestamps. For frame-dependent selected fields this difference is an accepted deterministic divergence under the [ADR-002 M3 amendment](../architecture/adr-002-scheduling.md#m3-input-delivery-divergence); wherever every tested upstream schedule agrees, exact matching remains required.
 
 ## Relevant upstream tests
 

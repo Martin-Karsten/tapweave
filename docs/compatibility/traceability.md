@@ -37,7 +37,7 @@ All source symbols named without links above are linked in the corresponding ref
 - **Numeric tolerance:** path vertices `max(1e-4 osu! px, 4 ULP of reference f32)`, cumulative path length `1e-4 px`, position transforms `1e-6 osu! px`, health `1e-9`, spinner total rotation `1e-4°`, audio scheduling request `0.25 ms`. A tolerance is not permission for systematic bias; mean signed error is reported.
 - **Frame-dependent:** slider tracking transition times, spinner visual damping, and animation samples obtained from drawable update schedules. Compare invariants and envelopes across 30/60/144 Hz plus stalls; do not turn one cadence into a universal oracle.
 
-If an exact field fails but the source establishes genuine frame dependence, change its classification only by adding a documented experiment result and ADR amendment.
+If an exact field fails but the source establishes genuine frame dependence, change its classification only by adding a documented experiment result and ADR amendment. The input delivery-time difference for scenario selected fields has been reclassified this way: the executed delivery diagnostic plus the [ADR-002 M3 amendment](../architecture/adr-002-scheduling.md#m3-input-delivery-divergence) record it as an accepted deterministic divergence, and only findings whose differences the diagnostic eliminated carry `divergence_disposition: 'accepted-input-delivery'`.
 
 
 ## M0 observations and policies
@@ -86,7 +86,7 @@ mock audio and a preparation shell do not establish audio-backed gameplay. See
 ## Bounded gameplay backfill evidence
 
 [Gameplay findings](../../engine/reference/findings/m2-gameplay-backfill.json)
-map 115 integrated fixtures to A13–A20/A23, including pinned test methods and
+map 116 integrated fixtures to A13–A20/A23, including pinned test methods and
 source-derived boundary cases. They also retain 36 added health component cases
 and two local workloads. These supplement the rows above without closing their
 full scenario gates. [Coverage and adaptations](gameplay-tests.md) distinguish

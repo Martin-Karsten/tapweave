@@ -23,6 +23,11 @@ const wasm_bytes = await readFile(path.join(root, 'artifacts/tapweave.wasm'));
 const map_header = 'osu file format v14\n[Difficulty]\nHPDrainRate:5\nCircleSize:5\nOverallDifficulty:5\nApproachRate:5\nSliderMultiplier:1.4\nSliderTickRate:1\n[TimingPoints]\n0,500,4,1,0,100,1,0\n[HitObjects]\n';
 const scenarios = [
   { id: 'circle-centre', objects: '256,192,1000,1,0', acceptance: ['H06', 'H10', 'A13', 'A22'], inputs: [{ time_ms: 1000, x: 256, y: 192, actions: 1 }] },
+  // Exact setup/parameter port of TestSceneHitCircleArea::TestCircleHitCentre:
+  // same (100,100) position, OD5 defaults and press at StartTime - Great window.
+  // The upstream receptor HitAction assertion is retained below through the
+  // hit_action observation recorded by the scenario host.
+  { id: 'circle-hit-centre-port', objects: '100,100,1500,1,0', acceptance: ['H06', 'A13'], inputs: [{ time_ms: 1450.5, x: 100, y: 100, actions: 1 }], hit_action_assert: true },
   { id: 'circle-miss', objects: '256,192,1000,1,0', acceptance: ['H06', 'A13', 'A22'], inputs: [] },
   { id: 'circle-great-edge', objects: '256,192,1000,1,0', acceptance: ['H06', 'A13'], inputs: [{ time_ms: 1049.5, x: 256, y: 192, actions: 1 }] },
   { id: 'circle-early', objects: '256,192,1000,1,0', acceptance: ['H06', 'A13', 'A22'], inputs: [{ time_ms: 875, x: 256, y: 192, actions: 1 }] },
@@ -49,16 +54,16 @@ const source_test_inventory = {
   "cases": [
     {
       "upstream_test": "osu.Game.Rulesets.Osu.Tests/TestSceneHitCircleArea.cs::TestCircleHitCentre",
-      "local_fixture": "circle-centre-*",
-      "status": "analogous-centre-input-scenario; exact setup/parameter port remains open",
+      "local_fixture": "circle-hit-centre-port-*",
+      "status": "exact setup/parameter port; upstream receptor HitAction assertion retained through the scenario-host hit_action observation",
       "acceptance": [
         "A13"
       ]
     },
     {
       "upstream_test": "osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerJudgement.cs::TestHitNothing",
-      "local_fixture": "spinner-idle-*",
-      "status": "analogous-minimum-results scenario; Player/replay setup not ported",
+      "local_fixture": "spinner-no-input-player-port (test-gameplay player corpus)",
+      "status": "Player/replay port executed through the real Player adapter with an empty replay; the scenario-suite spinner-idle-* case remains the analogous drawable host run",
       "acceptance": [
         "A16",
         "A23"
@@ -66,7 +71,7 @@ const source_test_inventory = {
     },
     {
       "upstream_test": "osu.Game.Rulesets.Osu.Tests/TestSceneOsuHitObjectSamples.cs",
-      "status": "unported; sample lookup observer remains to implement",
+      "status": "deferred; beatmap/user skin fallback lookup observer planned follow-up (backfill batch 6)",
       "acceptance": [
         "A20",
         "H11"
@@ -74,7 +79,7 @@ const source_test_inventory = {
     },
     {
       "upstream_test": "osu.Game.Tests/Visual/Gameplay/TestSceneGameplaySamplePlayback.cs::TestAllSamplesStopDuringSeek",
-      "status": "unported; upstream test is marked Ignore at pinned revision; no sample/seek acceptance claimed",
+      "status": "out of scope; upstream test is marked Ignore at pinned revision; no sample/seek acceptance claimed",
       "acceptance": [
         "A21",
         "H11"
@@ -111,6 +116,14 @@ for (const scenario of scenarios) {
       assert.equal(upstream.frames.length, schedule_ms.length);
       assert.deepEqual(upstream.frames.map(frame => frame.time_ms), schedule_ms);
       assert.ok(upstream.judgements.length > 0, `${id} has no actual drawable results`);
+      if (scenario.hit_action_assert) {
+        // Retained upstream assertion: the receptor consumed the press
+        // (hitAreaReceptor.HitAction == OsuAction.LeftButton). The receptor
+        // assigns HitAction after applying the result, so the actual state is
+        // observed on captured frames after the press.
+        assert.ok(upstream.frames.some(frame => frame.objects.some(object => object.hit_action === 'LeftButton')),
+          `${id} upstream receptor did not register the press`);
+      }
       const engine = await Engine_Bridge.create(wasm_bytes);
       let local;
       try {

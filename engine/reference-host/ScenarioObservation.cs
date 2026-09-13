@@ -227,6 +227,11 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
                     lifetime_end = double.IsFinite(drawable.LifetimeEnd) ? (double?)drawable.LifetimeEnd : null,
                     approach_alpha = drawable is DrawableHitCircle circle ? (float?)circle.ApproachCircle.Alpha : null,
                     approach_scale = drawable is DrawableHitCircle approach_circle ? (float?)approach_circle.ApproachCircle.Scale.X : null,
+                    // Retained upstream HitReceptor.HitAction assertion input
+                    // (TestSceneHitCircleArea). The receptor assigns HitAction
+                    // after applying the result, so it is only observable on
+                    // later updates; frame capture records the actual state.
+                    hit_action = drawable is DrawableHitCircle hit_circle ? hit_circle.HitAction?.ToString() : null,
                     circle_piece_alpha = drawable is DrawableHitCircle piece_circle ? (float?)piece_circle.CirclePiece.Alpha : null,
                     main_circle = drawable.ChildrenOfType<MainCirclePiece>().Select(piece => new
                     {
