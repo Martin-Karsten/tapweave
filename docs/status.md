@@ -466,3 +466,20 @@ typecheck, build and 93 service tests pass, including new engine-backed
 sample-probe and uniform-parity regressions against the production WASM.
 Firefox/WebKit executables remain unavailable; no new upstream oracle was
 executed, and no acceptance gate changes.
+
+## Product shell (ADR-006, S0b promotion)
+
+The Solid spike evidence (A1′–B4′ gates plus the Vue counter-evidence) is
+promoted into `platform/product-ui/`, an in-monorepo Solid 1.9 shell with
+exact-pinned dependencies and a mandatory `test:gates` suite
+(typecheck, expected-errors, build, Vitest, Playwright, and the HMR/B1/B2/B3
+probes writing JSON to `artifacts/gates/`). The WASM binary is copied from
+`engine/artifacts/` by `scripts/prepare_assets.mjs` into an ignored directory
+and is never committed. See [ADR-006](architecture/adr-006-product-shell.md)
+for ownership rules: components reach the engine only through `@browser`
+services, services contain no reactivity, judgement timestamps stay
+audio-clock-owned, and shell updates never enter the engine frame path.
+
+Player parity of the re-platformed W07 player is open until the Phase 3
+parity harness completes; until then `platform/browser-js/src/main.ts` remains
+the reference player UI.

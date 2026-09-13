@@ -54,7 +54,12 @@ from visual similarity or from agreement between two local implementations.
   contracts require a corresponding ADR change, not an undocumented shortcut.
 - Keep changes focused. Do not add frameworks, npm dependencies, or broad
   abstractions without a concrete requirement; current engine tooling has no
-  npm dependencies.
+  npm dependencies. The one accepted exception is `platform/product-ui`, the
+  Solid product shell decided by ADR-006: it may hold exact-pinned npm
+  dependencies, and every dependency bump must re-run its gate suite
+  (`npm --prefix platform/product-ui run test:gates`). Repository TypeScript
+  naming conventions (descriptive `snake_case` identifiers, `Title_Case` types,
+  no abbreviations) apply to shell code.
 
 ## Odin naming
 

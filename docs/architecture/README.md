@@ -43,6 +43,7 @@ runtime and browser exports do not import that test-only package.
 | `audio_protocol` | sample/loop event records | `core_types` |
 | `runtime` | handles, quotas, lifecycle, ABI facade | all required engine packages |
 | `platform/browser-js` | DOM, archive/assets, RAF, WebGL2 calls, Web Audio | engine only through the versioned ABI; platform browser APIs otherwise |
+| `platform/product-ui` | Solid product shell: screens, routing, virtualized lists, diagnostics views | `platform/browser-js` services via the `@browser` alias plus ABI v2 records they expose; nothing engine-internal; exact-pinned npm deps per [ADR-006](adr-006-product-shell.md) |
 
 ## ADR index
 
@@ -51,5 +52,6 @@ runtime and browser exports do not import that test-only package.
 - [ADR-003: Rendering and browser bridge](adr-003-rendering.md)
 - [ADR-004: Browser audio and synchronization](adr-004-audio.md)
 - [ADR-005: ABI, capabilities, and extensions](adr-005-interface-extensions.md)
+- [ADR-006: Product shell](adr-006-product-shell.md)
 
 The production successor is specified in [interface v2](interface-v2.md). ABI v1 and its demo remain local research material outside this repository.
