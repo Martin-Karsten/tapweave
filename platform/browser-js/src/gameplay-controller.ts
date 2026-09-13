@@ -4,6 +4,7 @@ import { Audio_Playback } from './audio-playback.js';
 import { Gameplay_Frame } from './gameplay-frame.js';
 import { Gameplay_Input } from './gameplay-input.js';
 import { Renderer } from './renderer.js';
+import { SESSION_STATE, ALL_VOICE_COMMAND_FAMILIES } from './abi-records.js';
 import { Browser_Error, require_condition } from './errors.js';
 
 export type Gameplay_State = 'loading' | 'ready' | 'starting' | 'running' | 'paused' | 'recovering' | 'terminal' | 'disposed';
@@ -73,8 +74,7 @@ export class Gameplay_Controller {
           this.renderer.restore();
           this.graphics_lost = false;
           if (this.playback?.state === 'paused') this.state = 'paused';
-          if (this.state !== 'terminal') this.message = this.state === 'paused' ? 'Graphics restored. Resume when ready.' :
-            this.in_attempt ? 'Graphics restored. Retry or return to selection.' : 'Ready to play.';
+          if (this.state !== 'terminal') this.message = this.#restoration_message();
           this.publish();
         } catch (error) { this.recover(error); }
       }, 0);
@@ -88,11 +88,12 @@ export class Gameplay_Controller {
   }
 
   get view(): Gameplay_View {
-    return Object.freeze({ state: this.state, can_play: this.state === 'ready' && !!this.playback &&
-      !!this.renderer?.ready && !this.graphics_lost, can_resume: this.state === 'paused' &&
-      this.playback?.state === 'paused' && !!this.renderer?.ready && !this.graphics_lost,
-    can_retry: this.in_attempt && this.state !== 'starting' && this.state !== 'disposed' && !this.graphics_lost,
-    recovery: this.recovery_details, in_attempt: this.in_attempt, message: this.message, error: this.error, result: this.result });
+    const graphics_usable = !!this.renderer?.ready && !this.graphics_lost;
+    return Object.freeze({ state: this.state,
+      can_play: this.state === 'ready' && !!this.playback && graphics_usable,
+      can_resume: this.state === 'paused' && this.playback?.state === 'paused' && graphics_usable,
+      can_retry: this.in_attempt && this.state !== 'starting' && this.state !== 'disposed' && graphics_usable,
+      recovery: this.recovery_details, in_attempt: this.in_attempt, message: this.message, error: this.error, result: this.result });
   }
 
   private publish() { this.options.on_change?.(this.view); }
@@ -127,13 +128,7 @@ export class Gameplay_Controller {
       require_condition(active.music_buffer && active.samples, 'MISSING_ASSET',
         active.music_error ?? 'Music and sample preparation must finish before Play.');
       require_condition(this.context.state !== 'closed', 'INVALID_STATE', 'Audio output is closed. Reload the page.');
-      require_condition(this.engine.simulation_capabilities.simulation_version === 1 &&
-        this.engine.simulation_capabilities.rules_version === 1 &&
-        this.engine.simulation_capabilities.flags === 1 && this.engine.simulation_capabilities.max_inputs >= 8192 &&
-        this.engine.output_capabilities.compact_version === 1 && this.engine.output_capabilities.flags === 0 &&
-        this.engine.output_capabilities.reserved === 0 &&
-        this.engine.transport_capabilities.voice_command_mask === 15,
-      'UNSUPPORTED', 'Complete gameplay, scene and audio protocols are required.');
+      this.#require_complete_protocols();
       this.engine.scene_capabilities();
       this.session_handle = this.engine.create_session(active.map_handle);
       this.prepared_selection = active;
@@ -152,6 +147,22 @@ export class Gameplay_Controller {
       this.error = error;
       this.message = error instanceof Error ? error.message : String(error);
     }
+  }
+
+  // Reject engines lacking the gameplay, scene and audio protocol surface.
+  #require_complete_protocols() {
+    const simulation = this.engine.simulation_capabilities;
+    const output = this.engine.output_capabilities;
+    require_condition(simulation.simulation_version === 1 && simulation.rules_version === 1 &&
+      simulation.flags === 1 && simulation.max_inputs >= 8192 &&
+      output.compact_version === 1 && output.flags === 0 && output.reserved === 0 &&
+      this.engine.transport_capabilities.voice_command_mask === ALL_VOICE_COMMAND_FAMILIES,
+    'UNSUPPORTED', 'Complete gameplay, scene and audio protocols are required.');
+  }
+
+  #restoration_message() {
+    if (this.state === 'paused') return 'Graphics restored. Resume when ready.';
+    return this.in_attempt ? 'Graphics restored. Retry or return to selection.' : 'Ready to play.';
   }
 
   private create_playback(reuse_voice_storage = false) {
@@ -214,7 +225,7 @@ export class Gameplay_Controller {
       const state = this.playback!.pause();
       this.frame!.input.held_sources.clear();
       this.frame!.input.focus_epoch++;
-      if (state === 3 || state === 4) {
+      if (state === SESSION_STATE.PASSED || state === SESSION_STATE.FAILED) {
         this.terminal();
         if (this.terminal_draining) this.frame!.start();
         return;
@@ -232,8 +243,8 @@ export class Gameplay_Controller {
     this.input = null;
     this.frame!.terminal = true;
     this.state = 'terminal';
-    this.message = this.result.summary.state === 3 ? 'Passed' : 'Failed';
-    this.terminal_draining = this.result.summary.state === 3 && this.context.state === 'running';
+    this.message = this.result.summary.state === SESSION_STATE.PASSED ? 'Passed' : 'Failed';
+    this.terminal_draining = this.result.summary.state === SESSION_STATE.PASSED && this.context.state === 'running';
     if (!this.terminal_draining || !this.playback!.pending_sounds) this.finish_terminal();
     this.publish();
   }

@@ -3,6 +3,100 @@ import { require_condition } from './errors.js';
 
 export type Record_Values = number | bigint;
 
+// Record kind identifiers, mirrored from engine/abi/records.json by name.
+// tests/record-types.test.mjs asserts this table against the generated schema,
+// so a kind drift fails the suite instead of silently misreading a record.
+export const RECORD = Object.freeze({
+  engine_create: 1,
+  map_prepare: 2,
+  session_create: 3,
+  capabilities: 4,
+  map_descriptor: 5,
+  error: 7,
+  prepared_descriptor: 8,
+  prepared_object: 9,
+  prepared_component: 10,
+  prepared_sample: 11,
+  sample_candidate: 12,
+  prepared_schedule: 13,
+  preparation_capabilities: 14,
+  prepared_break: 15,
+  prepared_control_point: 16,
+  prepared_playback: 17,
+  gameplay_create: 18,
+  session_snapshot: 19,
+  session_object: 20,
+  judgement: 21,
+  clock_anchor: 22,
+  input_snapshot: 23,
+  final_result: 24,
+  simulation_capabilities: 25,
+  result_count: 26,
+  audio_event: 27,
+  sample_binding: 28,
+  viewport: 29,
+  playfield_transform: 30,
+  gameplay_output: 31,
+  presentation_frame: 32,
+  presentation_object: 33,
+  output_capabilities: 34,
+  render_resource: 35,
+  render_reserve: 36,
+  render_capacity: 37,
+  draw_frame: 38,
+  draw_instance: 39,
+  draw_batch: 40,
+  transport_capabilities: 41,
+  voice_reserve: 42,
+  voice_capacity: 43,
+  voice_frame: 44,
+  voice_command: 45,
+  scene_resource: 46,
+  scene_frame: 47,
+  scene_reserve: 48,
+  scene_capabilities: 49,
+  scene_instance: 50,
+  scene_batch: 51,
+  sample_probe: 52,
+} as const);
+
+// EngineStatus values returned by oe_* exports (docs/architecture/interface-v2.md).
+// This transport branches on OK and OUTPUT_REQUIRED only; every other status is an error.
+export const ENGINE_STATUS = Object.freeze({ OK: 0, OUTPUT_REQUIRED: 8 } as const);
+
+// Session lifecycle states on the gameplay, presentation, draw and result headers
+// (docs/architecture/interface-v2.md: READY=0, RUNNING=1, PAUSED=2, PASSED=3, FAILED=4).
+export const SESSION_STATE = Object.freeze({ READY: 0, RUNNING: 1, PAUSED: 2, PASSED: 3, FAILED: 4 } as const);
+
+// Voice command families and late policy (docs/architecture/interface-v2.md voice section).
+export const VOICE_COMMAND_KIND = Object.freeze({ ONE_SHOT: 1, LOOP_START: 2, LOOP_STOP: 3, PARAM_RAMP: 4 } as const);
+export const VOICE_COMMAND_FAMILY_BIT = Object.freeze({ ONE_SHOT: 1, LOOP_START: 2, LOOP_STOP: 4, PARAM_RAMP: 8 } as const);
+export const ALL_VOICE_COMMAND_FAMILIES = 15;
+export const LATE_POLICY = Object.freeze({ IMMEDIATE: 1, DROP: 2 } as const);
+
+// Prepared map topology kinds, mirroring engine/prepared/records.odin. The
+// component enum declares no explicit values, so Odin numbers it from zero.
+export const PREPARED_OBJECT_KIND = Object.freeze({ CIRCLE: 1, SLIDER: 2, SPINNER: 8 } as const);
+export const PREPARED_COMPONENT_KIND = Object.freeze({ HEAD: 0, TICK: 1, REPEAT: 2, TAIL: 3,
+  LEGACY_LAST_TICK: 4, SPINNER_TICK: 5, SPINNER_BONUS_TICK: 6 } as const);
+// Bit 0 of the prepared_sample flags field classifies sustained-loop samples.
+export const SAMPLE_FLAG_LOOP = 1;
+
+// Scene primitives, command selectors and instance flags
+// (docs/architecture/interface-v2.md, scene rendering section).
+export const SCENE_PRIMITIVE = Object.freeze({ DISC: 1, RING: 2, GLYPH: 3, PATH: 4 } as const);
+export const SCENE_COMMAND_SELECTOR = Object.freeze({ QUAD_RUN: 0, PATH: 4 } as const);
+export const SCENE_INSTANCE_FLAG_CLIPPING_CAP = 1;
+// Leading little-endian u16 of a scene_resource render attachment.
+export const SCENE_ATTACHMENT_MAGIC = 46;
+
+// Score rank and hit-result enumerations, mirroring engine/scoring/score.odin
+// and engine/core_types/results.odin. Index into these with the record values.
+export const RANK_NAMES = ['X', 'S', 'A', 'B', 'C', 'D', 'F'] as const;
+export const HIT_RESULT_NAMES = ['None', 'Miss', 'Meh', 'Ok', 'Good', 'Great', 'Perfect', 'Small tick miss',
+  'Small tick hit', 'Large tick miss', 'Large tick hit', 'Small bonus', 'Large bonus', 'Ignored miss',
+  'Ignored hit', 'Combo break', 'Slider tail hit'] as const;
+
 // Field names and JavaScript value types mirror engine/abi/records.json.
 // tests/record-types.test.mjs validates this table against the generated schema,
 // so ABI drift fails the suite instead of the reader call sites.
@@ -34,6 +128,7 @@ export const RECORD_FIELD_TYPES = {
   23: [['sequence', 'bigint'], ['raw_time_ms', 'number'], ['effective_time_ms', 'number'], ['x', 'number'],
     ['y', 'number'], ['action_bits', 'number'], ['source_focus', 'number'], ['flags', 'number'], ['reserved', 'number']],
   25: [['simulation_version', 'number'], ['rules_version', 'number'], ['flags', 'number'], ['max_inputs', 'number']],
+  26: [['result', 'number'], ['actual', 'number'], ['maximum', 'number'], ['reserved', 'number']],
   28: [['object_id', 'number'], ['component_id', 'number'], ['sample_index', 'number'], ['candidate_index', 'number'],
     ['asset_id', 'bigint']],
   29: [['css_left', 'number'], ['css_top', 'number'], ['css_width', 'number'], ['css_height', 'number'],
@@ -98,6 +193,7 @@ export type Simulation_Capabilities_Record = Typed_Record<25>;
 export type Sample_Binding_Values = Typed_Record<28>;
 export type Viewport_Values = Typed_Record<29>;
 export type Gameplay_Output_Header = Typed_Record<31>;
+export type Result_Count_Record = Typed_Record<26>;
 export type Presentation_Output_Header = Typed_Record<32>;
 export type Output_Capabilities_Record = Typed_Record<34>;
 export type Render_Resource_Record = Typed_Record<35>;

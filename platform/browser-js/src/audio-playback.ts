@@ -3,6 +3,7 @@ import { Audio_Service, type Audio_Service_Limits } from './audio.js';
 import { Audio_Admission } from './audio-admission.js';
 import { Music_Transport } from './music.js';
 import { Voice_Output, Gameplay_Output, type Engine_Bridge } from './engine-bridge.js';
+import { SESSION_STATE } from './abi-records.js';
 import type { Loaded_Samples } from './sample-assets.js';
 import { bind_sample_assets } from './sample-assets.js';
 import { require_condition } from './errors.js';
@@ -109,7 +110,7 @@ export class Audio_Playback {
       const audio_seconds = this.context.currentTime;
       const time_ms = this.clock.beatmap_time(audio_seconds);
       const output = this.engine.pause(this.session_handle, time_ms);
-      if (output.summary.state === 3 || output.summary.state === 4) {
+      if (output.summary.state === SESSION_STATE.PASSED || output.summary.state === SESSION_STATE.FAILED) {
         if (this.context.state === 'running') this.pump(audio_seconds);
         return output.summary.state;
       }
@@ -117,7 +118,7 @@ export class Audio_Playback {
       this.clock.pause(audio_seconds);
       this.audio.suspend_one_shots();
       this.state = 'paused';
-      return 2;
+      return SESSION_STATE.PAUSED;
     } catch (error) {
       this.recover(error);
       throw error;

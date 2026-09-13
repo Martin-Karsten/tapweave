@@ -1,9 +1,12 @@
 import { Engine_Bridge } from './engine-bridge.js';
-import type { Engine_Diagnostic, Prepared_Descriptor_Record } from './abi-records.js';
+import { HIT_RESULT_NAMES, RANK_NAMES, type Engine_Diagnostic, type Prepared_Descriptor_Record } from './abi-records.js';
 import { Selection_Controller } from './selection.js';
 import { create_fallback_audio } from './fallback-audio.js';
 import { Gameplay_Controller, type Gameplay_View } from './gameplay-controller.js';
 import { Browser_Error } from './errors.js';
+
+const WASM_PAGE_BYTES = 65536;
+const MAXIMUM_ENGINE_MESSAGES = 64;
 
 const element = (identifier: string) => document.getElementById(identifier)!;
 const diagnostics: Record<string, unknown> = { scope: 'M3 integrated validation player', upstream_verified: false,
@@ -43,8 +46,15 @@ function update(controller: Selection_Controller) {
   }
   diagnostics.error = controller.error ? { code: controller.error.code, message: controller.error.message,
     details: controller.error.details } : null;
-  diagnostics.wasm_pages = engine!.wasm.memory.buffer.byteLength / 65536;
+  diagnostics.wasm_pages = engine!.wasm.memory.buffer.byteLength / WASM_PAGE_BYTES;
   element('diagnostics').textContent = stringify(diagnostics);
+}
+
+function lifecycle_title(view: Gameplay_View) {
+  if (view.state === 'terminal') return view.message;
+  if (view.state === 'recovering') return 'Playback interrupted';
+  if (view.state === 'starting') return 'Starting…';
+  return 'Paused';
 }
 
 function update_gameplay(view: Gameplay_View) {
@@ -63,19 +73,17 @@ function update_gameplay(view: Gameplay_View) {
   element('resume').hidden = view.state !== 'paused';
   (element('resume') as HTMLButtonElement).disabled = !view.can_resume;
   (element('retry') as HTMLButtonElement).disabled = !view.can_retry;
-  element('lifecycle-title').textContent = view.state === 'terminal' ? view.message :
-    view.state === 'recovering' ? 'Playback interrupted' : view.state === 'starting' ? 'Starting…' : 'Paused';
+  element('lifecycle-title').textContent = lifecycle_title(view);
   element('lifecycle-message').textContent = view.state === 'terminal' ? 'Run complete. Retry or return to selection.' : view.message;
   element('result-stats').hidden = !view.result;
   if (view.result) {
     const summary = view.result.summary;
     const items: [string, string][] = [['Score', String(summary.score)], ['Accuracy', `${(Number(summary.accuracy) * 100).toFixed(2)}%`],
-      ['Rank', ['X', 'S', 'A', 'B', 'C', 'D', 'F'][Number(summary.rank)] ?? String(summary.rank)], ['Max combo', String(summary.highest_combo)]];
-    const result_names = ['None', 'Miss', 'Meh', 'Ok', 'Good', 'Great', 'Perfect', 'Small tick miss', 'Small tick hit',
-      'Large tick miss', 'Large tick hit', 'Small bonus', 'Large bonus', 'Ignored miss', 'Ignored hit', 'Combo break', 'Slider tail hit'];
-    for (let result_index = 0; result_index < view.result.spans.get('counts')!.count; result_index++) {
-      const count = view.result.record('counts', result_index);
-      if (Number(count.actual) || Number(count.maximum)) items.push([result_names[Number(count.result)] ?? `Result ${count.result}`, String(count.actual)]);
+      ['Rank', RANK_NAMES[Number(summary.rank)] ?? String(summary.rank)], ['Max combo', String(summary.highest_combo)]];
+    for (const count of view.result.result_counts()) {
+      if (Number(count.actual) || Number(count.maximum)) {
+        items.push([HIT_RESULT_NAMES[Number(count.result)] ?? `Result ${count.result}`, String(count.actual)]);
+      }
     }
     element('result-stats').replaceChildren(...items.map(([label, text]) => {
       const item = document.createElement('div');
@@ -87,8 +95,7 @@ function update_gameplay(view: Gameplay_View) {
   diagnostics.gameplay = view.can_play || view.in_attempt;
   diagnostics.lifecycle = { state: view.state, message: view.message, recovery: view.recovery, error: view.error instanceof Error ? view.error.message : view.error };
   diagnostics.samples = selection?.active?.samples?.warnings;
-  diagnostics.result = view.result ? { summary: view.result.summary,
-    counts: Array.from({ length: view.result.spans.get('counts')!.count }, (_, result_index) => view.result!.record('counts', result_index)) } : null;
+  diagnostics.result = view.result ? { summary: view.result.summary, counts: [...view.result.result_counts()] } : null;
   element('diagnostics').textContent = stringify(diagnostics);
   if (previous_state !== view.state) {
     if (view.state === 'running') element('playfield').focus();
@@ -104,10 +111,11 @@ try {
     throw new Error('Engine download failed. Build the browser assets and try again.');
   }
   engine = await Engine_Bridge.create(await response.arrayBuffer(), message => {
-    if ((diagnostics.messages as Engine_Diagnostic[]).length === 64) {
-      (diagnostics.messages as Engine_Diagnostic[]).shift();
+    const messages = diagnostics.messages as Engine_Diagnostic[];
+    if (messages.length === MAXIMUM_ENGINE_MESSAGES) {
+      messages.shift();
     }
-    (diagnostics.messages as Engine_Diagnostic[]).push(message);
+    messages.push(message);
   });
   diagnostics.engine = engine.capabilities;
   diagnostics.preparation = engine.preparation_capabilities;

@@ -16,3 +16,7 @@ export function require_condition(condition: unknown, code: string, message: str
     throw new Browser_Error(code, message, details);
   }
 }
+
+export function all_finite(values: readonly unknown[]) {
+  return values.every(value => typeof value === 'number' && Number.isFinite(value));
+}

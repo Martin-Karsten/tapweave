@@ -5,18 +5,27 @@ export { Voice_Output } from './voice-output.js';
 import { read_record, record_size,
   type Draw_Output_Header, type Engine_Capabilities_Record, type Engine_Diagnostic, type Gameplay_Output_Header,
   type Input_Snapshot_Values, type Odin_Exports, type Output_Capabilities_Record,
-  type Prepared_Descriptor_Record, type Preparation_Capabilities_Record, type Record_Values,
-  type Render_Capacity_Record, type Sample_Binding_Values, type Sample_Probe_Record,
-  type Simulation_Capabilities_Record, type Scene_Frame_Header,
+  type Prepared_Descriptor_Record, type Preparation_Capabilities_Record, type Record_Kind, type Record_Values,
+  type Render_Capacity_Record, type Result_Count_Record, type Sample_Binding_Values, type Sample_Probe_Record,
+  type Simulation_Capabilities_Record, type Scene_Frame_Header, type Typed_Record,
   type Transport_Capabilities_Record, type Viewport_Values, type Voice_Capacity_Record,
-  type Presentation_Output_Header } from './abi-records.js';
+  type Presentation_Output_Header, RECORD, ENGINE_STATUS, PREPARED_OBJECT_KIND, PREPARED_COMPONENT_KIND,
+  SAMPLE_FLAG_LOOP, VOICE_COMMAND_FAMILY_BIT, ALL_VOICE_COMMAND_FAMILIES } from './abi-records.js';
 import { Browser_Error, require_condition } from './errors.js';
 
 const MAILBOX = schema.transport.mailbox;
 const BYTE_SPAN = schema.transport.byte_span;
 const RECORD_HEADER = schema.transport.record_header;
-const VIEWPORT_RECORD = schema.records.find(record => record.kind === 29)!;
+const VIEWPORT_RECORD = schema.records.find(record => record.kind === RECORD.viewport)!;
 const VIEWPORT_FIELDS = Object.entries(VIEWPORT_RECORD.fields);
+
+// Creation-record flags (docs/architecture/interface-v2.md). Foundation engines
+// request flag 1; map and gameplay creation both require the preparation flag 2.
+const ENGINE_CREATE_FLAG_FOUNDATION = 1;
+const MAP_PREPARE_FLAG_PREPARATION = 2;
+const GAMEPLAY_CREATE_FLAG_PREPARED_MAP = 2;
+// Voice reservation requires the authoritative-journal flag (interface-v2.md).
+const VOICE_RESERVE_FLAG_JOURNAL = 1;
 
 export interface Input_Span {
   address: number;
@@ -85,33 +94,50 @@ export class Engine_Bridge {
   constructor(wasm_exports: Odin_Exports) {
     this.wasm = wasm_exports;
     this.mailbox_address = this.wasm.oe_abi_control();
-    this.write_creation(1, { flags: 1 });
+    this.write_creation(RECORD.engine_create, { flags: ENGINE_CREATE_FLAG_FOUNDATION });
     this.check_status(this.wasm.oe_engine_create(this.mailbox_address, this.result_address, this.error_address));
     this.engine_handle = this.read_handle();
     try {
-      this.check_status(this.wasm.oe_engine_capabilities(this.engine_handle, this.result_address), false);
-      this.capabilities = read_record(this.view(), this.read_span().address, 4);
+      // Read one capability record, gate on it, then continue: the engine may
+      // lack later exports, so versions must be checked between reads.
+      this.capabilities = this.#read_capability(
+        () => this.wasm.oe_engine_capabilities(this.engine_handle, this.result_address), RECORD.capabilities);
       require_condition(this.capabilities.abi_major === 2, 'UNSUPPORTED', 'ABI v2 is required.');
-      this.check_status(this.wasm.oe_preparation_capabilities(this.engine_handle, this.result_address), false);
-      this.preparation_capabilities = read_record(this.view(), this.read_span().address, 14);
+      this.preparation_capabilities = this.#read_capability(
+        () => this.wasm.oe_preparation_capabilities(this.engine_handle, this.result_address), RECORD.preparation_capabilities);
       require_condition(this.preparation_capabilities.preparation_version === 2,
         'UNSUPPORTED', 'Preparation version 2 is required.');
-      this.check_status(this.wasm.oe_simulation_capabilities(this.engine_handle, this.result_address), false);
-      this.simulation_capabilities = read_record(this.view(), this.read_span().address, 25);
-      this.check_status(this.wasm.oe_output_capabilities(this.engine_handle, this.result_address), false);
-      this.output_capabilities = read_record(this.view(), this.read_span().address, 34);
-      this.check_status(this.wasm.oe_transport_capabilities(this.engine_handle, this.result_address), false);
-      this.transport_capabilities = read_record(this.view(), this.read_span().address, 41);
-      const transport = this.transport_capabilities;
-      require_condition(transport.resource_version === 1 && transport.circle_animation_version === 1 &&
-        transport.draw_version === 1 && transport.voice_version === 2 && (transport.voice_command_mask & 1) === 1 &&
-        (transport.voice_command_mask & ~15) === 0 &&
-        transport.flags === 1 && transport.reserved === 0 && transport.max_draw_instances > 0,
-      'UNSUPPORTED', 'Unsupported resource/draw/voice transport capabilities.');
+      this.simulation_capabilities = this.#read_capability(
+        () => this.wasm.oe_simulation_capabilities(this.engine_handle, this.result_address), RECORD.simulation_capabilities);
+      this.output_capabilities = this.#read_capability(
+        () => this.wasm.oe_output_capabilities(this.engine_handle, this.result_address), RECORD.output_capabilities);
+      this.transport_capabilities = this.#read_capability(
+        () => this.wasm.oe_transport_capabilities(this.engine_handle, this.result_address), RECORD.transport_capabilities);
+      this.#require_supported_transport();
     } catch (error) {
       this.dispose();
       throw error;
     }
+  }
+
+  // Invoke one capability export and read its byte-span result record.
+  #read_capability<K extends Record_Kind>(read_status: () => number, kind: K): Typed_Record<K> {
+    this.check_status(read_status(), false);
+    return read_record(this.view(), this.read_span().address, kind);
+  }
+
+  // Reject engines whose transport protocols this client cannot execute
+  // faithfully: voice version 2 with only the four known command families
+  // (bit 0 must be the one-shot family), a circle-only draw producer, and
+  // live draw capacity.
+  #require_supported_transport() {
+    const transport = this.transport_capabilities;
+    require_condition(transport.resource_version === 1 && transport.circle_animation_version === 1 &&
+      transport.draw_version === 1 && transport.voice_version === 2 &&
+      (transport.voice_command_mask & VOICE_COMMAND_FAMILY_BIT.ONE_SHOT) === VOICE_COMMAND_FAMILY_BIT.ONE_SHOT &&
+      (transport.voice_command_mask & ~ALL_VOICE_COMMAND_FAMILIES) === 0 &&
+      transport.flags === 1 && transport.reserved === 0 && transport.max_draw_instances > 0,
+    'UNSUPPORTED', 'Unsupported resource/draw/voice transport capabilities.');
   }
 
   get result_address() { return this.mailbox_address + MAILBOX.result; }
@@ -154,7 +180,7 @@ export class Engine_Bridge {
       'QUOTA_EXCEEDED', 'Beatmap exceeds the engine input quota.');
     const inbox = this.reserve_input(bytes.length);
     new Uint8Array(this.wasm.memory.buffer, inbox.address, bytes.length).set(bytes);
-    this.write_creation(2, { token: inbox.token, count: bytes.length, flags: 2 });
+    this.write_creation(RECORD.map_prepare, { token: inbox.token, count: bytes.length, flags: MAP_PREPARE_FLAG_PREPARATION });
     this.check_status(this.wasm.oe_map_prepare(this.engine_handle, this.mailbox_address, this.result_address, this.error_address));
     const map_handle = this.read_handle();
     this.map_handles.add(map_handle);
@@ -179,8 +205,8 @@ export class Engine_Bridge {
     input_capacity = 8192, batch_capacity = 256 }: Session_Create_Options = {}) {
     require_condition(Number.isSafeInteger(batch_capacity) && batch_capacity > 0 && batch_capacity <= input_capacity,
       'INVALID_ARGUMENT', 'Invalid input batch capacity.');
-    this.reserve_input(batch_capacity * record_size(23));
-    this.write_creation(18, { flags: 2, arena_bytes, lead_in_ms, input_capacity });
+    this.reserve_input(batch_capacity * record_size(RECORD.input_snapshot));
+    this.write_creation(RECORD.gameplay_create, { flags: GAMEPLAY_CREATE_FLAG_PREPARED_MAP, arena_bytes, lead_in_ms, input_capacity });
     this.check_status(this.wasm.oe_session_create(this.engine_handle, map_handle,
       this.mailbox_address, this.result_address, this.error_address));
     const session_handle = this.read_handle();
@@ -189,13 +215,13 @@ export class Engine_Bridge {
   }
 
   submit_inputs(session_handle: bigint, records: Input_Snapshot_Values[]) {
-    const stride = record_size(23);
+    const stride = record_size(RECORD.input_snapshot);
     const inbox = this.input_span;
     require_condition(inbox && records.length <= Math.floor(inbox.count / stride),
       'QUOTA_EXCEEDED', 'Reserve a sufficient input batch before starting.');
     const view = this.view();
     for (let input_index = 0; input_index < records.length; input_index++) {
-      writeRecord(view, inbox!.address + input_index * stride, 23,
+      writeRecord(view, inbox!.address + input_index * stride, RECORD.input_snapshot,
         records[input_index] as unknown as Record<string, Record_Values>);
     }
     // The current M2 input export returns a status only, not an ErrorV1 record.
@@ -204,14 +230,14 @@ export class Engine_Bridge {
   }
 
   bind_sample(session_handle: bigint, binding: Sample_Binding_Values) {
-    this.write_creation(28, binding);
+    this.write_creation(RECORD.sample_binding, binding);
     this.check_status(this.wasm.oe_session_bind_sample(this.engine_handle, session_handle, this.mailbox_address), false);
   }
 
   scene_capabilities() {
     require_condition(typeof this.wasm.oe_scene_capabilities === 'function', 'UNSUPPORTED', 'Scene rendering is unavailable.');
     this.check_status(this.wasm.oe_scene_capabilities(this.engine_handle, this.result_address), false);
-    const capabilities = read_record(this.view(), this.read_span().address, 49);
+    const capabilities = read_record(this.view(), this.read_span().address, RECORD.scene_capabilities);
     require_condition(capabilities.resource_version === 1 && capabilities.draw_version === 1 &&
       capabilities.primitive_mask === 31 && capabilities.flags === 0 && capabilities.reserved === 0,
       'UNSUPPORTED', 'Unsupported scene rendering protocol.');
@@ -225,11 +251,11 @@ export class Engine_Bridge {
     this.check_status(this.wasm.oe_sample_probe(this.engine_handle, this.result_address), false);
     const span = this.read_span();
     const view = this.view();
-    const policy = read_record(view, span.address, 52);
+    const policy = read_record(view, span.address, RECORD.sample_probe);
     require_condition(policy.probe_version === 1 && policy.flags === 0 && policy.reserved === 0 &&
       policy.extensions_stride === 8 && policy.extension_count > 0 &&
       policy.total_bytes === BigInt(span.count) &&
-      policy.extensions_offset === record_size(52) &&
+      policy.extensions_offset === record_size(RECORD.sample_probe) &&
       policy.extensions_offset + policy.extension_count * policy.extensions_stride === span.count,
       'UNSUPPORTED', 'Unsupported sample probe policy.');
     const decoder = new TextDecoder('utf-8', { fatal: true });
@@ -250,10 +276,10 @@ export class Engine_Bridge {
   }
 
   scene_reserve(session_handle: bigint, instance_capacity = 0, arena_bytes = 0n) {
-    this.write_creation(48, { instance_capacity, arena_bytes });
+    this.write_creation(RECORD.scene_reserve, { instance_capacity, arena_bytes });
     this.check_status(this.wasm.oe_session_scene_reserve(this.engine_handle, session_handle,
       this.mailbox_address, this.result_address), false);
-    return read_record(this.view(), this.read_span().address, 37);
+    return read_record(this.view(), this.read_span().address, RECORD.render_capacity);
   }
 
   scene_draw(session_handle: bigint, time_ms: number, viewport: Viewport_Values, output: Scene_Output) {
@@ -262,22 +288,29 @@ export class Engine_Bridge {
       this.scene_mailbox_view = new DataView(this.wasm.memory.buffer);
       this.scene_mailbox_bytes = new Uint8Array(this.wasm.memory.buffer, this.mailbox_address, MAILBOX.creation_size);
     }
+    this.#write_viewport_record(viewport);
+    const status = this.wasm.oe_session_scene_draw(this.engine_handle, session_handle, time_ms, this.mailbox_address, this.result_address);
+    if (status === ENGINE_STATUS.OUTPUT_REQUIRED) {
+      readRecordInto(this.view(), this.read_span().address, RECORD.render_capacity, output.required);
+    }
+    this.check_status(status, false);
+    output.bind(this.wasm.memory.buffer, this.result_address);
+    return output;
+  }
+
+  // Fill the bootstrap mailbox with a validated kind-29 viewport record.
+  #write_viewport_record(viewport: Viewport_Values) {
     for (const [field_name] of VIEWPORT_FIELDS) {
       require_condition(Number.isFinite(viewport[field_name as keyof Viewport_Values]), 'INVALID_DRAW', 'Non-finite scene viewport.');
     }
+    const view = this.scene_mailbox_view!;
     this.scene_mailbox_bytes!.fill(0);
-    const view = this.scene_mailbox_view;
-    view.setUint16(this.mailbox_address + RECORD_HEADER.kind, 29, true);
+    view.setUint16(this.mailbox_address + RECORD_HEADER.kind, RECORD.viewport, true);
     view.setUint16(this.mailbox_address + RECORD_HEADER.version, 1, true);
     view.setUint32(this.mailbox_address + RECORD_HEADER.byte_size, VIEWPORT_RECORD.size, true);
     for (const [field_name, [field_offset]] of VIEWPORT_FIELDS) {
       view.setFloat64(this.mailbox_address + Number(field_offset), Number(viewport[field_name as keyof Viewport_Values]), true);
     }
-    const status = this.wasm.oe_session_scene_draw(this.engine_handle, session_handle, time_ms, this.mailbox_address, this.result_address);
-    if (status === 8) readRecordInto(this.view(), this.read_span().address, 37, output.required);
-    this.check_status(status, false);
-    output.bind(this.wasm.memory.buffer, this.result_address);
-    return output;
   }
 
   render_resources(map_handle: bigint) {
@@ -291,23 +324,23 @@ export class Engine_Bridge {
   }
 
   render_reserve(session_handle: bigint, instance_capacity = 0, arena_bytes = 0n) {
-    this.write_creation(36, { instance_capacity, arena_bytes });
+    this.write_creation(RECORD.render_reserve, { instance_capacity, arena_bytes });
     this.check_status(this.wasm.oe_session_render_reserve(this.engine_handle, session_handle,
       this.mailbox_address, this.result_address), false);
-    return read_record(this.view(), this.read_span().address, 37);
+    return read_record(this.view(), this.read_span().address, RECORD.render_capacity);
   }
 
   voice_reserve(session_handle: bigint, command_capacity = 0, arena_bytes = 0n) {
-    this.write_creation(42, { command_capacity, arena_bytes, flags: 1 });
+    this.write_creation(RECORD.voice_reserve, { command_capacity, arena_bytes, flags: VOICE_RESERVE_FLAG_JOURNAL });
     this.check_status(this.wasm.oe_session_voice_reserve(this.engine_handle, session_handle,
       this.mailbox_address, this.result_address), false);
-    return read_record(this.view(), this.read_span().address, 43);
+    return read_record(this.view(), this.read_span().address, RECORD.voice_capacity);
   }
 
   voice_output(session_handle: bigint, output: Voice_Output) {
     require_condition(output instanceof Voice_Output, 'INVALID_ARGUMENT', 'Reusable voice output is required.');
     const status = this.wasm.oe_session_voice_output(this.engine_handle, session_handle, this.result_address);
-    if (status === 8) readRecordInto(this.view(), this.read_span().address, 43, output.required);
+    if (status === ENGINE_STATUS.OUTPUT_REQUIRED) readRecordInto(this.view(), this.read_span().address, RECORD.voice_capacity, output.required);
     this.check_status(status, false);
     const span = this.read_span();
     return output.bind(new Uint8Array(this.wasm.memory.buffer, span.address, span.count));
@@ -315,10 +348,10 @@ export class Engine_Bridge {
 
   draw(session_handle: bigint, time_ms: number, viewport: Viewport_Values, output: Draw_Output) {
     require_condition(output instanceof Draw_Output, 'INVALID_ARGUMENT', 'Reusable draw output is required.');
-    this.write_creation(29, viewport);
+    this.write_creation(RECORD.viewport, viewport);
     const status = this.wasm.oe_session_draw(this.engine_handle, session_handle, time_ms, this.mailbox_address, this.result_address);
-    if (status === 8) {
-      readRecordInto(this.view(), this.read_span().address, 37, output.required);
+    if (status === ENGINE_STATUS.OUTPUT_REQUIRED) {
+      readRecordInto(this.view(), this.read_span().address, RECORD.render_capacity, output.required);
     }
     this.check_status(status, false);
     output.bind(this.wasm.memory.buffer, this.result_address);
@@ -326,9 +359,9 @@ export class Engine_Bridge {
   }
 
   playfield_transform(viewport: Viewport_Values) {
-    this.write_creation(29, viewport);
+    this.write_creation(RECORD.viewport, viewport);
     this.check_status(this.wasm.oe_playfield_transform(this.engine_handle, this.mailbox_address, this.result_address), false);
-    return readRecord(this.view(), this.read_span().address, 30);
+    return readRecord(this.view(), this.read_span().address, RECORD.playfield_transform);
   }
 
   copy_output() {
@@ -338,7 +371,7 @@ export class Engine_Bridge {
 
   session_output(operation: Session_Operation, session_handle: bigint, time_ms: number) {
     this.check_status(operation(this.engine_handle, session_handle, time_ms, this.result_address), false);
-    return new Session_Output(this.copy_output(), 19);
+    return new Session_Output(this.copy_output(), RECORD.session_snapshot);
   }
 
   advance(session_handle: bigint, time_ms: number) {
@@ -372,7 +405,7 @@ export class Engine_Bridge {
   }
 
   resume(session_handle: bigint, { beatmap_ms, audio_seconds }: { beatmap_ms: number; audio_seconds: number }) {
-    this.write_creation(22, { beatmap_ms, audio_seconds, rate: 1 });
+    this.write_creation(RECORD.clock_anchor, { beatmap_ms, audio_seconds, rate: 1 });
     this.check_status(this.wasm.oe_session_resume(this.engine_handle, session_handle, this.mailbox_address), false);
   }
 
@@ -386,7 +419,7 @@ export class Engine_Bridge {
 
   result(session_handle: bigint) {
     this.check_status(this.wasm.oe_session_result(this.engine_handle, session_handle, this.result_address), false);
-    return new Session_Output(this.copy_output(), 24);
+    return new Session_Output(this.copy_output(), RECORD.final_result);
   }
 
   export_replay(session_handle: bigint) {
@@ -473,7 +506,7 @@ class Borrowed_Output {
     require_condition(header_size <= this.byte_count, 'INVALID_SPAN', 'Oversized output header.');
     readRecordInto(view, this.address, this.kind, this.summary);
     require_condition(this.summary.total_bytes === BigInt(this.byte_count) &&
-      (this.kind !== 31 || this.summary.objects_count === 0 &&
+      (this.kind !== RECORD.gameplay_output || this.summary.objects_count === 0 &&
       this.summary.batch_token === view.getBigUint64(span_address + BYTE_SPAN.token, true)),
     'INVALID_SPAN', 'Invalid borrowed output summary.');
     let previous_end = header_size;
@@ -521,9 +554,9 @@ export class Gameplay_Output extends Borrowed_Output {
   audio: Output_Array_Span;
 
   constructor() {
-    const judgements = output_array('judgements', 21);
-    const audio = output_array('audio', 27);
-    super(31, [judgements, audio]);
+    const judgements = output_array('judgements', RECORD.judgement);
+    const audio = output_array('audio', RECORD.audio_event);
+    super(RECORD.gameplay_output, [judgements, audio]);
     this.judgements = judgements;
     this.audio = audio;
   }
@@ -534,8 +567,8 @@ export class Presentation_Output extends Borrowed_Output {
   objects: Output_Array_Span;
 
   constructor() {
-    const objects = output_array('objects', 33);
-    super(32, [objects]);
+    const objects = output_array('objects', RECORD.presentation_object);
+    super(RECORD.presentation_frame, [objects]);
     this.objects = objects;
   }
 }
@@ -549,9 +582,9 @@ export class Draw_Output extends Borrowed_Output {
   required: Record<string, Record_Values> = {};
 
   constructor(resources: Render_Resources, engine_epoch: number) {
-    const instances = output_array('instances', 39);
-    const batches = output_array('batches', 40);
-    super(38, [instances, batches]);
+    const instances = output_array('instances', RECORD.draw_instance);
+    const batches = output_array('batches', RECORD.draw_batch);
+    super(RECORD.draw_frame, [instances, batches]);
     require_condition(resources instanceof Render_Resources, 'INVALID_ARGUMENT', 'A validated render attachment is required.');
     this.resources = resources;
     this.engine_epoch = engine_epoch;
@@ -580,9 +613,9 @@ export class Scene_Output extends Borrowed_Output {
   required: Record<string, Record_Values> = {};
 
   constructor(resources: Render_Resources, engine_epoch: number) {
-    const instances = output_array('instances', 50);
-    const batches = output_array('batches', 51);
-    super(47, [instances, batches]);
+    const instances = output_array('instances', RECORD.scene_instance);
+    const batches = output_array('batches', RECORD.scene_batch);
+    super(RECORD.scene_frame, [instances, batches]);
     require_condition(resources instanceof Render_Resources && resources.scene, 'INVALID_ARGUMENT', 'A validated render attachment is required.');
     this.resources = resources;
     this.engine_epoch = engine_epoch;
@@ -607,18 +640,23 @@ export class Scene_Output extends Borrowed_Output {
 export class Session_Output {
   bytes: Uint8Array;
   view: DataView;
+  readonly kind: number;
   summary: Record<string, Record_Values>;
   spans = new Map<string, Output_Array_Span>();
 
   constructor(bytes: Uint8Array, kind: number) {
     this.bytes = bytes;
     this.view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    this.kind = kind;
     this.summary = readRecord(this.view, 0, kind);
-    require_condition(kind === 19 || kind === 24, 'UNSUPPORTED', 'Unknown session output.');
-    if (kind === 19) {
+    require_condition(kind === RECORD.session_snapshot || kind === RECORD.final_result,
+      'UNSUPPORTED', 'Unknown session output.');
+    if (kind === RECORD.session_snapshot) {
       require_condition(this.summary.total_bytes === BigInt(bytes.length), 'INVALID_SPAN', 'Snapshot size mismatch.');
     }
-    const arrays: [string, number][] = kind === 19 ? [['objects', 20], ['judgements', 21], ['audio', 27]] : [['counts', 26]];
+    const arrays: [string, number][] = kind === RECORD.session_snapshot ?
+      [['objects', RECORD.session_object], ['judgements', RECORD.judgement], ['audio', RECORD.audio_event]] :
+      [['counts', RECORD.result_count]];
     let previous_end = record_size(kind);
     for (const [field_name, record_kind] of arrays) {
       const offset = this.summary[field_name + '_offset'] as number;
@@ -643,6 +681,17 @@ export class Session_Output {
       'INVALID_SPAN', 'Session record index is out of bounds.');
     return readRecord(this.view, span.offset + record_index * span.stride, span.kind);
   }
+
+  // Typed per-hit-result counters on final result output (result/diagnostics path).
+  *result_counts(): Generator<Result_Count_Record> {
+    require_condition(this.kind === RECORD.final_result, 'INVALID_SPAN',
+      'Result counts exist only on final result output.');
+    const span = this.spans.get('counts');
+    require_condition(span, 'INVALID_SPAN', 'Final result output has no counts span.');
+    for (let record_index = 0; record_index < span.count; record_index++) {
+      yield read_record(this.view, span.offset + record_index * span.stride, RECORD.result_count);
+    }
+  }
 }
 
 export class Prepared_Description {
@@ -655,11 +704,11 @@ export class Prepared_Description {
   constructor(bytes: Uint8Array) {
     this.bytes = bytes;
     this.view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-    this.summary = read_record(this.view, 0, 8);
+    this.summary = read_record(this.view, 0, RECORD.prepared_descriptor);
     require_condition(this.summary.total_bytes === BigInt(bytes.length), 'INVALID_SPAN', 'Descriptor size mismatch.');
-    const playback_span = this.array_span(this.summary, 'playback', record_size(17));
+    const playback_span = this.array_span(this.summary, 'playback', record_size(RECORD.prepared_playback));
     require_condition(playback_span.count === 1, 'INVALID_SPAN', 'Expected one playback record.');
-    this.playback = readRecord(this.view, playback_span.offset, 17);
+    this.playback = readRecord(this.view, playback_span.offset, RECORD.prepared_playback);
     this.audio_filename = this.text(this.playback, 'audio_filename');
   }
 
@@ -674,21 +723,27 @@ export class Prepared_Description {
     const samples = function* (descriptor: Prepared_Description, parent: Record<string, Record_Values>,
       field: string, object_id: number, component_id: number, loops_only = false) {
       let sample_index = 0;
-      for (const sample of descriptor.records(parent, field, 11)) {
+      for (const sample of descriptor.records(parent, field, RECORD.prepared_sample)) {
         const name = descriptor.text(sample, 'name');
-        if (!loops_only || (sample.flags as number & 1) === 1) {
+        if (!loops_only || ((sample.flags as number) & SAMPLE_FLAG_LOOP) === SAMPLE_FLAG_LOOP) {
           yield { object_id, component_id, sample_index, name, use_beatmap: sample.use_beatmap !== 0,
-            candidates: [...descriptor.records(sample, 'candidates', 12)].map(candidate => descriptor.text(candidate, 'name')) };
+            candidates: [...descriptor.records(sample, 'candidates', RECORD.sample_candidate)]
+              .map(candidate => descriptor.text(candidate, 'name')) };
         }
         sample_index++;
       }
     };
-    for (const object of this.records(this.summary, 'objects', 9)) {
-      if (object.kind !== 2) yield* samples(this, object, 'samples', object.id as number, 0xffffffff);
-      for (const component of this.records(object, 'components', 10)) {
-        if (component.kind === 4) continue;
-        yield* samples(this, component.kind === 3 ? object : component,
-          component.kind === 3 ? 'tail_samples' : 'samples', object.id as number, component.id as number);
+    for (const object of this.records(this.summary, 'objects', RECORD.prepared_object)) {
+      // Slider bodies own their samples through the tail component; every other
+      // object exposes them directly, and legacy last ticks carry none.
+      if (object.kind !== PREPARED_OBJECT_KIND.SLIDER) {
+        yield* samples(this, object, 'samples', object.id as number, 0xffffffff);
+      }
+      for (const component of this.records(object, 'components', RECORD.prepared_component)) {
+        if (component.kind === PREPARED_COMPONENT_KIND.LEGACY_LAST_TICK) continue;
+        const tail = component.kind === PREPARED_COMPONENT_KIND.TAIL;
+        yield* samples(this, tail ? object : component, tail ? 'tail_samples' : 'samples',
+          object.id as number, component.id as number);
       }
       yield* samples(this, object, 'auxiliary_samples', object.id as number, 0xfffffffe, true);
     }

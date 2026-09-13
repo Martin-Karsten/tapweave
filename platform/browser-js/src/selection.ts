@@ -69,14 +69,14 @@ export class Selection_Controller {
         require_condition(files.length === 1, 'INVALID_SELECTION', 'Select one archive or a beatmap with its loose assets.');
         require_condition(archives[0].size <= this.limits.archive_bytes, 'QUOTA_EXCEEDED', 'Archive exceeds the input quota.');
         const archive_bytes = new Uint8Array(await archives[0].arrayBuffer());
-        if (generation !== this.generation || this.disposed) {
+        if (this.is_stale(generation)) {
           return;
         }
         source = new Archive_Assets(archive_bytes, this.limits);
       } else {
         source = new Loose_Assets(files, this.limits);
       }
-      if (generation !== this.generation || this.disposed) {
+      if (this.is_stale(generation)) {
         source.dispose();
         return;
       }
@@ -110,7 +110,7 @@ export class Selection_Controller {
     this.pending_candidate = candidate;
     try {
       const bytes = await source.read(filename);
-      if (generation !== this.generation || this.disposed) {
+      if (this.is_stale(generation)) {
         return;
       }
       require_condition(bytes !== null, 'MISSING_MAP', 'Selected beatmap is missing.');
@@ -119,7 +119,7 @@ export class Selection_Controller {
       const map_directory = filename.includes('/') ? filename.slice(0, filename.lastIndexOf('/') + 1) : '';
       const audio_path = audio_filename ? normalize_asset_path(map_directory + audio_filename) : null;
       const audio_bytes = audio_path ? await source.read(audio_path) : null;
-      if (generation !== this.generation || this.disposed) {
+      if (this.is_stale(generation)) {
         return;
       }
       let music_buffer: AudioBuffer | null = null;
@@ -135,15 +135,15 @@ export class Selection_Controller {
           music_error = 'Music could not be decoded by this browser.';
         }
       }
-      if (generation !== this.generation || this.disposed) {
+      if (this.is_stale(generation)) {
         return;
       }
       const samples = this.decode_audio !== null && candidate.prepared_map.descriptor.sample_candidates !== undefined ?
         await load_sample_assets(candidate.prepared_map.descriptor, source, filename, this.decode_audio,
           this.engine.sample_probe(), {
-            fallback_assets: this.fallback_assets, cancelled: () => generation !== this.generation || this.disposed,
+            fallback_assets: this.fallback_assets, cancelled: () => this.is_stale(generation),
           }) : null;
-      if (generation !== this.generation || this.disposed) return;
+      if (this.is_stale(generation)) return;
       const previous = this.active;
       this.active = { source, filename, ...candidate.prepared_map, music_buffer, music_error, samples,
         music_status: music_buffer ? 'decoded' : audio_bytes ? 'available' : 'missing' };
@@ -185,6 +185,11 @@ export class Selection_Controller {
       this.error = error as Browser_Error;
       this.on_change(this);
     }
+  }
+
+  // A load started under an older generation, or the controller was disposed.
+  is_stale(generation: number) {
+    return generation !== this.generation || this.disposed;
   }
 
   dispose() {

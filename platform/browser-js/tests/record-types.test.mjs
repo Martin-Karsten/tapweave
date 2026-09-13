@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { RECORD_FIELD_TYPES } from '../build/abi-records.js';
+import { RECORD_FIELD_TYPES, RECORD } from '../build/abi-records.js';
 import { schema } from '../../../engine/abi/records.mjs';
 
 // The typed record table must mirror the generated ABI schema exactly:
@@ -22,4 +22,9 @@ test('typed record fields mirror the generated ABI schema', () => {
         `kind ${kind} field ${field_name} must map ${schema_type} to ${value_type}`);
     }
   }
+});
+
+test('named record kinds mirror the generated ABI schema', () => {
+  const expected_kinds = Object.fromEntries(schema.records.map(record => [record.name, record.kind]));
+  assert.deepEqual(RECORD, expected_kinds);
 });

@@ -1,5 +1,7 @@
-import { read_record, record_size, type Render_Resource_Record } from './abi-records.js';
+import { read_record, record_size, RECORD, SCENE_ATTACHMENT_MAGIC, type Render_Resource_Record } from './abi-records.js';
 import { require_condition } from './errors.js';
+
+const INDEX_ELEMENT_BYTES = 4;
 
 export interface Render_Resource_Snapshot {
   bytes: Uint8Array;
@@ -17,14 +19,18 @@ export class Render_Resources {
   constructor(bytes: Uint8Array) {
     this.bytes = bytes;
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-    this.scene = view.getUint16(0, true) === 46;
-    this.summary = read_record(view, 0, this.scene ? 46 : 35);
+    // Scene attachments begin with the little-endian scene_resource kind and
+    // store four f64 vertices per vertex; map attachments store two.
+    this.scene = view.getUint16(0, true) === SCENE_ATTACHMENT_MAGIC;
+    this.summary = read_record(view, 0, this.scene ? RECORD.scene_resource : RECORD.render_resource);
     const summary = this.summary;
+    const header_bytes = record_size(this.scene ? RECORD.scene_resource : RECORD.render_resource);
     require_condition(summary.resource_id > 0n && summary.attachment_version === 1 && summary.flags === 0 &&
       summary.reserved === 0n && summary.total_bytes === BigInt(bytes.byteLength),
       'INVALID_RESOURCE', 'Invalid render resource identity or version.');
-    let previous_end = record_size(this.scene ? 46 : 35);
-    for (const [span_name, expected_stride] of [['vertices', this.scene ? 32 : 16], ['indices', 4], ['atlas', 1], ['vertex_shader', 1], ['fragment_shader', 1]] as const) {
+    const vertex_stride_bytes = this.scene ? 32 : 16;
+    let previous_end = header_bytes;
+    for (const [span_name, expected_stride] of [['vertices', vertex_stride_bytes], ['indices', INDEX_ELEMENT_BYTES], ['atlas', 1], ['vertex_shader', 1], ['fragment_shader', 1]] as const) {
       const offset = summary[`${span_name}_offset`];
       const count = summary[`${span_name}_count`];
       const stride = summary[`${span_name}_stride`];
@@ -43,7 +49,7 @@ export class Render_Resources {
         'INVALID_RESOURCE', 'Non-finite render vertex.');
     }
     for (let index_index = 0; index_index < summary.indices_count; index_index++) {
-      require_condition(view.getUint32(summary.indices_offset + index_index * 4, true) < summary.vertices_count,
+      require_condition(view.getUint32(summary.indices_offset + index_index * INDEX_ELEMENT_BYTES, true) < summary.vertices_count,
         'INVALID_RESOURCE', 'Index references an absent vertex.');
     }
     require_condition(summary.indices_count % 3 === 0 && summary.vertex_shader_count > 0 && summary.fragment_shader_count > 0,

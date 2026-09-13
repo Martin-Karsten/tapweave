@@ -1,7 +1,6 @@
 import type { Audio_Playback } from './audio-playback.js';
 import type { Gameplay_Output } from './engine-bridge.js';
-import type { Input_Snapshot_Values } from './abi-records.js';
-import { record_size } from './abi-records.js';
+import { record_size, RECORD, SESSION_STATE, type Input_Snapshot_Values } from './abi-records.js';
 import { Input_Buffer } from './input.js';
 import { require_condition } from './errors.js';
 
@@ -26,7 +25,7 @@ export class Gameplay_Frame {
     readonly cancel_frame: (request_id: number) => void = request_id => cancelAnimationFrame(request_id)) {
     this.input = new Input_Buffer(maximum_records);
     this.staging = Array.from({ length: maximum_records }, () => ({}));
-    playback.engine.reserve_input(maximum_records * record_size(23));
+    playback.engine.reserve_input(maximum_records * record_size(RECORD.input_snapshot));
   }
 
   drain() {
@@ -59,7 +58,7 @@ export class Gameplay_Frame {
       this.drain();
       const audio_seconds = this.playback.context.currentTime;
       const output = this.playback.pump(audio_seconds);
-      this.terminal = output.summary.state === 3 || output.summary.state === 4;
+      this.terminal = output.summary.state === SESSION_STATE.PASSED || output.summary.state === SESSION_STATE.FAILED;
       this.render(this.playback.clock.beatmap_time(audio_seconds), output);
       if (this.terminal) this.on_terminal?.();
     } catch (error) {

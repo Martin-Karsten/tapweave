@@ -1,8 +1,16 @@
 import type { Engine_Bridge } from './engine-bridge.js';
 import { Voice_Output } from './voice-output.js';
 import type { Audio_Event, Audio_Service, Voice_Kind } from './audio.js';
-import type { Voice_Command_Record } from './abi-records.js';
+import { LATE_POLICY, VOICE_COMMAND_FAMILY_BIT, VOICE_COMMAND_KIND, type Voice_Command_Record } from './abi-records.js';
 import { require_condition } from './errors.js';
+
+// Engine voice command families map one-to-one onto executor event kinds.
+const EVENT_KIND_BY_COMMAND: Record<number, Voice_Kind> = {
+  [VOICE_COMMAND_KIND.ONE_SHOT]: 'one_shot',
+  [VOICE_COMMAND_KIND.LOOP_START]: 'loop_start',
+  [VOICE_COMMAND_KIND.LOOP_STOP]: 'loop_stop',
+  [VOICE_COMMAND_KIND.PARAM_RAMP]: 'param_ramp',
+};
 
 // One owner per engine session. The retained engine-epoch/sequence watermark
 // survives output-token replacement, dispatch failure and clock pause. A new
@@ -39,16 +47,16 @@ export class Audio_Admission {
     const retained_sequence = engine_epoch === this.engine_epoch ? this.admitted_sequence : 0n;
     let previous_sequence = retained_sequence;
     this.events.length = 0;
-    const kinds: Voice_Kind[] = ['one_shot', 'loop_start', 'loop_stop', 'param_ramp'];
     for (let command_index = 0; command_index < output.summary.commands_count; command_index++) {
       const command = this.audio_record;
       output.record_into(command_index, command);
-      require_condition((this.engine.transport_capabilities.voice_command_mask & (1 << (command.command_kind - 1))) !== 0,
+      const family_bit = VOICE_COMMAND_FAMILY_BIT.ONE_SHOT << (command.command_kind - 1);
+      require_condition((this.engine.transport_capabilities.voice_command_mask & family_bit) !== 0,
         'UNSUPPORTED', 'The producer has not enabled this voice command family.');
       if (command.sequence <= retained_sequence) continue;
       this.events.push(Object.assign(this.staging[this.events.length] ??= ({} as Audio_Event), { sequence: command.sequence,
-        epoch: browser_epoch, kind: kinds[command.command_kind - 1],
-        policy: command.late_policy === 1 ? 'immediate' : 'drop',
+        epoch: browser_epoch, kind: EVENT_KIND_BY_COMMAND[command.command_kind],
+        policy: command.late_policy === LATE_POLICY.IMMEDIATE ? 'immediate' : 'drop',
         beatmap_time_ms: command.time_ms, voice_id: command.voice_id, asset_id: command.asset_id,
         volume: command.volume, pan: command.pan, rate: command.rate, duration_ms: command.duration_ms,
         parameter_mask: command.parameter_mask, lateness_threshold_ms: command.lateness_threshold_ms }));

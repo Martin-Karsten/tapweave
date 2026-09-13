@@ -1,5 +1,5 @@
 import { readRecordInto, schema, validateSpan } from '../../../engine/abi/records.mjs';
-import type { Record_Values, Voice_Command_Record, Voice_Frame_Record } from './abi-records.js';
+import { record_size, RECORD, VOICE_COMMAND_KIND, type Record_Values, type Voice_Command_Record, type Voice_Frame_Record } from './abi-records.js';
 import { require_condition } from './errors.js';
 
 export class Voice_Output {
@@ -18,12 +18,15 @@ export class Voice_Output {
   bind(bytes: Uint8Array) {
     this.valid = false;
     this.view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-    readRecordInto(this.view, 0, 44, this.summary);
+    readRecordInto(this.view, 0, RECORD.voice_frame, this.summary);
     const frame = this.summary;
+    const frame_header_bytes = record_size(RECORD.voice_frame);
+    const command_stride_bytes = record_size(RECORD.voice_command);
     const record_header = schema.transport.record_header;
     require_condition(frame.epoch > 0 && frame.flags <= 1 && frame.reserved === 0 && frame.reserved_tail === 0n &&
       frame.batch_token > 0n && Number.isFinite(frame.committed_ms) && frame.total_bytes === BigInt(bytes.byteLength) &&
-      this.view.getUint32(record_header.byte_size, true) === 64 && frame.commands_offset >= 64 && frame.commands_stride === 112 &&
+      this.view.getUint32(record_header.byte_size, true) === frame_header_bytes &&
+      frame.commands_offset >= frame_header_bytes && frame.commands_stride === command_stride_bytes &&
       frame.commands_offset + frame.commands_count * frame.commands_stride === bytes.byteLength,
       'INVALID_VOICE_OUTPUT', 'Invalid voice frame.');
     validateSpan(this.view, frame.commands_offset, frame.commands_count, frame.commands_stride, 8);
@@ -37,7 +40,8 @@ export class Voice_Output {
       // kind indices for family mapping and untouched reserved fields.
       const command = this.record_into(command_index, this.command);
       require_condition(command.sequence > previous_sequence && command.epoch > 0 && command.epoch <= frame.epoch &&
-        command.command_kind >= 1 && command.command_kind <= 4 && command.reserved === 0,
+        command.command_kind >= VOICE_COMMAND_KIND.ONE_SHOT && command.command_kind <= VOICE_COMMAND_KIND.PARAM_RAMP &&
+        command.reserved === 0,
         'INVALID_VOICE_OUTPUT', 'Invalid voice command.');
       previous_sequence = command.sequence;
     }
@@ -48,6 +52,7 @@ export class Voice_Output {
   record_into<Record_Target extends Record<string, Record_Values>>(command_index: number, target: Record_Target): Record_Target {
     require_condition(Number.isInteger(command_index) && command_index >= 0 && command_index < this.summary.commands_count,
       'INVALID_ARGUMENT', 'Voice command index is outside the frame.');
-    return readRecordInto(this.view, this.summary.commands_offset + command_index * this.summary.commands_stride, 45, target) as Record_Target;
+    return readRecordInto(this.view, this.summary.commands_offset + command_index * this.summary.commands_stride,
+      RECORD.voice_command, target) as Record_Target;
   }
 }

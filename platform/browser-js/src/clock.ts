@@ -1,4 +1,4 @@
-import { require_condition } from './errors.js';
+import { all_finite, require_condition } from './errors.js';
 
 export interface Clock_Offsets {
   global_ms: number;
@@ -36,7 +36,7 @@ export class Audio_Clock {
     const applied_offsets: Clock_Offsets = { global_ms: 0, device_ms: 0, beatmap_ms: 0, user_ms: 0, ...offsets };
     require_condition(this.anchor === null, 'INVALID_STATE', 'Pause before replacing the clock anchor.');
     require_condition(Object.keys(applied_offsets).length === 4 &&
-      [audio_seconds, beatmap_ms, ...Object.values(applied_offsets)].every(Number.isFinite) && audio_seconds >= 0,
+      all_finite([audio_seconds, beatmap_ms, ...Object.values(applied_offsets)]) && audio_seconds >= 0,
       'INVALID_CLOCK', 'Clock values must be finite.');
     const offset_ms = Object.values(applied_offsets).reduce((total_ms, component_ms) => total_ms + component_ms, 0);
     require_condition(Number.isFinite(beatmap_ms + offset_ms), 'INVALID_CLOCK', 'Clock anchor overflow.');
@@ -53,7 +53,7 @@ export class Audio_Clock {
     require_condition(anchor !== null && typeof session_handle === 'bigint' && session_handle > 0n &&
       session_handle <= 0xffffffffffffffffn &&
       Number.isInteger(engine_epoch) && engine_epoch >= 0 && engine_epoch <= 0xffffffff &&
-      Number.isFinite(receipt_ms) && Number.isFinite(audio_seconds) && audio_seconds >= anchor.audio_seconds,
+      all_finite([receipt_ms, audio_seconds]) && audio_seconds >= anchor.audio_seconds,
       'INVALID_CLOCK', 'A valid running session and receipt/audio pair are required.');
     require_condition(this.session_mapping === null, 'INVALID_STATE', 'Session clock mapping is immutable until pause.');
     const mapping: Session_Mapping = Object.freeze({ session_handle, engine_epoch, browser_epoch: this.epoch,

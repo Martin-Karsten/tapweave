@@ -1,4 +1,4 @@
-import { require_condition } from './errors.js';
+import { all_finite, require_condition } from './errors.js';
 
 export const ACTION = Object.freeze({ LEFT: 1, RIGHT: 2 });
 
@@ -29,6 +29,7 @@ export class Input_Buffer {
   held_sources = new Map<string, number>();
   sequence = 0n;
   focus_epoch = 0;
+  // osu! playfield center on the 512 x 384 board.
   x = 256;
   y = 192;
 
@@ -46,8 +47,7 @@ export class Input_Buffer {
     let y = this.y;
     if (client_x !== undefined || client_y !== undefined) {
       const transform = inverse_transform ?? [];
-      require_condition(inverse_transform?.length === 6 &&
-        [client_x, client_y, ...transform].every(value => typeof value === 'number' && Number.isFinite(value)),
+      require_condition(inverse_transform?.length === 6 && all_finite([client_x, client_y, ...transform]),
         'INVALID_INPUT', 'Invalid input transform.');
       x = transform[0] * client_x! + transform[2] * client_y! + transform[4];
       y = transform[1] * client_x! + transform[3] * client_y! + transform[5];

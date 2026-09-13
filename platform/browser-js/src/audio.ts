@@ -235,12 +235,13 @@ export class Audio_Service {
       'INVALID_STATE', 'Pause the clock once before suspending audio.');
     // The engine pause boundary releases input and retires its loop identities.
     // Resume recreates loops only in response to fresh authoritative starts.
-    let retained_count = 0;
+    // One-shots compact in place: retained_write_index trails the scan cursor.
+    let retained_write_index = 0;
     for (const event of this.pending) {
-      if (event.kind === 'one_shot') this.pending[retained_count++] = event;
+      if (event.kind === 'one_shot') this.pending[retained_write_index++] = event;
       else this.available_events.push(event);
     }
-    this.pending.length = retained_count;
+    this.pending.length = retained_write_index;
     for (const voice of [...this.voices.values(), ...this.retiring_voices]) {
       if (voice.event.kind !== 'loop_start') continue;
       this.release_voice(voice);
