@@ -79,7 +79,7 @@ acceptance.
 | Gate | Result |
 |---|---|
 | A1′ (Solid diagnostics) | tsgo reports precise JSX diagnostics on the gate fixtures: TS2322 (type mismatch on `items` props), TS2769 (no overload matches the `For`/`Show` control-flow misuse), TS1484 (verbatimModuleSyntax value-imported type). The expected-errors tsconfig deliberately re-includes `src/expected_errors/**` with `exclude: []` so these stay asserted. |
-| A2/A3 (counter + tests) | Vitest + `@solidjs/testing-library` render and drive the counter component; HMR probe applies an edit without a page reload and preserves counter state. |
+| A2/A3 (counter + tests) | Vitest + `@solidjs/testing-library` render and drive the counter component; the HMR probe applies an edit without a page reload, keeps the parent mounted and leaves reactivity alive. Component-local state may reset across a hot update (recorded caveat below), so state preservation is reported but not gated. |
 | B1 (engine bridge) | The shell boots the production WASM through `@browser/engine-bridge.js`: build 1, behavior 202608042, ABI 2.0; capability fields and live WASM page counts readable from components; no console errors. |
 | B2 (virtualized list) | The `@tanstack/solid-virtual` list renders 18 DOM rows for 10,000 entries with working keyboard selection, End/Home jumps and bounded DOM at both scroll extremes. |
 | B3 (frame-path isolation) | 60-second per-frame reactive probe: 60.05 fps effective, 0 long tasks, 0 heap growth, reactive and direct-DOM writes coexist; measured on a shell page with no engine frame path. |
