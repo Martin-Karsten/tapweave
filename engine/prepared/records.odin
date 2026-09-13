@@ -33,6 +33,14 @@ is_loop_sample :: proc(name: string) -> bool {
 	return name == "sliderslide" || name == "sliderwhistle" || name == "spinnerspin"
 }
 
+// Pinned beatmap sample filename probing order: the exact candidate name is
+// tried first, then each extension is appended in order. Framework
+// SampleStore (osu.Framework/Audio/Sample/SampleStore.cs, constructor) adds
+// wav then mp3; Skin.RecycleSamples (osu.Game/Skinning/Skin.cs, 2026.804.2)
+// adds ogg last for the osu-stable wav -> mp3 -> ogg ordering, and
+// ResourceStore.GetFilenames probes the exact name before any extension.
+SAMPLE_PROBE_EXTENSIONS :: []string{"", ".wav", ".mp3", ".ogg"}
+
 Component :: struct {
 	id: u32,
 	kind: Component_Kind,

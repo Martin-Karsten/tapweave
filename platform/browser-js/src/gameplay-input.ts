@@ -6,10 +6,13 @@ import type { Gameplay_Frame } from './gameplay-frame.js';
 export class Gameplay_Input {
   private listeners = new AbortController();
   private touch_id: number | null = null;
+  private captured_pointers = new Set<number>();
   private previous_touch_action: string;
 
   constructor(readonly canvas: HTMLCanvasElement, readonly frame: Gameplay_Frame,
-    readonly receipt_now: () => number = () => performance.now()) {
+    readonly receipt_now: () => number = () => performance.now(),
+    readonly request_pause: (reason: string) => void = () => frame.pause(),
+    readonly owns_focus_events = true) {
     this.previous_touch_action = canvas.style.touchAction;
     canvas.style.touchAction = 'none';
     const options = { signal: this.listeners.signal };
@@ -41,6 +44,7 @@ export class Gameplay_Input {
       event.preventDefault();
       this.pointer(event, true);
       canvas.setPointerCapture(event.pointerId);
+      this.captured_pointers.add(event.pointerId);
     }), options);
     window.addEventListener('pointermove', guarded((event: PointerEvent) => {
       if (event.pointerType === 'touch' ? event.pointerId !== this.touch_id : event.pointerType !== 'mouse') return;
@@ -52,6 +56,7 @@ export class Gameplay_Input {
       event.preventDefault();
       this.pointer(event, false);
       if (event.pointerType === 'touch') this.touch_id = null;
+      this.captured_pointers.delete(event.pointerId);
     }), options);
     const cancel = guarded(() => this.pause());
     window.addEventListener('pointercancel', guarded((event: PointerEvent) => {
@@ -61,10 +66,12 @@ export class Gameplay_Input {
       if (event.pointerId === this.touch_id || frame.input.held_sources.has('mouse:0') ||
         frame.input.held_sources.has('mouse:2')) this.pause();
     }), options);
-    window.addEventListener('blur', cancel, options);
-    document.addEventListener('visibilitychange', guarded(() => {
-      if (document.hidden) this.pause();
-    }), options);
+    if (owns_focus_events) {
+      window.addEventListener('blur', cancel, options);
+      document.addEventListener('visibilitychange', guarded(() => {
+        if (document.hidden) this.pause();
+      }), options);
+    }
     canvas.addEventListener('contextmenu', guarded(event => event.preventDefault()), options);
   }
 
@@ -82,13 +89,17 @@ export class Gameplay_Input {
   }
 
   private pause() {
-    this.frame.pause();
+    this.request_pause('Input cancelled or Escape pressed.');
     this.touch_id = null;
   }
 
   dispose() {
     this.listeners.abort();
+    for (const pointer_id of this.captured_pointers) {
+      if (this.canvas.hasPointerCapture?.(pointer_id)) this.canvas.releasePointerCapture(pointer_id);
+    }
+    this.captured_pointers.clear();
     this.canvas.style.touchAction = this.previous_touch_action;
-    if (this.frame.playback.state === 'running' && !this.frame.terminal) this.pause();
+    this.touch_id = null;
   }
 }

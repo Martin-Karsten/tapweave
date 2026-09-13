@@ -114,7 +114,7 @@ test('production WASM frame delivery matches direct headless results across rate
         const context = audio_context_fixture();
         context.currentTime = 0;
         const samples = await load_sample_assets(map.descriptor, { async read() { return null; } }, 'map.osu', async () => {},
-          { fallback_assets: create_fallback_audio(context) });
+          engine.sample_probe(), { fallback_assets: create_fallback_audio(context) });
         playback = new Audio_Playback(engine, session, context, { music_buffer: { duration: 10 }, samples });
         const frame = new Gameplay_Frame(playback, () => {}, 32, () => 1, () => {});
         await playback.start(0, () => 0);

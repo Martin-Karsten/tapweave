@@ -15,12 +15,15 @@ export class Gameplay_Frame {
   private generation = 0;
   error: unknown = null;
   terminal = false;
+  on_terminal: (() => void) | null = null;
+  on_error: ((error: unknown) => void) | null = null;
+  on_terminal_frame: (() => void) | null = null;
 
   constructor(readonly playback: Audio_Playback,
     readonly render: (time_ms: number, output: Gameplay_Output) => void,
     maximum_records = 8192,
-    readonly request_frame: (callback: FrameRequestCallback) => number = requestAnimationFrame,
-    readonly cancel_frame: (request_id: number) => void = cancelAnimationFrame) {
+    readonly request_frame: (callback: FrameRequestCallback) => number = callback => requestAnimationFrame(callback),
+    readonly cancel_frame: (request_id: number) => void = request_id => cancelAnimationFrame(request_id)) {
     this.input = new Input_Buffer(maximum_records);
     this.staging = Array.from({ length: maximum_records }, () => ({}));
     playback.engine.reserve_input(maximum_records * record_size(23));
@@ -49,11 +52,16 @@ export class Gameplay_Frame {
 
   step() {
     try {
+      if (this.terminal && this.on_terminal_frame) {
+        this.on_terminal_frame();
+        return;
+      }
       this.drain();
       const audio_seconds = this.playback.context.currentTime;
       const output = this.playback.pump(audio_seconds);
       this.terminal = output.summary.state === 3 || output.summary.state === 4;
       this.render(this.playback.clock.beatmap_time(audio_seconds), output);
+      if (this.terminal) this.on_terminal?.();
     } catch (error) {
       this.fail(error);
       throw error;
@@ -90,7 +98,8 @@ export class Gameplay_Frame {
   fail(error: unknown) {
     this.stop();
     this.error = error;
-    if (this.playback.state !== 'recovering' && this.playback.state !== 'disposed') this.playback.recover(error);
+    if (this.on_error) this.on_error(error);
+    else if (this.playback.state !== 'recovering' && this.playback.state !== 'disposed') this.playback.recover(error);
   }
 
   stop() {

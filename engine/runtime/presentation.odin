@@ -9,23 +9,24 @@ ABI_TRANSFORM_OUTPUT_OFFSET :: 672
 
 // One viewport reader: the playfield transport and the draw transport decode
 // the same input record through the same path.
-read_viewport_transform :: proc(viewport_address: uintptr) -> (presentation.Playfield_Transform, core_types.Status) {
+read_viewport_transform :: proc(viewport_address: uintptr) -> (presentation.Playfield_Transform, presentation.Viewport, core_types.Status) {
 	status := abi_record(viewport_address, ABI_VIEWPORT_KIND, ABI_VIEWPORT_SIZE)
 	if status != .OK {
-		return {}, status
+		return {}, {}, status
 	}
 	input_bytes := abi_storage.bytes[:ABI_INPUT_SIZE]
-	transform, valid := presentation.make_playfield_transform({
+	viewport := presentation.Viewport{
 		css_left = get_f64(input_bytes, ABI_VIEWPORT_CSS_LEFT_OFFSET),
 		css_top = get_f64(input_bytes, ABI_VIEWPORT_CSS_TOP_OFFSET),
 		css_width = get_f64(input_bytes, ABI_VIEWPORT_CSS_WIDTH_OFFSET),
 		css_height = get_f64(input_bytes, ABI_VIEWPORT_CSS_HEIGHT_OFFSET),
 		device_pixel_ratio = get_f64(input_bytes, ABI_VIEWPORT_DEVICE_PIXEL_RATIO_OFFSET),
-	})
-	if !valid {
-		return {}, .INVALID_ARGUMENT
 	}
-	return transform, .OK
+	transform, valid := presentation.make_playfield_transform(viewport)
+	if !valid {
+		return {}, {}, .INVALID_ARGUMENT
+	}
+	return transform, viewport, .OK
 }
 
 // Independent coordinate capability; this does not advertise object rendering.
@@ -39,7 +40,7 @@ oe_playfield_transform :: proc "c" (engine: core_types.Handle, viewport_address,
 	if !output_span_valid(span_output) {
 		return abi_status(.INVALID_ARGUMENT)
 	}
-	transform, transform_status := read_viewport_transform(viewport_address)
+	transform, _, transform_status := read_viewport_transform(viewport_address)
 	if transform_status != .OK {
 		return abi_status(transform_status)
 	}

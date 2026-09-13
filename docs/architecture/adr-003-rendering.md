@@ -222,3 +222,33 @@ discarded, including pending results that become available later. No query waits
 are introduced into submission. Missing samples are reported as unavailable,
 never interpreted as zero GPU cost. Software-driver and concurrently loaded
 workload measurements are diagnostic only, not approved shipping baselines.
+
+
+## Engine-owned uniforms and emit-time scene policy
+
+Two executor-side derivations of presentation policy were returned to the
+engine. Scene frames (kind 47) now append the four f32-exact NDC viewport
+uniforms computed by `presentation.make_viewport_uniforms` from the same
+transform and viewport the frame already carries; the WebGL executor uploads
+them verbatim instead of re-deriving the mapping with `Math.fround`.
+`presentation.validate_scene` asserts instance and command policy at emit time
+inside `oe_session_scene_draw`: primitive/flag ranges, shared-quad versus
+tessellated geometry, index bounds against the attachment, alpha/scale/clip/
+glyph limits, clipping-cap adjacency and finiteness. A violation fails the
+draw with `INVALID_STATE` and preserves the previous frame. The browser
+executor validates only transport identity, reserve capacity, finite f32
+staging and complete batch coverage — the earlier mirrored policy checks in
+`WebGL_Resources.execute` were removed with the engine tests taking ownership
+of every dropped rule. Kind 47 remains append-only within ABI major 2; see
+[interface v2](interface-v2.md#mixed-scene-transport).
+
+## W07 controller ownership
+
+The validation controller now composes `Renderer` with the sole gameplay frame
+driver. Context loss requests a clean pause, stops input/audio and disables
+Resume/Retry until restoration. Restoration is deferred until resource event
+listeners have cleared their loss state and is guarded by attempt generation;
+replacement/disposal cancels the deferred task. It rebuilds retained immutable
+resources without restarting gameplay. Retry reuses a valid renderer after engine
+reset and supplies the new epoch on every draw. Failed preparation releases all
+candidate session/GPU resources and preserves the selected map and assets.

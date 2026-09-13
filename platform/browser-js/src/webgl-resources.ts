@@ -298,7 +298,9 @@ export class WebGL_Resources {
     }
   }
 
-  // Validate and stage the entire borrowed frame before making any GL call.
+  // Stage the entire borrowed frame before making any GL call. Instance and
+  // command policy is validated by the engine at emit time; this executor
+  // checks transport identity, capacity and finiteness only.
   execute(frame: Scene_Output, viewport: Viewport_Values, epoch: number, generation: number) {
     this.#available();
     const validation_started = performance.now();
@@ -313,36 +315,23 @@ export class WebGL_Resources {
     require_condition(Number.isFinite(viewport.css_left) && Number.isFinite(viewport.css_top) &&
       Number.isFinite(viewport.css_width) && viewport.css_width > 0 &&
       Number.isFinite(viewport.css_height) && viewport.css_height > 0 &&
-      Number.isFinite(viewport.device_pixel_ratio) && viewport.device_pixel_ratio > 0 &&
-      Number.isFinite(summary.scale) && summary.scale > 0 && Number.isFinite(summary.client_left) && Number.isFinite(summary.client_top),
+      Number.isFinite(viewport.device_pixel_ratio) && viewport.device_pixel_ratio > 0,
       'INVALID_DRAW', 'Invalid viewport.');
     const pixel_width = Math.round(viewport.css_width * viewport.device_pixel_ratio);
     const pixel_height = Math.round(viewport.css_height * viewport.device_pixel_ratio);
     require_condition(pixel_width > 0 && pixel_height > 0 && pixel_width <= 16384 && pixel_height <= 16384 && pixel_width * pixel_height <= 16777216,
       'QUOTA_EXCEEDED', 'Canvas dimensions exceed admission.');
-    const scale_x = Math.fround(2 * summary.scale / viewport.css_width);
-    const scale_y = Math.fround(-2 * summary.scale / viewport.css_height);
-    const shift_x = Math.fround(2 * (summary.client_left - viewport.css_left) / viewport.css_width - 1);
-    const shift_y = Math.fround(1 - 2 * (summary.client_top - viewport.css_top) / viewport.css_height);
+    // The engine publishes f32-exact NDC uniforms with the frame; the executor
+    // uploads them without re-deriving presentation math.
+    const scale_x = summary.uniform_scale_x;
+    const scale_y = summary.uniform_scale_y;
+    const shift_x = summary.uniform_shift_x;
+    const shift_y = summary.uniform_shift_y;
     require_condition(Number.isFinite(scale_x) && Number.isFinite(scale_y) && Number.isFinite(shift_x) && Number.isFinite(shift_y),
-      'INVALID_DRAW', 'Viewport exceeds GPU float range.');
-    let coverage_object = -1;
+      'INVALID_DRAW', 'Viewport uniforms exceed GPU float range.');
     for (let instance_index = 0; instance_index < frame.instances.count; instance_index++) {
       const instance = frame.record_into(frame.instances, instance_index, this.#instance);
       const primitive = Number(instance.primitive);
-      const first = Number(instance.geometry_first), count = Number(instance.geometry_count);
-      require_condition(primitive >= 1 && primitive <= 5 && (instance.flags === 0 || instance.flags === 1 && primitive === 1) && instance.reserved === 0n &&
-        first % 3 === 0 && count > 0 && count % 3 === 0 && first <= resources!.summary.indices_count &&
-        count <= resources!.summary.indices_count - first &&
-        (primitive === 4 || first === 0 && count === 6) &&
-        Number(instance.alpha) >= 0 && Number(instance.alpha) <= 1 &&
-        Number(instance.scale_x) >= 0 && Number(instance.scale_y) >= 0 &&
-        Number(instance.clip_start) >= 0 && Number(instance.clip_end) <= 1 && Number(instance.clip_start) <= Number(instance.clip_end) &&
-        (primitive !== 3 || Number(instance.glyph) < 128), 'INVALID_DRAW', 'Invalid scene instance.');
-      if (instance.flags === 1) {
-        require_condition(coverage_object === Number(instance.object_id) && instance.layer === 10,
-          'INVALID_DRAW', 'A clipping cap must immediately follow its path coverage.');
-      } else coverage_object = primitive === 4 ? Number(instance.object_id) : -1;
       const offset = instance_index * 16;
       const colour = Number(instance.colour);
       this.#staging[offset] = Number(instance.x);
@@ -370,17 +359,10 @@ export class WebGL_Resources {
       const batch = frame.record_into(frame.batches, batch_index, this.#batch);
       const first_instance = Number(batch.first_instance), instance_count = Number(batch.instance_count);
       require_condition(first_instance === covered_instances && instance_count > 0 &&
-        instance_count <= frame.instances.count - covered_instances && batch.reserved === 0n,
+        instance_count <= frame.instances.count - covered_instances,
         'INVALID_DRAW', 'Invalid scene batch coverage.');
-      frame.record_into(frame.instances, first_instance, this.#instance);
-      const geometry_first = Number(this.#instance.geometry_first), geometry_count = Number(this.#instance.geometry_count);
-      require_condition(batch.primitive !== 4 || instance_count === 1, 'INVALID_DRAW', 'A path requires independent stencil coverage.');
-      for (let member_index = first_instance; member_index < first_instance + instance_count; member_index++) {
-        frame.record_into(frame.instances, member_index, this.#instance);
-        require_condition((batch.primitive === 0 && this.#instance.primitive !== 4 || batch.primitive === 4 && this.#instance.primitive === 4) && this.#instance.layer === batch.layer &&
-          this.#instance.geometry_first === geometry_first && this.#instance.geometry_count === geometry_count,
-          'INVALID_DRAW', 'Batch references incompatible instances.');
-      }
+      const first_member = frame.record_into(frame.instances, first_instance, this.#instance);
+      const geometry_first = Number(first_member.geometry_first), geometry_count = Number(first_member.geometry_count);
       const command_offset = batch_index * 4;
       this.#commands[command_offset] = first_instance;
       this.#commands[command_offset + 1] = instance_count;

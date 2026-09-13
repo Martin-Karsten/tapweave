@@ -165,6 +165,58 @@ starts_batch :: proc(current, previous: Instance) -> bool {
 	return current.layer != previous.layer || current.primitive != previous.primitive
 }
 
+// Authoritative emit-time scene policy. The browser executor validates only
+// transport identity, capacity and finiteness; every instance policy rule and
+// the clipping-cap adjacency contract are checked here against the ordered
+// instances that will be serialized.
+validate_scene :: proc(instances: []Instance, indices_count: u32) -> core_types.Status {
+	coverage_object_id := u32(max(u32))
+	for instance_index in 0 ..< len(instances) {
+		instance := instances[instance_index]
+		if instance.primitive < .DISC || instance.primitive > .RECTANGLE {
+			return .INVALID_STATE
+		}
+		if instance.flags > 1 || instance.flags == 1 && (instance.primitive != .DISC || instance.layer != 10) {
+			return .INVALID_STATE
+		}
+		if instance.geometry_first % 3 != 0 || instance.geometry_count == 0 || instance.geometry_count % 3 != 0 {
+			return .INVALID_STATE
+		}
+		if instance.primitive != .PATH && (instance.geometry_first != 0 || instance.geometry_count != 6) {
+			return .INVALID_STATE
+		}
+		if instance.geometry_first > indices_count || instance.geometry_count > indices_count - instance.geometry_first {
+			return .INVALID_STATE
+		}
+		if instance.primitive == .GLYPH && instance.glyph >= 128 {
+			return .INVALID_STATE
+		}
+		if instance.alpha < 0 || instance.alpha > 1 || instance.scale_x < 0 || instance.scale_y < 0 ||
+		   instance.clip_start < 0 || instance.clip_end > 1 || instance.clip_start > instance.clip_end {
+			return .INVALID_STATE
+		}
+		if !core_types.finite(instance.x) || !core_types.finite(instance.y) ||
+		   !core_types.finite(instance.scale_x) || !core_types.finite(instance.scale_y) ||
+		   !core_types.finite(instance.rotation) || !core_types.finite(instance.alpha) ||
+		   !core_types.finite(instance.progress) || !core_types.finite(instance.clip_start) ||
+		   !core_types.finite(instance.clip_end) {
+			return .INVALID_STATE
+		}
+		if instance.flags == 1 {
+			// A cap keeps the preceding path's coverage so a second cap of the
+			// same path still validates against it.
+			if coverage_object_id != instance.object_id {
+				return .INVALID_STATE
+			}
+		} else if instance.primitive == .PATH {
+			coverage_object_id = instance.object_id
+		} else {
+			coverage_object_id = u32(max(u32))
+		}
+	}
+	return .OK
+}
+
 // Miss feedback duration: circles fade over the pinned 100 ms miss window,
 // other families use the shared retention window.
 miss_duration_ms :: proc(object: ^prepared.Object) -> f64 {

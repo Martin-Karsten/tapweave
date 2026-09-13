@@ -161,9 +161,13 @@ oe_session_scene_draw :: proc "c" (engine, session_handle: core_types.Handle, ti
 	if len(session.scene_storage.output) == 0 || len(session.map_storage.scene_attachment.bytes) == 0 {
 		return abi_status(.INVALID_STATE)
 	}
-	transform, transform_status := read_viewport_transform(viewport_address)
+	transform, viewport, transform_status := read_viewport_transform(viewport_address)
 	if transform_status != .OK {
 		return abi_status(transform_status)
+	}
+	uniforms, uniforms_valid := presentation.make_viewport_uniforms(transform, viewport)
+	if !uniforms_valid {
+		return abi_status(.INVALID_ARGUMENT)
 	}
 	simulation_state := &session.simulation
 	projection := simulation.project(simulation_state)
@@ -188,6 +192,13 @@ oe_session_scene_draw :: proc "c" (engine, session_handle: core_types.Handle, ti
 	presentation.refresh_history(&session.scene_storage.history, projection, time_ms, simulation_state.epoch)
 	instances := builder.instances[:builder.count]
 	presentation.order_instances(instances)
+	// Emit-time policy check: the engine, never the executor, owns instance
+	// and command policy. A violation preserves the previously published frame.
+	attachment_bytes := session.map_storage.scene_attachment.bytes
+	indices_count := get_u32(attachment_bytes, ABI_SCENE_RESOURCE_INDICES_COUNT_OFFSET)
+	if presentation.validate_scene(instances, indices_count) != .OK {
+		return abi_status(.INVALID_STATE)
+	}
 	bytes := session.scene_storage.output
 	instance_offset := ABI_SCENE_FRAME_SIZE
 	batch_offset := instance_offset + len(instances) * ABI_SCENE_INSTANCE_SIZE
@@ -218,6 +229,10 @@ oe_session_scene_draw :: proc "c" (engine, session_handle: core_types.Handle, ti
 	put_f64(bytes, ABI_SCENE_FRAME_SCALE_OFFSET, transform.scale)
 	put_f64(bytes, ABI_SCENE_FRAME_CLIENT_LEFT_OFFSET, transform.client_left)
 	put_f64(bytes, ABI_SCENE_FRAME_CLIENT_TOP_OFFSET, transform.client_top)
+	put_f64(bytes, ABI_SCENE_FRAME_UNIFORM_SCALE_X_OFFSET, uniforms.scale_x)
+	put_f64(bytes, ABI_SCENE_FRAME_UNIFORM_SCALE_Y_OFFSET, uniforms.scale_y)
+	put_f64(bytes, ABI_SCENE_FRAME_UNIFORM_SHIFT_X_OFFSET, uniforms.shift_x)
+	put_f64(bytes, ABI_SCENE_FRAME_UNIFORM_SHIFT_Y_OFFSET, uniforms.shift_y)
 	summary := simulation.score_summary(simulation_state, simulation_state.committed_ms)
 	put_u64(bytes, ABI_SCENE_FRAME_SCORE_OFFSET, u64(summary.score))
 	put_f64(bytes, ABI_SCENE_FRAME_ACCURACY_OFFSET, summary.accuracy)

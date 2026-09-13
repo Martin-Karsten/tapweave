@@ -23,7 +23,7 @@ M0 rows below describe the tested foundation matrix; the [M0 report](../status.m
 | SC-02 | lazer normalized score | `ScoreProcessor` | headless integration; local regressions | full upstream scenario gate open | A18 exact integer totals |
 | HP-01 | drain search/result health/fail | health processors | headless integration; local regressions | full upstream scenario gate open | A19 result/fail exact; health tolerance |
 | AU-01 | Sample lookup and tail timing | decoder/sample/slider sources | M1 candidates/tail preparation passes | headless one-shot intent implemented locally; playback/H11 gate open | A20 remains M2 |
-| AU-02 | loops/music/pause/resume | drawable slider/spinner + framework audio | unsupported | later milestone | A21 timing/lifecycle integration |
+| AU-02 | loops/music/pause/resume | drawable slider/spinner + framework audio | W05 services and W07 lifecycle integrated; local regressions | physical output and full H11 acceptance open | A21 timing/lifecycle integration |
 | PR-01 | preempt/fade/slider progress | pinned drawable adapter + snaking test port | mixed scenes and WebGL2 executor; bounded clipping comparisons | spinner differences and nested/cursor/follow feedback evidence open | A22 remains open |
 | RP-01 | recording/interpolation/actions | replay recorder/handler | headless integration; local regressions | full upstream scenario gate open | A23 replay schedule matrix exact |
 | MEM-01 | replacement/reset/disposal | design quotas; spike lifecycle tests | M0 native/WASM ownership matrix passes | browser asset/context lifetimes remain M3 | A24 leak/high-water/repeated load |
@@ -112,3 +112,13 @@ reads, four-session sharing, and browser frame rejection/recovery. Original glyp
 cursor trail sampling and unsmoothed repeat-arrow orientation are presentation
 policies, not upstream matches. Complete child transforms, tracking feedback,
 follow points, HUD, graphics coverage and measured limits remain A22/W04 gates.
+
+
+## W07 lifecycle evidence
+
+The [lifecycle findings](../../engine/reference/findings/m3-lifecycle.json) link
+production-WASM controller, Chromium UI/recovery tests and the executed pinned
+Player failure adapters. A19 has selected HP0/5/10 source-derived comparisons;
+A21/A23/A24 have bounded local lifecycle evidence. Exact upstream pause UI ports,
+physical input/audible output and the complete release/resource matrix remain
+open. Play exposes a validation build, not an assertion that these rows pass.

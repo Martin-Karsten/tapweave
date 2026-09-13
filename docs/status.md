@@ -3,10 +3,11 @@
 M0 (compatibility foundation) and M1 (beatmap preparation) are implemented for
 unmodded osu!standard against osu!lazer **2026.804.2**, commit
 `3c1c96f742e7aae2ff67a7361e058fe91ca3b955`, and framework **2026.731.0**, commit
-`f02756c5aa5032e6d04729922702b8d56c4bc2eb`. Tapweave is not yet playable.
+`f02756c5aa5032e6d04729922702b8d56c4bc2eb`. Tapweave now has an integrated browser validation player.
 Headless gameplay sessions connect preparation to rules, scoring and replay.
-Local integration is validated; full upstream M2 acceptance and browser gameplay
-remain open.
+Local integration is validated; full upstream M2/M3 acceptance and release-browser
+certification remain open. The W07 section below supersedes earlier increment
+statements that product Play is disabled.
 
 ## M0: foundation
 
@@ -373,3 +374,82 @@ memory profiling, the full performance matrix and required baseline approval.
 Current quotas are conservative admission ceilings, not measured shipping limits.
 Original trail sampling and unsmoothed arrow orientation are documented cosmetic
 policies. This increment does not close W07/W09 or full M3.
+
+
+## W07 lifecycle and validation UI
+
+`Gameplay_Controller` integrates the production renderer, input/frame driver,
+selection and audio services. Play requires a prepared map, decoded music,
+complete scene/voice capabilities and reserved resources; AudioContext resume
+runs in the initiating user gesture. One lifecycle owner handles pause, resume,
+retry, terminal results, Back, focus/visibility, audio interruption, GPU recovery
+and page lifecycle. Rate 1, zero offsets and zero lead-in remain the production
+profile. Missing sample candidates warn; missing music blocks Play.
+
+Pause calls Odin at the sampled audio boundary before scheduled boundary
+judgements, retains queued future input and nominal future one-shots, and releases
+physical input ownership. Suspended audio uses the same engine pause path without
+running-audio pumping. Unsafe failures preserve a bounded rejected-input preview
+and offer Retry/Back. GPU restoration never resumes automatically. Reset reuses
+the session's existing voice arena and renderer resources; it creates fresh
+browser input/frame/audio owners. Back retains the selected map and decoded assets.
+
+Terminal results are owned copies of kind 24/26. Successful runs drain existing
+sound intent and active tails using the same driver; failure, navigation or
+visibility loss cancels playback immediately. No score or result is derived in JS.
+Selection, overlays and results provide keyboard focus and navigation.
+
+Validation includes 91 service tests, mixed production-controller/headless final
+record parity at 30/60/120/144 Hz with 0/50/100/250 ms stalls, twenty consecutive
+retries with no WASM growth and bounded live owners, early slider-tail nominal
+scheduling, stale-start cancellation, audio interruption and context restoration.
+The full engine suite and 34 production-WASM session-evidence schedules passed.
+All 20 Chromium scenarios passed, including the three lifecycle scenarios with
+real Web Audio and WebGL2; the final focused UI/input rerun passed eight scenarios.
+Firefox/WebKit binaries were unavailable; the attempted Firefox download timed
+out. Physical audible output and release-browser certification are unexecuted.
+
+Pinned Player adapters for `player-failure-hp0`, `hp5` and `hp10` were executed
+and matched their existing assertions/comparisons. These source-derived fixtures
+are not exact pause UI test ports. The [lifecycle finding index](../engine/reference/findings/m3-lifecycle.json)
+records hashes, source searches, excluded product policies and remaining pause
+adapter blockers. No complete A19/A21/A23/A24 row or W08–W10 gate closes here.
+
+## Odin policy ownership increment (2026-09-13)
+
+Three upstream-policy leaks that had accumulated in the browser executor were
+returned to the engine, per the accepted ownership split (Odin owns gameplay
+and presentation policy; JavaScript owns browser resources and executes intent):
+
+- The pinned Skin/SampleStore beatmap sample filename probe order (exact,
+  `.wav`, `.mp3`, `.ogg`) is now engine policy: `prepared.SAMPLE_PROBE_EXTENSIONS`
+  carries the pinned-source behavior, and the append-only kind-52
+  `oe_sample_probe` export publishes it from mailbox bytes [952,1024). The
+  browser loader probes files only in the engine-published order and rejects
+  substitute lists.
+- Scene frames (kind 47, size 160) now carry `uniform_scale_x/scale_y/
+  shift_x/shift_y`: the f32-exact NDC viewport uniforms computed by
+  `presentation.make_viewport_uniforms` from the same transform and viewport.
+  The WebGL executor uploads them directly instead of re-deriving
+  presentation math with `Math.fround`.
+- The engine now asserts scene instance/command policy at emit time
+  (`presentation.validate_scene`: primitive/flag ranges, shared-quad versus
+  tessellated geometry, index bounds against the attachment, alpha/scale/
+  clip/glyph limits, clipping-cap adjacency and finiteness). A violation
+  fails the draw with `INVALID_STATE` and preserves the prior frame. The
+  browser executor thinned to transport checks only: identity, capacity,
+  finite f32 staging and complete batch coverage.
+
+Browser audio lateness/lookahead mechanics remain executor-owned and
+provisional pending H11; moving them was considered and deliberately deferred
+because ADR-004 assigns scheduling execution to JavaScript with engine-declared
+policy, and no upstream evidence exists yet to relocate that boundary.
+
+Validation: the full engine suite passes (50 foundation tests including the
+new probe-policy bytes, 4 viewport fixtures including the new uniform parity
+cases, 17 scene-policy rejection cases, geometry/prepared/simulation/
+presentation parity and 115 gameplay fixtures across 17 schedules). Browser
+typecheck, build and 93 service tests pass, including new engine-backed
+sample-probe and uniform-parity regressions against the production WASM.
+Firefox/WebKit executables remain unavailable; no new upstream oracle was
+executed, and no acceptance gate changes.

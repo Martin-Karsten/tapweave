@@ -2486,7 +2486,7 @@ export const schema = {
     {
       "name": "scene_frame",
       "kind": 47,
-      "size": 128,
+      "size": 160,
       "fields": {
         "epoch": [
           8,
@@ -2567,6 +2567,22 @@ export const schema = {
         "total_bytes": [
           120,
           "u64"
+        ],
+        "uniform_scale_x": [
+          128,
+          "f64"
+        ],
+        "uniform_scale_y": [
+          136,
+          "f64"
+        ],
+        "uniform_shift_x": [
+          144,
+          "f64"
+        ],
+        "uniform_shift_y": [
+          152,
+          "f64"
         ]
       }
     },
@@ -2743,6 +2759,41 @@ export const schema = {
         "reserved": [
           36,
           "u32"
+        ]
+      }
+    },
+    {
+      "name": "sample_probe",
+      "kind": 52,
+      "size": 40,
+      "fields": {
+        "probe_version": [
+          8,
+          "u32"
+        ],
+        "extension_count": [
+          12,
+          "u32"
+        ],
+        "extensions_offset": [
+          16,
+          "u32"
+        ],
+        "extensions_stride": [
+          20,
+          "u32"
+        ],
+        "flags": [
+          24,
+          "u32"
+        ],
+        "reserved": [
+          28,
+          "u32"
+        ],
+        "total_bytes": [
+          32,
+          "u64"
         ]
       }
     }

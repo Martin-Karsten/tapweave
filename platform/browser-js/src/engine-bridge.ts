@@ -6,7 +6,8 @@ import { read_record, record_size,
   type Draw_Output_Header, type Engine_Capabilities_Record, type Engine_Diagnostic, type Gameplay_Output_Header,
   type Input_Snapshot_Values, type Odin_Exports, type Output_Capabilities_Record,
   type Prepared_Descriptor_Record, type Preparation_Capabilities_Record, type Record_Values,
-  type Render_Capacity_Record, type Sample_Binding_Values, type Simulation_Capabilities_Record,
+  type Render_Capacity_Record, type Sample_Binding_Values, type Sample_Probe_Record,
+  type Simulation_Capabilities_Record, type Scene_Frame_Header,
   type Transport_Capabilities_Record, type Viewport_Values, type Voice_Capacity_Record,
   type Presentation_Output_Header } from './abi-records.js';
 import { Browser_Error, require_condition } from './errors.js';
@@ -215,6 +216,32 @@ export class Engine_Bridge {
       capabilities.primitive_mask === 31 && capabilities.flags === 0 && capabilities.reserved === 0,
       'UNSUPPORTED', 'Unsupported scene rendering protocol.');
     return capabilities;
+  }
+
+  // The engine owns the pinned sample filename probe order; this transport only
+  // decodes the published policy into owned strings.
+  sample_probe() {
+    require_condition(typeof this.wasm.oe_sample_probe === 'function', 'UNSUPPORTED', 'Sample probe policy is unavailable.');
+    this.check_status(this.wasm.oe_sample_probe(this.engine_handle, this.result_address), false);
+    const span = this.read_span();
+    const view = this.view();
+    const policy = read_record(view, span.address, 52);
+    require_condition(policy.probe_version === 1 && policy.flags === 0 && policy.reserved === 0 &&
+      policy.extensions_stride === 8 && policy.extension_count > 0 &&
+      policy.total_bytes === BigInt(span.count) &&
+      policy.extensions_offset === record_size(52) &&
+      policy.extensions_offset + policy.extension_count * policy.extensions_stride === span.count,
+      'UNSUPPORTED', 'Unsupported sample probe policy.');
+    const decoder = new TextDecoder('utf-8', { fatal: true });
+    const extensions: string[] = [];
+    for (let extension_index = 0; extension_index < policy.extension_count; extension_index++) {
+      const slot_address = span.address + policy.extensions_offset + extension_index * policy.extensions_stride;
+      const slot = checkedSpan(view, slot_address, policy.extensions_stride, 1);
+      let byte_count = slot.indexOf(0);
+      if (byte_count < 0) byte_count = policy.extensions_stride;
+      extensions.push(decoder.decode(slot.subarray(0, byte_count)));
+    }
+    return extensions;
   }
 
   scene_resources(map_handle: bigint) {
@@ -545,7 +572,7 @@ export class Draw_Output extends Borrowed_Output {
 }
 
 export class Scene_Output extends Borrowed_Output {
-  declare summary: Draw_Output_Header;
+  declare summary: Scene_Frame_Header;
   resources: Render_Resources;
   engine_epoch: number;
   instances: Output_Array_Span;

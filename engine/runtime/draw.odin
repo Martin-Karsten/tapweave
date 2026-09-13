@@ -162,7 +162,7 @@ oe_session_draw :: proc "c" (engine, session_handle: core_types.Handle, time_ms:
 	if len(session.draw_storage.output) == 0 || len(session.map_storage.render_attachment.bytes) == 0 {
 		return abi_status(.INVALID_STATE)
 	}
-	transform, transform_status := read_viewport_transform(viewport_address)
+	transform, _, transform_status := read_viewport_transform(viewport_address)
 	if transform_status != .OK {
 		return abi_status(transform_status)
 	}

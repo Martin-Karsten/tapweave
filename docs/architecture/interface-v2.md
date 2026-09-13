@@ -289,6 +289,13 @@ advance or replay load freezes availability. Tail hits request their sample at
 nominal tail time even when judgement happened early.
 Missing candidates emit diagnostic silence; no browser audio resource is owned.
 
+`oe_sample_probe(engine, output_mailbox)` returns kind 52 from mailbox bytes
+[952,1024): the engine-owned beatmap sample filename probe order (exact name,
+then `.wav`, `.mp3`, `.ogg` appended, matching the pinned framework
+`SampleStore` constructor and `Skin.RecycleSamples` extension additions) as
+eight-byte NUL-padded slots after the record. The browser loader probes files
+in exactly this published order and never hardcodes the priority itself.
+
 Replay extensions use the same checked engine inbox and output span:
 
 ```c
@@ -560,10 +567,12 @@ retains pending output; an acknowledgement retry cannot enqueue it twice.
 
 Ordinary pause preserves queued and scheduled future one-shots under a bounded
 retention limit and lets already-started one-shots finish. Resume requires a fresh
-clock mapping for the same engine epoch and restores retained nominal times once.
-Reset/replacement/failure cancel instead. Loop suspension is explicitly unsupported
-until its producer/executor contract is enabled. The full player lifecycle remains
-W07 work.
+clock mapping for the resumed session epoch and restores retained nominal times
+once. Reset/replacement/failure cancel instead. W05 supplies loop cancellation
+and authoritative reconstruction; W07 now integrates these services into the
+validation player lifecycle. Reset retains reserved voice storage, allowing new
+browser audio owners to reuse it without another reserve allocation. No ABI
+record or export changes are required for these lifecycle operations.
 
 See [W05 audio execution](adr-004-audio.md#w05-opt-in-audio-execution) for allocation,
 asset availability, separate journal sequences and pause reconstruction rules.
@@ -587,9 +596,13 @@ circle resource/draw kinds and exports retain their meaning.
   temporary count/mesh storage and retained candidates where applicable.
 - `oe_session_scene_draw` takes the existing kind-29 viewport and finite beatmap
   time. Kind 47 (`scene_frame`) retains the kind-38 header field layout, with
-  kind-50 instance and kind-51 command spans. It has an independent output lifetime;
-  successful scene draws replace it, while insufficient capacity reports kind 37
-  and `OUTPUT_REQUIRED` without overwriting the published frame.
+  kind-50 instance and kind-51 command spans, and appends four f64 fields
+  `uniform_scale_x`, `uniform_scale_y`, `uniform_shift_x`, `uniform_shift_y`:
+  the final f32-exact NDC viewport uniforms derived from the same transform and
+  viewport. The browser uploads them without re-deriving presentation math. It
+  has an independent output lifetime; successful scene draws replace it, while
+  insufficient capacity reports kind 37 and `OUTPUT_REQUIRED` without
+  overwriting the published frame.
 - Kind 50 extends the kind-39 instance fields with `clip_start:f64` and
   `clip_end:f64`. PATH (4) uses the static index range and clip interval [0,1].
   Other primitives use the shared first six quad indices. Flag 1 is a DISC clipping
@@ -599,9 +612,13 @@ circle resource/draw kinds and exports retain their meaning.
 - Kind 51 retains the kind-40 fields. Its `primitive` is a command selector:
   0 executes a heterogeneous quad run, 4 executes one path and begins coverage.
   Runs preserve layer/source/component/ordinal ordering and cover all instances
-  exactly once. Clipping caps occupy the following quad run. The executor validates
-  every instance and command before any GL submission, including finite f32
-  conversions, resource/epoch identity, contiguous coverage and index bounds.
+  exactly once. Clipping caps occupy the following quad run. The engine asserts
+  this instance and command policy at emit time (primitive/flag ranges, shared
+  quad versus tessellated geometry, index bounds against the attachment,
+  alpha/scale/clip/glyph limits, clipping-cap adjacency and finiteness); a
+  violation fails the draw with `INVALID_STATE` and preserves the prior frame.
+  The browser executor validates only transport identity, reserve capacity,
+  finite f32 staging and complete batch coverage before GL submission.
 - `oe_scene_capabilities` returns kind 49: resource/draw versions 1, primitive mask
   31, explicit instance/command/upload ceilings, and flags 0. This is renderer
   availability, **not** aggregate Play capability or upstream acceptance.

@@ -23,9 +23,21 @@
       </div>
       <div class="preview"><div class="orbit" aria-hidden="true"><span></span></div><p class="eyebrow">BEATMAP OVERVIEW</p><h2 id="map-name">Ready when you are.</h2><p id="map-detail">Your files stay in this browser.</p>
         <dl id="stats" hidden><div><dt>Objects</dt><dd id="objects">—</dd></div><div><dt>Circle size</dt><dd id="circle-size">—</dd></div><div><dt>Approach rate</dt><dd id="approach-rate">—</dd></div></dl>
-        <button id="start" disabled>Play unavailable</button><p class="gate">Browser gameplay integration is still in progress. Map preparation is available now.</p>
+        <button id="start" disabled>Play</button><p id="play-gate" class="gate">Prepare a map to check playback readiness.</p>
       </div>
     </section>
+    <section id="player" hidden aria-label="Gameplay">
+      <canvas id="playfield" tabindex="0" aria-label="Tapweave playfield. Z and X or mouse buttons to play. Escape pauses."></canvas>
+      <button id="pause" type="button">Pause</button>
+      <section id="lifecycle-panel" hidden tabindex="-1" aria-labelledby="lifecycle-title">
+        <h2 id="lifecycle-title"></h2><p id="lifecycle-message" role="status" aria-live="polite"></p>
+        <dl id="result-stats" hidden></dl>
+        <button id="resume" type="button" hidden>Resume</button>
+        <button id="retry" type="button">Retry</button>
+        <button id="back" type="button">Back to selection</button>
+      </section>
+    </section>
+    <p class="gate">Validation build: full upstream compatibility and release-browser certification remain open.</p>
     <details><summary>Diagnostics</summary><pre id="diagnostics">Waiting for engine capabilities.</pre><button id="export" type="button">Download diagnostics</button></details>
   </main>
   <footer>Independent rhythm game. Not affiliated with osu! or ppy. <span>Unmodded lazer osu!standard target.</span></footer>

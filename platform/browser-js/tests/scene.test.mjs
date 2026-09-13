@@ -116,6 +116,30 @@ test('mixed scene reads preserve gameplay, pending audio acknowledgement and pri
 });
 
 
+test('scene frames publish f32-exact viewport uniforms the executor used to derive', async () => {
+  const engine = await create_engine();
+  try {
+    const map = engine.prepare_map(mixed_map);
+    const resources = engine.scene_resources(map.map_handle);
+    const session = engine.create_session(map.map_handle, { input_capacity: 32, batch_capacity: 32 });
+    const capacity = engine.scene_reserve(session);
+    engine.scene_reserve(session, capacity.required_instances, capacity.required_bytes);
+    const output = new Scene_Output(resources, engine.snapshot(session, 0).summary.epoch);
+    for (const probe_viewport of [viewport, { css_left: 0, css_top: 0, css_width: 512, css_height: 384, device_pixel_ratio: 1 },
+      { css_left: 240.5, css_top: -60.25, css_width: 1512, css_height: 982, device_pixel_ratio: 1.5 }]) {
+      engine.scene_draw(session, 1400, probe_viewport, output);
+      // The engine-computed uniforms must equal the previous executor
+      // derivation: f64 operands in this order, rounded through f32 once.
+      assert.equal(output.summary.uniform_scale_x, Math.fround(2 * output.summary.scale / probe_viewport.css_width));
+      assert.equal(output.summary.uniform_scale_y, Math.fround(-2 * output.summary.scale / probe_viewport.css_height));
+      assert.equal(output.summary.uniform_shift_x,
+        Math.fround(2 * (output.summary.client_left - probe_viewport.css_left) / probe_viewport.css_width - 1));
+      assert.equal(output.summary.uniform_shift_y,
+        Math.fround(1 - 2 * (output.summary.client_top - probe_viewport.css_top) / probe_viewport.css_height));
+    }
+  } finally { engine.dispose(); }
+});
+
 test('renderer preparation rejects mismatched maps and stale epochs before acquiring a context', async () => {
   const engine = await create_engine();
   try {

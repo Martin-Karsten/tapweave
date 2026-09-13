@@ -478,3 +478,39 @@ voice_budget_tracks_overlap_instead_of_total_map_length :: proc(test: ^testing.T
 	testing.expect_value(test, session.maximum_voice_overlap, object_count)
 	testing.expect(test, simulation.voice_command_capacity(&session) > sparse_capacity)
 }
+
+// The pinned Skin/SampleStore probe order is engine policy: exact name, then
+// wav, mp3 and ogg appended in osu-stable order.
+@(test)
+sample_probe_policy_publishes_pinned_extension_order :: proc(test: ^testing.T) {
+	testing.expect_value(test, engine_runtime.abi_start(), core_types.Status.OK)
+	engine_handle, created := engine_runtime.engine_create(&engine_runtime.abi_instance)
+	testing.expect_value(test, created, core_types.Status.OK)
+	if created != .OK {
+		return
+	}
+	defer testing.expect_value(test, engine_runtime.engine_release(&engine_runtime.abi_instance, engine_handle), core_types.Status.OK)
+	mailbox := engine_runtime.oe_abi_control()
+	status := engine_runtime.oe_sample_probe(engine_handle, mailbox + engine_runtime.ABI_OUTPUT_OFFSET)
+	testing.expect_value(test, core_types.Status(status), core_types.Status.OK)
+	policy := engine_runtime.abi_storage.bytes[engine_runtime.ABI_SAMPLE_PROBE_OUTPUT:]
+	testing.expect_value(test, engine_runtime.get_u32(policy, engine_runtime.ABI_SAMPLE_PROBE_PROBE_VERSION_OFFSET), 1)
+	testing.expect_value(test, engine_runtime.get_u32(policy, engine_runtime.ABI_SAMPLE_PROBE_EXTENSION_COUNT_OFFSET), 4)
+	testing.expect_value(test, engine_runtime.get_u32(policy, engine_runtime.ABI_SAMPLE_PROBE_EXTENSIONS_OFFSET_OFFSET), engine_runtime.ABI_SAMPLE_PROBE_SIZE)
+	testing.expect_value(test, engine_runtime.get_u32(policy, engine_runtime.ABI_SAMPLE_PROBE_EXTENSIONS_STRIDE_OFFSET), 8)
+	testing.expect_value(test, engine_runtime.get_u32(policy, engine_runtime.ABI_SAMPLE_PROBE_FLAGS_OFFSET), 0)
+	testing.expect_value(test, engine_runtime.get_u64(policy, engine_runtime.ABI_SAMPLE_PROBE_TOTAL_BYTES_OFFSET), 72)
+	expected_extension_names := [4]string{"", ".wav", ".mp3", ".ogg"}
+	for extension_index in 0 ..< 4 {
+		slot := policy[engine_runtime.ABI_SAMPLE_PROBE_SIZE + extension_index * 8:][:8]
+		expected_slot: [8]byte
+		copy(expected_slot[:], transmute([]byte)expected_extension_names[extension_index])
+		for byte_index in 0 ..< 8 {
+			testing.expect_value(test, slot[byte_index], expected_slot[byte_index])
+		}
+	}
+	result_span := engine_runtime.abi_storage.bytes[engine_runtime.ABI_OUTPUT_OFFSET:]
+	testing.expect_value(test, engine_runtime.get_u64(result_span, engine_runtime.ABI_BYTE_SPAN_ADDRESS_OFFSET),
+		u64(mailbox + engine_runtime.ABI_SAMPLE_PROBE_OUTPUT))
+	testing.expect_value(test, engine_runtime.get_u32(result_span, engine_runtime.ABI_BYTE_SPAN_COUNT_OFFSET), 72)
+}

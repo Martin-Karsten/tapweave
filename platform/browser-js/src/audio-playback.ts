@@ -29,7 +29,7 @@ export class Audio_Playback {
   generation = 0;
 
   constructor(engine: Engine_Bridge, session_handle: bigint, context: AudioContext,
-    selection: Playback_Selection, limits: Audio_Service_Limits = {}) {
+    selection: Playback_Selection, limits: Audio_Service_Limits = {}, reuse_voice_storage = false) {
     require_condition(selection.music_buffer && selection.samples,
       'MISSING_ASSET', 'Music and prepared hitsounds are required.');
     this.engine = engine;
@@ -38,8 +38,12 @@ export class Audio_Playback {
     this.audio = new Audio_Service(context, this.clock, limits);
     this.music = new Music_Transport(context, this.clock);
     this.admission = new Audio_Admission(engine, session_handle, this.audio);
-    const capacity = engine.voice_reserve(session_handle);
-    engine.voice_reserve(session_handle, capacity.required_commands, capacity.required_bytes);
+    // Reset retains the same reserved voice arena. Re-reserving would allocate
+    // a transactional replacement and unnecessarily raise the WASM high-water mark.
+    if (!reuse_voice_storage) {
+      const capacity = engine.voice_reserve(session_handle);
+      engine.voice_reserve(session_handle, capacity.required_commands, capacity.required_bytes);
+    }
     bind_sample_assets(engine, session_handle, selection.samples!);
     this.audio.set_assets(selection.samples!.assets);
     this.music.set_buffer(selection.music_buffer!);
@@ -103,17 +107,31 @@ export class Audio_Playback {
     require_condition(this.state === 'running', 'INVALID_STATE', 'Only running playback can pause.');
     try {
       const audio_seconds = this.context.currentTime;
-      this.pump(audio_seconds);
       const time_ms = this.clock.beatmap_time(audio_seconds);
-      this.engine.pause(this.session_handle, time_ms);
+      const output = this.engine.pause(this.session_handle, time_ms);
+      if (output.summary.state === 3 || output.summary.state === 4) {
+        if (this.context.state === 'running') this.pump(audio_seconds);
+        return output.summary.state;
+      }
       this.music.cancel();
       this.clock.pause(audio_seconds);
       this.audio.suspend_one_shots();
       this.state = 'paused';
+      return 2;
     } catch (error) {
       this.recover(error);
       throw error;
     }
+  }
+
+  get pending_sounds() {
+    return this.audio.pending.length + this.audio.voices.size + this.audio.retiring_voices.size;
+  }
+
+  finish() {
+    this.music.cancel();
+    this.audio.cancel();
+    if (this.clock.anchor) this.clock.pause(this.context.currentTime);
   }
 
   recover(error: unknown) {

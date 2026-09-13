@@ -139,9 +139,10 @@ export class Selection_Controller {
         return;
       }
       const samples = this.decode_audio !== null && candidate.prepared_map.descriptor.sample_candidates !== undefined ?
-        await load_sample_assets(candidate.prepared_map.descriptor, source, filename, this.decode_audio, {
-          fallback_assets: this.fallback_assets, cancelled: () => generation !== this.generation || this.disposed,
-        }) : null;
+        await load_sample_assets(candidate.prepared_map.descriptor, source, filename, this.decode_audio,
+          this.engine.sample_probe(), {
+            fallback_assets: this.fallback_assets, cancelled: () => generation !== this.generation || this.disposed,
+          }) : null;
       if (generation !== this.generation || this.disposed) return;
       const previous = this.active;
       this.active = { source, filename, ...candidate.prepared_map, music_buffer, music_error, samples,

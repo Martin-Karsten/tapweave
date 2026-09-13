@@ -39,7 +39,7 @@ chapters link directly to pinned upstream symbols.
 
 ## Scope boundary
 
-The normative target is unmodded lazer osu!standard. “Classic” always means the `OsuModClassic` compatibility mod, not default lazer. Skins, storyboards, mods, difficulty calculation, performance points, legacy replay containers, and other rulesets are surveyed only far enough to keep today’s design extensible. Product screens, accounts, networking, editing, and score submission are out of scope.
+The normative target is unmodded lazer osu!standard. “Classic” always means the `OsuModClassic` compatibility mod, not default lazer. Skins, storyboards, mods, difficulty calculation, performance points, legacy replay containers, and other rulesets are surveyed only far enough to keep today’s design extensible. Validation-player selection, pause/recovery and results are included in W07. Other product screens, accounts, networking, editing, and score submission are out of scope.
 
 ## Normative priority
 

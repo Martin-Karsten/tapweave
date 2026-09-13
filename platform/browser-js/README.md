@@ -1,9 +1,10 @@
-# Tapweave browser foundation
+# Tapweave browser validation player
 
 This is an independent M3 increment. The validation shell loads local `.osz`
 archives or `.osu` files with loose assets, prepares maps through the production
-Odin ABI, selects difficulties, decodes music and exports diagnostics. Gameplay
-is disabled while browser integration with the headless M2 session API remains open.
+Odin ABI, selects difficulties, decodes music and exports diagnostics. Play now
+integrates the renderer, audio, physical input and lifecycle controller. Full
+M2/M3 upstream acceptance and release-browser certification remain open.
 
 ## Run
 
@@ -54,15 +55,15 @@ they do not certify audible output or H11 compatibility.
   fflate performs DEFLATE decoding; a bounded ZIP envelope reader validates
   local/central consistency, data descriptors, names, ranges and CRC before
   returning bytes.
-- `clock.ts`, `audio.ts` and `input.ts` are independent, tested services awaiting
-  M2 integration. Their JavaScript test event objects are **not** production ABI
+- `clock.ts`, `audio.ts` and `input.ts` are tested services integrated by the
+  lifecycle controller. Their JavaScript test event objects are **not** production ABI
   records. Dispatch failure cancels queued and active playback before reporting
   the error; callers must recover explicitly. No gameplay, sample fallback, or
   animation policy is implemented in JS.
 - The Odin `presentation` package owns coordinate conversion and active projection.
   The bridge reads compact gameplay output and independent projections through
   reusable borrowed readers; diagnostic snapshots/results retain owned copies.
-  These are tested transports, not animation commands or integrated gameplay.
+  The scene renderer and lifecycle controller consume these production transports.
 
 Archive defaults: 128 MiB input, 4,096 entries, 64 MiB per extracted entry,
 256 MiB total extraction, and 256 MiB cached decoded audio per source. The engine
@@ -82,7 +83,7 @@ claimed. These remain tracked in the [browser gameplay plan](../../docs/browser-
 
 The bridge now exposes headless M2 sessions, copied output/replay/result records,
 sample availability and production Odin coordinate conversion (kinds 29/30).
-These are testable services; Play still awaits the integrated renderer/lifecycle.
+These services now participate in the integrated W07 player below.
 `music.ts` consumes the shared clock's media anchor; its tests use mock sources.
 `clock.ts` explicitly maps session and browser epochs and receipt timestamps.
 
@@ -101,7 +102,7 @@ production-WASM cadence/stall matrix. Hashed artifacts are written to
 
 `webgl-resources.ts` provides bounded kind-35 resource publication, reuse,
 transactional replacement, explicit context restoration and disposal. It owns a
-dedicated context and one retained attachment; it is not wired into the player.
+dedicated context and one retained attachment; the player uses it through `Renderer`.
 `publish(resources)` runs during preparation/resource replacement. After context
 restoration, `restore()` rebuilds the retained bytes; it does not resume gameplay.
 `bind(generation, resource_id)` rejects stale identities and only binds resources.
@@ -119,8 +120,8 @@ synchronously before requesting draw output. Pause drains input through
 `frame.pause()`; resume with `playback.start()` and `frame.start()`. Dispose the DOM
 binding, stop the frame driver and dispose playback before releasing the session.
 Do not share this driver across session reset/replacement. The renderer service
-below can supply the synchronous callback. Product lifecycle and Play gates remain
-unfinished; see the implementation status.
+below supplies the synchronous callback in W07. The controller supplies product
+lifecycle and Play gates; independent fixtures remain available.
 
 
 ### Mixed-scene renderer
@@ -161,3 +162,40 @@ full memory profiling, loaded pacing and baseline approval remain required.
 Capture completed local renderer reports and their hashes with
 `node engine/scripts/record-renderer-findings.mjs` after the documented runs.
 It records missing acceptance separately and does not approve the baseline.
+
+
+## W07 player lifecycle
+
+Load local files and select a difficulty, then Play. Use Z/X, primary/secondary
+mouse, or primary touch. Escape/Pause freezes the run; Resume is an explicit
+button gesture. Retry resets the attempt without reloading assets. Back returns
+to the retained difficulty selection. Pass/fail results come directly from the
+engine. Diagnostics include sample warnings, final identity/counts and bounded
+rejected-input recovery context. The profile uses rate 1 and zero offsets.
+
+`Gameplay_Controller` owns one attempt and publishes a readonly view. Consumers
+use `play`, `pause`, `resume`, `retry`, `back`, `load_files`, `select_map` and
+`dispose`; selection changes must pass through this owner. Readiness is published
+only after transactional session/audio/scene preparation. Retry reuses reserved
+voice storage and immutable GPU resources; Back ends the attempt and prepares a
+new ready session for the same selection. There is no browser-history routing.
+
+Input disposal only detaches listeners/releases captures; lifecycle callbacks
+request pause and report errors. Focus/hidden-page, suspended audio and graphics
+loss use a clean engine pause where possible. Restoration rebuilds graphics in a
+generation-guarded deferred task, after resource event handlers complete. It never
+auto-resumes. Rejected input, dispatch errors or invalid session state require
+Retry/Back. A start interrupted while awaiting audio is invalidated immediately.
+Persisted pagehide pauses; other page exits dispose the engine and AudioContext.
+
+Successful results finish already-emitted audio and sample tails with the sole
+frame driver; music duration does not delay teardown. Failure, Back, Retry and
+hidden-page events cancel terminal playback. Results retain their copied engine
+record across subsequent output calls. No per-object JS state or JS scoring is
+introduced. Current input/session and voice quotas still apply; quota exhaustion
+is an actionable recovery, never hidden growth or dropped input.
+
+Run `tests/gameplay-controller.test.mjs` through `npm test` and
+`tests/browser/lifecycle.spec.mjs` through `npm run test:browser` for the W07
+regressions. Chromium checks are local browser evidence, not physical-device or
+full upstream acceptance. See the [status](../../docs/status.md#w07-lifecycle-and-validation-ui).

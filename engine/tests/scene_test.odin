@@ -117,3 +117,80 @@ scene_attachment_allocation_failures_are_transactional :: proc(test: ^testing.T)
 	testing.expect(test, raw_data(map_resource.scene_attachment.bytes) == resource_pointer)
 	fault.remaining = 100
 }
+
+// The browser executor trusts engine emission; every instance policy rule and
+// the clipping-cap adjacency contract must therefore reject here.
+@(test)
+scene_policy_validation_rejects_invalid_emissions :: proc(test: ^testing.T) {
+	valid_scene := [5]presentation.Instance{
+		{primitive = .PATH, layer = 10, object_id = 7, flags = 0, geometry_first = 0, geometry_count = 12, alpha = 1, clip_start = 0, clip_end = 1},
+		{primitive = .DISC, layer = 10, object_id = 7, flags = 1, geometry_first = 0, geometry_count = 6, alpha = 0.5},
+		{primitive = .DISC, layer = 10, object_id = 7, flags = 1, geometry_first = 0, geometry_count = 6, alpha = 0.5},
+		{primitive = .GLYPH, layer = 20, object_id = 7, glyph = 48, geometry_first = 0, geometry_count = 6, alpha = 1},
+		{primitive = .DISC, layer = 20, object_id = 7, geometry_first = 0, geometry_count = 6, alpha = 0.7},
+	}
+	testing.expect_value(test, presentation.validate_scene(valid_scene[:], 12), core_types.Status.OK)
+	testing.expect_value(test, presentation.validate_scene(valid_scene[:0], 0), core_types.Status.OK)
+	expect_invalid := proc(test: ^testing.T, instances: []presentation.Instance, indices_count: u32) {
+		testing.expect_value(test, presentation.validate_scene(instances, indices_count), core_types.Status.INVALID_STATE)
+	}
+	primitive_out_of_range := valid_scene
+	primitive_out_of_range[3].primitive = cast(presentation.Primitive)6
+	expect_invalid(test, primitive_out_of_range[:], 12)
+	flags_out_of_range := valid_scene
+	flags_out_of_range[0].flags = 2
+	expect_invalid(test, flags_out_of_range[:], 12)
+	cap_on_non_disc := valid_scene
+	cap_on_non_disc[1].primitive = .RING
+	expect_invalid(test, cap_on_non_disc[:], 12)
+	cap_off_coverage_layer := valid_scene
+	cap_off_coverage_layer[1].layer = 15
+	expect_invalid(test, cap_off_coverage_layer[:], 12)
+	empty_geometry := valid_scene
+	empty_geometry[3].geometry_count = 0
+	expect_invalid(test, empty_geometry[:], 12)
+	quad_geometry_misaligned := valid_scene
+	quad_geometry_misaligned[3].geometry_count = 4
+	expect_invalid(test, quad_geometry_misaligned[:], 12)
+	quad_geometry_offset := valid_scene
+	quad_geometry_offset[4].geometry_first = 6
+	expect_invalid(test, quad_geometry_offset[:], 12)
+	geometry_beyond_attachment := valid_scene
+	geometry_beyond_attachment[0].geometry_first = 6
+	geometry_beyond_attachment[0].geometry_count = 12
+	expect_invalid(test, geometry_beyond_attachment[:], 12)
+	glyph_beyond_atlas := valid_scene
+	glyph_beyond_atlas[3].glyph = 128
+	expect_invalid(test, glyph_beyond_atlas[:], 12)
+	alpha_above_one := valid_scene
+	alpha_above_one[0].alpha = 1.1
+	expect_invalid(test, alpha_above_one[:], 12)
+	negative_scale := valid_scene
+	negative_scale[4].scale_x = -1
+	expect_invalid(test, negative_scale[:], 12)
+	reversed_clip := valid_scene
+	reversed_clip[0].clip_start = 0.5
+	reversed_clip[0].clip_end = 0.25
+	expect_invalid(test, reversed_clip[:], 12)
+	clip_beyond_unit := valid_scene
+	clip_beyond_unit[0].clip_end = 1.5
+	expect_invalid(test, clip_beyond_unit[:], 12)
+	non_finite_position := valid_scene
+	non_finite_position[0].x = math.nan_f64()
+	expect_invalid(test, non_finite_position[:], 12)
+	cap_without_path := [1]presentation.Instance{
+		{primitive = .DISC, layer = 10, object_id = 7, flags = 1, geometry_first = 0, geometry_count = 6, alpha = 0.5},
+	}
+	expect_invalid(test, cap_without_path[:], 12)
+	cap_of_other_object := valid_scene
+	cap_of_other_object[1].object_id = 8
+	expect_invalid(test, cap_of_other_object[:], 12)
+	coverage_broken_between_path_and_cap := [5]presentation.Instance{
+		valid_scene[0],
+		{primitive = .DISC, layer = 10, object_id = 9, flags = 0, geometry_first = 0, geometry_count = 6, alpha = 0.5},
+		valid_scene[1],
+		valid_scene[3],
+		valid_scene[4],
+	}
+	expect_invalid(test, coverage_broken_between_path_and_cap[:], 12)
+}

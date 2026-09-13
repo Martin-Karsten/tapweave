@@ -24,7 +24,7 @@ test('real Web Audio renders Odin one-shots, slider loops and shared music with 
     try {
       const map = engine.prepare_map(new TextEncoder().encode('osu file format v14\n[Difficulty]\nHPDrainRate:0\nSliderMultiplier:1.4\n[TimingPoints]\n0,500\n[HitObjects]\n256,192,1000,2,0,L|396:192,1,140\n256,192,2500,1,0'));
       const samples = await load_sample_assets(map.descriptor, { async read() { return null; } }, 'map.osu', async () => {},
-        { fallback_assets: create_fallback_audio(context) });
+        engine.sample_probe(), { fallback_assets: create_fallback_audio(context) });
       const session = engine.create_session(map.map_handle, { input_capacity: 8, batch_capacity: 8 });
       const capacity = engine.voice_reserve(session);
       engine.voice_reserve(session, capacity.required_commands, capacity.required_bytes);

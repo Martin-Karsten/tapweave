@@ -6,7 +6,7 @@ Tapweave is an independent project, not affiliated with or endorsed by osu! or p
 
 ## Status
 
-M0 (decoder, control points and lifecycle) and M1 (complete beatmap preparation) are implemented and tested against pinned upstream behavior. The engine prepares paths, object schedules, samples, combo and stacking, and exposes immutable maps through ABI v2. Headless gameplay sessions now integrate rules, score/health, replay and snapshots. Browser rendering and audio playback are next; the app is not yet playable.
+M0 (decoder, control points and lifecycle) and M1 (complete beatmap preparation) are implemented and tested against pinned upstream behavior. The engine prepares paths, object schedules, samples, combo and stacking, and exposes immutable maps through ABI v2. Headless gameplay sessions now integrate rules, score/health, replay and snapshots. The browser validation player integrates rendering, audio, input, pause/retry/recovery and results. Full upstream M2/M3 acceptance remains open.
 
 See [implementation status and evidence](docs/status.md), the [roadmap](docs/roadmap.md), and [architecture](docs/architecture/README.md).
 
@@ -34,7 +34,7 @@ Tests verify upstream source hashes, run allocation-tracked Odin and native C AB
 - `.github/workflows/`: automated validation.
 
 The [browser foundation](platform/browser-js/README.md) can load and prepare local
-beatmap sets. Browser gameplay integration remains open.
+beatmap sets. See the browser guide for the playable validation profile and remaining acceptance gates.
 
 Exploratory spikes, downloaded toolchains, caches, generated binaries, and game assets are not distributed in this repository.
 

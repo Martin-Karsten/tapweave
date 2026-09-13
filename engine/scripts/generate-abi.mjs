@@ -178,6 +178,7 @@ uint32_t oe_map_render_resources(oe_handle, oe_handle, uintptr_t output);
 uint32_t oe_session_render_resources(oe_handle, oe_handle, uintptr_t output);
 uint32_t oe_session_render_reserve(oe_handle, oe_handle, uintptr_t request, uintptr_t output);
 uint32_t oe_scene_capabilities(oe_handle, uintptr_t output);
+uint32_t oe_sample_probe(oe_handle, uintptr_t output);
 uint32_t oe_map_scene_resources(oe_handle, oe_handle, uintptr_t output);
 uint32_t oe_session_scene_resources(oe_handle, oe_handle, uintptr_t output);
 uint32_t oe_session_scene_reserve(oe_handle, oe_handle, uintptr_t request, uintptr_t output);

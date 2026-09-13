@@ -53,3 +53,25 @@ to_playfield :: proc(transform: ^Playfield_Transform, client_x, client_y: f64) -
 	return client_x * transform.inverse[0] + transform.inverse[4],
 	       client_y * transform.inverse[3] + transform.inverse[5]
 }
+
+// Final GPU NDC uniforms for the scene shader: playfield x/y map to
+// [-1,1] over the CSS viewport. Each component is rounded through f32 exactly
+// once, at the end, matching the browser executor contract that previously
+// computed these from Math.fround of the same operands in this order.
+Viewport_Uniforms :: struct {
+	scale_x, scale_y, shift_x, shift_y: f64,
+}
+
+make_viewport_uniforms :: proc(transform: Playfield_Transform, viewport: Viewport) -> (Viewport_Uniforms, bool) {
+	uniforms := Viewport_Uniforms{
+		scale_x = f64(f32((2.0 * transform.scale) / viewport.css_width)),
+		scale_y = f64(f32((-2.0 * transform.scale) / viewport.css_height)),
+		shift_x = f64(f32((2.0 * (transform.client_left - viewport.css_left)) / viewport.css_width - 1.0)),
+		shift_y = f64(f32(1.0 - (2.0 * (transform.client_top - viewport.css_top)) / viewport.css_height)),
+	}
+	if !core_types.finite(uniforms.scale_x) || !core_types.finite(uniforms.scale_y) ||
+	   !core_types.finite(uniforms.shift_x) || !core_types.finite(uniforms.shift_y) {
+		return {}, false
+	}
+	return uniforms, true
+}

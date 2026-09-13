@@ -12,7 +12,7 @@ test('loads real engine, prepares local map and preserves it after failure', asy
   await expect(page.getByRole('status')).toHaveText('Beatmap prepared successfully.');
   await expect(page.locator('#objects')).toHaveText('1');
   await expect(page.locator('#map-detail')).toContainText('Main music is missing');
-  await expect(page.getByRole('button', { name: 'Play unavailable' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeDisabled();
   await page.getByLabel('Open local files', { exact: true }).setInputFiles({ name: 'bad.osu', mimeType: 'text/plain', buffer: Buffer.from('invalid') });
   await expect(page.getByRole('alert')).toContainText('status 5');
   await expect(page.locator('#map-name')).toHaveText('local');

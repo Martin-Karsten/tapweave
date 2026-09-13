@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "lock_sha256": "a6cf520b8e80b0e7c06da2bb4493db9173ba20a734433348fe0df54dc4ff7e8a",
+  "acceptance": [
+    "A19",
+    "A21",
+    "A23",
+    "A24"
+  ],
+  "complete": false,
+  "integrated_validation_player": true,
+  "profile": {
+    "rate": 1,
+    "offsets_ms": 0,
+    "lead_in_ms": 0,
+    "input_capacity": 8192
+  },
+  "local_sources": [
+    {
+      "path": "platform/browser-js/tests/gameplay-controller.test.mjs",
+      "sha256": "d41bcbc08ab6bbdee5c9d2086ece4fe8552ff594ee0f5f2d816156b02bf4f416"
+    },
+    {
+      "path": "platform/browser-js/tests/browser/lifecycle.spec.mjs",
+      "sha256": "6b71cb382a2b2a0e99275a093d0e5a6695092f2fb404c896188d21d46d86ce47"
+    },
+    {
+      "path": "platform/browser-js/src/gameplay-controller.ts",
+      "sha256": "5148f9bc6ac2a1a8edbf739d5930c27266982cc39593b4c5761d15413791f64f"
+    },
+    {
+      "path": "platform/browser-js/src/audio-playback.ts",
+      "sha256": "e335ef4b90255fcf0d1bf8b7204225e9daf3471bda91a9cbd9b64ee68b28a0e6"
+    }
+  ],
+  "source_search": [
+    {
+      "repository": "osu",
+      "path": "osu.Game.Tests/Visual/Gameplay/TestScenePause.cs",
+      "sha256": "78136d18e22d031317289a3e3b3c6d8679992d0663dcc7918bdf765207f675e2",
+      "methods": [
+        "TestPauseResume",
+        "TestRestartAfterResume",
+        "TestPauseAfterFail",
+        "TestPauseSoundLoop"
+      ]
+    },
+    {
+      "repository": "osu",
+      "path": "osu.Game.Tests/Visual/Gameplay/TestScenePauseInputHandling.cs",
+      "sha256": "f63186174995e802fbef0c4508ce295ef66402ce76cea3d3e20f7865f2584fbe",
+      "methods": [
+        "TestOsuInputNotReceivedWhilePaused",
+        "TestOsuPreviouslyHeldInputReleaseOnResume"
+      ]
+    },
+    {
+      "repository": "osu",
+      "path": "osu.Game.Tests/Visual/Gameplay/TestScenePauseWhenInactive.cs",
+      "sha256": "42b8d6c3371d4f564b0860695c30d85ed3e0f371773f6a97192d75dbd5f8890b",
+      "methods": [
+        "TestDoesntPauseDuringIntro",
+        "TestPauseWhileInCooldown"
+      ]
+    },
+    {
+      "repository": "osu",
+      "path": "osu.Game.Tests/Visual/Gameplay/TestScenePlayerLoader.cs",
+      "sha256": "8b09b036334eb000fd7f490ccaf8a720aecaa6f43f0cc5a27dbc728fbdb2bac3",
+      "methods": [
+        "TestEarlyExitBeforePlayerConstruction",
+        "TestEarlyExitAfterPlayerConstruction",
+        "TestQuickRetry"
+      ]
+    },
+    {
+      "repository": "framework",
+      "path": "osu.Framework.Tests/Audio/DeviceLosingAudioTest.cs",
+      "sha256": "dc8a6015234f3761b456c1d78a7ad3174e9cc874e54a2b7a20f4a054a8ec07ae",
+      "methods": [
+        "TestPlaybackWithDeviceLoss",
+        "TestPlaybackWithDeviceRestore"
+      ]
+    }
+  ],
+  "local_mappings": [
+    {
+      "upstream": "TestScenePause.TestPauseResume; TestScenePauseInputHandling.TestOsuInputNotReceivedWhilePaused",
+      "local": "pause releases held actions, ignores paused input, freezes suspended audio, resumes once and reuses retry GPU",
+      "classification": "local-regression; not an exact test port",
+      "blocker": "Existing pinned Player adapter has no PauseOverlay/OsuResumeOverlay or key-counter driver. Native/WASM exact visual test ports remain open."
+    },
+    {
+      "upstream": "TestScenePlayerLoader.TestQuickRetry; TestEarlyExitBeforePlayerConstruction; TestEarlyExitAfterPlayerConstruction",
+      "local": "Back and persisted pagehide invalidate pending starts; incomplete capabilities block preparation; twenty attempts",
+      "classification": "local-regression; browser resource ownership differs from PlayerLoader"
+    },
+    {
+      "upstream": "DeviceLosingAudioTest.TestPlaybackWithDeviceLoss/TestPlaybackWithDeviceRestore",
+      "local": "audio suspension and real GPU restoration pause together and require an explicit resume",
+      "classification": "local-regression; Web Audio statechange is not the upstream native audio device lifecycle"
+    }
+  ],
+  "commands": [
+    "npm --prefix platform/browser-js run typecheck",
+    "npm --prefix platform/browser-js test",
+    "npm --prefix platform/browser-js run build",
+    "npm --prefix platform/browser-js run test:session",
+    "ODIN_WASM_LD_DIR=/opt/homebrew/opt/lld@20/bin npm --prefix engine test",
+    "OSU_REFERENCE_CHECKOUT=$PWD/engine/.reference/osu OSU_FRAMEWORK_CHECKOUT=$PWD/engine/.reference/framework DOTNET_BIN=$PWD/engine/.reference/dotnet/dotnet ODIN_WASM_LD_DIR=/opt/homebrew/opt/lld@20/bin node engine/scripts/test-gameplay.mjs --upstream --filter=player-failure",
+    "npm --prefix platform/browser-js run test:browser",
+    "npm --prefix platform/browser-js run test:browser -- --project=chromium lifecycle.spec.mjs player.spec.mjs input.spec.mjs",
+    "npm --prefix platform/browser-js run test:browser -- --project=chromium lifecycle.spec.mjs"
+  ],
+  "validation": {
+    "service_tests_passed": 91,
+    "engine_suite": "passed",
+    "session_schedules_passed": 34,
+    "controller_parity": "mixed final-record bytes across direct/30/60/120/144 Hz and 0/50/100/250 ms stalls",
+    "retry": "20 same-session retries: unchanged WASM bytes, one session/map/RAF/music source, renderer reused",
+    "chromium": {
+      "full_scenarios_passed": 20,
+      "final_focused_scenarios_passed": 8,
+      "final_layout_scenarios_passed": 3
+    },
+    "firefox": "unexecuted: executable missing; install download timed out",
+    "webkit": "unexecuted: executable missing; combined install stopped on Firefox download failure"
+  },
+  "upstream_observations": [
+    {
+      "id": "player-failure-hp0",
+      "classification": "executed-and-matched",
+      "acceptance": [
+        "A19"
+      ],
+      "fixture_sha256": "e634cec64de3d2d9cdbb815bd73102faf38b68ff4c08f686c016848593ea0255",
+      "observation_sha256": "fb5ca0d5a2c996b01518fd18792b6ec301dd05235d690767b001b66513c1f05d",
+      "adapter": "pinned-player-with-replay-input",
+      "exact_test_port": false,
+      "compared": "Existing runner projection: accepted ordered results/score/combo, final score/counts/rank/accuracy/failure/health and per-result health; not automatic judgement timestamps."
+    },
+    {
+      "id": "player-failure-hp5",
+      "classification": "executed-and-matched",
+      "acceptance": [
+        "A19"
+      ],
+      "fixture_sha256": "1c955e340c3ac8ddb6783dc12faa67f64a62a0998a7cfaf2c81b765c5671bc0d",
+      "observation_sha256": "50c1511fd147e4ca57c64574630a75fb0cf1b76a909eb2c500bf6d6f2f2bce7c",
+      "adapter": "pinned-player-with-replay-input",
+      "exact_test_port": false,
+      "compared": "Existing runner projection: accepted ordered results/score/combo, final score/counts/rank/accuracy/failure/health and per-result health; not automatic judgement timestamps."
+    },
+    {
+      "id": "player-failure-hp10",
+      "classification": "executed-and-matched",
+      "acceptance": [
+        "A19"
+      ],
+      "fixture_sha256": "8a862d7ebe35124efa4230773c6e7ed16fa37c82250e52d59038a262065b3eb4",
+      "observation_sha256": "a329cd93f230d7259d43801f3872fe7896e4fbccb7714ba1e3a18921ef35e673",
+      "adapter": "pinned-player-with-replay-input",
+      "exact_test_port": false,
+      "compared": "Existing runner projection: accepted ordered results/score/combo, final score/counts/rank/accuracy/failure/health and per-result health; not automatic judgement timestamps."
+    }
+  ],
+  "raw_logs": [
+    {
+      "path": "engine/artifacts/w07/services.log",
+      "sha256": "5e546542d727f84762154ec628869dc06324d9a5383bc43b4dda881967186ac0"
+    },
+    {
+      "path": "engine/artifacts/w07/engine.log",
+      "sha256": "b548facbf4f71217331020cc7d7deb3bb98f81250fae8a7fa29ba68a4941b8aa"
+    },
+    {
+      "path": "engine/artifacts/w07/upstream.log",
+      "sha256": "3187426a2ba09490392ba9d2198d30f869f1d21ac0b3f53eb01f0bf933b2e4ba"
+    },
+    {
+      "path": "engine/artifacts/w07/session.log",
+      "sha256": "981d37a33802106a59d91156d49175e63b01d9c34c9e2a627bd974de80dacf83"
+    },
+    {
+      "path": "engine/artifacts/w07/build.log",
+      "sha256": "f5d81a321541a03bb5c209e57588bba26832fb452735c0ddb2d2a5e798a11a57"
+    },
+    {
+      "path": "engine/artifacts/w07/all-browsers.log",
+      "sha256": "a2db62ad781d96d4a4d61a58f3248da5615a806b1c3fcee0f146343e69f03849"
+    },
+    {
+      "path": "engine/artifacts/w07/final-browser.log",
+      "sha256": "fd3911c1335678e5c29ceb534a0a185eef29390f8a3184897806aad220ccba20"
+    },
+    {
+      "path": "engine/artifacts/w07/final-layout.log",
+      "sha256": "2441a7ec6ce9c5ea5c718314c437727bf8f7e31dffeb6ce3fbb74d4b6727f180"
+    },
+    {
+      "path": "engine/artifacts/w07/browser-install.log",
+      "sha256": "0c31efeea0e62d8e7ee5cbe1d451893e2362162121838db0f390ef6741d050ce"
+    }
+  ],
+  "product_policies": [
+    "Explicit gesture Resume, no resume-cursor overlay, pause cooldown or pause-menu music.",
+    "Clean paused runs resume; rejected input, dispatch failure and interrupted starts require Retry/Back.",
+    "Results immediately show authoritative terminal data; success drains emitted sound intent, failure/navigation/visibility loss cancels it."
+  ],
+  "limitations": [
+    "No complete A19/A21/A23/A24 or W08-W10 closure.",
+    "Exact pinned pause/focus/retry visual tests not ported or executed; adapter backfill remains open.",
+    "Player failure adapter uses semantic boundary scheduling, excludes failed-at-judgement animation results from the comparison and does not establish equal automatic judgement times.",
+    "Physical inputs, audible output, release Safari, Firefox/WebKit and full performance/resource certification remain open.",
+    "Mods, other rulesets, accounts/score submission/import, menu styling and framework-native device recreation are outside this browser profile.",
+    "Controller tests use production WASM with fake audio/render resources; Chromium lifecycle tests use real Web Audio/WebGL2. Browser hot-path allocation freedom is not claimed."
+  ]
+}

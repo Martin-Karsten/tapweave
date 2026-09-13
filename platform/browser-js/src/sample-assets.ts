@@ -28,14 +28,18 @@ export interface Sample_Loading_Options {
 }
 
 // Resource lookup only: every available candidate is bound independently.
-// The engine, never this loader, selects the first available prepared candidate.
+// The engine, never this loader, selects the first available prepared candidate
+// and owns the pinned extension probe order published by oe_sample_probe.
 export async function load_sample_assets(descriptor: Prepared_Description, source: Asset_Access,
-  map_filename: string, decode_audio: Decode_Audio,
+  map_filename: string, decode_audio: Decode_Audio, probe_extensions: string[],
   { fallback_assets = new Map<string, AudioBuffer>(), maximum_assets = 4096, maximum_bindings = 1_000_000,
     cancelled = () => false }: Sample_Loading_Options = {}): Promise<Loaded_Samples> {
   require_condition(typeof decode_audio === 'function' && Number.isSafeInteger(maximum_assets) &&
-    maximum_assets > 0 && Number.isSafeInteger(maximum_bindings) && maximum_bindings > 0,
-    'INVALID_ARGUMENT', 'A decoder and positive sample asset limit are required.');
+    maximum_assets > 0 && Number.isSafeInteger(maximum_bindings) && maximum_bindings > 0 &&
+    Array.isArray(probe_extensions) && probe_extensions.length > 0 &&
+    probe_extensions.every(extension => typeof extension === 'string' && extension.length <= 7 &&
+      (extension === '' || (/^\.[-\w]+$/.test(extension) && extension === extension.toLowerCase()))),
+    'INVALID_ARGUMENT', 'A decoder, positive sample asset limit and engine probe extensions are required.');
   const directory = map_filename.slice(0, map_filename.lastIndexOf('/') + 1);
   const assets = new Map<bigint, AudioBuffer>();
   const bindings: Sample_Binding_Values[] = [];
@@ -54,8 +58,7 @@ export async function load_sample_assets(descriptor: Prepared_Description, sourc
         let buffer: AudioBuffer | null = null;
         if (sample.use_beatmap) {
           const filename = candidate.startsWith('Gameplay/') ? candidate.slice('Gameplay/'.length) : candidate;
-          // Pinned Skin/SampleStore extension priority: exact, wav, mp3, ogg.
-          for (const extension of ['', '.wav', '.mp3', '.ogg']) {
+          for (const extension of probe_extensions) {
             check_active();
             const path = normalize_asset_path(directory + filename + extension);
             const encoded = await source.read(path);

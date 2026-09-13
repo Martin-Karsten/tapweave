@@ -221,3 +221,17 @@ are not yet fully compared. It exits unsuccessfully on the retained
 spinner and tracking differences. Do not relax those assertions or close A22 from local
 scene parity. Extend field coverage and pinned equivalent test ports before
 claiming complete presentation acceptance.
+
+
+## W07 pause/UI backfill
+
+The [W07 finding index](../../engine/reference/findings/m3-lifecycle.json) records
+source hashes and local mappings for `TestScenePause`, `TestScenePauseInputHandling`,
+`TestScenePauseWhenInactive`, and `TestScenePlayerLoader`. The existing real Player
+adapter executed the three source-derived `player-failure-hp*` scenarios. It does
+not drive PauseOverlay/OsuResumeOverlay, application focus or PlayerLoader retry;
+those exact visual test setups/sequences/assertions are not ported/executed by W07.
+Extend the pinned visual host before claiming their upstream acceptance. The
+browser's explicit Resume, immediate retry and lack of pause-menu loop are
+intentional validation UI policy, not an exact port of lazer cooldown/cursor flows.
+Mods, mania, account/score import/submission and menu styling remain outside scope.

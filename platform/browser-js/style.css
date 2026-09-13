@@ -41,3 +41,14 @@ pre { color: #c7b9ce; font-size: 12px; white-space: pre-wrap; overflow-wrap: any
 footer { font-size: 11px; padding-block: 30px; display: flex; gap: 16px; justify-content: space-between; }
 :focus-visible { outline: 2px solid #e9b7bd; outline-offset: 5px; }
 @media (max-width: 700px) { header, main, footer { padding-inline: 20px; } .workspace { grid-template-columns: 1fr; } .intro { padding-top: 44px; } .selection, .preview { padding: 25px; } footer { flex-direction: column; } .badge { font-size: 9px; letter-spacing: 1px; } }
+
+[hidden] { display: none !important; }
+#player { position: relative; margin: 2rem auto; max-width: 1100px; }
+#playfield { display: block; width: 100%; height: min(70vh, 720px); min-height: 260px; background: #080d18; border-radius: 16px; }
+#pause { margin-top: 1rem; }
+#lifecycle-panel { position: absolute; inset: 8% 10% auto; max-height: 85%; overflow: auto; padding: 1.5rem; border: 1px solid #58627a; border-radius: 16px; background: #101727; box-shadow: 0 15px 70px #0009; }
+#lifecycle-panel button { margin: .5rem .5rem 0 0; }
+#result-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: .5rem 1rem; }
+#result-stats dt { color: #aab4ca; }
+#result-stats dd { margin: 0 0 .5rem; font-size: 1.2rem; }
+:focus-visible { outline: 3px solid #78e6c8; outline-offset: 4px; }

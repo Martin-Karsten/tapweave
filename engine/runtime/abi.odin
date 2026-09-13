@@ -2,11 +2,13 @@ package engine_runtime
 
 import "base:runtime"
 import core_types "../core_types"
+import prepared "../prepared"
 import simulation "../simulation"
 
 // ABI v2 M0 bootstrap mailbox: input [0,256), result [256,288), error
-// [320,384), read-only capability record [512,576). Addresses outside the
-// mailbox are never dereferenced. Large map bytes use engine-owned inbox tokens.
+// [320,384), read-only capability record [512,576), sample probe policy
+// [952,1024). Addresses outside the mailbox are never dereferenced. Large map
+// bytes use engine-owned inbox tokens.
 ABI_MAILBOX_SIZE :: 1024
 ABI_INPUT_SIZE :: 256
 ABI_OUTPUT_OFFSET :: 256
@@ -497,5 +499,44 @@ oe_transport_capabilities :: proc "c" (engine: core_types.Handle, span_output: u
 	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_MAX_DRAW_INSTANCES_OFFSET, MAX_DRAW_INSTANCES)
 	put_u32(bytes, ABI_TRANSPORT_CAPABILITIES_RESERVED_OFFSET, 0)
 	abi_span(uintptr(raw_data(bytes)), ABI_TRANSPORT_CAPABILITIES_SIZE)
+	return abi_status(.OK)
+}
+
+// Read-only sample probe policy record plus its extension blob occupy mailbox
+// bytes [952,1024). The policy itself lives in prepared.SAMPLE_PROBE_EXTENSIONS.
+ABI_SAMPLE_PROBE_OUTPUT :: 952
+ABI_SAMPLE_PROBE_EXTENSION_WIDTH :: 8
+
+@(export)
+oe_sample_probe :: proc "c" (engine: core_types.Handle, span_output: uintptr) -> u32 {
+	context = runtime.default_context()
+	_, status := engine_get(&abi_instance, engine)
+	if status != .OK {
+		return abi_status(status)
+	}
+	if !output_span_valid(span_output) {
+		return abi_status(.INVALID_ARGUMENT)
+	}
+	total_bytes := u32(ABI_SAMPLE_PROBE_SIZE + len(prepared.SAMPLE_PROBE_EXTENSIONS) * ABI_SAMPLE_PROBE_EXTENSION_WIDTH)
+	bytes := abi_storage.bytes[ABI_SAMPLE_PROBE_OUTPUT:ABI_SAMPLE_PROBE_OUTPUT + total_bytes]
+	put_header(bytes, ABI_SAMPLE_PROBE_KIND, ABI_SAMPLE_PROBE_SIZE)
+	put_u32(bytes, ABI_SAMPLE_PROBE_PROBE_VERSION_OFFSET, 1)
+	put_u32(bytes, ABI_SAMPLE_PROBE_EXTENSION_COUNT_OFFSET, u32(len(prepared.SAMPLE_PROBE_EXTENSIONS)))
+	put_u32(bytes, ABI_SAMPLE_PROBE_EXTENSIONS_OFFSET_OFFSET, ABI_SAMPLE_PROBE_SIZE)
+	put_u32(bytes, ABI_SAMPLE_PROBE_EXTENSIONS_STRIDE_OFFSET, ABI_SAMPLE_PROBE_EXTENSION_WIDTH)
+	put_u32(bytes, ABI_SAMPLE_PROBE_FLAGS_OFFSET, 0)
+	put_u32(bytes, ABI_SAMPLE_PROBE_RESERVED_OFFSET, 0)
+	put_u64(bytes, ABI_SAMPLE_PROBE_TOTAL_BYTES_OFFSET, u64(total_bytes))
+	for extension, extension_index in prepared.SAMPLE_PROBE_EXTENSIONS {
+		if len(extension) >= ABI_SAMPLE_PROBE_EXTENSION_WIDTH {
+			return abi_status(.INVALID_STATE)
+		}
+		slot := bytes[ABI_SAMPLE_PROBE_SIZE + int(extension_index) * ABI_SAMPLE_PROBE_EXTENSION_WIDTH:]
+		for &value in slot {
+			value = 0
+		}
+		copy(slot, transmute([]byte)extension)
+	}
+	abi_span(abi_base() + ABI_SAMPLE_PROBE_OUTPUT, total_bytes)
 	return abi_status(.OK)
 }

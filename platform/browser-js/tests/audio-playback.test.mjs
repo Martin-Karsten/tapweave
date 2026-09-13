@@ -23,7 +23,7 @@ async function prepare(engine, text = slider_map) {
   const map = engine.prepare_map(new TextEncoder().encode(text));
   const context = audio_context_fixture();
   const samples = await load_sample_assets(map.descriptor, missing_source, 'map.osu', async () => {},
-    { fallback_assets: create_fallback_audio(context) });
+    engine.sample_probe(), { fallback_assets: create_fallback_audio(context) });
   const session = engine.create_session(map.map_handle, { input_capacity: 128, batch_capacity: 128 });
   return { map, context, samples, session };
 }

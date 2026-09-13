@@ -1,7 +1,8 @@
 # Browser gameplay plan
 
-Play remains disabled. W01–W06 have partial implementations, including the
-mixed-scene renderer and synchronous frame hook; no unit below is complete. [Current status](status.md) owns
+W07 now exposes integrated validation Play after capability/resource preparation.
+The plan below retains the remaining upstream and release acceptance gates;
+W08–W10 and full M3 remain open. [Current status](status.md) owns
 implemented coverage, the [reference harness](compatibility/reference-harness.md#remaining-gameplay-adapters)
 owns missing adapters, and the ADRs own resource/audio requirements.
 

@@ -50,6 +50,36 @@ presentation_transform_rejects_invalid_viewports :: proc(test: ^testing.T) {
 	}
 }
 
+@(test)
+presentation_viewport_uniforms_round_through_f32_and_map_the_playfield :: proc(test: ^testing.T) {
+	// The exact viewport used by the browser scene suite, plus a full-height
+	// playfield viewport and an offset client placement.
+	viewports := []presentation.Viewport{
+		{0, 0, 512, 384, 1},
+		{13, 27, 1024, 768, 2},
+		{100, 50, 1024, 768, 1},
+	}
+	for viewport in viewports {
+		transform, valid := presentation.make_playfield_transform(viewport)
+		testing.expect(test, valid)
+		uniforms, uniforms_valid := presentation.make_viewport_uniforms(transform, viewport)
+		testing.expect(test, uniforms_valid)
+		// Each operand order matches the executor contract: f64 arithmetic
+		// rounded through f32 exactly once at the end.
+		testing.expect_value(test, uniforms.scale_x, f64(f32((2.0 * transform.scale) / viewport.css_width)))
+		testing.expect_value(test, uniforms.scale_y, f64(f32((-2.0 * transform.scale) / viewport.css_height)))
+		testing.expect_value(test, uniforms.shift_x, f64(f32((2.0 * (transform.client_left - viewport.css_left)) / viewport.css_width - 1.0)))
+		testing.expect_value(test, uniforms.shift_y, f64(f32(1.0 - (2.0 * (transform.client_top - viewport.css_top)) / viewport.css_height)))
+		// Endpoints of a playfield-filling viewport map to the full NDC range.
+		// The x scale is an exact binary fraction; the y scale rounds through
+		// f32, so its endpoint is checked within f32 accumulation error.
+		if viewport.css_width == 512 && viewport.css_height == 384 {
+			testing.expect_value(test, uniforms.scale_x * 512 + uniforms.shift_x, 1.0)
+			testing.expect(test, abs(uniforms.scale_y * 384 + uniforms.shift_y + 1.0) <= 1e-6)
+		}
+	}
+}
+
 
 @(test)
 presentation_active_set_orders_reveals_and_retains_acknowledged_feedback :: proc(test: ^testing.T) {

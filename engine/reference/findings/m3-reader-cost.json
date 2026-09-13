@@ -4,170 +4,74 @@
   "browser": "153.0.8010.12",
   "sampling_interval_bytes": 512,
   "includes_collected_objects": true,
-  "profile_sha256": "42bdb8d996a298cfdf5c7454fc9f36c47fbb11aa26d16d0c177124221a7e3367",
-  "wasm_sha256": "f733393edd9a262ff91a129cb3e8ef8d08427e19835aa4ff91e3f14400469681",
+  "profile_sha256": "20c8b36aacbe02eaf306679d8b3d17e9f574aea0daa1efc1c1b56df84c6dde6a",
+  "wasm_sha256": "699c347cd72e05d7f2efb5d740afe1a29648d59ec604b21f8f39121c4e22c000",
   "iterations": 5000,
   "memory_before": 18022400,
   "memory_after": 18022400,
   "draw_bytes": 704,
   "voice_bytes": 64,
-  "sampled_reader_bytes": 4213816,
+  "sampled_reader_bytes": 2038228,
   "allocations": [
     {
-      "function": "write_creation",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 83,
-      "sampled_bytes": 365964
-    },
-    {
       "function": "writeRecord",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
-      "line": 2428,
-      "sampled_bytes": 219720
-    },
-    {
-      "function": "read_span",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 92,
-      "sampled_bytes": 586560
-    },
-    {
-      "function": "voice_output",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 187,
-      "sampled_bytes": 55348
-    },
-    {
-      "function": "get result_address",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 70,
-      "sampled_bytes": 532
-    },
-    {
-      "function": "read_span",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 92,
-      "sampled_bytes": 198024
-    },
-    {
-      "function": "view",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 74,
-      "sampled_bytes": 26832
+      "line": 2873,
+      "sampled_bytes": 174180
     },
     {
       "function": "checkedSpan",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
-      "line": 2393,
-      "sampled_bytes": 43920
+      "line": 2838,
+      "sampled_bytes": 41760
     },
     {
-      "function": "bind",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/voice-output.mjs",
-      "line": 12,
-      "sampled_bytes": 76152
+      "function": "validateSpan",
+      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
+      "line": 2829,
+      "sampled_bytes": 1068
     },
     {
       "function": "readRecordInto",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
-      "line": 2402,
-      "sampled_bytes": 69296
-    },
-    {
-      "function": "draw",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 196,
-      "sampled_bytes": 1712
-    },
-    {
-      "function": "write_creation",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 83,
-      "sampled_bytes": 117792
-    },
-    {
-      "function": "view",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 74,
-      "sampled_bytes": 26304
+      "line": 2847,
+      "sampled_bytes": 100176
     },
     {
       "function": "writeRecord",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
-      "line": 2428,
-      "sampled_bytes": 86280
-    },
-    {
-      "function": "checkedSpan",
-      "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
-      "line": 2393,
-      "sampled_bytes": 1080
-    },
-    {
-      "function": "bind",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 426,
-      "sampled_bytes": 1300
-    },
-    {
-      "function": "bind",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 334,
-      "sampled_bytes": 119432
-    },
-    {
-      "function": "bind_array",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 364,
-      "sampled_bytes": 1560
+      "line": 2873,
+      "sampled_bytes": 113400
     },
     {
       "function": "readRecordInto",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
-      "line": 2402,
-      "sampled_bytes": 53568
+      "line": 2847,
+      "sampled_bytes": 66940
     },
     {
       "function": "readRecordInto",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
-      "line": 2402,
-      "sampled_bytes": 216672
-    },
-    {
-      "function": "bind",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 334,
-      "sampled_bytes": 359292
-    },
-    {
-      "function": "bind_array",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/engine-bridge.mjs",
-      "line": 364,
-      "sampled_bytes": 5692
+      "line": 2847,
+      "sampled_bytes": 372360
     },
     {
       "function": "readRecordInto",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
-      "line": 2402,
-      "sampled_bytes": 196008
-    },
-    {
-      "function": "bind",
-      "url": "http://127.0.0.1:4173/platform/browser-js/src/voice-output.mjs",
-      "line": 12,
-      "sampled_bytes": 164688
+      "line": 2847,
+      "sampled_bytes": 162984
     },
     {
       "function": "readRecordInto",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
-      "line": 2402,
-      "sampled_bytes": 242664
+      "line": 2847,
+      "sampled_bytes": 795192
     },
     {
       "function": "readRecordInto",
       "url": "http://127.0.0.1:4173/engine/abi/records.mjs",
-      "line": 2402,
-      "sampled_bytes": 977424
+      "line": 2847,
+      "sampled_bytes": 210168
     }
   ],
   "timings": {

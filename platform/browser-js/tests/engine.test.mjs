@@ -46,6 +46,18 @@ test('production transport advertises preparation only and contains no trace exp
   }
 });
 
+// The pinned Skin/SampleStore probe order is engine policy; the bridge only
+// decodes the published record.
+test('sample probe policy publishes the pinned extension order from the engine', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  try {
+    assert.deepEqual(engine.sample_probe(), ['', '.wav', '.mp3', '.ogg']);
+    assert.deepEqual(engine.sample_probe(), ['', '.wav', '.mp3', '.ogg']);
+  } finally {
+    engine.dispose();
+  }
+});
+
 test('bridge reacquires views after actual WASM growth and failed reserve', async () => {
   const engine = await Engine_Bridge.create(wasm_bytes);
   try {

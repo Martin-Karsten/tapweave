@@ -216,3 +216,37 @@ uses the existing playback anchor and an explicit frame restart. Disposal remove
 listeners and restores touch-action. Reset/replacement require new driver/input
 owners; W07 owns that lifecycle. Browser event/transform allocation remains; the
 reused conversion records are not an allocation-free claim.
+
+
+## W07 lifecycle integration
+
+`Gameplay_Controller` is the sole product transition owner. Input/frame services
+report pause requests, terminal state and errors. Input disposal detaches without
+invoking engine pause. The frame driver binds browser RAF functions through
+wrappers and invalidates its callback generation on every stop.
+
+Pause drains accepted input, samples AudioContext time once and invokes engine
+pause directly, before any ordinary advance at that boundary. This preserves
+ADR-002 release ordering and also works when audio is suspended. The returned
+state may already be terminal; the controller reads results rather than attempting
+resume in that case. Pause leaves newly emitted engine voice intent retained;
+resume consumes it under the new anchor while restoring previously admitted
+future one-shots. Dispatch/input/invalid-state failures cancel sound, preserve
+bounded diagnostics, and require Retry/Back rather than uncertain reconstruction.
+
+Reset retains the voice arena; a replacement Audio_Playback uses its explicit
+reuse option only after successful reset of that same session. Re-reserving a
+transactional replacement would unnecessarily raise WASM's high-water mark.
+New sessions always reserve before start. Reset invalidates old frame/input/audio
+owners and mappings while retaining immutable map assets and valid scene resources.
+
+Success shows copied final results immediately and runs only existing sound
+intent to completion on the same RAF/AudioContext. The early slider-tail
+judgement does not itself make a session terminal before the parent result;
+its sound keeps the nominal endpoint time. Active sample tails can outlive the
+results transition. Music is cancelled once sound intent drains. Failure,
+navigation and visibility loss cancel all terminal playback immediately.
+
+These are Tapweave validation UI policies: no lazer resume-cursor overlay,
+pause cooldown, pause-menu sound loop or auto-resume is introduced. Pinned pause
+UI tests remain an explicit adapter gap, independently of local regression passes.
