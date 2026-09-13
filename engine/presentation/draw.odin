@@ -17,6 +17,7 @@ Instance :: struct {
 	layer, object_id, component_id, ordinal, flags: u32,
 	x, y, scale_x, scale_y, rotation, alpha, progress: f64,
 	colour, glyph, geometry_first, geometry_count: u32,
+	clip_start, clip_end: f64,
 }
 Builder :: struct {
 	instances: []Instance,

@@ -14,6 +14,7 @@ Draw_Storage :: struct {
 	instances: []presentation.Instance,
 	output: []byte,
 	history: presentation.Semantic_History,
+	active: presentation.Active_Set,
 }
 
 draw_required_bytes :: proc(instance_count: u64, feedback_capacity: u64 = 0, cursor_capacity: u64 = 0, object_count: u64 = 0) -> (u64, core_types.Status) {
@@ -65,7 +66,7 @@ draw_reserve :: proc(instance: ^Instance, engine, session_handle: core_types.Han
 		return count_status
 	}
 	engine_state, _ := engine_get(instance, engine)
-	used := u64(len(session.arena.bytes)) + u64(len(session.voice_storage.arena.bytes))
+	used := u64(len(session.scene_storage.arena.bytes)) + u64(len(session.arena.bytes)) + u64(len(session.voice_storage.arena.bytes))
 	if instance_count == 0 || instance_count > MAX_DRAW_INSTANCES || arena_bytes < required_bytes || arena_bytes > u64(max(u32)) ||
 	   used > engine_state.quotas.arena_bytes || arena_bytes > engine_state.quotas.arena_bytes - used {
 		return .QUOTA_EXCEEDED

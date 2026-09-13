@@ -74,6 +74,10 @@ int main(void) {
     presentation_native_probe();
     unsigned char draw_bytes[2048];
     uint32_t draw_byte_count = draw_native_probe(draw_bytes);
+    unsigned char scene_bytes[65536];
+    unsigned char resource_bytes[262144];
+    uint32_t resource_byte_count = 0;
+    uint32_t scene_byte_count = scene_native_probe(scene_bytes, resource_bytes, &resource_byte_count);
     printf("{\"capabilities\":[");
     for(unsigned value_index=0;value_index<16;value_index++)printf("%s%u",value_index?",":"",capabilities[value_index]);
     printf("],\"statuses\":[");
@@ -84,6 +88,10 @@ int main(void) {
     for(uint32_t byte_index=0;byte_index<gameplay_byte_count;byte_index++)printf("%s%u",byte_index?",":"",gameplay_result[byte_index]);
     printf("],\"circle_draw\":[");
     for (uint32_t byte_index = 0; byte_index < draw_byte_count; byte_index++) printf("%s%u", byte_index ? "," : "", draw_bytes[byte_index]);
+    printf("],\"scene_draw\":[");
+    for (uint32_t byte_index = 0; byte_index < scene_byte_count; byte_index++) printf("%s%u", byte_index ? "," : "", scene_bytes[byte_index]);
+    printf("],\"scene_resources\":[");
+    for (uint32_t byte_index = 0; byte_index < resource_byte_count; byte_index++) printf("%s%u", byte_index ? "," : "", resource_bytes[byte_index]);
     puts("]}");
     return 0;
 }

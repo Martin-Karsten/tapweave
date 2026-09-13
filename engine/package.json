@@ -27,6 +27,7 @@
     "compare:circle-feedback": "node scripts/compare-circle-feedback.mjs",
     "analyze:scenario-audio": "node scripts/analyze-scenario-audio.mjs",
     "measure:input-cost": "node scripts/measure-input-cost.mjs",
-    "compare:voice-intent": "node scripts/compare-voice-intent.mjs"
+    "compare:voice-intent": "node scripts/compare-voice-intent.mjs",
+    "compare:scene:upstream": "node scripts/compare-scene.mjs"
   }
 }

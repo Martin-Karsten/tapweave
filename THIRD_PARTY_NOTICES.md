@@ -24,3 +24,9 @@ browser automation tooling, licensed under Apache-2.0; see
 <https://github.com/microsoft/playwright>. Exact packages and integrity hashes are
 recorded in the browser package lockfile. These dependencies do not grant rights
 to beatmap music, osu! branding, or other game assets.
+
+Presentation timing ports and the snaking assertion port follow pinned osu!
+`SnakingSliderBody`, slider child drawables, follow-point transforms and framework
+`DefaultEasingFunction`. Copyright (c) ppy Pty Ltd, MIT; the retained licences above
+apply. The renderer atlas, palette, shaders and mesh coverage design are original
+Tapweave work. Scene findings record the pinned test paths and adaptations.

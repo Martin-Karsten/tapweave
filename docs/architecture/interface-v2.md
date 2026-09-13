@@ -567,3 +567,47 @@ W07 work.
 
 See [W05 audio execution](adr-004-audio.md#w05-opt-in-audio-execution) for allocation,
 asset availability, separate journal sequences and pause reconstruction rules.
+
+## Mixed-scene transport
+
+Append-only kinds 46–51 implement an independent graphics transport. Existing
+circle resource/draw kinds and exports retain their meaning.
+
+- Kind 46 (`scene_resource`) has the kind-35 fields and version-1 header. Its
+  vertex stride is 32: four canonical f64 slots containing f32-projected x/y,
+  normalized path distance and a reserved zero. Indices are u32; atlas/shader
+  spans retain checked, aligned relative offsets. `oe_map_scene_resources`
+  constructs the immutable attachment transactionally; `oe_session_scene_resources`
+  borrows it. Resource identity is the map handle plus prepared digest, never a
+  GPU handle.
+- Kind 48 (`scene_reserve`) has kind-36 fields. Both count queries and reserve
+  require READY/PAUSED. A zero instance count requests a measured conservative
+  interval-sweep requirement in kind 37. Positive capacity reserves a separate
+  scene arena. Failure preserves the old arena/frame. Arena budget includes
+  temporary count/mesh storage and retained candidates where applicable.
+- `oe_session_scene_draw` takes the existing kind-29 viewport and finite beatmap
+  time. Kind 47 (`scene_frame`) retains the kind-38 header field layout, with
+  kind-50 instance and kind-51 command spans. It has an independent output lifetime;
+  successful scene draws replace it, while insufficient capacity reports kind 37
+  and `OUTPUT_REQUIRED` without overwriting the published frame.
+- Kind 50 extends the kind-39 instance fields with `clip_start:f64` and
+  `clip_end:f64`. PATH (4) uses the static index range and clip interval [0,1].
+  Other primitives use the shared first six quad indices. Flag 1 is a DISC clipping
+  cap continuing the immediately preceding path's stencil coverage; other flags
+  reject. Scale values are half extents; rotations are radians. Colour is packed
+  low-byte red through high-byte alpha.
+- Kind 51 retains the kind-40 fields. Its `primitive` is a command selector:
+  0 executes a heterogeneous quad run, 4 executes one path and begins coverage.
+  Runs preserve layer/source/component/ordinal ordering and cover all instances
+  exactly once. Clipping caps occupy the following quad run. The executor validates
+  every instance and command before any GL submission, including finite f32
+  conversions, resource/epoch identity, contiguous coverage and index bounds.
+- `oe_scene_capabilities` returns kind 49: resource/draw versions 1, primitive mask
+  31, explicit instance/command/upload ceilings, and flags 0. This is renderer
+  availability, **not** aggregate Play capability or upstream acceptance.
+
+Scene reads cannot judge, advance health, mutate replay or acknowledge audio.
+Forward reads use independent active indices; backward reads/epoch changes rebuild
+those indices without simulation. Far-future diagnostic reads against unadvanced
+state may need more capacity than the normal committed-time interval estimate;
+there is no silent truncation or implicit advance.

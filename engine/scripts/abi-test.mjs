@@ -1,4 +1,4 @@
-import { testDrawABI } from './draw-abi-test.mjs';
+import { testDrawABI, testSceneABI } from './draw-abi-test.mjs';
 import {testGameplayABI} from './gameplay-abi-test.mjs';
 import {testPreparedABI} from './prepared-abi-test.mjs';
 import assert from 'node:assert/strict';
@@ -127,6 +127,7 @@ export function testABI(wasm) {
  for(const e of engines)assert.equal(wasm.oe_engine_release(e),0);
  testGameplayABI(wasm,native.gameplay);
  testDrawABI(wasm, native.circle_draw);
+ testSceneABI(wasm, native.scene_draw, native.scene_resources);
  console.log(`ABI v2: 50 lifecycle cycles, four shared sessions, 4000 resets; WASM high water ${pages.at(-1)} pages.`);
  return {preparedABI,preparedAllocationFailure:true,acceptance:['A24','A25'],oracle:'local-contract-tests',cycles:50,sessionsPerMap:4,resets:4000,growthObserved,allocationFailure,highWaterPages:memory.buffer.byteLength/65536,steadyStatePages:pages.at(-1)};
 }

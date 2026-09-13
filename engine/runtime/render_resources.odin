@@ -36,7 +36,7 @@ render_resource_create :: proc(instance: ^Instance, engine, map_handle: core_typ
 	}
 	engine_state, _ := engine_get(instance, engine)
 	required := render_resource_size()
-	used := u64(len(map_resource.decoded.arena.bytes)) + u64(len(map_resource.points.arena.bytes)) +
+	used := u64(len(map_resource.scene_attachment.arena.bytes)) + u64(len(map_resource.decoded.arena.bytes)) + u64(len(map_resource.points.arena.bytes)) +
 		u64(len(map_resource.prepared_map.arena.bytes)) + u64(len(map_resource.prepared_map.description.bytes))
 	if required > u64(max(u32)) || used > engine_state.quotas.arena_bytes || required > engine_state.quotas.arena_bytes - used {
 		return .QUOTA_EXCEEDED

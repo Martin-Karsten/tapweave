@@ -14,6 +14,8 @@ import { Browser_Error, require_condition } from './errors.js';
 const MAILBOX = schema.transport.mailbox;
 const BYTE_SPAN = schema.transport.byte_span;
 const RECORD_HEADER = schema.transport.record_header;
+const VIEWPORT_RECORD = schema.records.find(record => record.kind === 29)!;
+const VIEWPORT_FIELDS = Object.entries(VIEWPORT_RECORD.fields);
 
 export interface Input_Span {
   address: number;
@@ -53,6 +55,8 @@ export class Engine_Bridge {
   simulation_capabilities!: Simulation_Capabilities_Record;
   output_capabilities!: Output_Capabilities_Record;
   transport_capabilities!: Transport_Capabilities_Record;
+  private scene_mailbox_view: DataView | null = null;
+  private scene_mailbox_bytes: Uint8Array | null = null;
 
   static async create(wasm_bytes: ArrayBuffer | Uint8Array, diagnostics: (message: Engine_Diagnostic) => void = () => {}) {
     let wasm_memory: WebAssembly.Memory;
@@ -201,6 +205,52 @@ export class Engine_Bridge {
   bind_sample(session_handle: bigint, binding: Sample_Binding_Values) {
     this.write_creation(28, binding);
     this.check_status(this.wasm.oe_session_bind_sample(this.engine_handle, session_handle, this.mailbox_address), false);
+  }
+
+  scene_capabilities() {
+    require_condition(typeof this.wasm.oe_scene_capabilities === 'function', 'UNSUPPORTED', 'Scene rendering is unavailable.');
+    this.check_status(this.wasm.oe_scene_capabilities(this.engine_handle, this.result_address), false);
+    const capabilities = read_record(this.view(), this.read_span().address, 49);
+    require_condition(capabilities.resource_version === 1 && capabilities.draw_version === 1 &&
+      capabilities.primitive_mask === 31 && capabilities.flags === 0 && capabilities.reserved === 0,
+      'UNSUPPORTED', 'Unsupported scene rendering protocol.');
+    return capabilities;
+  }
+
+  scene_resources(map_handle: bigint) {
+    this.check_status(this.wasm.oe_map_scene_resources(this.engine_handle, map_handle, this.result_address), false);
+    return new Render_Resources(this.copy_output());
+  }
+
+  scene_reserve(session_handle: bigint, instance_capacity = 0, arena_bytes = 0n) {
+    this.write_creation(48, { instance_capacity, arena_bytes });
+    this.check_status(this.wasm.oe_session_scene_reserve(this.engine_handle, session_handle,
+      this.mailbox_address, this.result_address), false);
+    return read_record(this.view(), this.read_span().address, 37);
+  }
+
+  scene_draw(session_handle: bigint, time_ms: number, viewport: Viewport_Values, output: Scene_Output) {
+    require_condition(output instanceof Scene_Output, 'INVALID_DRAW', 'A reusable scene reader is required.');
+    if (this.scene_mailbox_view?.buffer !== this.wasm.memory.buffer) {
+      this.scene_mailbox_view = new DataView(this.wasm.memory.buffer);
+      this.scene_mailbox_bytes = new Uint8Array(this.wasm.memory.buffer, this.mailbox_address, MAILBOX.creation_size);
+    }
+    for (const [field_name] of VIEWPORT_FIELDS) {
+      require_condition(Number.isFinite(viewport[field_name as keyof Viewport_Values]), 'INVALID_DRAW', 'Non-finite scene viewport.');
+    }
+    this.scene_mailbox_bytes!.fill(0);
+    const view = this.scene_mailbox_view;
+    view.setUint16(this.mailbox_address + RECORD_HEADER.kind, 29, true);
+    view.setUint16(this.mailbox_address + RECORD_HEADER.version, 1, true);
+    view.setUint32(this.mailbox_address + RECORD_HEADER.byte_size, VIEWPORT_RECORD.size, true);
+    for (const [field_name, [field_offset]] of VIEWPORT_FIELDS) {
+      view.setFloat64(this.mailbox_address + Number(field_offset), Number(viewport[field_name as keyof Viewport_Values]), true);
+    }
+    const status = this.wasm.oe_session_scene_draw(this.engine_handle, session_handle, time_ms, this.mailbox_address, this.result_address);
+    if (status === 8) readRecordInto(this.view(), this.read_span().address, 37, output.required);
+    this.check_status(status, false);
+    output.bind(this.wasm.memory.buffer, this.result_address);
+    return output;
   }
 
   render_resources(map_handle: bigint) {
@@ -476,6 +526,37 @@ export class Draw_Output extends Borrowed_Output {
     const batches = output_array('batches', 40);
     super(38, [instances, batches]);
     require_condition(resources instanceof Render_Resources, 'INVALID_ARGUMENT', 'A validated render attachment is required.');
+    this.resources = resources;
+    this.engine_epoch = engine_epoch;
+    this.instances = instances;
+    this.batches = batches;
+  }
+
+  override bind(buffer: ArrayBuffer, span_address: number) {
+    super.bind(buffer, span_address);
+    this.valid = false;
+    // The engine owns ordering, batching and instance policy; this reader only
+    // checks transport identity against the bound attachment and epoch.
+    require_condition(this.summary.resource_id === this.resources.summary.resource_id &&
+      this.summary.epoch === this.engine_epoch && this.summary.epoch > 0,
+    'INVALID_DRAW', 'Stale draw identity.');
+    this.valid = true;
+  }
+}
+
+export class Scene_Output extends Borrowed_Output {
+  declare summary: Draw_Output_Header;
+  resources: Render_Resources;
+  engine_epoch: number;
+  instances: Output_Array_Span;
+  batches: Output_Array_Span;
+  required: Record<string, Record_Values> = {};
+
+  constructor(resources: Render_Resources, engine_epoch: number) {
+    const instances = output_array('instances', 50);
+    const batches = output_array('batches', 51);
+    super(47, [instances, batches]);
+    require_condition(resources instanceof Render_Resources && resources.scene, 'INVALID_ARGUMENT', 'A validated render attachment is required.');
     this.resources = resources;
     this.engine_epoch = engine_epoch;
     this.instances = instances;

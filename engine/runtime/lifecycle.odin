@@ -28,6 +28,7 @@ Map_Resource :: struct {
 	points: osu_prepare.Points,
 	prepared_map: prepared.Map,
 	render_attachment: core_types.Arena,
+	scene_attachment: Scene_Attachment,
 	fully_prepared: bool,
 	references, external_references: u32,
 }
@@ -77,6 +78,7 @@ Session :: struct {
 	presentation_output: []byte,
 	active_presentation: presentation.Active_Set,
 	draw_storage: Draw_Storage,
+	scene_storage: Draw_Storage,
 	voice_storage: Voice_Storage,
 	input_candidate: []core_types.Input_Snapshot,
 	outputs: Session_Outputs,
@@ -204,6 +206,7 @@ map_prepare :: proc(
 			beatmap_decode.destroy(&map_resource.decoded)
 			osu_prepare.destroy(&map_resource.points)
 			prepared.destroy_map(&map_resource.prepared_map)
+			core_types.arena_destroy(&map_resource.scene_attachment.arena)
 			core_types.arena_destroy(&map_resource.render_attachment)
 			free(map_resource, instance.allocator)
 		}
@@ -294,6 +297,7 @@ map_drop :: proc(instance: ^Instance, map_resource: ^Map_Resource) {
 		beatmap_decode.destroy(&map_resource.decoded)
 		osu_prepare.destroy(&map_resource.points)
 		prepared.destroy_map(&map_resource.prepared_map)
+		core_types.arena_destroy(&map_resource.scene_attachment.arena)
 		core_types.arena_destroy(&map_resource.render_attachment)
 		free(map_resource, instance.allocator)
 	}
@@ -355,6 +359,7 @@ session_create :: proc(
 	defer {
 		if !committed {
 			core_types.arena_destroy(&session_state.arena)
+			core_types.arena_destroy(&session_state.scene_storage.arena)
 			core_types.arena_destroy(&session_state.draw_storage.arena)
 			core_types.arena_destroy(&session_state.voice_storage.arena)
 			free(session_state, instance.allocator)
@@ -428,6 +433,7 @@ session_release :: proc(instance: ^Instance, engine, session: core_types.Handle)
 	session_state := cast(^Session)value
 	map_drop(instance, session_state.map_storage)
 	core_types.arena_destroy(&session_state.arena)
+	core_types.arena_destroy(&session_state.scene_storage.arena)
 	core_types.arena_destroy(&session_state.draw_storage.arena)
 	core_types.arena_destroy(&session_state.voice_storage.arena)
 	free(session_state, instance.allocator)

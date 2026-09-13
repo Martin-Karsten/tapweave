@@ -291,3 +291,34 @@ compile/link failures retain their stage and driver info log in error details.
 The review checks passed all 58 browser service tests, the browser build and both
 Chromium resource scenarios. These are local lifecycle checks; the remaining W04
 graphics and upstream acceptance gates are unchanged.
+
+## W06 input/frame integration increment
+
+The browser now exposes `Gameplay_Input` and `Gameplay_Frame` for explicitly owned
+`Audio_Playback` sessions. They provide DOM key/mouse/primary-touch bindings,
+event-time Odin coordinate conversion, immutable receipt/audio mapping, reserved
+ABI input staging, one frame callback, input-before-advance ordering and shared
+music/audio pumping. Cancellation and rejected input enter explicit pause/recovery;
+stale callbacks cannot restart a stopped driver. Terminal output disables input.
+The synchronous render callback is the integration point for the remaining W04
+executor, not a replacement rendering implementation. Product Play stays disabled.
+
+Validation on Node 24.13.0: browser typecheck/build, 74 service tests, 34 existing
+production-WASM schedules and all nine Chromium scenarios passed. The new driver
+fixture compares complete final records with direct headless submission across
+30/60/120/144 Hz and 0/50/100/250 ms stalls, with no WASM growth. A real Chromium
+mouse/keyboard fixture checks aggregation, Odin coordinates and Escape release.
+These are local regressions; the new driver fixture does not independently compare
+all judgement/audio journals or certify physical devices. Full W06 A12/cadence
+acceptance, browser allocation profiling, complete rendering and W07 lifecycle
+remain open. Firefox/WebKit were not run for this increment.
+
+Pinned test search covered osu! `TestSceneOsuTouchInput` and framework
+`KeyBindingInputTest` at the revisions above. `TestSimpleInput` and
+`TestPositionalInputUpdatesOnlyFromMostRecentTouch` exercise multiple touches,
+whereas the browser plan deliberately accepts only primary touch. Those scenarios
+are outside this browser profile and are not claimed as ports or matches.
+`TestReleaseAlwaysPressedToOriginalTargets` exercises framework drawable routing,
+which has no DOM equivalent here; the local release/aggregation tests validate
+our transport policy only. No new upstream adapter was executed, and no upstream
+acceptance row is closed by this change.

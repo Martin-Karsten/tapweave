@@ -108,3 +108,15 @@ restoration, `restore()` rebuilds the retained bytes; it does not resume gamepla
 It does not execute draw records. See the [rendering ADR](../../docs/architecture/adr-003-rendering.md#bounded-w04-resource-service)
 for quotas and peak ownership. The Playwright resource test renders a diagnostic
 quad using the unchanged Odin shader payload; full W04 graphics remain open.
+
+### Input/frame integration
+
+For a developer-owned ready `Audio_Playback`, construct `Gameplay_Frame(playback,
+render)` before start to reserve its input inbox, then attach
+`Gameplay_Input(canvas, frame)`. Await `playback.start()` and call `frame.start()`.
+The render callback receives beatmap time and borrowed compact output; consume it
+synchronously before requesting draw output. Pause drains input through
+`frame.pause()`; resume with `playback.start()` and `frame.start()`. Dispose the DOM
+binding, stop the frame driver and dispose playback before releasing the session.
+Do not share this driver across session reset/replacement. The complete renderer,
+product lifecycle and Play gate remain unfinished; see the implementation status.

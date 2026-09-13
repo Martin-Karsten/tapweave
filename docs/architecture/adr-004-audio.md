@@ -194,3 +194,25 @@ and exposes explicit recovery after execution failure. It is usable by developer
 fixtures; W06/W07 still own DOM/frame/product lifecycle integration and Play.
 Chromium offline rendering verifies actual Web Audio output and cleanup. It does
 not certify physical audible output or close H11/A21.
+
+## W06 frame and DOM transport
+
+`Gameplay_Frame` reserves the ABI inbox and reusable conversion records before
+start. Its single generation-guarded RAF callback drains receipt-stamped input,
+then calls `Audio_Playback.pump` with one audio sample, then invokes a synchronous
+render consumer with that same beatmap time and borrowed compact output. The
+consumer must copy retained data before requesting another engine output.
+No RAF timestamp enters gameplay. Late/rejected batches remain in the input
+buffer and stop the driver through explicit audio recovery. Terminal output
+suppresses further DOM input while audio/render pumping can finish future intent.
+
+`Gameplay_Input` installs abortable keyboard/pointer/focus listeners. Coordinates
+use the engine inverse transform for the canvas's current CSS bounds and DPR at
+receipt, before buffering. Z/primary mouse and X/secondary mouse aggregate physical
+sources; repeats are suppressed. One primary touch maps to cursor/left, as required
+by the browser plan. Escape, cancellation, focus loss and hidden-document events
+drain input and call engine pause, which owns the exact-boundary release. Resume
+uses the existing playback anchor and an explicit frame restart. Disposal removes
+listeners and restores touch-action. Reset/replacement require new driver/input
+owners; W07 owns that lifecycle. Browser event/transform allocation remains; the
+reused conversion records are not an allocation-free claim.

@@ -38,7 +38,7 @@ voice_reserve :: proc(instance: ^Instance, engine, session_handle: core_types.Ha
 		return .QUOTA_EXCEEDED
 	}
 	engine_state, _ := engine_get(instance, engine)
-	used := u64(len(session.arena.bytes)) + u64(len(session.draw_storage.arena.bytes))
+	used := u64(len(session.scene_storage.arena.bytes)) + u64(len(session.arena.bytes)) + u64(len(session.draw_storage.arena.bytes))
 	if command_count == 0 || arena_bytes < required || arena_bytes > u64(max(u32)) ||
 		used > engine_state.quotas.arena_bytes || arena_bytes > engine_state.quotas.arena_bytes - used {
 		return .QUOTA_EXCEEDED

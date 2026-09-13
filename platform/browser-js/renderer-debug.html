@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tapweave renderer fixture</title>
+<style>
+  :root { color-scheme: dark; font: 16px system-ui; background: #101319; color: #e6edf3; }
+  body { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+  h1 { font-size: 1.5rem; } canvas { display: block; width: 100%; aspect-ratio: 4 / 3; background: #101319; }
+  label { display: flex; gap: 1rem; align-items: center; margin: 1rem 0; } input { flex: 1; }
+  button { padding: .5rem 1rem; } #status { min-height: 1.5rem; }
+</style>
+<h1>Tapweave renderer fixture</h1>
+<p>Scrub a scripted circle, slider and spinner scene. This developer fixture uses the production engine; it does not enable Play.</p>
+<canvas aria-label="Tapweave mixed gameplay scene"></canvas>
+<label>Beatmap time <input id="time" type="range" min="0" max="5000" step="1" value="1400"><output id="time-label">1400 ms</output></label>
+<button id="restore" type="button" disabled>Restore graphics</button>
+<p id="status" role="status">Loading renderer…</p>
+<script type="module" src="/platform/browser-js/src/renderer-debug.js"></script>
+</html>

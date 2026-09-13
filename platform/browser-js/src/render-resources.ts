@@ -4,6 +4,7 @@ import { require_condition } from './errors.js';
 export interface Render_Resource_Snapshot {
   bytes: Uint8Array;
   summary: Render_Resource_Record;
+  scene: boolean;
 }
 
 // Owned immutable attachment. GPU context generations belong to the executor,
@@ -11,17 +12,19 @@ export interface Render_Resource_Snapshot {
 export class Render_Resources {
   bytes: Uint8Array;
   summary: Render_Resource_Record;
+  scene: boolean;
 
   constructor(bytes: Uint8Array) {
     this.bytes = bytes;
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-    this.summary = read_record(view, 0, 35);
+    this.scene = view.getUint16(0, true) === 46;
+    this.summary = read_record(view, 0, this.scene ? 46 : 35);
     const summary = this.summary;
     require_condition(summary.resource_id > 0n && summary.attachment_version === 1 && summary.flags === 0 &&
       summary.reserved === 0n && summary.total_bytes === BigInt(bytes.byteLength),
       'INVALID_RESOURCE', 'Invalid render resource identity or version.');
-    let previous_end = record_size(35);
-    for (const [span_name, expected_stride] of [['vertices', 16], ['indices', 4], ['atlas', 1], ['vertex_shader', 1], ['fragment_shader', 1]] as const) {
+    let previous_end = record_size(this.scene ? 46 : 35);
+    for (const [span_name, expected_stride] of [['vertices', this.scene ? 32 : 16], ['indices', 4], ['atlas', 1], ['vertex_shader', 1], ['fragment_shader', 1]] as const) {
       const offset = summary[`${span_name}_offset`];
       const count = summary[`${span_name}_count`];
       const stride = summary[`${span_name}_stride`];
@@ -50,6 +53,6 @@ export class Render_Resources {
   // Private byte copy with the already validated summary. The GPU service owns
   // this snapshot; callers can mutate their reader without affecting recovery.
   own_snapshot(): Render_Resource_Snapshot {
-    return { bytes: this.bytes.slice(), summary: this.summary };
+    return { bytes: this.bytes.slice(), summary: { ...this.summary }, scene: this.scene };
   }
 }

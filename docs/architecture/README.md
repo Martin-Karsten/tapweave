@@ -22,9 +22,9 @@ prepared <---- osu_prepare <---- beatmap_decode
 
 No arrow points from deterministic packages toward the browser, renderer, audio implementation, or local spike. Package imports must remain acyclic.
 
-This is the target dependency design, not a list of completed packages. In
-particular, `render_webgl` remains unimplemented; presentation currently supplies
-coordinates and active projections. See [status](../status.md). Test transports
+This is the target dependency design, not a list of completed packages. The
+`render_webgl` package now supplies original scene geometry/shaders and the mixed
+scene transport; integrated player and full presentation acceptance remain open. See [status](../status.md). Test transports
 share buffer ownership and numeric serialization in `trace_support`; production
 runtime and browser exports do not import that test-only package.
 

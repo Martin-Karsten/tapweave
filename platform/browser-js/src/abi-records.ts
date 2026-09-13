@@ -7,6 +7,12 @@ export type Record_Values = number | bigint;
 // tests/record-types.test.mjs validates this table against the generated schema,
 // so ABI drift fails the suite instead of the reader call sites.
 export const RECORD_FIELD_TYPES = {
+  46: [["resource_id", "bigint"], ["attachment_version", "number"], ["flags", "number"], ["total_bytes", "bigint"], ["prepared_digest_0", "bigint"], ["prepared_digest_1", "bigint"], ["prepared_digest_2", "bigint"], ["prepared_digest_3", "bigint"], ["vertices_offset", "number"], ["vertices_count", "number"], ["vertices_stride", "number"], ["vertices_reserved", "number"], ["indices_offset", "number"], ["indices_count", "number"], ["indices_stride", "number"], ["indices_reserved", "number"], ["atlas_offset", "number"], ["atlas_count", "number"], ["atlas_stride", "number"], ["atlas_reserved", "number"], ["vertex_shader_offset", "number"], ["vertex_shader_count", "number"], ["vertex_shader_stride", "number"], ["vertex_shader_reserved", "number"], ["fragment_shader_offset", "number"], ["fragment_shader_count", "number"], ["fragment_shader_stride", "number"], ["fragment_shader_reserved", "number"], ["atlas_width", "number"], ["atlas_height", "number"], ["reserved", "bigint"]],
+  47: [["epoch", "number"], ["state", "number"], ["resource_id", "bigint"], ["presentation_ms", "number"], ["committed_ms", "number"], ["scale", "number"], ["client_left", "number"], ["client_top", "number"], ["score", "bigint"], ["accuracy", "number"], ["health", "number"], ["combo", "number"], ["highest_combo", "number"], ["instances_offset", "number"], ["instances_count", "number"], ["instances_stride", "number"], ["batches_offset", "number"], ["batches_count", "number"], ["batches_stride", "number"], ["total_bytes", "bigint"]],
+  49: [["resource_version", "number"], ["draw_version", "number"], ["primitive_mask", "number"], ["flags", "number"], ["max_instances", "number"], ["max_commands", "number"], ["max_upload_bytes", "number"], ["reserved", "number"]],
+  50: [["primitive", "number"], ["layer", "number"], ["object_id", "number"], ["component_id", "number"], ["ordinal", "number"], ["flags", "number"], ["x", "number"], ["y", "number"], ["scale_x", "number"], ["scale_y", "number"], ["rotation", "number"], ["alpha", "number"], ["progress", "number"], ["colour", "number"], ["glyph", "number"], ["geometry_first", "number"], ["geometry_count", "number"], ["reserved", "bigint"], ["clip_start", "number"], ["clip_end", "number"]],
+  51: [["layer", "number"], ["primitive", "number"], ["first_instance", "number"], ["instance_count", "number"], ["reserved", "bigint"]],
+
   4: [['abi_major', 'number'], ['abi_minor', 'number'], ['foundation', 'number'], ['gameplay', 'number'],
     ['legacy_max', 'number'], ['lazer_version', 'number'], ['raw_bytes', 'bigint'], ['arena_bytes', 'bigint'],
     ['build_id', 'bigint'], ['behavior_id', 'number'], ['numeric_mode', 'number']],
@@ -136,6 +142,11 @@ export interface Odin_Exports {
   oe_buffer_reserve(engine_handle: bigint, kind: number, byte_count: bigint, result_address: number): number;
   oe_map_prepare(engine_handle: bigint, mailbox_address: number, result_address: number, error_address: number): number;
   oe_map_describe(engine_handle: bigint, map_handle: bigint, result_address: number): number;
+  oe_scene_capabilities(engine_handle: bigint, result_address: number): number;
+  oe_map_scene_resources(engine_handle: bigint, map_handle: bigint, result_address: number): number;
+  oe_session_scene_resources(engine_handle: bigint, session_handle: bigint, result_address: number): number;
+  oe_session_scene_reserve(engine_handle: bigint, session_handle: bigint, mailbox_address: number, result_address: number): number;
+  oe_session_scene_draw(engine_handle: bigint, session_handle: bigint, time_ms: number, mailbox_address: number, result_address: number): number;
   oe_map_render_resources(engine_handle: bigint, map_handle: bigint, result_address: number): number;
   oe_map_release(engine_handle: bigint, map_handle: bigint): number;
   oe_playfield_transform(engine_handle: bigint, mailbox_address: number, result_address: number): number;

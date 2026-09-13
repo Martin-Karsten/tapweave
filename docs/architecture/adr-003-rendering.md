@@ -127,7 +127,7 @@ original glyph/analytic shader resources and execution. See the
 
 ## Bounded W04 resource service
 
-`platform/browser-js/src/webgl-resources.mjs` implements only the GPU resource
+`platform/browser-js/src/webgl-resources.ts` implements only the GPU resource
 phase for kind 35/version 1. One service owns one retained attachment and a
 dedicated WebGL2 context. A validated `Render_Resources` is admitted through a
 private snapshot without re-parsing; raw byte bundles take the single reader
@@ -160,3 +160,56 @@ The inspected Chromium quad is a test-only explicit-uniform probe of the existin
 Odin shader payload. It does not interpret circle draw records. Integrated
 pause/input/audio recovery, slider meshes, circle/glyph execution and the full
 W04 scene/workload matrix remain open; Play and aggregate capabilities stay off.
+
+## Complete-scene executor increment
+
+The separate scene transport uses kinds 46–51; kinds 35–40 remain the circle
+resource/draw diagnostic contract. `render_webgl` now owns original shader/atlas
+production and static slider tessellation. Presentation emits circles, slider
+bodies/heads/children/balls/tracking indicators, spinners, follow points, semantic
+cursor trails, judgement glyphs and HUD. These implementations do not by themselves
+close A22; retained findings distinguish compared fields and open transforms.
+
+Scene geometry consists of indexed segment strips and round joins, with normalized
+path distance per vertex. Positions are projected to f32 before portable f64
+serialization, avoiding native/libm last-bit differences in graphics data. Prepared
+path data and identity remain unchanged. Static meshes upload once per context.
+Snaking uses per-instance clip ranges and two analytic round clipping caps. The
+path and its immediately following cap instances share stencil coverage; each
+covered pixel blends once, including reversals and self-intersections. Separate
+sliders start separate coverage groups and retain normal inter-object alpha order.
+
+The single shader handles heterogeneous quad instances without reordering them.
+Commands group consecutive compatible layer/geometry/coverage runs. Analytic
+shapes and glyphs output premultiplied colour; the executor uses ONE /
+ONE_MINUS_SRC_ALPHA, disables depth/culling, clears the canvas and uses the full
+canvas viewport. There is no per-object JavaScript state. Glyph bitmaps are
+original Tapweave 5×7 designs in a 128×64 RGBA atlas. Unknown glyph cells are blank.
+
+The original cursor trail retains up to 2,048 semantic input points, fades over
+120 ms with exponent 1.7, and does not synthesize framework high-frequency cursor
+sprites. Repeat arrows use the local path tangent, without upstream's
+frame-dependent rotation smoothing. These are explicit cosmetic policies, not
+claims of exact upstream sprite identity. Tracking indicators currently reflect
+committed tracking state directly; full upstream tracking-transition animation
+acceptance remains open.
+
+Separate scene admission ceilings are 2,000,000 vertices, 6,000,000 indices,
+128 MiB serialized resources, 1,024 per atlas axis, 16 KiB per shader, 1,000,000
+instances/commands and 64,000,000 dynamic upload bytes. Canvas admission additionally
+limits each axis to 16,384 and the framebuffer to 16,777,216 pixels. These are
+conservative safety ceilings, **not approved shipping performance defaults**.
+The engine's map/session arena quota and WASM32 limit can reject earlier.
+
+A preparation-time interval sweep calculates a conservative peak instance count
+from reveal/feedback lifetimes, children and follow points. A separate arena
+reserves scene output/history/active indices. Candidate and retained scene arenas
+both count during replacement. Mesh scratch is released after publication;
+shared map attachments survive public map release while sessions retain them.
+
+`Renderer` prepares one scene, consumes explicit beatmap time synchronously and
+provides loss/restoration/disposal hooks. Loss invalidates GPU and dynamic-buffer
+ownership and calls the lifecycle owner; that owner must stop its driver and
+pause/release input/audio. Explicit restoration rebuilds resources but never
+resumes gameplay. The developer-only `/renderer-debug.html` fixture exercises this
+path without enabling Play or creating another gameplay clock.

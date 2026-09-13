@@ -2351,6 +2351,400 @@ export const schema = {
           "u32"
         ]
       }
+    },
+    {
+      "name": "scene_resource",
+      "kind": 46,
+      "size": 160,
+      "fields": {
+        "resource_id": [
+          8,
+          "u64"
+        ],
+        "attachment_version": [
+          16,
+          "u32"
+        ],
+        "flags": [
+          20,
+          "u32"
+        ],
+        "total_bytes": [
+          24,
+          "u64"
+        ],
+        "prepared_digest_0": [
+          32,
+          "u64"
+        ],
+        "prepared_digest_1": [
+          40,
+          "u64"
+        ],
+        "prepared_digest_2": [
+          48,
+          "u64"
+        ],
+        "prepared_digest_3": [
+          56,
+          "u64"
+        ],
+        "vertices_offset": [
+          64,
+          "u32"
+        ],
+        "vertices_count": [
+          68,
+          "u32"
+        ],
+        "vertices_stride": [
+          72,
+          "u32"
+        ],
+        "vertices_reserved": [
+          76,
+          "u32"
+        ],
+        "indices_offset": [
+          80,
+          "u32"
+        ],
+        "indices_count": [
+          84,
+          "u32"
+        ],
+        "indices_stride": [
+          88,
+          "u32"
+        ],
+        "indices_reserved": [
+          92,
+          "u32"
+        ],
+        "atlas_offset": [
+          96,
+          "u32"
+        ],
+        "atlas_count": [
+          100,
+          "u32"
+        ],
+        "atlas_stride": [
+          104,
+          "u32"
+        ],
+        "atlas_reserved": [
+          108,
+          "u32"
+        ],
+        "vertex_shader_offset": [
+          112,
+          "u32"
+        ],
+        "vertex_shader_count": [
+          116,
+          "u32"
+        ],
+        "vertex_shader_stride": [
+          120,
+          "u32"
+        ],
+        "vertex_shader_reserved": [
+          124,
+          "u32"
+        ],
+        "fragment_shader_offset": [
+          128,
+          "u32"
+        ],
+        "fragment_shader_count": [
+          132,
+          "u32"
+        ],
+        "fragment_shader_stride": [
+          136,
+          "u32"
+        ],
+        "fragment_shader_reserved": [
+          140,
+          "u32"
+        ],
+        "atlas_width": [
+          144,
+          "u32"
+        ],
+        "atlas_height": [
+          148,
+          "u32"
+        ],
+        "reserved": [
+          152,
+          "u64"
+        ]
+      }
+    },
+    {
+      "name": "scene_frame",
+      "kind": 47,
+      "size": 128,
+      "fields": {
+        "epoch": [
+          8,
+          "u32"
+        ],
+        "state": [
+          12,
+          "u32"
+        ],
+        "resource_id": [
+          16,
+          "u64"
+        ],
+        "presentation_ms": [
+          24,
+          "f64"
+        ],
+        "committed_ms": [
+          32,
+          "f64"
+        ],
+        "scale": [
+          40,
+          "f64"
+        ],
+        "client_left": [
+          48,
+          "f64"
+        ],
+        "client_top": [
+          56,
+          "f64"
+        ],
+        "score": [
+          64,
+          "u64"
+        ],
+        "accuracy": [
+          72,
+          "f64"
+        ],
+        "health": [
+          80,
+          "f64"
+        ],
+        "combo": [
+          88,
+          "u32"
+        ],
+        "highest_combo": [
+          92,
+          "u32"
+        ],
+        "instances_offset": [
+          96,
+          "u32"
+        ],
+        "instances_count": [
+          100,
+          "u32"
+        ],
+        "instances_stride": [
+          104,
+          "u32"
+        ],
+        "batches_offset": [
+          108,
+          "u32"
+        ],
+        "batches_count": [
+          112,
+          "u32"
+        ],
+        "batches_stride": [
+          116,
+          "u32"
+        ],
+        "total_bytes": [
+          120,
+          "u64"
+        ]
+      }
+    },
+    {
+      "name": "scene_reserve",
+      "kind": 48,
+      "size": 32,
+      "fields": {
+        "arena_bytes": [
+          8,
+          "u64"
+        ],
+        "instance_capacity": [
+          16,
+          "u32"
+        ],
+        "flags": [
+          20,
+          "u32"
+        ],
+        "reserved": [
+          24,
+          "u64"
+        ]
+      }
+    },
+    {
+      "name": "scene_instance",
+      "kind": 50,
+      "size": 128,
+      "fields": {
+        "primitive": [
+          8,
+          "u32"
+        ],
+        "layer": [
+          12,
+          "u32"
+        ],
+        "object_id": [
+          16,
+          "u32"
+        ],
+        "component_id": [
+          20,
+          "u32"
+        ],
+        "ordinal": [
+          24,
+          "u32"
+        ],
+        "flags": [
+          28,
+          "u32"
+        ],
+        "x": [
+          32,
+          "f64"
+        ],
+        "y": [
+          40,
+          "f64"
+        ],
+        "scale_x": [
+          48,
+          "f64"
+        ],
+        "scale_y": [
+          56,
+          "f64"
+        ],
+        "rotation": [
+          64,
+          "f64"
+        ],
+        "alpha": [
+          72,
+          "f64"
+        ],
+        "progress": [
+          80,
+          "f64"
+        ],
+        "colour": [
+          88,
+          "u32"
+        ],
+        "glyph": [
+          92,
+          "u32"
+        ],
+        "geometry_first": [
+          96,
+          "u32"
+        ],
+        "geometry_count": [
+          100,
+          "u32"
+        ],
+        "reserved": [
+          104,
+          "u64"
+        ],
+        "clip_start": [
+          112,
+          "f64"
+        ],
+        "clip_end": [
+          120,
+          "f64"
+        ]
+      }
+    },
+    {
+      "name": "scene_batch",
+      "kind": 51,
+      "size": 32,
+      "fields": {
+        "layer": [
+          8,
+          "u32"
+        ],
+        "primitive": [
+          12,
+          "u32"
+        ],
+        "first_instance": [
+          16,
+          "u32"
+        ],
+        "instance_count": [
+          20,
+          "u32"
+        ],
+        "reserved": [
+          24,
+          "u64"
+        ]
+      }
+    },
+    {
+      "name": "scene_capabilities",
+      "kind": 49,
+      "size": 40,
+      "fields": {
+        "resource_version": [
+          8,
+          "u32"
+        ],
+        "draw_version": [
+          12,
+          "u32"
+        ],
+        "primitive_mask": [
+          16,
+          "u32"
+        ],
+        "flags": [
+          20,
+          "u32"
+        ],
+        "max_instances": [
+          24,
+          "u32"
+        ],
+        "max_commands": [
+          28,
+          "u32"
+        ],
+        "max_upload_bytes": [
+          32,
+          "u32"
+        ],
+        "reserved": [
+          36,
+          "u32"
+        ]
+      }
     }
   ],
   "transport": {

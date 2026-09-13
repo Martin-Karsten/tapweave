@@ -23,6 +23,7 @@ using osu.Game.Graphics;
 using osu.Game.IO;
 using osu.Game.Resources;
 using osu.Game.Rulesets.Osu;
+using osu.Game.Rulesets.Osu.Configuration;
 using osu.Game.Rulesets.Osu.Beatmaps;
 using osu.Game.Rulesets.Osu.Objects;
 using osu.Game.Rulesets.Osu.Objects.Drawables;
@@ -66,7 +67,7 @@ static class ScenarioObservation
 
 sealed record ScenarioInput(double time_ms, float x, float y, uint actions);
 sealed record ScenarioFixture(int schema_version, string id, string profile, string map,
-    double[] schedule_ms, ScenarioInput[] inputs, bool replay = false, bool capture_frames = true, bool record = false, bool observe_audio = false)
+    double[] schedule_ms, ScenarioInput[] inputs, bool replay = false, bool capture_frames = true, bool record = false, bool observe_audio = false, bool observe_presentation = false)
 {
     public static ScenarioFixture Parse(byte[] bytes)
     {
@@ -111,6 +112,7 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
     private OsuPlayfield playfield = null!;
     private RealmAccess? realm;
     private OsuConfigManager? configuration;
+    private OsuRulesetConfigManager? ruleset_configuration;
     private int update_index, input_index;
     private uint previous_actions;
     private bool frame_pending;
@@ -138,6 +140,8 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
         scenario_dependencies.CacheAs(realm = new RealmAccess(Host.Storage, "scenario.realm", Host.UpdateThread));
         scenario_dependencies.CacheAs(configuration = new OsuConfigManager(Host.Storage));
         scenario_dependencies.CacheAs<IGameplaySettings>(configuration);
+        if (fixture.observe_presentation)
+            scenario_dependencies.CacheAs(ruleset_configuration = new OsuRulesetConfigManager(null, new OsuRuleset().RulesetInfo));
         score_processor.ApplyBeatmap(prepared_map);
         if (fixture.replay)
             replay_sampler = new GameplayReplaySampler(fixture.inputs);
@@ -234,6 +238,33 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
                         flash_alpha = piece.ChildrenOfType<FlashPiece>().Single().Alpha,
                         explode_alpha = piece.ChildrenOfType<ExplodePiece>().Single().Alpha
                     }).ToArray(),
+                    slider_visual = drawable is DrawableSlider visual_slider ? new
+                    {
+                        body_alpha = visual_slider.Body.Alpha,
+                        ball_alpha = visual_slider.Ball.Alpha,
+                        ball_x = visual_slider.Ball.Position.X,
+                        ball_y = visual_slider.Ball.Position.Y,
+                        head_hit = visual_slider.HeadCircle.IsHit,
+                        head_alpha = visual_slider.HeadCircle.Alpha,
+                        tail_alpha = visual_slider.TailCircle.Alpha,
+                        snaking_in = visual_slider.SliderBody?.SnakingIn.Value,
+                        snaking_out = visual_slider.SliderBody?.SnakingOut.Value,
+                        snaked_start = visual_slider.SliderBody?.SnakedStart,
+                        snaked_end = visual_slider.SliderBody?.SnakedEnd,
+                        children = visual_slider.NestedHitObjects.Select(child => new
+                        {
+                            kind = child.GetType().Name,
+                            alpha = child.Alpha,
+                            scale_x = child.Scale.X,
+                            scale_y = child.Scale.Y,
+                            x = child.Position.X,
+                            y = child.Position.Y,
+                            rotation = child.Rotation,
+                            hit = child.IsHit,
+                            result = (int)child.Result.Type
+                        }).ToArray()
+                    } : null,
+                    spinner_rotation = drawable is DrawableSpinner rotation_spinner ? (float?)rotation_spinner.Result.TotalRotation : null,
                     tracking = drawable is DrawableSlider slider ? (bool?)slider.Tracking.Value : null,
                     spinner_progress = drawable is DrawableSpinner spinner ? (float?)spinner.Progress : null,
                     sounds = drawable.ChildrenOfType<PausableSkinnableSound>().Select((sound, sound_index) => new
@@ -291,6 +322,7 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
         base.Dispose(is_disposing);
         audio_observation?.Dispose();
         configuration?.Dispose();
+        ruleset_configuration?.Dispose();
         realm?.Dispose();
     }
 }
