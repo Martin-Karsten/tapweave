@@ -1,6 +1,9 @@
 # ADR-006: Product shell
 
-Status: accepted.
+Status: accepted and implemented. The shell lives in `platform/product-ui`,
+the W07 validation player runs in it, and the vanilla `browser-js` player UI
+is retired; the `@browser` services remain the product engine integration
+surface.
 
 ## Context
 

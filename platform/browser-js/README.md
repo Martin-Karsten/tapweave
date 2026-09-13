@@ -1,10 +1,11 @@
-# Tapweave browser validation player
+# Tapweave browser services
 
-This is an independent M3 increment. The validation shell loads local `.osz`
-archives or `.osu` files with loose assets, prepares maps through the production
-Odin ABI, selects difficulties, decodes music and exports diagnostics. Play now
-integrates the renderer, audio, physical input and lifecycle controller. Full
-M2/M3 upstream acceptance and release-browser certification remain open.
+This is an independent M3 increment. The package owns the browser service
+layer: archive/assets, the ABI bridge, clock/audio/input, the WebGL2 renderer
+and the gameplay lifecycle controller. The vanilla `main.ts` player UI is
+retired; the product shell that drives these services lives in
+`platform/product-ui` (see [ADR-006](../../docs/architecture/adr-006-product-shell.md)).
+Full M2/M3 upstream acceptance and release-browser certification remain open.
 
 ## Run
 
@@ -19,13 +20,15 @@ npm --prefix platform/browser-js run serve
 ```
 
 Open `http://127.0.0.1:4173`. The server binds to loopback and serves only the
-assembled artifact directory. No assets are uploaded. `TAPWEAVE_PORT` changes
-the development port. Dependencies are pinned in this package; the engine keeps
-its dependency-free tooling. `src/` is TypeScript compiled by the pinned
-Go-native `typescript` devDependency; `npm run compile`/`test`/`build` emit
-`build/` first, and the site is assembled from that emit. `typecheck` runs the
-compiler without emitting. Builds copy the same generated ABI JavaScript used
-by Node consumers and serve fflate locally with its licence.
+assembled artifact directory: the service harness page, the renderer developer
+fixture, the compiled services and the production WASM. No assets are uploaded.
+`TAPWEAVE_PORT` changes the development port. Dependencies are pinned in this
+package; the engine keeps its dependency-free tooling. `src/` is TypeScript
+compiled by the pinned Go-native `typescript` devDependency; `npm run
+compile`/`test`/`build` emit `build/` first, and the site is assembled from
+that emit. `typecheck` runs the compiler without emitting. Builds copy the same
+generated ABI JavaScript used by Node consumers and serve fflate locally with
+its licence.
 
 ## Checks
 
@@ -195,7 +198,10 @@ record across subsequent output calls. No per-object JS state or JS scoring is
 introduced. Current input/session and voice quotas still apply; quota exhaustion
 is an actionable recovery, never hidden growth or dropped input.
 
-Run `tests/gameplay-controller.test.mjs` through `npm test` and
-`tests/browser/lifecycle.spec.mjs` through `npm run test:browser` for the W07
-regressions. Chromium checks are local browser evidence, not physical-device or
-full upstream acceptance. See the [status](../../docs/status.md#w07-lifecycle-and-validation-ui).
+Run `tests/gameplay-controller.test.mjs` through `npm test` for the W07
+lifecycle regressions. The retired vanilla player's Playwright intent
+(selection, difficulty switching, full attempt lifecycle, GPU restoration and
+input aggregation) now runs against the product shell in
+`platform/product-ui/tests/browser/`. Chromium checks are local browser
+evidence, not physical-device or full upstream acceptance. See the
+[status](../../docs/status.md#product-shell-adr-006-s0b-promotion).

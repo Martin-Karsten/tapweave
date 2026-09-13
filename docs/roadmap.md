@@ -82,7 +82,7 @@ Exit criteria: A13–A20 and A23 pass; H05–H10 resolved/classified; exact disc
 
 ### M3 — Odin presentation and browser runtime
 
-Status: [browser foundation plus W04/W06/W07 validation-player increments](status.md#m3-browser-foundation-and-partial-w01w03) are implemented; W08–W10, full M3 acceptance and release-browser certification remain open.
+Status: [browser foundation plus W04/W06/W07 validation-player increments](status.md#m3-browser-foundation-and-partial-w01w03) are implemented, with the W07 player UI shipped as the [Solid product shell](status.md#product-shell-adr-006-s0b-promotion); W08–W10, full M3 acceptance and release-browser certification remain open.
 Implementation sequence: [browser gameplay plan](browser-gameplay.md).
 
 Prerequisites: M2 readonly snapshot API and audio intent.
