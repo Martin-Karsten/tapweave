@@ -9,7 +9,7 @@ try {
   await dev_server.wait_for_port();
   const browser = await chromium.launch();
   const page = await browser.newPage();
-  await page.goto('http://127.0.0.1:5180/');
+  await page.goto('http://127.0.0.1:5180/diagnostics');
 
   await page.locator('[data-frame-probe="solid"]').waitFor({ timeout: 20_000 });
   const heap_before = await page.evaluate(() => (performance as { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize ?? null);

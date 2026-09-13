@@ -7,10 +7,11 @@ try {
   await dev_server.wait_for_port();
   const browser = await chromium.launch();
   const page = await browser.newPage();
-  await page.goto('http://127.0.0.1:5180/');
+  await page.goto('http://127.0.0.1:5180/diagnostics');
 
   const list = page.locator('[data-virtual-list="songs"]');
   await list.waitFor({ timeout: 20_000 });
+  await list.focus();
 
   const rendered_rows_initial = await page.locator('[data-virtual-list="songs"] [data-index]').count();
   const selected_initial = await page.getAttribute('[data-virtual-list="songs"] [data-selected="true"]', 'data-index');

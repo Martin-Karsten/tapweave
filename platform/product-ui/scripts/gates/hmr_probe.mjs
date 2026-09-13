@@ -12,7 +12,7 @@ try {
   await dev_server.wait_for_port();
   const browser = await chromium.launch();
   const page = await browser.newPage();
-  await page.goto('http://127.0.0.1:5180/');
+  await page.goto('http://127.0.0.1:5180/diagnostics');
 
   const counter_button = page.getByRole('button', { name: /count is/ });
   await counter_button.click();

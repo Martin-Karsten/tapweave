@@ -1,9 +1,10 @@
 import { render } from 'solid-js/web';
-import { Spike_App } from './app';
+import { App } from './app';
+import './style.css';
 
 const root_element = document.getElementById('root');
 if (root_element === null) {
   throw new Error('shell root element missing');
 }
 
-render(() => <Spike_App />, root_element);
+render(() => <App />, root_element);

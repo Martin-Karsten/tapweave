@@ -1,0 +1,231 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #14141f;
+  color: #e8e8f0;
+  line-height: 1.5;
+}
+
+.app-frame {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 0 20px 32px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  padding: 18px 0;
+}
+
+header nav {
+  margin-left: auto;
+  display: flex;
+  gap: 16px;
+}
+
+a {
+  color: #9db3ff;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #e8e8f0;
+  text-decoration: none;
+}
+
+.brand-dot {
+  color: #5b8cff;
+}
+
+.badge {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  border: 1px solid #2e2e44;
+  border-radius: 999px;
+  padding: 2px 10px;
+  color: #9a9ab8;
+}
+
+.eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: #9a9ab8;
+  margin: 0 0 4px;
+}
+
+.screen {
+  flex: 1;
+  display: grid;
+  gap: 20px;
+  align-content: start;
+}
+
+.select-screen {
+  grid-template-columns: minmax(320px, 5fr) minmax(300px, 4fr);
+}
+
+@media (max-width: 760px) {
+  .select-screen {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  border: 1px solid #2e2e44;
+  border-radius: 10px;
+  padding: 20px;
+  background: #191926;
+}
+
+.panel h2 {
+  margin-top: 0;
+}
+
+.file-control {
+  display: inline-block;
+  border: 1px solid #3a3a58;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.difficulty-list [data-selected='true'] {
+  background: #23233a;
+  color: #ffffff;
+}
+
+#status,
+#play-gate,
+.gate {
+  color: #9a9ab8;
+}
+
+#error {
+  color: #ff8a8a;
+}
+
+dl {
+  display: grid;
+  gap: 6px;
+}
+
+dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #23233a;
+}
+
+dl dt {
+  color: #9a9ab8;
+}
+
+dl dd {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  border: 1px solid #3a3a58;
+  border-radius: 8px;
+  padding: 8px 16px;
+  background: #20203330;
+  color: #e8e8f0;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+#start {
+  background: #5b8cff;
+  border-color: #5b8cff;
+  color: #0d0d16;
+  font-weight: 700;
+}
+
+.player {
+  position: relative;
+}
+
+.playfield-host {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 1px solid #2e2e44;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0d0d16;
+}
+
+.playfield-host canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  outline: none;
+}
+
+#pause {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.lifecycle-panel {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 10px;
+  text-align: center;
+  background: rgb(13 13 22 / 88%);
+  border-radius: 10px;
+}
+
+.lifecycle-panel #result-stats {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.lifecycle-panel button {
+  margin: 0 4px;
+}
+
+pre {
+  max-height: 340px;
+  overflow: auto;
+  background: #0d0d16;
+  border: 1px solid #2e2e44;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.8rem;
+}
+
+footer {
+  color: #7a7a99;
+  font-size: 0.8rem;
+  padding-top: 16px;
+}
+
+footer span {
+  display: block;
+}

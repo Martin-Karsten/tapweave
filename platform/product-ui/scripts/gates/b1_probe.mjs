@@ -11,7 +11,7 @@ try {
   page.on('console', (message) => {
     if (message.type() === 'error') console_errors.push(message.text());
   });
-  await page.goto('http://127.0.0.1:5180/');
+  await page.goto('http://127.0.0.1:5180/diagnostics');
 
   await page.locator('[data-b1-state="ready"]').waitFor({ timeout: 20_000 });
   const ready_text = await page.locator('[data-b1-state="ready"]').innerText();
