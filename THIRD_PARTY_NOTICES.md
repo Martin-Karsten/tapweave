@@ -25,6 +25,19 @@ browser automation tooling, licensed under Apache-2.0; see
 recorded in the browser package lockfile. These dependencies do not grant rights
 to beatmap music, osu! branding, or other game assets.
 
+## Product shell dependencies
+
+The `platform/product-ui` package (ADR-006) is the one package allowed npm
+dependencies, all exact-pinned with integrity hashes recorded in its lockfile.
+Its runtime bundle ships **Solid 1.9.15** (MIT, Copyright (c) 2019-2026 Ryan
+Carniato), **@solidjs/router 1.0.0** (MIT), **@tanstack/solid-virtual
+3.13.39** with **@tanstack/virtual-core 3.17.10** (both MIT) and **fflate
+0.8.3** at the same pinned version as the browser package. Development-only
+tooling (Vite, vite-plugin-solid, Vitest, happy-dom, @solidjs/testing-library,
+Playwright and the pinned Go-native `typescript` compiler) is not distributed
+with the game. See <https://github.com/solidjs/solid> and
+<https://github.com/TanStack/virtual>.
+
 Presentation timing ports and the snaking assertion port follow pinned osu!
 `SnakingSliderBody`, slider child drawables, follow-point transforms and framework
 `DefaultEasingFunction`. Copyright (c) ppy Pty Ltd, MIT; the retained licences above
