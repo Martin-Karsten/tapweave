@@ -1,0 +1,36 @@
+{
+  "name": "tapweave-product-ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "prepare-assets": "node scripts/prepare_assets.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck:expected-errors": "tsc --noEmit -p tsconfig.expected-errors.json",
+    "build": "node scripts/prepare_assets.mjs && vite build",
+    "dev": "node scripts/prepare_assets.mjs && vite",
+    "preview": "node scripts/prepare_assets.mjs && vite preview",
+    "test": "vitest run",
+    "test:browser": "node scripts/prepare_assets.mjs && playwright test",
+    "test:gates": "node scripts/run_gates.mjs"
+  },
+  "dependencies": {
+    "fflate": "0.8.3",
+    "solid-js": "1.9.15"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@solidjs/router": "1.0.0",
+    "@solidjs/testing-library": "0.8.10",
+    "@tanstack/solid-virtual": "3.13.39",
+    "@tanstack/virtual-core": "3.17.10",
+    "happy-dom": "20.14.5",
+    "typescript": "7.0.2",
+    "vite": "8.3.0",
+    "vite-plugin-solid": "2.11.14",
+    "vitest": "5.0.0"
+  }
+}
