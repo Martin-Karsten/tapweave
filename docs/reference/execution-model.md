@@ -2,7 +2,7 @@
 
 ## Source-confirmed dependency graph
 
-`Player.load()` obtains a playable beatmap, creates a `DrawableRuleset`, applies the beatmap to score and health processors, builds the gameplay clock/container hierarchy, and wires each new judgement to health first and score second. See [`Player.load`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Screens/Play/Player.cs#L227-L429). The ordering is observable: a result snapshots health/failure state, then the score processor may suppress post-failure judgements.
+`Player.load()` obtains a playable beatmap, creates a `DrawableRuleset`, applies the beatmap to score and health processors, builds the gameplay clock/container hierarchy, and wires each new judgement to health first and score second. See [`Player.load`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Screens/Play/Player.cs#L227-L429). The ordering is observable: a result snapshots health/failure state, then the score processor suppresses post-failure score changes by default (visual judgements may still be emitted at the Player layer; Odin suppresses subsequent judgements by default).
 
 ```text
 WorkingBeatmap
@@ -25,7 +25,7 @@ WorkingBeatmap
 
 **SC.** Drawable gameplay is update-driven. `DrawableHitObject` checks automatic result transitions as its clock crosses deadlines; slider tracking is recomputed in `SliderInputManager.Update`; slider ball/body progress is updated in `DrawableSlider.UpdateAfterChildren`; spinner rotation is accumulated in `SpinnerRotationTracker.Update`. Relevant sources: [`DrawableHitObject`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Objects/Drawables/DrawableHitObject.cs), [`SliderInputManager`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Objects/Drawables/SliderInputManager.cs), and [`SpinnerRotationTracker`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Skinning/Default/SpinnerRotationTracker.cs).
 
-This means “same timestamped input” does not guarantee identical internal tracking history under arbitrary update schedules. The harness must classify results as discrete-stable, numeric-tolerant, or frame-dependent.
+This means “same timestamped input” does not guarantee identical internal tracking history under arbitrary update schedules. The harness must classify results per the [traceability matching policy](../compatibility/traceability.md#matching-policy): Exact, Numeric tolerance, or Frame-dependent.
 
 ## Walkthrough: load to completion
 
@@ -63,4 +63,4 @@ Loading is transactional: failure leaves the previous prepared map usable unless
 
 ## Unresolved evidence
 
-**UR-EXEC-1.** Exact same-frame ordering between multiple drawable children can depend on the framework tree. Experiment H07 records result order for coincident slider children, top-level circles, and an input at the same timestamp across 30/60/144 Hz and injected stalls. Odin’s normative tie-break remains `(time, phase, topLevelIndex, componentIndex, inputSequence)` regardless of the outcome; any upstream variation is recorded as an intentional deterministic divergence.
+**UR-EXEC-1.** Exact same-frame ordering between multiple drawable children can depend on the framework tree. Experiment H07 records result order for coincident slider children, top-level circles, and an input at the same timestamp with direct event-boundary stepping and presentation requests at 30/60/120/144 Hz, injecting 50/100/250 ms stalls (the schedule/stall matrix in [reference-harness](../compatibility/reference-harness.md#schedule-and-stall-matrix)). Odin’s normative tie-break remains `(time, phase, topLevelIndex, componentIndex, inputSequence)` regardless of the outcome; any upstream variation is recorded as an intentional deterministic divergence. Acceptance stays with A14/A16; no row closes until H07 is executed.

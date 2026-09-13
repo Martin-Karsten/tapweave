@@ -6,14 +6,14 @@ M0 rows below describe the tested foundation matrix; the [M0 report](../status.m
 
 | ID | Behavior | Pinned evidence | Odin today | Known deviation | Acceptance |
 |---|---|---|---|---|---|
-| FMT-01 | v1–14/v128 defaults and <5 offset | `LegacyDecoder`, `LegacyBeatmapDecoder`, encoder | M0 matrix passes | explicit version/header policy; supported-version policy | A01–A04 exact prepared fields/errors |
+| FMT-01 | v1–14/v128 defaults and <5 offset | `LegacyDecoder`, `LegacyBeatmapDecoder`, encoder | M0 matrix passes on the supported-version projection | explicit version/header policy; supported-version policy | A01–A04 exact on supported projection; documented policy deviations excluded |
 | FMT-02 | malformed numeric/sections | decoder + parsing tests | M0 matrix passes | transactional rejection differs from upstream partial-map recovery | A05 exact error code/line |
-| CP-01 | coincident control-point precedence | `LegacyBeatmapDecoder.add/flushControlPoints` | M0 H02 matrix passes | bounded permutations and replacement fixtures | A06 permutation dump exact |
+| CP-01 | coincident control-point precedence | `LegacyBeatmapDecoder.add/flushControlPoints` | M0 H02 matrix passes on the bounded permutation set | bounded permutations and replacement fixtures | A06 permutation dump exact on covered permutations |
 | CP-02 | sample/difficulty fallback | `LegacyControlPointInfo` | M0 H02 query matrix passes | final sample candidates pass the M1 projection | A07 exact selected IDs |
 | GEO-01 | Path types and mixed segments | `SliderPath`, framework `PathApproximator` | M1 H03 passes | bounded synthetic/upstream corpus; existing numeric tolerances | A08 |
 | GEO-02 | Declared lengths and degeneracy | `SliderPath.calculateLength` | M1 H03 passes | upstream duplicate-tail behavior preserved | A09 |
 | OBJ-01 | Stable order, combo and old/modern stacking | decoder, `OsuBeatmapProcessor` | M1 projection passes | source IDs retained; spinner handling matches each algorithm | A10 |
-| OBJ-02 | Slider/spinner components and markers | `Slider`, `Spinner`, `SliderEventGenerator` | M1 H04 passes | zero-duration legacy-marker progress canonicalised to 0 | A11 |
+| OBJ-02 | Slider/spinner components and markers | `Slider`, `Spinner`, `SliderEventGenerator` | M1 H04 passes except documented canonicalisation | zero-duration legacy-marker progress canonicalised to 0 | A11 exact except canonicalised marker |
 | IN-01 | 512×384 coordinate inverse | playfield adjustment | native/WASM and browser coordinate checks | physical/gameplay input integration open | A12 point round-trip ≤1e-6 |
 | IN-02 | inclusive windows | `OsuHitWindows`, `HitWindows` | headless integration; local regressions | full upstream scenario gate open | A13 ±boundary and next float exact result |
 | IN-03 | equal-time/start-time note lock | policy + tests | headless integration; local regressions | full upstream scenario gate open | A14 exact judgement sequence |
@@ -22,11 +22,11 @@ M0 rows below describe the tested foundation matrix; the [M0 report](../status.m
 | SC-01 | result properties/combo/accuracy | `HitResult`, `ScoreProcessor` | headless integration; local regressions | full upstream scenario gate open | A17 exact counts/combo/accuracy |
 | SC-02 | lazer normalized score | `ScoreProcessor` | headless integration; local regressions | full upstream scenario gate open | A18 exact integer totals |
 | HP-01 | drain search/result health/fail | health processors | headless integration; local regressions | full upstream scenario gate open | A19 result/fail exact; health tolerance |
-| AU-01 | Sample lookup and tail timing | decoder/sample/slider sources | M1 candidates/tail preparation passes | headless one-shot intent implemented locally; playback/H11 gate open | A20 remains M2 |
-| AU-02 | loops/music/pause/resume | drawable slider/spinner + framework audio | W05 services and W07 lifecycle integrated; local regressions | physical output and full H11 acceptance open | A21 timing/lifecycle integration |
+| AU-01 | Sample lookup and tail timing | decoder/sample/slider sources | M1 candidate/tail projection passes (preparation scope) | headless one-shot intent implemented locally; playback/H11 gate open | A20 remains M2: projection pass is not acceptance |
+| AU-02 | loops/music/pause/resume | drawable slider/spinner + framework audio | W05 services and W07 lifecycle integrated; local regressions | physical output and full H11 acceptance open | A21 timing/lifecycle integration within the zero-offset production profile (any nonzero profile needs the clock/creation extension in the browser plan) |
 | PR-01 | preempt/fade/slider progress | pinned drawable adapter + snaking test port | mixed scenes and WebGL2 executor; bounded clipping comparisons | spinner differences and nested/cursor/follow feedback evidence open | A22 remains open |
 | RP-01 | recording/interpolation/actions | replay recorder/handler | headless integration; local regressions | full upstream scenario gate open | A23 replay schedule matrix exact |
-| MEM-01 | replacement/reset/disposal | design quotas; spike lifecycle tests | M0 native/WASM ownership matrix passes | browser asset/context lifetimes remain M3 | A24 leak/high-water/repeated load |
+| MEM-01 | replacement/reset/disposal | design quotas; spike lifecycle tests | M0 native/WASM ownership matrix passes (foundation scope) | browser asset/context lifetimes remain M3 | A24 leak/high-water/repeated load (foundation scope passes; complete row including browser resources stays open) |
 | ABI-01 | typed versioned lifecycle | `interface-v2.md` | M0 versioned lifecycle/C/WASM matrix passes | explicit foundation/preparation/headless session capabilities; integrated conformance added | A25 native/WASM conformance |
 
 All source symbols named without links above are linked in the corresponding reference chapter. Machine-readable test results must include these IDs so coverage can be computed without parsing Markdown.
@@ -35,7 +35,7 @@ All source symbols named without links above are linked in the corresponding ref
 
 - **Exact:** object/component order and IDs, control-point selection, child type/timestamps when upstream produces integral/deterministic values, judgement type/order, combo/counts, integer score, failure result, sample candidate order, lifecycle/error codes, and native/WASM outputs.
 - **Numeric tolerance:** path vertices `max(1e-4 osu! px, 4 ULP of reference f32)`, cumulative path length `1e-4 px`, position transforms `1e-6 osu! px`, health `1e-9`, spinner total rotation `1e-4°`, audio scheduling request `0.25 ms`. A tolerance is not permission for systematic bias; mean signed error is reported.
-- **Frame-dependent:** slider tracking transition times, spinner visual damping, and animation samples obtained from drawable update schedules. Compare invariants and envelopes across 30/60/144 Hz plus stalls; do not turn one cadence into a universal oracle.
+- **Frame-dependent:** slider tracking transition times, spinner visual damping, and animation samples obtained from drawable update schedules. Compare invariants and envelopes with direct event-boundary stepping and presentation requests at 30/60/120/144 Hz, injecting 50/100/250 ms stalls before/between/after critical events (the schedule/stall matrix in [reference-harness](reference-harness.md#schedule-and-stall-matrix)); do not turn one cadence into a universal oracle.
 
 If an exact field fails but the source establishes genuine frame dependence, change its classification only by adding a documented experiment result and ADR amendment. The input delivery-time difference for scenario selected fields has been reclassified this way: the executed delivery diagnostic plus the [ADR-002 M3 amendment](../architecture/adr-002-scheduling.md#m3-input-delivery-divergence) record it as an accepted deterministic divergence, and only findings whose differences the diagnostic eliminated carry `divergence_disposition: 'accepted-input-delivery'`.
 

@@ -16,7 +16,7 @@ Spike ABI v1 uses raw f64 descriptor layouts and fixed capacities. It is compact
 
 Use option 3. The C ABI exposes opaque generation-checked `u64` handles and byte spans; records are little-endian, explicitly aligned, begin with `{type:u16, version:u16, byte_size:u32}`, and evolve append-only within a major ABI. A checked schema file generates Odin constants and TypeScript readers. Calls return a status plus an error record; no sentinel pointer encodes an error.
 
-Capabilities are negotiated at engine creation and per prepared map/session. Required v2 capabilities are osu!standard format v1–v14 and v128 preparation, circles/sliders/spinners, normalized lazer score/health, replay v2, presentation v1, audio-intent v1 and WebGL2 command protocol v1. Optional capabilities include legacy replay import, Classic, skins, storyboard and difficulty/pp.
+Capabilities are negotiated at engine creation and per prepared map/session. Required v2 capabilities are osu!standard format v1–v14 and v128 preparation, circles/sliders/spinners, normalized lazer score/health, replay v2, presentation v1, audio-intent v1 and WebGL2 command protocol v1. They phase in across milestones: M0 exposes the foundation subset (the legacy kind-4 full-set field stays 0 until the complete capability set ships); optional capabilities include legacy replay import, Classic, skins, storyboard and difficulty/pp.
 
 A compile-time `RulesetDescriptor` registers ruleset ID, behavior profiles, preparation function table, session function table, presentation function table and result schemas. A `RulesTransform` registry provides known mods. No dynamic native code, WASM modules, arbitrary callbacks, or user plugin ABI exists.
 

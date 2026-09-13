@@ -27,8 +27,8 @@ The harness executes pinned upstream components/tests and compares structured ou
 | H01 | historical version branches | decode versions 1–14, 128, undefined gap/future, and malformed/missing headers | exact defaults/branches; required versions accepted, undefined/future rejected |
 | H02 | coincident timing precedence | permutations of red/inherited lines at same time and before-first query | exact control-point dump |
 | H03 | path approximation drift | pathological/repeated/collinear/long curves for all path types | tolerance valid across corpus; otherwise port correction |
-| H04 | slider length/ticks/tail | degenerate ends, repeats, min-distance ticks, NaN tick disable | exact children/times |
-| H05 | slider tracking cadence | same timestamped input at 30/60/144 Hz and 100 ms stalls | separate invariant results from frame transitions |
+| H04 | slider length/ticks/tail | degenerate ends, repeats, min-distance ticks, NaN tick disable | exact children/times except the documented zero-duration legacy-marker canonicalisation (normalised to 0, excluded from scoring-child comparisons) |
+| H05 | slider tracking cadence | same timestamped input at 30/60/144 Hz and 100 ms stalls (minimum upstream sampling; the full schedule/stall matrix below governs acceptance) | separate invariant results from frame transitions |
 | H06 | hit-window/equal-time order | every exact boundary, adjacent IEEE values, coincident circles/inputs | exact result/order |
 | H07 | drawable same-time order | nested and top-level results at one time under all schedules | establish or classify order |
 | H08 | spinner sampling | circles with 30–240 Hz frames, direction reversal, >90° segments | define verified recorder density/tolerance |
@@ -82,7 +82,7 @@ substitute for the complete acceptance scenarios below.
 | H06 / A13–A14 | Strict/adjacent window boundaries, circle selection, note lock, equal-time input | 61 circle/window and four note-lock cases execute real input selection; full scheduling acceptance remains open |
 | H07 / A14–A16/A20 | Nested/top-level equal-time result order, early nominal tail | Early/nominal-tail and result-order ports exist; broader equal-time combinations remain open |
 | H08 / A16/A23 | Spinner reversals, >90-degree segments, input/recorder angular subdivision | Spin-history component, five cursor ports and the TestHitNothing empty-replay Player port exist; reversal/angular recorder coverage remains open |
-| H09 / A19 | HP0/5/10, breaks, drain, failure time/freeze | 36 health cases and nine real Player health/failure cases added; arbitrary frame-cadence health remains open |
+| H09 / A19 | HP0/5/10, breaks, drain, failure time/freeze | 36 health cases and ten real Player health/failure cases added (nine mixed/failure sessions plus the TestHitNothing empty-replay Player port, which is also listed under H08/A16/A23); arbitrary frame-cadence health remains open |
 | H10 / A17–A18 | Complete score/count/health sequences and terminal rank | Integrated ordered/final score projection added for 116 scenarios; bounded corpus only |
 | Replay / A23 | Same replay under direct, 30/60/120/144 Hz and 50/100/250 ms stalls | 17 local schedules per gameplay case and two real recorder ports; full upstream recorder cadence remains open |
 | H11 / A20–A21 | Missing candidates, nominal tails, loops, rapid toggles, ramps, pause/resume | Discrete request ports added; loops, fallback and device output remain separate |
@@ -99,10 +99,13 @@ WASM pages. Resolve unexplained discrete differences before closing M2 gates.
 ## Test backfill plan
 
 The first implemented batch is described in [gameplay test coverage](gameplay-tests.md),
-with 153 added fixture cases and explicit remaining limits. The broader plan below
+with 154 added fixture cases (116 gameplay scenarios including 10 Player-adapter
+cases, 36 health component cases, and two local workloads) and explicit remaining limits. The broader plan below
 is not itself acceptance evidence. Prioritise already
 implemented headless gameplay; browser-only gates follow the capabilities they
-require. Use the revisions in `engine/reference/source-manifest.json` throughout.
+require. Use the pinned commits in `engine/reference/source-manifest.json` (plus
+per-source hashes in the retained findings indexes and the geometry manifest for
+framework float behavior) throughout.
 Inspect work in progress in the reference host before extending it, so existing
 scenario adapters are reused rather than replaced or duplicated.
 

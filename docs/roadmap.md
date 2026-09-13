@@ -49,13 +49,13 @@ Use tiny boundary fixtures, representative ranked-map corpus, long sliders/spinn
 
 ### M0 — Compatibility foundation
 
-Status: the scoped M0 foundation matrix passes; see the [implementation report](status.md) for executed native/WASM lifecycle checks, pinned H01/H02 observations and classified policy differences. This does not complete gameplay or browser-resource acceptance.
+Status: the scoped M0 foundation matrix passes (the H01/H02 83-observation run over 88 fixtures defined in [traceability](compatibility/traceability.md#m0-observations-and-policies)); see the [implementation report](status.md) for executed native/WASM lifecycle checks, pinned H01/H02 observations and classified policy differences. This does not complete gameplay or browser-resource acceptance.
 
 Prerequisites: pinned checkouts/licences and schema tooling.
 
 Deliverables: source-manifest verifier; executable H01/H02 reference host; trace schema/diff tool; two-pass decoder v1–v14 and v128; typed errors/quotas; integrated map/session arenas; ABI handle table; standalone production regression job (historical spikes remain local).
 
-Exit criteria: A01–A07, A24–A25 pass; H01/H02 completed; no leak across lifecycle matrix; exact native/WASM decoder records; every claim carries commit and fixture hash.
+Exit criteria: A01–A07, A24–A25 pass at M0 foundation scope (browser asset/context lifetimes remain M3/M4 work); H01/H02 completed; no leak across lifecycle matrix; exact native/WASM decoder records; every claim carries commit and fixture hash.
 
 ### M1 — Beatmap preparation
 
@@ -67,7 +67,7 @@ Prerequisites: M0 trace/diff and immutable prepared storage.
 
 Deliverables: all control points/sample candidates; exact framework path algorithms; declared-length handling; slider event generation; v<6/modern stacking; circle/slider/spinner prepared records; prepared digest.
 
-Exit criteria: A08–A11 pass on generated and upstream corpus; H03/H04 resolved; no unexplained geometry failure outside tolerance; preparation fits default quotas and reports per-stage time/memory.
+Exit criteria: A08–A11 pass on the bounded generated and upstream corpus defined in [status](status.md)/[traceability](compatibility/traceability.md) (101 complete-map fixtures, 11 pinned upstream beatmaps) — not a claim about every beatmap; H03/H04 resolved; no unexplained geometry failure outside tolerance; preparation fits default quotas and reports per-stage time/memory.
 
 ### M2 — Complete unmodded simulation and scoring
 
@@ -82,7 +82,7 @@ Exit criteria: A13–A20 and A23 pass; H05–H10 resolved/classified; exact disc
 
 ### M3 — Odin presentation and browser runtime
 
-Status: [independent browser foundation](status.md); browser gameplay remains open.
+Status: [browser foundation plus W04/W06/W07 validation-player increments](status.md#m3-browser-foundation-and-partial-w01w03) are implemented; W08–W10, full M3 acceptance and release-browser certification remain open.
 Implementation sequence: [browser gameplay plan](browser-gameplay.md).
 
 Prerequisites: M2 readonly snapshot API and audio intent.
@@ -101,4 +101,4 @@ Exit criteria: 10,000 corpus maps prepare or fail only with classified supported
 
 ### M5 — Deferred compatibility features
 
-Classic first, then rate/difficulty mods, legacy replay verification, skins/storyboards, remaining mods, difficulty attributes and pp. Each is a behavior-profile or presentation capability with its own trace matrix; none blocks unmodded M4.
+Classic first, then rate/difficulty mods, legacy replay verification, skins/storyboards, remaining mods, difficulty attributes and pp. Each is a behavior-profile or presentation capability with its own trace matrix; none blocks unmodded M4. M5 is deferred scope: it does not move mods into the unmodded M0–M4 target, and `.osr` Classic insertion applies only to the legacy-import profile.

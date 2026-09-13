@@ -27,7 +27,7 @@ Handles encode table index and generation; zero is invalid. Calls validate engin
 
 ## Buffer ownership
 
-Input records are borrowed only for the call. Prepared-map descriptor spans remain valid until map release or a documented memory-growing call. `OutputBatch` spans belong to the session frame arena and remain valid until the next mutating/session-output call. The caller copies anything it retains. No engine pointer is valid after engine release. JavaScript must reacquire `memory.buffer` after `prepare`, `session_create`, explicit reserve, or any call advertising `MAY_GROW`.
+Input records are borrowed only for the call. Prepared-map descriptor spans remain valid until the last owning reference is released (the external map handle plus any sessions retaining the backing data) or a documented memory-growing call. `OutputBatch` spans belong to the session frame arena and remain valid until the next mutating/session-output call. The caller copies anything it retains. No engine pointer is valid after engine release. JavaScript must reacquire `memory.buffer` after `prepare`, `session_create`, explicit reserve, or any call advertising `MAY_GROW`.
 
 Large input uses caller-reserved WASM inbox spans:
 
@@ -37,7 +37,7 @@ oe_buffer_reserve(engine, INPUT, byte_count, &span);
 oe_session_inputs_from_reserved(..., span.token, record_count, ...);
 ```
 
-Tokens prevent arbitrary pointer submission. Output overflow never truncates silently: return `OUTPUT_REQUIRED` with required bytes; the caller reserves and retries the idempotent snapshot/read. `advance` retains undrained outputs internally until acknowledged by batch token.
+Tokens prevent arbitrary pointer submission. Output overflow never truncates silently: return `OUTPUT_REQUIRED` with required bytes; the caller reserves and retries the idempotent snapshot/read. `advance` retains undrained outputs in the pre-reserved session journal (sized at creation for the entire bounded journal) until acknowledged by batch token.
 
 ## Core records
 
@@ -50,7 +50,7 @@ sequence:u64 raw_time_ms:f64 effective_time_ms:f64
 x:f64 y:f64 action_bits:u32 source:u16 focus_epoch:u16 flags:u32
 ```
 
-The caller sets raw time and coordinates; engine sets/validates effective time according to the immutable clock contract. Unknown action bits reject the whole batch transactionally.
+The caller sets raw time and coordinates; the engine validates effective time against the immutable clock contract, which assigns offsets when a nonzero profile is enabled. Under the current rate-1/zero-offset profile the caller supplies both times and they must match (see the M2 session contract below); a future A21 profile extension defines how the engine derives effective time there. Unknown action bits reject the whole batch transactionally.
 
 `JudgementEventV1`:
 
@@ -170,9 +170,12 @@ Object kinds are circle `1`, slider `2`, spinner `8`. Component kinds are head `
 tick `1`, repeat `2`, tail `3`, legacy-last-tick `4`, spinner tick `5`, spinner bonus
 `6`. Boolean fields encode `0`/`1`; stack/combo/spin/volume fields use signed i32
 bit patterns in their schema u32 slots. Source object IDs remain stable through
-sorting. Component IDs are ordinals within their object. Schedules sort by time,
-then object index, then component order; `component_index=0xffffffff` denotes the
-top-level arrival and precedes children of that object at equal time. These are
+sorting. Component IDs are ordinals within their object. The preparation
+schedule sorts by time, then object index, then component order; `component_index=0xffffffff` denotes the
+top-level arrival and precedes children of that object at equal time. This
+arrival order is distinct from the simulation key
+`(time, phase, topLevelIndex, componentIndex, inputSequence)` in ADR-002, which
+governs judgement at runtime. These are
 preparation records, not M2 judgement events. `event_time_ms` preserves the upstream
 generator timestamp; repeat child `time_ms` preserves the distinct upstream
 operation order used when constructing the actual nested object. Legacy markers never represent a
@@ -263,7 +266,7 @@ All output pointers must be the mailbox span slot at offset 256. Snapshots own
 session-backed relative spans; copy retained bytes before the next output call.
 `oe_session_acknowledge(engine, session, batch_token)` acknowledges the events
 included in that snapshot. Repeated snapshots keep pending events until ack.
-Tokens are nonzero, scoped to the session, and invalidated by reset/new snapshots.
+Tokens are nonzero, scoped to the session, and invalidated by reset/new snapshots; a replacement publication carries the still-unacknowledged events forward rather than dropping them, and the reader re-reads under the new token.
 Acknowledging the same current token twice is safe. Final results are available
 only after pass/failure, remain immutable, and include a SHA-256 over the prepared
 identity followed by canonical kind-21 judgement bytes. Output buffers are sized
@@ -278,8 +281,9 @@ batch. Coordinates are logical osu! pixels; raw and effective time must match.
 Rate=1 and all four offsets=0 are the current clock profile. Future inputs stay
 queued. Input equal to committed time is admitted; only earlier input is late.
 Both input exports validate the error mailbox address but currently return status
-only; they do not publish a fresh `ErrorV1`. Consumers must not read stale error
-contents for these calls.
+only; they do not publish a fresh `ErrorV1`. The returned status carries the
+batch rejection cause (`LATE_INPUT`, disorder, stale token, and similar);
+consumers must not read stale error contents for these calls.
 
 `oe_session_bind_sample(engine, session, mailbox)` consumes kind 28 before start.
 Each call reports availability of one prepared candidate (`asset_id=0` removes
@@ -559,14 +563,14 @@ the prepared auxiliary sample ordinal; auxiliary tail copies are excluded.
 Voice frames own a separate output lifetime: gameplay/draw/result reads do not
 overwrite them. Another successful voice read, reserve replacement or session
 release invalidates the borrowed frame; reset/seek require a fresh epoch binding.
-Gameplay and voice reads share latest-token acknowledgement, so either can make
-the other's token stale. Voice-only acknowledgement consumes audio, not unseen
-judgements. All audio consumers for a session use the same `Audio_Admission`
+Gameplay and voice reads share the latest-token namespace, so either can make
+the other's token stale; staleness only forces a re-read under the current token.
+Consumption is domain-scoped: voice-only acknowledgement consumes audio, not unseen
+judgements, and gameplay acknowledgement consumes judgements, not unheard audio. All audio consumers for a session use the same `Audio_Admission`
 watermark, admitting a complete suffix before acknowledgement. Admission rejection
 retains pending output; an acknowledgement retry cannot enqueue it twice.
 
-Ordinary pause preserves queued and scheduled future one-shots under a bounded
-retention limit and lets already-started one-shots finish. Resume requires a fresh
+Ordinary pause preserves queued and scheduled future one-shots under the creation-time bound (pause frames and journal capacity are reserved at creation; at most `live_input_capacity + 2` pauses before `QUOTA_EXCEEDED`) and lets already-started one-shots finish. Loop voices are retired with resume-pending state at pause and reconstructed from the resumed journal; the browser cancels loop nodes and rebuilds them there (see ADR-004 W05). Resume requires a fresh
 clock mapping for the resumed session epoch and restores retained nominal times
 once. Reset/replacement/failure cancel instead. W05 supplies loop cancellation
 and authoritative reconstruction; W07 now integrates these services into the

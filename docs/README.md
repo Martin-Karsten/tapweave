@@ -1,6 +1,6 @@
 # Odin gameplay engine reference and design
 
-These documents specify the Odin/WASM osu!standard engine. They distinguish implemented preparation from planned gameplay and browser behavior.
+These documents specify the Odin/WASM osu!standard engine. They distinguish implemented preparation, headless sessions and the browser validation player from remaining gameplay and browser acceptance.
 
 Implementation lives in [`engine/`](../engine/README.md). See [Implementation status](status.md) for tested coverage and remaining exit gates.
 
@@ -39,7 +39,7 @@ chapters link directly to pinned upstream symbols.
 
 ## Scope boundary
 
-The normative target is unmodded lazer osu!standard. “Classic” always means the `OsuModClassic` compatibility mod, not default lazer. Skins, storyboards, mods, difficulty calculation, performance points, legacy replay containers, and other rulesets are surveyed only far enough to keep today’s design extensible. Validation-player selection, pause/recovery and results are included in W07. Other product screens, accounts, networking, editing, and score submission are out of scope.
+The normative target is unmodded lazer osu!standard. “Classic” always means the `OsuModClassic` compatibility mod, not default lazer. Skins, storyboards, mods (including Classic support, deferred to M5), difficulty calculation, performance points, legacy replay containers, mobile certification, and other rulesets are surveyed only far enough to keep today’s design extensible. Validation-player selection, pause/recovery and results are included in W07. Other product screens, accounts, networking, editing, and score submission are out of scope. This is the canonical scope list; other documents restate rather than extend it.
 
 ## Normative priority
 

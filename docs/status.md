@@ -7,12 +7,14 @@ unmodded osu!standard against osu!lazer **2026.804.2**, commit
 Headless gameplay sessions connect preparation to rules, scoring and replay.
 Local integration is validated; full upstream M2/M3 acceptance and release-browser
 certification remain open. The W07 section below supersedes earlier increment
-statements that product Play is disabled.
+statements that product Play is disabled: the M3, W04, W06 and mixed-scene
+sections describe their increments, in which Play stayed disabled; W07 exposes
+Play in the validation build.
 
 ## M0: foundation
 
 The owned decoder supports versions 1–14 and 128, defaults, gameplay metadata,
-breaks, stable ordering, sample validation and legacy syntax. Control-point
+breaks, stable ordering (deterministic sort order, not osu!stable), sample validation and legacy syntax. Control-point
 resolution handles coincident precedence, redundancy, fallback, clamping and
 NaN tick disabling. ABI v2 provides generation-checked engine/map/session
 lifetimes, tokenized inputs, typed failures and transactional candidate creation.
@@ -130,7 +132,8 @@ exclusions and remaining work. No browser gate is closed by these results.
 
 The browser foundation implements production-only WASM, shared generated
 bindings, local archive/loose loading, transactional difficulty selection, music
-cache/transport, bounded shared decoding and independent input/audio services.
+cache/transport, bounded shared decoding and independent input/audio services
+sharing the single AudioContext clock.
 The browser bridge exposes headless sessions, replay/results/sample availability
 and production coordinate conversion. Review fixes cover cancelled candidates,
 ZIP descriptors and audio dispatch recovery.
@@ -141,7 +144,8 @@ foundation. The checkpoint additions below extend it with circle animation,
 minimal shared resources and one-shot voice transport. Complete scene resources,
 slider/spinner animation, WebGL2, loop/ramp production and integrated
 input/music/lifecycle/results remain work in the [browser gameplay plan](browser-gameplay.md).
-Play stays disabled; no aggregate gameplay capability is advertised.
+At this increment Play stays disabled (see the supersession note at the top);
+no aggregate gameplay capability is advertised.
 
 The [browser session findings](../engine/reference/findings/m3-browser-sessions.json)
 and [output findings](../engine/reference/findings/m3-output-transport.json) retain
@@ -236,8 +240,8 @@ Loop/ramp gameplay producers and full H11 remain open. Ordinary one-shot pause
 retains future nominal requests, lets started samples finish and resumes
 retained requests once. The browser validates frame protocol only; the engine
 asserts command policy at emit time. The browser admission path still allocates
-staging/executor objects, and its immediate late policy is provisional pending
-H11. The prepared_sample flags field (bit 0) publishes loop classification so
+bounded staging/executor storage (reserved, not per-hit-object), and its
+immediate late policy is provisional pending H11. The prepared_sample flags field (bit 0) publishes loop classification so
 the browser never re-derives it from sample names.
 
 Simulation exposes component and semantic cursor/feedback history independently
@@ -287,8 +291,8 @@ could not launch because the required Playwright executables were absent.
 This completes only the independent resource-lifecycle slice. There is no
 production draw-command executor, new atlas/analytic shader, slider tessellation,
 or integrated context-loss pause/recovery. No upstream oracle was executed for
-this original graphics resource policy. W03, W04 and A22 remain incomplete; Play
-stays disabled. The tiny/dense/long-overlap/10,000-object/three-minute **rendering**
+this original graphics resource policy. W03, W04 and A22 remain incomplete; at
+this increment Play stays disabled (see the supersession note at the top). The tiny/dense/long-overlap/10,000-object/three-minute **rendering**
 matrix remains open; existing session schedules are not rendering evidence.
 
 The resource-service review fix unbinds a current program before deletion on
@@ -309,7 +313,8 @@ ABI input staging, one frame callback, input-before-advance ordering and shared
 music/audio pumping. Cancellation and rejected input enter explicit pause/recovery;
 stale callbacks cannot restart a stopped driver. Terminal output disables input.
 The synchronous render callback is the integration point for the remaining W04
-executor, not a replacement rendering implementation. Product Play stays disabled.
+executor, not a replacement rendering implementation. At this increment product
+Play stays disabled (see the supersession note at the top).
 
 Validation on Node 24.13.0: browser typecheck/build, 74 service tests, 34 existing
 production-WASM schedules and all nine Chromium scenarios passed. The new driver
@@ -346,8 +351,9 @@ submission, batches compatible quads and uses stencil coverage for slider intern
 overlaps and clipping caps. It accepts explicit beatmap time and CSS bounds/DPR,
 provides synchronous rendering, explicit restoration and disposal, and notifies
 the lifecycle owner on context loss. The developer `/renderer-debug.html` fixture
-uses production WASM and scripted inputs. Product Play remains disabled; automatic
-player input/audio pause and resume still belong to the separate lifecycle owner.
+uses production WASM and scripted inputs. At this increment product Play remains
+disabled (see the supersession note at the top); automatic player input/audio
+pause and resume still belong to the separate lifecycle owner.
 
 Validation: the full engine suite passes (47 foundation tests, geometry/prepared/
 simulation/presentation parity and 116 gameplay fixtures across 17 schedules).
@@ -420,7 +426,7 @@ Pinned Player adapters for `player-failure-hp0`, `hp5` and `hp10` were executed
 and matched their existing assertions/comparisons. These source-derived fixtures
 are not exact pause UI test ports. The [lifecycle finding index](../engine/reference/findings/m3-lifecycle.json)
 records hashes, source searches, excluded product policies and remaining pause
-adapter blockers. No complete A19/A21/A23/A24 row or W08–W10 gate closes here.
+adapter blockers. No complete A19/A21/A23/A24 row (beyond A24's M0 foundation scope) or W08–W10 gate closes here.
 
 ## Odin policy ownership increment (2026-09-13)
 

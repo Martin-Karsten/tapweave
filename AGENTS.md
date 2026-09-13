@@ -13,8 +13,9 @@ behavior. Other rulesets, mods, skins, storyboards, difficulty/pp, legacy replay
 containers, accounts, networking, editing, and score submission are outside the
 current implementation scope unless the task explicitly expands it.
 
-The repository implements M0 foundation, M1 preparation and headless M2 session
-integration; browser gameplay and full upstream M2 acceptance remain open. Read `docs/status.md` for actual coverage
+The repository implements M0 foundation, M1 preparation, headless M2 session
+integration and the W07 browser validation player; full upstream M2/M3 acceptance
+and release-browser certification remain open. Read `docs/status.md` for actual coverage
 and remaining gates; do not treat planned packages or interfaces as implemented.
 
 ## Read before changing behavior
@@ -46,7 +47,9 @@ from visual similarity or from agreement between two local implementations.
 - JavaScript owns browser resources and executes engine intent. Odin owns
   gameplay and presentation policy. The accepted browser design uses WebGL2 and
   Web Audio with one audio clock; do not introduce per-hit-object JS objects or
-  move judgement into RAF callbacks.
+  move judgement into RAF callbacks. Judgement timestamps must come from the
+  audio clock: the frame driver may pump input/advance/presentation, but RAF
+  cadence must never determine judgement (see the browser gameplay plan).
 - Follow accepted ADRs. Changes to ownership, scheduling, or public interface
   contracts require a corresponding ADR change, not an undocumented shortcut.
 - Keep changes focused. Do not add frameworks, npm dependencies, or broad

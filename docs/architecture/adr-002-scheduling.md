@@ -66,8 +66,9 @@ is applied at the first declared upstream update at or after its receipt time.
 The pinned framework queues each input into the next drawable update, so its
 effective input time is frame-quantised; ADR-002 applies inputs at their own
 receipt timestamps. The pinned host itself produces different selected results
-across 30/60/144 Hz and under stalls, so no single frame schedule is an exact
-oracle for these fields.
+across the executed 30/60/144 Hz schedules and injected stalls (a subset of the
+full schedule/stall matrix in [reference-harness](../compatibility/reference-harness.md#schedule-and-stall-matrix)),
+so no single frame schedule is an exact oracle for these fields.
 
 Decision: production keeps receipt-time semantics. Quantising input to an
 advance or frame grid would reintroduce the cadence dependence this ADR exists

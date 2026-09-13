@@ -26,7 +26,7 @@ frame lifetime:  judgement/audio/draw/error spans
 JS asset scope:  archive blobs + decoded media + WebGL/WebAudio handles
 ```
 
-Quotas cover raw bytes, lines, control points, objects, components, vertices, samples, duration, replay frames, output events, checkpoints and total arena bytes. Defaults accept known ranked maps with headroom; callers may lower them but not exceed compile-time safety ceilings. Errors include requested/limit values.
+Quotas cover raw bytes, lines, control points, objects, components, vertices, samples, duration, replay frames, output events, checkpoints and total arena bytes. Defaults accept known ranked maps with headroom; callers may lower them but not exceed compile-time safety ceilings. The concrete preparation defaults (65,536 control tokens and 100,000 vertices per path, 64 subdivision frames, 1,000,000 components per map, shared 100,000,000-unit work budget) are recorded in [status](../status.md#resource-contract-and-limits); browser admission ceilings live in ADR-003/ADR-004. Errors include requested/limit values.
 
 Before any allocation or offset computation, use checked `u64` arithmetic and verify WASM32 addressability. Grow memory only during map/session creation or explicit output-reserve calls, never inside `advance`/`render_snapshot`. JavaScript recreates every typed view after a call that may grow memory.
 

@@ -19,9 +19,10 @@ one Web Audio clock, plain modules and the existing browser package. Preserve
 Tapweave naming and third-party attribution. No new framework or npm dependency
 without a concrete requirement.
 
-Mods, other rulesets, skins, storyboards, accounts, networking, editing, score
-submission, legacy replay containers, difficulty/pp and mobile certification are
-out of scope. M4 retains the 10,000-map corpus and eight-hour soak; M3 still needs
+The canonical in/out-of-scope list is the [docs scope boundary](README.md#scope-boundary),
+restated here: mods, other rulesets, skins, storyboards, accounts, networking,
+editing, score submission, legacy replay containers, difficulty/pp and mobile
+certification are out of scope. M4 retains the 10,000-map corpus and eight-hour soak; M3 still needs
 its bounded workload, lifecycle and release-browser validation below.
 
 ## Completion checkpoints
@@ -153,7 +154,8 @@ runtime/ABI transport and the browser renderer.
 - Generate original Tapweave atlas/palette/shader intent in Odin. Implement a thin
   JS WebGL2 executor with validated commands, resource generations and bounded
   uploads. Upload static meshes once per map/context generation; no per-hit-object
-  JS state, hot-path allocation/growth, shader compilation or static rebuilds.
+  JS objects, hot-path allocation/growth, shader compilation or static rebuilds.
+  Bounded staging/executor storage is reserved up front, never per object.
 
 Exit: native/WASM presentation traces, A22 comparisons, allocation-failure and
 quota tests, stable draw-order/mesh tests, browser command checks and inspected
@@ -196,8 +198,9 @@ controller, runtime snapshot/output transport and browser integration tests.
   outside the frame path. Reserve/reuse
   input, command and event storage before play. Reacquire WASM views after every
   potentially growing call, including failures; copy only data needing retention
-  into bounded owned storage and validate every output span. Test allocation and
-  growth in both Odin and the handwritten browser hot path.
+  into bounded owned storage and validate every output span. Verify no per-frame
+  allocation or growth in Odin hot paths, and no per-frame allocation in the
+  handwritten browser hot path (bounded reserved staging only).
 - Wire Z/primary mouse to left, X/secondary mouse to right, Escape to pause and
   primary touch to cursor/left. Aggregate physical bindings, suppress repeats,
   prevent relevant browser defaults and release on cancel/focus loss. Additional
@@ -527,7 +530,8 @@ layer, source object, component and primitive ordinal. Keep debug projections
 (kinds 32/33) separate from the draw protocol; do not require JS to interpret them
 as visual policy. Count/reserve before use, reuse frame storage, validate referenced
 resource ranges and publish only complete frames. Keep HUD and feedback consistent
-with the same committed state. Introduce no per-hit-object JS state.
+with the same committed state. Introduce no per-hit-object JS objects (bounded
+reserved frame storage only).
 
 **W03.7 — Prove behavior, lifetime and cost.**
 Add shared native/WASM traces for every object family and every state transition.

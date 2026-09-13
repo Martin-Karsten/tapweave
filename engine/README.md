@@ -67,7 +67,7 @@ session references are counted separately. Releasing the public map handle leave
 existing sessions valid; releasing the engine drops its children. Session reset
 zeroes reusable storage without allocation. Calls are confined to one thread.
 
-Create engines/sessions with foundation flag `1`. Map flag `1` requests M0 raw
+Create engines and foundation sessions with flag `1`. Map flag `1` requests M0 raw
 storage; map flag `2` requests M1 preparation. `oe_preparation_capabilities`
 advertises preparation separately. `oe_map_describe` returns kind `5` for foundation
 maps or kind `8` for complete prepared descriptions. Foundation sessions return

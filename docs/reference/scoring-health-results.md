@@ -4,7 +4,7 @@
 
 The score processor receives every judgement in emitted order. It snapshots combo, ignores new score changes after failure unless configured otherwise, increments result counts, changes combo, updates accuracy portions, applies bonus/combo portions, and finally refreshes total score ([`ScoreProcessor.ApplyResultInternal`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Scoring/ScoreProcessor.cs#L238-L285)). Result properties—not object type guesses—define whether a result increases/breaks combo, affects accuracy, is scorable, or is bonus ([`HitResultExtensions`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Scoring/HitResult.cs)). Odin must port that table explicitly.
 
-Base values are 10 small tick, 30 large tick, 150 slider tail, 50 Meh, 100 Ok, 200 Good, 300 Great/Perfect, 10 small bonus, and 50 large bonus ([source](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Scoring/ScoreProcessor.cs#L341-L386)).
+Base values are 10 small tick, 30 large tick, 150 slider tail, 50 Meh, 100 Ok, 200 Good, 300 Great/Perfect, 10 small bonus, and 50 large bonus ([source](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Scoring/ScoreProcessor.cs#L341-L386)). This is the shared cross-ruleset table; unmodded osu!standard emits Great/Ok/Meh/Miss plus tick/bonus results (`Good` belongs to other rulesets/mods).
 
 ## Accuracy and lazer score
 
@@ -40,7 +40,7 @@ Worked example: suppose a synthetic two-judgement map has both max results Great
 
 ## Slider aggregate nuance
 
-Default slider head accuracy produces an accuracy judgement at the head; ticks/repeats/tail use their own result semantics, and the parent slider result is an aggregate used by score processing according to its judgement type. Classic’s `NoSliderHeadAccuracy` changes the parent and child contract ([`OsuModClassic`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Mods/OsuModClassic.cs)). The spike’s “head accuracy plus one combo per child” is therefore explicitly non-production.
+Default slider head accuracy produces an accuracy judgement at the head; ticks/repeats/tail use their own result semantics. The parent slider result is an aggregate that flows through score processing, but in default lazer only the head-accuracy and per-child results contribute: the parent value itself is visual (max if any nested component hit, otherwise minimum, per [input and judgement](input-and-judgement.md)). Classic’s `NoSliderHeadAccuracy` changes the parent and child contract ([`OsuModClassic`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Mods/OsuModClassic.cs)). The spike’s “head accuracy plus one combo per child” is therefore explicitly non-production.
 
 ## Health and failure
 
@@ -72,10 +72,10 @@ Rank uses the base thresholds, with osu!standard preventing S/X when misses exis
 
 - Health receives a new result before score.
 - Equal-time results use the simulator’s stable component order; reversion logic in lazer deliberately neutralizes concurrent order for combo restoration.
-- A result that triggers failure still reaches score; subsequent judgements are suppressed by default.
+- A result that triggers failure still reaches score; in Odin, subsequent judgements are suppressed by default (the Player layer may still emit visual post-failure judgements, which score processing rejects — see [gameplay tests](../compatibility/gameplay-tests.md)).
 - Score maxima are computed from the exact prepared map after mods, never from object-count shortcuts.
 - `round` parity must match .NET midpoint-to-even behavior; acceptance fixtures cover `.5` totals.
 
 Pinned tests: [`TestSceneScoring`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/TestSceneScoring.cs), [`OsuHealthProcessorTest`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/OsuHealthProcessorTest.cs), and [`TestSceneOsuLegacyHealthProcessor`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/TestSceneOsuLegacyHealthProcessor.cs).
 
-**UR-HP-1.** Floating search convergence and break drain boundaries require H09, which dumps computed drain rate plus health at every result from pinned lazer. Exact result health is tolerance-compared; fail/pass and fail-triggering result are exact.
+**UR-HP-1.** Floating search convergence and break drain boundaries require H09, which dumps computed drain rate plus health at every result from pinned lazer. Exact result health is tolerance-compared; fail/pass and fail-triggering result are exact. Acceptance stays with A19; no A19 row closes until H09 is executed.

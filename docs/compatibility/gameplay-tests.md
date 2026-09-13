@@ -1,7 +1,12 @@
 # Gameplay test backfill
 
-This batch covers already implemented unmodded osu!standard behavior against
-the revisions in [the source manifest](../../engine/reference/source-manifest.json).
+This batch covers already implemented unmodded osu!standard behavior at the
+pinned commits recorded in [the source manifest](../../engine/reference/source-manifest.json)
+(`3c1c96f7` lazer, `f02756c5` framework). The manifest vendors the decoder/preparation
+sources and test-beatmap resources; per-source file hashes, upstream method mappings,
+and fixture/observation hashes for the gameplay sources (drawable input, Player,
+health/score processors, replay recorder) are retained in the findings index, and
+framework float behavior is pinned in the [geometry manifest](../../engine/reference/geometry/manifest.json).
 It adds **154 fixture cases**: 116 gameplay scenarios, 36 health component cases,
 and two local workloads. Schedule repetitions are not counted as new cases.
 The [retained findings](../../engine/reference/findings/m2-gameplay-backfill.json)
@@ -46,7 +51,7 @@ partial decoding and failure after an earlier fixture has produced output.
 | Note lock and equal-time input consumption | 4 | TestSceneStartTimeOrderedHitPolicy adaptations and a source-derived same-time regression |
 | Slider key history, follow area, early/late judgements | 34 | TestSceneSliderInput, TestSceneSliderFollowCircleInput, TestSceneSliderEarlyHitJudgement, TestSceneSliderLateHitJudgement |
 | Spinner cursor input | 5 | TestSceneSpinnerJudgement and SpinFramesGenerator |
-| Real Player health, breaks and failure | 10 | Player, OsuHealthProcessor and DrainingHealthProcessor source-derived sessions at HP0/5/10, plus the TestHitNothing empty-replay Player port |
+| Real Player health, breaks and failure | 10 | Player, OsuHealthProcessor and DrainingHealthProcessor source-derived sessions at HP0/5/10 (nine mixed/break/failure sessions), plus the TestHitNothing empty-replay Player port (also counted under H08/A16/A23) |
 | Real Player recording | 2 | Both TestSceneReplayRecording methods |
 | Health components | 36 | 18 OsuHealthProcessorTest minimum/maximum ports; 18 combo-quality regressions |
 | Dense and long local workloads | 2 | 10,000 successful circle judgements and a ten-minute replay |

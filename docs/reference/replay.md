@@ -22,7 +22,7 @@ Map hash alone is insufficient because preparation logic can change. A replay ma
 
 ## Deterministic playback contract
 
-Frames are ordered by `(time, sequence)`. Position is linearly interpolated for replay-only evaluation; actions are step functions. All replay frames are loaded before `start`, so rendering stalls cannot make them late. The simulation advances to the requested presentation time by consuming event boundaries; 30, 60, 144 Hz and injected stalls must produce identical judgements, score, health, samples, and final digest.
+Frames are ordered by `(time, sequence)`. Position is linearly interpolated for replay-only evaluation; actions are step functions. All replay frames are loaded before `start`, so rendering stalls cannot make them late. The simulation advances to the requested presentation time by consuming event boundaries; the full schedule/stall matrix in the [reference harness](../compatibility/reference-harness.md#schedule-and-stall-matrix) must produce identical judgements, score, health, samples, and final digest.
 
 Seeking uses a checkpoint at or before target time containing complete mutable session state, then resimulates. Checkpoints are cache data and excluded from replay identity. Rewind-by-inverting results is not part of the public engine contract.
 
@@ -42,4 +42,4 @@ Frames `(1000,(0,0),none)`, `(1100,(100,0),LEFT)`, `(1200,(200,0),LEFT)` yield r
 
 Pinned tests: [`TestSceneReplayRecording`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/TestSceneReplayRecording.cs), [`TestSceneLegacyReplayPlayback`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/TestSceneLegacyReplayPlayback.cs), and [`TestSceneReplayStability`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu.Tests/TestSceneReplayStability.cs).
 
-**UR-REP-1.** Stable replay mouse sentinel/RNG cases and all historical modes: H12 imports upstream test resources and compares converted osu! frames. Unsupported modes remain rejected, not partially decoded.
+**UR-REP-1.** Stable replay mouse sentinel/RNG cases and all historical modes: H12 imports upstream test resources and compares converted osu! frames. Unsupported modes remain rejected, not partially decoded. Acceptance stays with A23; no A23 row closes until the H12 adapter exists.

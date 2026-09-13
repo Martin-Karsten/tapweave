@@ -66,7 +66,7 @@ See [`Spinner.ApplyDefaultsToSelf`](https://github.com/ppy/osu/blob/3c1c96f742e7
 
 At end: progress `>=1` gives Great, strictly `>0.9` gives Ok, strictly `>0.75` gives Meh, otherwise Miss ([`DrawableSpinner.CheckForResult`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game.Rulesets.Osu/Objects/Drawables/DrawableSpinner.cs#L247-L273)). Spinner tick and bonus results occur as whole spins complete.
 
-**OD deterministic rule.** Each position record contributes the shortest signed angular delta, capped by the upstream normalization. Replay interpolation inserts deterministic subdivision whenever a segment would be ambiguous or exceed 180°; the recorder must emit important spinner frames at least every 90°—an upstream TODO acknowledges this dependency. Native/WASM use identical f64 `atan2` inputs and compare total rotation with a documented tolerance.
+**OD deterministic rule.** Each position record contributes the shortest signed angular delta, capped by the upstream normalization. Replay interpolation inserts deterministic subdivision whenever a segment would be ambiguous or exceed 180°; the recorder adds a frame on action transitions, judgements, maximum interval, and accumulated angular movement before any single normalized delta could exceed 90° (the full rule in [replay](replay.md#deterministic-playback-contract); the exact maximum interval and recorder tolerance are H08 work). Native/WASM use identical f64 `atan2` inputs and compare total rotation with a documented tolerance.
 
 ## Completion, focus, and late input
 
