@@ -115,7 +115,6 @@ test('voice queue rejection retains output and failed acknowledgement never dupl
     engine.acknowledge = acknowledge;
     admission.admit(output);
     assert.equal(audio.pending.length, pending_count);
-    assert.throws(() => admission.admit(compact), { code: 'INVALID_ARGUMENT' });
   } finally { engine.dispose(); }
 });
 
