@@ -56,7 +56,7 @@ export class Audio_Playback {
     this.music.set_buffer(selection.music_buffer!);
   }
 
-  async start(beatmap_ms = 0, receipt_now: () => number = () => performance.now()) {
+  async start(beatmap_ms = 0) {
     require_condition(this.state === 'ready' || this.state === 'paused', 'INVALID_STATE', 'Playback must be ready or paused.');
     const resuming = this.state === 'paused';
     const generation = ++this.generation;
@@ -91,9 +91,12 @@ export class Audio_Playback {
         engine_epoch: Number(this.voice_output.summary.epoch) });
       this.note('oe_session_voice_output');
       this.engine.voice_output(this.session_handle, this.voice_output);
-      this.clock.bind_session(this.session_handle, this.voice_output.summary.epoch, receipt_now(), audio_seconds);
+      // The receipt pair is diagnostic only; judgement timestamps are direct
+      // audio-clock samples captured at input receipt.
+      const diagnostic_receipt_ms = performance.now();
+      this.clock.bind_session(this.session_handle, this.voice_output.summary.epoch, diagnostic_receipt_ms, audio_seconds);
       this.diagnostics?.note_clock_rebinding({ session_handle: this.session_handle.toString(),
-        engine_epoch: Number(this.voice_output.summary.epoch), receipt_ms: receipt_now(), audio_seconds,
+        engine_epoch: Number(this.voice_output.summary.epoch), receipt_ms: diagnostic_receipt_ms, audio_seconds,
         anchor: { ...this.clock.anchor! } });
       if (resuming) this.audio.resume_one_shots();
       this.note('music start');

@@ -19,6 +19,8 @@ export interface Session_Mapping {
   readonly session_handle: bigint;
   readonly engine_epoch: number;
   readonly browser_epoch: number;
+  // Diagnostic pair only: judgement timestamps are audio-clock samples taken at
+  // input receipt and never derived from the receipt timeline.
   readonly receipt_ms: number;
   readonly audio_seconds: number;
   readonly anchor: Clock_Anchor;
@@ -70,11 +72,18 @@ export class Audio_Clock {
     return mapping.browser_epoch;
   }
 
-  input_time(session_handle: bigint, engine_epoch: number, receipt_ms: number) {
+  // One authoritative clock: input judgement timestamps are AudioContext time
+  // samples captured when the DOM handler runs, mapped through the running
+  // session anchor. A stamp below the mapping bound cannot occur legitimately
+  // (AudioContext.currentTime is monotonic) and fails visibly instead of being
+  // clamped. Equal stamps keep their arrival sequence order downstream.
+  input_time(session_handle: bigint, engine_epoch: number, audio_seconds: number) {
     this.mapped_epoch(session_handle, engine_epoch);
-    require_condition(Number.isFinite(receipt_ms), 'INVALID_CLOCK', 'Input receipt time must be finite.');
+    require_condition(Number.isFinite(audio_seconds), 'INVALID_CLOCK', 'Input audio time must be finite.');
     const mapping = this.session_mapping;
-    return this.beatmap_time(mapping!.audio_seconds + (receipt_ms - mapping!.receipt_ms) / 1000);
+    require_condition(audio_seconds >= mapping!.audio_seconds,
+      'INVALID_CLOCK', 'Input audio time cannot precede the session mapping.');
+    return this.beatmap_time(audio_seconds);
   }
 
   beatmap_time(audio_seconds: number) {

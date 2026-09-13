@@ -102,17 +102,29 @@ one-shots. A future nominal-tail timestamp remains unchanged in the queue.
 ## Receipt-time conversion
 
 An immutable running mapping contains session handle, engine epoch, browser clock
-epoch, DOM receipt anchor, AudioContext anchor, media anchor and four offsets.
-These epochs are different counters. Bind them explicitly after start/resume and
-invalidate the mapping on pause, reset, seek, replacement or context suspension.
+epoch, diagnostic DOM receipt anchor, AudioContext anchor, media anchor and four
+offsets. These epochs are different counters. Bind them explicitly after
+start/resume and invalidate the mapping on pause, reset, seek, replacement or
+context suspension.
 
-`audio = audio_anchor + (receipt_ms - receipt_anchor_ms) / 1000`.
-`effective = beatmap_anchor + (audio - audio_anchor) * 1000` at production rate 1.
-Offsets enter beatmap_anchor exactly once; media position uses media_anchor and
-never adds that offset again. While the M2 profile is zero-offset only, production
-start must reject nonzero vectors rather than export incorrect replay metadata.
-DOM receipt time and mapped beatmap time remain distinct diagnostic fields. Input
-ABI raw/effective fields both receive the mapped beatmap time for this profile.
+One authoritative clock serves both judgement and advancement: a DOM handler
+samples `AudioContext.currentTime` first and stores that stamp permanently with
+the browser clock epoch; `effective = beatmap_anchor + (audio - audio_anchor) *
+1000` at production rate 1. Web Audio does not guarantee synchronization with
+other system clocks, so `performance.now()` receipts are never converted into
+judgement time; they remain distinct diagnostic fields beside the audio stamp.
+Audio time advances in render-quantum blocks, so several inputs and successive
+callbacks can observe the same timestamp: equal stamps keep arrival sequence
+order, a stamp equal to the committed boundary is admitted, and a stamp below
+the mapping bound (impossible while `currentTime` is monotonic) or from a closed
+epoch fails visibly rather than being clamped or remapped. Sub-block timing and
+audible-output-latency compensation are future enhancements of this shared
+clock, applied consistently to inputs and simulation, never an independent
+conversion. Offsets enter beatmap_anchor exactly once; media position uses
+media_anchor and never adds that offset again. While the M2 profile is
+zero-offset only, production start must reject nonzero vectors rather than
+export incorrect replay metadata. Input ABI raw/effective fields both receive
+the mapped beatmap time for this profile.
 
 
 ## Executable one-shot admission

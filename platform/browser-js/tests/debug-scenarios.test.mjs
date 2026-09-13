@@ -79,7 +79,9 @@ test('clock mismatch retains exact mapped timestamps and lateness in production 
     assert.ok(Math.abs(sample.behind_committed_ms - (89 * 1000 / 60 - 1095)) < 1e-9,
       `unexpected lateness ${sample.behind_committed_ms}`);
     assert.ok(capture.clock_mapping);
-    assert.equal(capture.clock_mapping.receipt_ms, 0);
+    // The binding receipt is a wall-clock diagnostic; judgement timestamps are
+    // the deterministic audio stamps recorded above.
+    assert.ok(Number.isFinite(capture.clock_mapping.receipt_ms));
   } finally {
     run.dispose();
   }

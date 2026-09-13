@@ -468,7 +468,6 @@ Firefox/WebKit executables remain unavailable; no new upstream oracle was
 executed, and no acceptance gate changes.
 
 ## Playback interruption diagnostics
-
 The interruption overlay displays a selectable JSON report with a clipboard
 button and manual-copy fallback. Reports include symbolic engine status, stack,
 map/browser metadata, lifecycle state and bounded pending-input samples. Rejected
@@ -536,3 +535,49 @@ reproducing on the prior commit as well) and stays open. Recorded player
 reports are diagnostic evidence, not executable reproductions; the suite
 diagnoses the clock mismatch without clamping input or changing judgement
 timing, and no upstream acceptance gate closes from this work.
+
+## Single gameplay clock (2026-09-13)
+
+Input judgement and engine advancement now share one authoritative clock.
+Previously input receipts were extrapolated onto the audio timeline from
+`performance.now()` while advancement sampled `AudioContext.currentTime`
+directly; Web Audio guarantees no synchronization between those clocks, so
+relative drift could reject an input as `LATE_INPUT` even though it was handled
+between committed blocks.
+
+Per the amended ADR-004 receipt-time conversion and ADR-002 browser paragraph:
+
+- Every DOM handler in `Gameplay_Input` samples `AudioContext.currentTime`
+  first and stores that stamp permanently with the browser clock epoch;
+  `performance.now()` receipts are diagnostics only. `Audio_Clock.input_time`
+  maps an audio stamp through the running session anchor, rejects stamps below
+  the mapping bound, and no longer extrapolates from receipts.
+- `Gameplay_Frame.drain` enforces the stamp's epoch against the session mapping
+  before conversion: old-epoch input can never be interpreted against a new
+  anchor. The coordinator order remains collect, submit, advance; rendering
+  only consumes state.
+- Equal audio stamps (the common case: audio time advances per render quantum)
+  keep arrival sequence order, a stamp equal to the committed boundary is
+  admitted, and genuinely invalid stamps still fail visibly with the retained
+  rejected-input preview. No tolerance or clamping was added. Sub-block timing
+  and output-latency compensation remain future shared-clock enhancements.
+
+Validation on Node 24 after merging with the debug suite: browser
+typecheck/build, 126 Node tests and the Chromium/Firefox Playwright suites
+(55 scenarios; one WebKit-only skip) pass. The debug clock-skew scenarios now
+skew the audio stamp directly and retain their exact mapped timestamps and
+lateness; the binding receipt became a wall-clock diagnostic. New regressions:
+the previous two-clock failure is replayed (input handled after its block
+committed is judged at the boundary and matches a direct headless run
+byte-for-byte), equal-stamp batches at the exact committed boundary match
+direct submission across the mixed map, deliberately wrong diagnostic receipts
+across the 30/60/120/144 Hz and 0/50/100/250 ms stall matrix produce identical
+final records without WASM growth, and pre-anchor plus closed-epoch stamps
+reject visibly with retained evidence.
+The engine-side equal-time audit found input-equal-to-committed, strict
+deadline boundaries and equal-time ordering already covered by existing Odin
+fixtures and `StartTimeOrderedHitPolicy` ports; no engine change was needed.
+Upstream lazer timestamps input during update polls rather than at DOM receipt,
+so no pinned equivalent exists; this is recorded as a documented transport
+policy, not a port. No acceptance gate changes. WebKit executables remain a
+validation blocker.

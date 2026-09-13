@@ -205,9 +205,11 @@ controller, runtime snapshot/output transport and browser integration tests.
   primary touch to cursor/left. Aggregate physical bindings, suppress repeats,
   prevent relevant browser defaults and release on cancel/focus loss. Additional
   touches do not create gameplay cursors.
-- Snapshot Odin's inverse transform and receipt time at each event. Account for
-  canvas placement, resize and DPR. Map DOM time into the immutable audio anchor
-  explicitly; preserve input sequence and future timestamps without clamping.
+- Snapshot Odin's inverse transform and the audio-clock stamp at each event:
+  sample `AudioContext.currentTime` first and store it with the browser clock
+  epoch; `performance.now()` stays diagnostic. Account for canvas placement,
+  resize and DPR. Map stamps through the immutable audio anchor explicitly;
+  preserve input sequence and future timestamps without clamping.
 - Use one frame driver: drain accepted input before advancing to audio time,
   consume/acknowledge durable outputs exactly once, then request presentation and
   execute rendering/audio. RAF cadence must never determine judgement policy.

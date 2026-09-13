@@ -340,9 +340,9 @@ export class Debug_Scenario_Run {
       css_height: canvas_bounds.height, device_pixel_ratio: this.options.canvas?.ownerDocument?.defaultView?.devicePixelRatio ?? 1 };
   }
 
-  // True receipt timeline used for clock binding; scripted input stamps apply
-  // the deliberate skew separately so mapped times stay exact.
-  private receipt_now = () => this.elapsed_ms;
+  // Scripted input stamps apply the deliberate clock skew directly on the
+  // audio timeline so mapped times stay exact; judgement never converts from
+  // a receipt timeline.
 
   async start() {
     if (this.started) throw new Browser_Error('INVALID_STATE', 'Scenario already started.');
@@ -368,7 +368,7 @@ export class Debug_Scenario_Run {
       }
     }
     try {
-      await this.playback!.start(0, this.receipt_now);
+      await this.playback!.start(0);
       this.audio_starts++;
     } catch (first_error) {
       if (!this.definition.parameters.reject_audio_start) throw first_error;
@@ -379,7 +379,7 @@ export class Debug_Scenario_Run {
       this.engine!.reset_session(this.session_handle!);
       await this.create_playback();
       this.diagnostics.begin_attempt();
-      await this.playback!.start(0, this.receipt_now);
+      await this.playback!.start(0);
       this.audio_starts++;
     }
     this.frame!.start();
@@ -410,7 +410,7 @@ export class Debug_Scenario_Run {
       this.elapsed_ms >= this.definition.parameters.pause_at_ms) {
       this.paused_once = true;
       this.frame!.pause();
-      await this.playback!.start(0, this.receipt_now);
+      await this.playback!.start(0);
       this.frame!.start();
     }
     if (this.elapsed_ms >= this.end_ms) await this.finish();
@@ -425,14 +425,15 @@ export class Debug_Scenario_Run {
       this.elapsed_ms >= this.definition.inputs[this.script_index].time_ms) {
       const event = this.definition.inputs[this.script_index];
       if (event.source === 'release_all') {
-        this.frame!.input.release_all(this.receipt_now());
+        this.frame!.input.release_all(this.elapsed_ms / 1000, this.playback!.clock.epoch);
         this.released_all = true;
       } else {
-        // The scripted press happens at time_ms; the receipt stamp carries the
+        // The scripted press happens at time_ms; the audio stamp carries the
         // deliberate clock skew so the mapped time is exactly time_ms + skew.
         try {
           this.frame!.input.receive({ source_id: event.source, action: event.action_bits,
-            held: event.held, raw_time_ms: event.time_ms + skew_ms,
+            held: event.held, audio_seconds: (event.time_ms + skew_ms) / 1000,
+            clock_epoch: this.playback!.clock.epoch,
             client_x: event.x, client_y: event.y, inverse_transform: IDENTITY_TRANSFORM });
         } catch (error) {
           this.diagnostics.record_engine_failure('input_queue_receive', error,
@@ -442,7 +443,7 @@ export class Debug_Scenario_Run {
       this.script_index++;
     }
     if (this.definition.id === 'input-release-all' && !this.released_all && this.elapsed_ms >= 1600) {
-      this.frame!.input.release_all(this.receipt_now());
+      this.frame!.input.release_all(this.elapsed_ms / 1000, this.playback!.clock.epoch);
       this.released_all = true;
     }
   }

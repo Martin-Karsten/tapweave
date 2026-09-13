@@ -1,8 +1,12 @@
 import { ACTION } from './input.js';
+import { require_condition } from './errors.js';
 import type { Gameplay_Frame } from './gameplay-frame.js';
 
-// DOM receipt coordinates are transformed immediately, before resize can change
-// their meaning. No DOM timestamp, RAF timestamp or browser judgement is used.
+// Each DOM handler samples the authoritative audio clock first and stores that
+// stamp permanently with the browser clock epoch; performance.now() is kept for
+// diagnostics only. DOM receipt coordinates are transformed immediately, before
+// resize can change their meaning. No DOM timestamp, RAF timestamp or browser
+// judgement is used.
 export class Gameplay_Input {
   private listeners = new AbortController();
   private touch_id: number | null = null;
@@ -10,7 +14,7 @@ export class Gameplay_Input {
   private previous_touch_action: string;
 
   constructor(readonly canvas: HTMLCanvasElement, readonly frame: Gameplay_Frame,
-    readonly receipt_now: () => number = () => performance.now(),
+    readonly sample_audio: () => number = () => frame.playback.context.currentTime,
     readonly request_pause: (reason: string) => void = () => frame.pause(),
     readonly owns_focus_events = true) {
     this.previous_touch_action = canvas.style.touchAction;
@@ -28,13 +32,13 @@ export class Gameplay_Input {
       event.preventDefault();
       if (event.repeat) return;
       if (event.code === 'Escape') { this.pause(); return; }
-      frame.input.receive({ source_id: event.code, action, held: true, raw_time_ms: receipt_now() });
+      frame.input.receive({ source_id: event.code, action, held: true, ...this.stamp() });
     }), options);
     window.addEventListener('keyup', guarded((event: KeyboardEvent) => {
       const action = event.code === 'KeyZ' ? ACTION.LEFT : event.code === 'KeyX' ? ACTION.RIGHT : 0;
       if (!action) return;
       event.preventDefault();
-      frame.input.receive({ source_id: event.code, action, held: false, raw_time_ms: receipt_now() });
+      frame.input.receive({ source_id: event.code, action, held: false, ...this.stamp() });
     }), options);
     canvas.addEventListener('pointerdown', guarded((event: PointerEvent) => {
       if (event.pointerType === 'touch') {
@@ -75,15 +79,23 @@ export class Gameplay_Input {
     canvas.addEventListener('contextmenu', guarded(event => event.preventDefault()), options);
   }
 
+  // Capture the judgement stamp before any other handler work: the audio-clock
+  // sample and its epoch are the authority; performance.now() is diagnostics.
+  private stamp() {
+    const audio_seconds = this.sample_audio();
+    require_condition(Number.isFinite(audio_seconds), 'INVALID_CLOCK', 'Sampled audio time must be finite.');
+    return { audio_seconds, clock_epoch: this.frame.playback.clock.epoch, raw_time_ms: performance.now() };
+  }
+
   private pointer(event: PointerEvent, held?: boolean) {
-    const raw_time_ms = this.receipt_now();
+    const stamp = this.stamp();
     const bounds = this.canvas.getBoundingClientRect();
     const transform = this.frame.playback.engine.playfield_transform({ css_left: bounds.left, css_top: bounds.top,
       css_width: bounds.width, css_height: bounds.height,
       device_pixel_ratio: this.canvas.ownerDocument.defaultView!.devicePixelRatio });
     this.frame.input.receive({ source_id: event.pointerType === 'touch' ? 'touch' : `mouse:${event.button}`,
       action: held === undefined ? 0 : event.pointerType === 'touch' || event.button === 0 ? ACTION.LEFT : ACTION.RIGHT,
-      held: held ?? false, raw_time_ms, client_x: event.clientX, client_y: event.clientY,
+      held: held ?? false, ...stamp, client_x: event.clientX, client_y: event.clientY,
       inverse_transform: [transform.inverse_a, transform.inverse_b, transform.inverse_c,
         transform.inverse_d, transform.inverse_e, transform.inverse_f] as number[] });
   }

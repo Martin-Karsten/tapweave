@@ -16,7 +16,10 @@ export interface Gameplay_Frame_Options {
   frame_metrics?: () => Debug_Frame_Metrics;
 }
 
-// One owner drains receipt-stamped input before advancing the shared audio clock.
+// One coordinator owns the ordering contract: collect audio-stamped input,
+// submit it, then advance the shared audio clock; rendering only consumes the
+// resulting state. Input submission, ordinary advancement and pause all pass
+// through drain() so results never depend on which RAF callback ran first.
 // The renderer consumes borrowed output synchronously, before another engine call.
 export class Gameplay_Frame {
   input: Input_Buffer;
@@ -53,8 +56,11 @@ export class Gameplay_Frame {
     this.batch.length = this.input.records.length;
     for (let record_index = 0; record_index < this.input.records.length; record_index++) {
       const source = this.input.records[record_index];
+      // Old-epoch input must never be interpreted against the new mapping.
+      require_condition(source.clock_epoch === mapping!.browser_epoch, 'INVALID_CLOCK',
+        `Input record ${source.sequence} belongs to closed clock epoch ${source.clock_epoch}.`);
       const target = this.staging[record_index];
-      const time_ms = clock.input_time(session_handle, mapping!.engine_epoch, source.raw_time_ms);
+      const time_ms = clock.input_time(session_handle, mapping!.engine_epoch, source.audio_seconds);
       target.sequence = source.sequence;
       target.raw_time_ms = time_ms;
       target.effective_time_ms = time_ms;

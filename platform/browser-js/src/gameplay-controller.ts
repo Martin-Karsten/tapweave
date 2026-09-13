@@ -25,7 +25,7 @@ export interface Gameplay_Options {
   create_renderer?: (...arguments_: ConstructorParameters<typeof Renderer>) => Renderer;
   request_frame?: (callback: FrameRequestCallback) => number;
   cancel_frame?: (identifier: number) => void;
-  receipt_now?: () => number;
+  sample_audio?: () => number;
   diagnostics?: Diagnostics_Service | null;
   on_frame?: () => void;
 }
@@ -49,12 +49,12 @@ export class Gameplay_Controller {
   private terminal_draining = false;
   private graphics_lost = false;
   private restoration_timer: ReturnType<typeof setTimeout> | null = null;
-  private readonly receipt_now: () => number;
+  private readonly sample_audio: () => number;
   private readonly diagnostics: Diagnostics_Service | null;
 
   constructor(readonly engine: Engine_Bridge, readonly selection: Selection_Controller,
     readonly context: AudioContext, readonly canvas: HTMLCanvasElement, readonly options: Gameplay_Options = {}) {
-    this.receipt_now = options.receipt_now ?? (() => performance.now());
+    this.sample_audio = options.sample_audio ?? (() => this.context.currentTime);
     this.diagnostics = options.diagnostics ?? null;
     selection.on_change = () => this.selection_changed();
     const signal = this.listeners.signal;
@@ -236,12 +236,12 @@ export class Gameplay_Controller {
     this.message = 'Starting audio…';
     this.publish();
     try {
-      await playback.start(0, this.receipt_now);
+      await playback.start(0);
       if (generation !== this.generation) return;
       require_condition(this.renderer?.ready && !this.graphics_lost, 'INVALID_STATE', 'Graphics are not ready.');
       this.state = 'running';
       this.message = 'Z / X or mouse buttons · Escape to pause';
-      this.input = new Gameplay_Input(this.canvas, this.frame!, this.receipt_now, reason => this.pause(reason), false);
+      this.input = new Gameplay_Input(this.canvas, this.frame!, this.sample_audio, reason => this.pause(reason), false);
       this.frame!.start();
       this.publish();
     } catch (error) {
@@ -311,7 +311,7 @@ export class Gameplay_Controller {
     // Playback context is captured before recovery cleanup runs; the engine
     // failure itself was already recorded by its owning layer.
     const playback_failure = this.playback?.failure_context() ?? { last_committed_ms: this.playback?.last_committed_ms,
-      audio_seconds: this.context.currentTime, audio_state: this.context.state, receipt_ms: this.receipt_now() };
+      audio_seconds: this.context.currentTime, audio_state: this.context.state, receipt_ms: performance.now() };
     this.recovery_details = Object.freeze({ pending_input_count: this.frame?.input.records.length ?? 0,
       pending_input_preview: this.frame?.input.records.slice(0, 16).map(record => ({ ...record })) ?? [],
       session_handle: this.session_handle, clock_mapping: this.playback?.clock.session_mapping,
