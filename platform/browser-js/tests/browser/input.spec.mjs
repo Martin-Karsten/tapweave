@@ -10,8 +10,9 @@ test('DOM mouse and keyboard aggregate with Odin coordinates and Escape releases
     const canvas = document.createElement('canvas');
     canvas.style.cssText = 'position:fixed;left:20px;top:40px;width:512px;height:384px;z-index:999';
     document.body.append(canvas);
-    const frame = { playback: { state: 'running', engine }, input: new Input_Buffer(64),
-      pause() { this.input.release_all(performance.now()); this.playback.state = 'paused'; },
+    const frame = { playback: { state: 'running', engine, clock: { epoch: 1 }, context: { currentTime: 0.5 } },
+      input: new Input_Buffer(64),
+      pause() { this.input.release_all(this.playback.context.currentTime, this.playback.clock.epoch); this.playback.state = 'paused'; },
       fail(error) { throw error; } };
     window.input_fixture = { frame, engine, binding: new Gameplay_Input(canvas, frame) };
   });

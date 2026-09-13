@@ -24,7 +24,7 @@ export interface Gameplay_Options {
   create_renderer?: (...arguments_: ConstructorParameters<typeof Renderer>) => Renderer;
   request_frame?: (callback: FrameRequestCallback) => number;
   cancel_frame?: (identifier: number) => void;
-  receipt_now?: () => number;
+  sample_audio?: () => number;
 }
 
 // Product lifecycle only. Engine records remain the authority for gameplay/results.
@@ -46,11 +46,11 @@ export class Gameplay_Controller {
   private terminal_draining = false;
   private graphics_lost = false;
   private restoration_timer: ReturnType<typeof setTimeout> | null = null;
-  private readonly receipt_now: () => number;
+  private readonly sample_audio: () => number;
 
   constructor(readonly engine: Engine_Bridge, readonly selection: Selection_Controller,
     readonly context: AudioContext, readonly canvas: HTMLCanvasElement, readonly options: Gameplay_Options = {}) {
-    this.receipt_now = options.receipt_now ?? (() => performance.now());
+    this.sample_audio = options.sample_audio ?? (() => this.context.currentTime);
     selection.on_change = () => this.selection_changed();
     const signal = this.listeners.signal;
     const document = canvas.ownerDocument;
@@ -196,12 +196,12 @@ export class Gameplay_Controller {
     this.message = 'Starting audio…';
     this.publish();
     try {
-      await playback.start(0, this.receipt_now);
+      await playback.start(0);
       if (generation !== this.generation) return;
       require_condition(this.renderer?.ready && !this.graphics_lost, 'INVALID_STATE', 'Graphics are not ready.');
       this.state = 'running';
       this.message = 'Z / X or mouse buttons · Escape to pause';
-      this.input = new Gameplay_Input(this.canvas, this.frame!, this.receipt_now, reason => this.pause(reason), false);
+      this.input = new Gameplay_Input(this.canvas, this.frame!, this.sample_audio, reason => this.pause(reason), false);
       this.frame!.start();
       this.publish();
     } catch (error) {

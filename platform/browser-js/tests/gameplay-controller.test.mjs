@@ -45,10 +45,8 @@ async function fixture({ map_text = mixed_map, renderer_failure = false, music =
   const callbacks = new Map();
   const renderers = [];
   const views = [];
-  let receipt_ms = 0;
   let next_identifier = 0;
   const controller = new Gameplay_Controller(engine, selection, context, canvas, {
-    receipt_now: () => receipt_ms,
     request_frame: callback => { callbacks.set(++next_identifier, callback); return next_identifier; },
     cancel_frame: identifier => callbacks.delete(identifier),
     create_renderer(engine, session, map, canvas, epoch, lost) {
@@ -60,17 +58,17 @@ async function fixture({ map_text = mixed_map, renderer_failure = false, music =
     on_change: view => views.push(view),
   });
   const frame = time_ms => {
-    receipt_ms = time_ms;
     context.currentTime = time_ms / 1000;
     const scheduled = [...callbacks.values()]; callbacks.clear();
     for (const callback of scheduled) callback(time_ms);
   };
+  // The DOM handler runs while the audio clock sits at the event time: the
+  // fixture models event receipt exactly on the sampled audio timestamp.
   const key = (time_ms, held) => {
-    receipt_ms = time_ms;
+    context.currentTime = time_ms / 1000;
     dispatch(window, held ? 'keydown' : 'keyup', { code: 'KeyZ', repeat: false });
   };
-  return { engine, context, window, document, canvas, selection, controller, callbacks, renderers, views, frame, key,
-    set_receipt(time_ms) { receipt_ms = time_ms; } };
+  return { engine, context, window, document, canvas, selection, controller, callbacks, renderers, views, frame, key };
 }
 
 test('missing music and failed GPU preparation leave selection intact and no session leaks', async () => {
@@ -102,7 +100,7 @@ test('pause releases held actions, ignores paused input, freezes suspended audio
     assert.equal(engine.snapshot(session, 500).summary.committed_ms, 500);
     key(700, true);
     controller.pause();
-    fixture_.set_receipt(1000); context.currentTime = 1;
+    context.currentTime = 1;
     await controller.resume(); await controller.resume();
     assert.equal(controller.view.state, 'running');
     assert.equal(callbacks.size, 1);
@@ -179,6 +177,65 @@ test('rejected input and dispatch failure require Retry; diagnostics retain the 
       assert.equal(engine.session_handles.size, 1);
     } finally { controller.dispose(); }
   }
+});
+
+// Regression for the two-clock failure: an extrapolated performance.now()
+// receipt used to map this input before the committed boundary and reject it.
+// With one audio clock the handler samples the already-committed block, the
+// stamp equals the committed boundary, and the input is admitted.
+test('input handled after its block committed is judged at the audio boundary, not rejected', async () => {
+  let expected;
+  for (const integrated of [false, true]) {
+    const { controller, engine, frame, key } = await fixture();
+    try {
+      const session = [...engine.session_handles][0];
+      if (!integrated) {
+        engine.submit_inputs(session, [{ sequence: 1n, raw_time_ms: 1002, effective_time_ms: 1002,
+          x: 256, y: 192, action_bits: 1 }]);
+        engine.advance_output(session, 5000, new Gameplay_Output());
+        expected = engine.result(session).bytes;
+      } else {
+        await controller.play();
+        frame(1002);
+        key(1002, true);
+        frame(1010);
+        assert.equal(controller.view.state, 'running');
+        frame(5000);
+        assert.equal(controller.view.state, 'terminal');
+        assert.deepEqual(controller.view.result.bytes, expected);
+      }
+    } finally { controller.dispose(); }
+  }
+});
+
+test('pre-anchor audio stamps fail visibly with retained input evidence', async () => {
+  const { controller, context, key, frame } = await fixture();
+  try {
+    context.currentTime = 10;
+    await controller.play();
+    key(9990, true);
+    frame(10010);
+    assert.equal(controller.view.state, 'recovering');
+    assert.equal(controller.view.error.code, 'INVALID_CLOCK');
+    assert.equal(controller.view.recovery.error_code, 'INVALID_CLOCK');
+    assert.equal(controller.view.recovery.pending_input_preview[0].audio_seconds, 9.99);
+    assert.equal(controller.view.recovery.pending_input_count, 1);
+  } finally { controller.dispose(); }
+});
+
+test('genuinely late audio stamps reject as engine late input with retained evidence', async () => {
+  const { controller, frame } = await fixture();
+  try {
+    await controller.play();
+    frame(900);
+    controller.frame.input.receive({ source_id: 'KeyZ', action: 1, held: true,
+      audio_seconds: 0.1, clock_epoch: controller.playback.clock.epoch });
+    frame(1000);
+    assert.equal(controller.view.state, 'recovering');
+    assert.equal(controller.view.error.code, 'ENGINE_7');
+    assert.equal(controller.view.recovery.pending_input_preview[0].audio_seconds, 0.1);
+    assert.equal(controller.view.recovery.pending_input_count, 1);
+  } finally { controller.dispose(); }
 });
 
 test('production controller mixed final results match headless at direct/rate/stall schedules', async () => {

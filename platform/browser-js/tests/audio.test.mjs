@@ -186,21 +186,24 @@ test('epoch replacement counts only surviving events and validates before cancel
   audio.dispose();
 });
 
-test('session and browser epochs map explicitly without retiming receipt timestamps', () => {
+test('session epochs gate audio-stamped input without retiming across epochs', () => {
   const clock = new Audio_Clock();
   clock.start(10, -500, { global_ms: 20 });
   clock.bind_session(99n, 17, 2000, 10);
   assert.equal(clock.mapped_epoch(99n, 17), 1);
-  assert.equal(clock.input_time(99n, 17, 2250), -230);
-  assert.equal(clock.input_time(99n, 17, 1500), -980);
+  assert.equal(clock.input_time(99n, 17, 11), 520);
+  assert.equal(clock.input_time(99n, 17, 10), -480);
+  assert.throws(() => clock.input_time(99n, 17, 9.5), { code: 'INVALID_CLOCK' });
+  assert.throws(() => clock.input_time(99n, 17, Number.NaN), { code: 'INVALID_CLOCK' });
   assert.throws(() => clock.mapped_epoch(99n, 1), { code: 'INVALID_CLOCK' });
   assert.throws(() => clock.mapped_epoch(98n, 17), { code: 'INVALID_CLOCK' });
   assert.throws(() => clock.bind_session(99n, 18, 2000, 10), { code: 'INVALID_STATE' });
   clock.pause(11);
-  assert.throws(() => clock.input_time(99n, 17, 3000), { code: 'INVALID_CLOCK' });
+  assert.throws(() => clock.input_time(99n, 17, 12), { code: 'INVALID_CLOCK' });
   clock.resume(20);
   clock.bind_session(99n, 19, 5000, 20);
-  assert.equal(clock.input_time(99n, 19, 5000), 520);
+  assert.equal(clock.input_time(99n, 19, 20), 520);
+  assert.equal(clock.input_time(99n, 19, 21), 1520);
   assert.equal(clock.mapped_epoch(99n, 19), 3);
 });
 

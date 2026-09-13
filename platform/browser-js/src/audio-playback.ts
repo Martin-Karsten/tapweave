@@ -50,7 +50,7 @@ export class Audio_Playback {
     this.music.set_buffer(selection.music_buffer!);
   }
 
-  async start(beatmap_ms = 0, receipt_now: () => number = () => performance.now()) {
+  async start(beatmap_ms = 0) {
     require_condition(this.state === 'ready' || this.state === 'paused', 'INVALID_STATE', 'Playback must be ready or paused.');
     const resuming = this.state === 'paused';
     const generation = ++this.generation;
@@ -72,7 +72,9 @@ export class Audio_Playback {
         this.clock.start(audio_seconds, beatmap_ms);
       }
       this.engine.voice_output(this.session_handle, this.voice_output);
-      this.clock.bind_session(this.session_handle, this.voice_output.summary.epoch, receipt_now(), audio_seconds);
+      // The receipt pair is diagnostic only; judgement timestamps are direct
+      // audio-clock samples captured at input receipt.
+      this.clock.bind_session(this.session_handle, this.voice_output.summary.epoch, performance.now(), audio_seconds);
       if (resuming) this.audio.resume_one_shots();
       this.music.start();
       this.state = 'running';

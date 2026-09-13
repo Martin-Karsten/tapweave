@@ -22,12 +22,12 @@ function fixture(capacity = 8) {
   return { frame, playback, calls, callbacks };
 }
 
-test('frame submits mapped input before advancing and retains future timestamps', () => {
+test('frame submits audio-stamped input before advancing and retains future timestamps', () => {
   const { frame, calls } = fixture();
-  frame.input.receive({ source_id: 'KeyZ', action: 1, held: true, raw_time_ms: 150 });
+  frame.input.receive({ source_id: 'KeyZ', action: 1, held: true, audio_seconds: 1.02, clock_epoch: 1 });
   frame.step();
   assert.deepEqual(calls.map(call => call[0]), ['input', 'pump', 'render']);
-  assert.ok(Math.abs(calls[0][1][0].raw_time_ms - 50) < 1e-10);
+  assert.ok(Math.abs(calls[0][1][0].raw_time_ms - 20) < 1e-10);
   assert.equal(calls[0][1][0].raw_time_ms, calls[0][1][0].effective_time_ms);
   assert.equal(frame.input.records.length, 0);
 });
@@ -35,10 +35,21 @@ test('frame submits mapped input before advancing and retains future timestamps'
 test('rejected input remains intact and cancels the driver without advancing', () => {
   const { frame, playback, calls, callbacks } = fixture();
   playback.engine.submit_inputs = () => { throw new Error('late input'); };
-  frame.input.receive({ source_id: 'KeyZ', raw_time_ms: 90 });
+  frame.input.receive({ source_id: 'KeyZ', audio_seconds: 1.01, clock_epoch: 1 });
   frame.start();
   assert.throws(() => frame.step(), /late input/);
-  assert.equal(frame.input.records[0].raw_time_ms, 90);
+  assert.equal(frame.input.records[0].audio_seconds, 1.01);
+  assert.equal(callbacks.size, 0);
+  assert.equal(playback.state, 'recovering');
+  assert.equal(calls.length, 0);
+});
+
+test('closed-epoch input is rejected visibly and never remapped through the new anchor', () => {
+  const { frame, playback, calls, callbacks } = fixture();
+  frame.input.receive({ source_id: 'KeyZ', action: 1, held: true, audio_seconds: 1.02, clock_epoch: 0 });
+  frame.start();
+  assert.throws(() => frame.step(), { code: 'INVALID_CLOCK' });
+  assert.equal(frame.input.records[0].clock_epoch, 0);
   assert.equal(callbacks.size, 0);
   assert.equal(playback.state, 'recovering');
   assert.equal(calls.length, 0);
@@ -46,7 +57,7 @@ test('rejected input remains intact and cancels the driver without advancing', (
 
 test('pause drains before the engine release; stale RAF cannot run after stop', () => {
   const { frame, calls, callbacks } = fixture();
-  frame.input.receive({ source_id: 'KeyZ', action: 1, held: true, raw_time_ms: 110 });
+  frame.input.receive({ source_id: 'KeyZ', action: 1, held: true, audio_seconds: 1.02, clock_epoch: 1 });
   frame.start();
   assert.throws(() => frame.start(), { code: 'INVALID_STATE' });
   const stale = callbacks.values().next().value;
@@ -73,7 +84,7 @@ test('DOM bindings aggregate mouse/keyboard, suppress repeats, ignore extra touc
   const canvas = new EventTarget();
   Object.assign(canvas, { ownerDocument: document, style: { touchAction: 'auto' },
     getBoundingClientRect: () => ({ left: 20, top: 40, width: 1024, height: 768 }), setPointerCapture() {} });
-  const binding = new Gameplay_Input(canvas, frame, () => 110);
+  const binding = new Gameplay_Input(canvas, frame, () => 1.05);
   const mouse = { pointerType: 'mouse', pointerId: 1, button: 0, clientX: 200, clientY: 300 };
   assert.equal(dispatch(canvas, 'pointerdown', mouse).defaultPrevented, true);
   dispatch(window, 'keydown', { code: 'KeyZ', repeat: false });
@@ -117,7 +128,7 @@ test('production WASM frame delivery matches direct headless results across rate
           engine.sample_probe(), { fallback_assets: create_fallback_audio(context) });
         playback = new Audio_Playback(engine, session, context, { music_buffer: { duration: 10 }, samples });
         const frame = new Gameplay_Frame(playback, () => {}, 32, () => 1, () => {});
-        await playback.start(0, () => 0);
+        await playback.start(0);
         const memory_bytes = engine.wasm.memory.buffer.byteLength;
         if (rate === 0) {
           engine.submit_inputs(session, events.map(([time_ms, held], event_index) => ({ sequence: BigInt(event_index + 1),
@@ -131,7 +142,10 @@ test('production WASM frame delivery matches direct headless results across rate
             if (time_ms > 950 && time_ms < 950 + stall) continue;
             while (event_index < events.length && events[event_index][0] <= time_ms) {
               const [receipt_ms, held] = events[event_index++];
-              frame.input.receive({ source_id: 'KeyZ', action: 1, held, raw_time_ms: receipt_ms });
+              // Deliberately wrong diagnostic receipts: only the audio stamp may judge.
+              frame.input.receive({ source_id: 'KeyZ', action: 1, held,
+                audio_seconds: receipt_ms / 1000, clock_epoch: playback.clock.epoch,
+                raw_time_ms: receipt_ms - 137 * (event_index % 3) + 61 });
             }
             context.currentTime = time_ms / 1000;
             frame.step();
@@ -142,5 +156,57 @@ test('production WASM frame delivery matches direct headless results across rate
         if (expected) assert.deepEqual(result, expected); else expected = result;
       } finally { playback?.dispose(); engine.dispose(); }
     }
+  }
+});
+
+// Audio time advances in render-quantum blocks, so several events and successive
+// callbacks can observe the same timestamp: sequence order decides, inputs land
+// before scheduled transitions at the same time, and the boundary stamp equal to
+// the committed target is admitted rather than rejected.
+test('equal audio stamps keep sequence order before scheduled transitions at the committed boundary', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const { Engine_Bridge } = await import('../build/engine-bridge.js');
+  const { Audio_Playback } = await import('../build/audio-playback.js');
+  const { create_fallback_audio } = await import('../build/fallback-audio.js');
+  const { load_sample_assets } = await import('../build/sample-assets.js');
+  const { audio_context_fixture } = await import('./audio-fixture.mjs');
+  const wasm = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));
+  const map_text = 'osu file format v14\n[Difficulty]\nHPDrainRate:0\n[HitObjects]\n256,192,1000,1,0\n256,192,2000,1,0';
+  const events = [[1000, true], [1000, false], [1000, true], [1000, false], [2000, true], [2000, false]];
+  let expected;
+  for (const integrated of [false, true]) {
+    const engine = await Engine_Bridge.create(wasm);
+    let playback;
+    try {
+      const map = engine.prepare_map(new TextEncoder().encode(map_text));
+      const session = engine.create_session(map.map_handle, { input_capacity: 32, batch_capacity: 32 });
+      const context = audio_context_fixture();
+      context.currentTime = 0;
+      const samples = await load_sample_assets(map.descriptor, { async read() { return null; } }, 'map.osu', async () => {},
+        engine.sample_probe(), { fallback_assets: create_fallback_audio(context) });
+      playback = new Audio_Playback(engine, session, context, { music_buffer: { duration: 10 }, samples });
+      const frame = new Gameplay_Frame(playback, () => {}, 32, () => 1, () => {});
+      await playback.start(0);
+      if (!integrated) {
+        engine.submit_inputs(session, events.map(([time_ms, held], event_index) => ({ sequence: BigInt(event_index + 1),
+          raw_time_ms: time_ms, effective_time_ms: time_ms, x: 256, y: 192, action_bits: held ? 1 : 0 })));
+        context.currentTime = 3;
+        playback.pump();
+      } else {
+        let event_index = 0;
+        for (const frame_time_ms of [993, 1000, 1000, 1000, 1993, 2000, 2500]) {
+          while (event_index < events.length && events[event_index][0] <= frame_time_ms) {
+            const [time_ms, held] = events[event_index++];
+            frame.input.receive({ source_id: 'KeyZ', action: 1, held,
+              audio_seconds: time_ms / 1000, clock_epoch: playback.clock.epoch });
+          }
+          // The frame target can equal a previous stamp exactly.
+          context.currentTime = frame_time_ms / 1000;
+          frame.step();
+        }
+      }
+      const result = engine.result(session);
+      if (expected) assert.deepEqual(result, expected); else expected = result;
+    } finally { playback?.dispose(); engine.dispose(); }
   }
 });

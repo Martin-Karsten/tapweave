@@ -4,6 +4,11 @@ export const ACTION = Object.freeze({ LEFT: 1, RIGHT: 2 });
 
 export interface Input_Snapshot {
   sequence: bigint;
+  // Authoritative judgement stamp: AudioContext seconds captured at receipt.
+  audio_seconds: number;
+  // Browser clock epoch at receipt; drain rejects closed-epoch records.
+  clock_epoch: number;
+  // performance.now() at receipt, retained for diagnostics only.
   raw_time_ms: number;
   x: number;
   y: number;
@@ -16,7 +21,9 @@ export interface Input_Receive {
   source_id: string;
   action?: number;
   held?: boolean;
-  raw_time_ms: number;
+  audio_seconds: number;
+  clock_epoch: number;
+  raw_time_ms?: number;
   client_x?: number;
   client_y?: number;
   inverse_transform?: number[];
@@ -39,9 +46,12 @@ export class Input_Buffer {
     this.maximum_records = maximum_records;
   }
 
-  receive({ source_id, action = 0, held = false, raw_time_ms, client_x, client_y, inverse_transform }: Input_Receive) {
+  receive({ source_id, action = 0, held = false, audio_seconds, clock_epoch, raw_time_ms,
+    client_x, client_y, inverse_transform }: Input_Receive) {
     require_condition(this.records.length < this.maximum_records, 'QUOTA_EXCEEDED', 'Input queue is full.');
-    require_condition(Number.isFinite(raw_time_ms) && [0, ACTION.LEFT, ACTION.RIGHT].includes(action) &&
+    require_condition(Number.isFinite(audio_seconds) && Number.isInteger(clock_epoch) && clock_epoch >= 0 &&
+      (raw_time_ms === undefined || Number.isFinite(raw_time_ms)) &&
+      [0, ACTION.LEFT, ACTION.RIGHT].includes(action) &&
       typeof source_id === 'string' && typeof held === 'boolean', 'INVALID_INPUT', 'Invalid input snapshot.');
     let x = this.x;
     let y = this.y;
@@ -66,15 +76,19 @@ export class Input_Buffer {
     for (const held_action of this.held_sources.values()) {
       action_bits |= held_action;
     }
-    this.records.push({ sequence: ++this.sequence, raw_time_ms, x, y, action_bits, source: source_id, focus_epoch: this.focus_epoch });
+    this.records.push({ sequence: ++this.sequence, audio_seconds, clock_epoch,
+      raw_time_ms: raw_time_ms ?? audio_seconds * 1000, x, y, action_bits, source: source_id,
+      focus_epoch: this.focus_epoch });
   }
 
-  release_all(raw_time_ms: number) {
-    require_condition(Number.isFinite(raw_time_ms) && this.records.length < this.maximum_records,
+  release_all(audio_seconds: number, clock_epoch: number, raw_time_ms?: number) {
+    require_condition(Number.isFinite(audio_seconds) && Number.isInteger(clock_epoch) && clock_epoch >= 0 &&
+      (raw_time_ms === undefined || Number.isFinite(raw_time_ms)) && this.records.length < this.maximum_records,
       'INVALID_INPUT', 'Cannot append release-all input.');
     this.held_sources.clear();
     this.focus_epoch++;
-    this.records.push({ sequence: ++this.sequence, raw_time_ms, x: this.x, y: this.y,
+    this.records.push({ sequence: ++this.sequence, audio_seconds, clock_epoch,
+      raw_time_ms: raw_time_ms ?? audio_seconds * 1000, x: this.x, y: this.y,
       action_bits: 0, source: 'release_all', focus_epoch: this.focus_epoch });
   }
 
