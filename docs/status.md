@@ -322,3 +322,54 @@ are outside this browser profile and are not claimed as ports or matches.
 which has no DOM equivalent here; the local release/aggregation tests validate
 our transport policy only. No new upstream adapter was executed, and no upstream
 acceptance row is closed by this change.
+
+
+## Mixed-scene renderer increment (2026-09-13)
+
+The production Odin/WASM path now publishes immutable slider geometry, an
+original glyph atlas and analytic shaders, and generates ordered mixed
+circle/slider/spinner scenes with cursor/trail, follow points, judgement feedback
+and HUD. Append-only ABI kinds 46–51 and `oe_scene_*`/scene session exports retain
+kinds 1–45 and the circle diagnostic. Scene output, history and active indices
+have independent reserved lifetimes; map/session owners share attachments.
+
+The browser `Renderer` reserves reusable staging, validates complete frames before
+submission, batches compatible quads and uses stencil coverage for slider internal
+overlaps and clipping caps. It accepts explicit beatmap time and CSS bounds/DPR,
+provides synchronous rendering, explicit restoration and disposal, and notifies
+the lifecycle owner on context loss. The developer `/renderer-debug.html` fixture
+uses production WASM and scripted inputs. Product Play remains disabled; automatic
+player input/audio pause and resume still belong to the separate lifecycle owner.
+
+Validation: the full engine suite passes (47 foundation tests, geometry/prepared/
+simulation/presentation parity and 115 gameplay fixtures across 17 schedules).
+The existing circle approach comparison retains 36 exact f32 schedule projections.
+The extended real pinned drawable runner executed 96 cases and 43,618 comparisons:
+slider clipping and ball positions match the compared fields, while 171 spinner
+progress and nine tracking-indicator differences remain. It deliberately exits
+with failure for these 180 differences. Idle spinner progress is now compared as
+zero, rather than omitted. See the [hashed findings](../engine/reference/findings/m3-scene-presentation.json).
+
+Browser typecheck, 80 service tests and build pass. Chromium passes the existing browser scenarios,
+the mixed executor/recovery test, the developer scrubber and a tolerant pixel test
+for reversal/duplicate-segment opacity. Required Firefox 1543 and WebKit 2359
+executables are unavailable; attempted downloads timed out, so their launch
+failures are blockers, not test passes. Five workload smoke cases at 60 Hz with
+100 ms stalls passed, including the full three-minute timeline, with one static
+upload and no WASM growth. Those timings are unapproved local diagnostics; the
+original combined full-matrix attempt timed out and did not produce a complete
+report. A separate three-minute 30 Hz/four-stall run also hit its 600-second
+timeout under SwiftShader and concurrent development load. Per-workload/cadence
+reports now preserve completed measurements. See the [local renderer evidence](../engine/reference/findings/m3-renderer.json)
+for report hashes, stage percentiles and explicit coverage limits. Tiny, dense,
+long-overlap and 10,000-object maps also passed all four cadences and four stall
+values (16 workload/cadence reports, 64 schedule cases). The 10,000-object run
+remains a three-second prefix; this does not close the three-minute matrix.
+
+W03/W04/A22 are still open. Remaining work includes complete nested/feedback/
+follow/cursor comparisons and pinned ports, resolving the reported semantic
+state differences, broader graphics coverage, loaded frame pacing, retained/peak
+memory profiling, the full performance matrix and required baseline approval.
+Current quotas are conservative admission ceilings, not measured shipping limits.
+Original trail sampling and unsmoothed arrow orientation are documented cosmetic
+policies. This increment does not close W07/W09 or full M3.

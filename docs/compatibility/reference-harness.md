@@ -202,3 +202,22 @@ from executed results. Completion requires mapped in-scope ports to pass, all
 required scenario/schedule observations to exist, and no unexplained discrete
 differences. Preserve separate labels for local regression, native/WASM parity,
 pinned component evidence and whole-scenario upstream acceptance.
+
+
+### Complete-scene drawable comparisons
+
+Run `npm --prefix engine run compare:scene:upstream` with the pinned checkout and
+.NET environment described in the reference-host README. It verifies source pins,
+uses locked restore and rebuilds the real drawable host. The optional
+`--reuse-build` argument is only for a previously built development host.
+`observe_presentation` enables the default ruleset config for slider snaking;
+legacy scenario fixtures retain their prior adapter setup.
+
+The runner writes fixture, observation and comparison hashes to
+`engine/reference/findings/m3-scene-presentation.json`. Its current comparison
+scope is visible slider body clipping, slider ball position/presence, tracking
+indicator presence and spinner progress (including zero). Recorded nested states
+are not yet fully compared. It exits unsuccessfully on the retained
+spinner and tracking differences. Do not relax those assertions or close A22 from local
+scene parity. Extend field coverage and pinned equivalent test ports before
+claiming complete presentation acceptance.

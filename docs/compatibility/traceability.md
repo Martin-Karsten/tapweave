@@ -24,7 +24,7 @@ M0 rows below describe the tested foundation matrix; the [M0 report](../status.m
 | HP-01 | drain search/result health/fail | health processors | headless integration; local regressions | full upstream scenario gate open | A19 result/fail exact; health tolerance |
 | AU-01 | Sample lookup and tail timing | decoder/sample/slider sources | M1 candidates/tail preparation passes | headless one-shot intent implemented locally; playback/H11 gate open | A20 remains M2 |
 | AU-02 | loops/music/pause/resume | drawable slider/spinner + framework audio | unsupported | later milestone | A21 timing/lifecycle integration |
-| PR-01 | preempt/fade/slider progress | drawable sources | unsupported | later milestone | A22 sampled state tolerance |
+| PR-01 | preempt/fade/slider progress | pinned drawable adapter + snaking test port | mixed scenes and WebGL2 executor; bounded clipping comparisons | spinner differences and nested/cursor/follow feedback evidence open | A22 remains open |
 | RP-01 | recording/interpolation/actions | replay recorder/handler | headless integration; local regressions | full upstream scenario gate open | A23 replay schedule matrix exact |
 | MEM-01 | replacement/reset/disposal | design quotas; spike lifecycle tests | M0 native/WASM ownership matrix passes | browser asset/context lifetimes remain M3 | A24 leak/high-water/repeated load |
 | ABI-01 | typed versioned lifecycle | `interface-v2.md` | M0 versioned lifecycle/C/WASM matrix passes | explicit foundation/preparation/headless session capabilities; integrated conformance added | A25 native/WASM conformance |
@@ -92,3 +92,23 @@ and two local workloads. These supplement the rows above without closing their
 full scenario gates. [Coverage and adaptations](gameplay-tests.md) distinguish
 ordered drawable results, real Player health/failure, recorder action assertions,
 discrete audio delivery, local cadence invariance and remaining browser work.
+
+
+## Mixed-scene presentation increment
+
+[Scene findings](../../engine/reference/findings/m3-scene-presentation.json) map
+`TestSceneSliderSnaking.TestSnakingEnabled(0,1,2)` to the native/WASM
+`scene_snaking_enabled_upstream_assertion_port` and record the pinned test search.
+The real drawable adapter executes 96 schedule cases with default snaking enabled;
+visible slider clipping and ball positions match in the compared cases, while
+spinner-motion progress and post-stall tracking differences remain unresolved. Inputs use declared delivery updates, so
+these comparisons do not establish original receipt-time gameplay equivalence.
+
+[Local renderer findings](../../engine/reference/findings/m3-renderer.json) retain
+report/source hashes and unapproved workload measurements. Local scene tests cover
+immutable attachment failure/ownership, degeneracies,
+legacy contract preservation, mixed instance/resource parity, repeated/backward
+reads, four-session sharing, and browser frame rejection/recovery. Original glyphs,
+cursor trail sampling and unsmoothed repeat-arrow orientation are presentation
+policies, not upstream matches. Complete child transforms, tracking feedback,
+follow points, HUD, graphics coverage and measured limits remain A22/W04 gates.

@@ -213,3 +213,12 @@ ownership and calls the lifecycle owner; that owner must stop its driver and
 pause/release input/audio. Explicit restoration rebuilds resources but never
 resumes gameplay. The developer-only `/renderer-debug.html` fixture exercises this
 path without enabling Play or creating another gameplay clock.
+
+
+Preparation validates the supplied epoch and the session capacity record's
+resource identity before acquiring a WebGL context. Optional GPU timing uses four
+preallocated asynchronous timer queries; results spanning a disjoint event are
+discarded, including pending results that become available later. No query waits
+are introduced into submission. Missing samples are reported as unavailable,
+never interpreted as zero GPU cost. Software-driver and concurrently loaded
+workload measurements are diagnostic only, not approved shipping baselines.

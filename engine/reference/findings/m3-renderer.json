@@ -1,0 +1,1662 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-13T08:03:48.271Z",
+  "classification": "local-renderer-increment-not-acceptance",
+  "complete": false,
+  "acceptance": [
+    "A22",
+    "A24",
+    "A25"
+  ],
+  "base_commit": "e3d436e5bf96e7e4f5f53e7a5db1c6e7134e2b26",
+  "source_note": "Source hashes describe this evidence capture; workload reports include earlier smoke harness runs. Consult each report and log, not just the base commit.",
+  "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "wasm": {
+    "path": "engine/artifacts/tapweave.wasm",
+    "sha256": "2b1528d648d652efa0eac4f4a0528101d2af90d997091d6e2a921975f7d7175d",
+    "bytes": 470760
+  },
+  "sources": [
+    {
+      "path": "engine/abi/engine.h",
+      "sha256": "003a3633556f60b90746e04523cb27a54c4b854978258cdd49b03d5cdfc8e415",
+      "bytes": 74493
+    },
+    {
+      "path": "engine/abi/records.d.mts",
+      "sha256": "8dade9463a4555e1d712c73e058c320b3792c3b273bbca42bf54ad9cb7c51ce6",
+      "bytes": 1320
+    },
+    {
+      "path": "engine/abi/records.json",
+      "sha256": "ba4b2e6869e5c13008eba90ebcf28e0501c365ecd3ca0a3375ebc2455b6f9b09",
+      "bytes": 45550
+    },
+    {
+      "path": "engine/abi/records.mjs",
+      "sha256": "a155d7643cc7066d444c4b48c35f9da3ad9b9f05031d2426c4530033514bd5c1",
+      "bytes": 49513
+    },
+    {
+      "path": "engine/abi/records.ts",
+      "sha256": "c60ea704574f65de34c8c4619bb81475726e58a3cc66e0713b1496ce9ef4b34e",
+      "bytes": 264
+    },
+    {
+      "path": "engine/presentation/active.odin",
+      "sha256": "97f048280c5be795c4344898482e0d87a50d28c0d777462fc7a73de44d09b0ca",
+      "bytes": 5768
+    },
+    {
+      "path": "engine/presentation/draw.odin",
+      "sha256": "b59ba92c88130f8eee3649694d3e1e8c6cd57c0f711caa9d103b1e31c3f3a935",
+      "bytes": 7252
+    },
+    {
+      "path": "engine/presentation/history.odin",
+      "sha256": "b48cd31ac4e96436769c87cead7dfaed3d79bc0d85a3961c56b733791510ade7",
+      "bytes": 2695
+    },
+    {
+      "path": "engine/presentation/scene.odin",
+      "sha256": "5790c2853c53ab11b57d98a66c5294aaa8b234918d32db051a7078e6e8ad295f",
+      "bytes": 16610
+    },
+    {
+      "path": "engine/presentation/viewport.odin",
+      "sha256": "c4de14a137c7549c6feb7eed5b786c8e9ec86e72cef5600729f76477dd368273",
+      "bytes": 2118
+    },
+    {
+      "path": "engine/render_webgl/geometry.odin",
+      "sha256": "7e12542e05baa763a4d5475b06afef0f1ca4d616e41554e49e0f486fda31afd3",
+      "bytes": 3578
+    },
+    {
+      "path": "engine/render_webgl/shaders.odin",
+      "sha256": "9835ba036e87d6a5815dc4c51c07d846f0b161b027271c6bdf793b7856b0160b",
+      "bytes": 3709
+    },
+    {
+      "path": "engine/runtime/scene_draw.odin",
+      "sha256": "da90295c055edafbb405751da58dc6cc84f701a894b0e108a85865c38f10c8f0",
+      "bytes": 16517
+    },
+    {
+      "path": "engine/runtime/scene_resources.odin",
+      "sha256": "29decfb47a7bbb4ab51eebaff1c0fea2fc94dfe238476bdbbf1a88876c510ada",
+      "bytes": 6383
+    },
+    {
+      "path": "engine/scripts/compare-scene.mjs",
+      "sha256": "5aa1027d3128727800f264bed273c98ff29fd46b3dea64937fe5c507bfe2545f",
+      "bytes": 11236
+    },
+    {
+      "path": "engine/tests/preparation_test.odin",
+      "sha256": "9a5911934b962493286d26e19d884250dcfc87d78e0e4da5b6e4f2cbee93c1b5",
+      "bytes": 11996
+    },
+    {
+      "path": "engine/tests/scene_test.odin",
+      "sha256": "f1f4dccf0cdbb0b3fef948f70b845906e2ad16679caee6a08d2a113c358250a2",
+      "bytes": 5767
+    },
+    {
+      "path": "platform/browser-js/renderer-debug.html",
+      "sha256": "14eaec43c787acc3c67b97ed32372db1c781a5192a08252944231a6d05fff883",
+      "bytes": 1192
+    },
+    {
+      "path": "platform/browser-js/src/engine-bridge.ts",
+      "sha256": "ace07cbcd9ca90f99f72d27d5a4ab37ce963c8888a411993c814b2e831abca9c",
+      "bytes": 33175
+    },
+    {
+      "path": "platform/browser-js/src/render-resources.ts",
+      "sha256": "d33ad201e5b6947c7909dca8705759c5e7063cbe6f6144d799c7b1a2300a0bb3",
+      "bytes": 3172
+    },
+    {
+      "path": "platform/browser-js/src/renderer-debug.ts",
+      "sha256": "fb4c80a10124c31045087c10c3341ab49c6d5d090411e336dd91048ad38a219c",
+      "bytes": 3439
+    },
+    {
+      "path": "platform/browser-js/src/renderer.ts",
+      "sha256": "0b110598c3be0f7eedc61babcbbde918066161e62e62d6cc5c51a02009060966",
+      "bytes": 2528
+    },
+    {
+      "path": "platform/browser-js/src/webgl-resources.ts",
+      "sha256": "75c46081101c0fd547149a818d1d821ac942be56a8894a3d192895c19c0f1747",
+      "bytes": 26952
+    },
+    {
+      "path": "platform/browser-js/tests/browser/scene-workloads.spec.mjs",
+      "sha256": "d8f654712fce4c4bbddf6e98fed573ba6e2a64f6d06e8e7615b0178bcae905fa",
+      "bytes": 8019
+    },
+    {
+      "path": "platform/browser-js/tests/browser/scene.spec.mjs",
+      "sha256": "c6fe579aecc6dece8bd3bb4b62eae13731e24ec0245276506512d398cfa3c76a",
+      "bytes": 8647
+    },
+    {
+      "path": "platform/browser-js/tests/scene.test.mjs",
+      "sha256": "cabd7386bfc8dc6fdef5c0164737e31f97847e05cadc3bf5a3dcc9f346552c6a",
+      "bytes": 8418
+    },
+    {
+      "path": "platform/browser-js/tests/webgl-resources.test.mjs",
+      "sha256": "1fbdd62a18e654f9cd5608483097b6e36b3b58f5e78ab26fe713a763a116e07d",
+      "bytes": 13104
+    }
+  ],
+  "logs": [
+    {
+      "path": "engine/artifacts/renderer-engine-test.log",
+      "sha256": "132c0574ce47157d2b639e6662359b68b52356d80e5e159de6baedb28da82670",
+      "bytes": 3326
+    },
+    {
+      "path": "engine/artifacts/renderer-circle.log",
+      "sha256": "50317a9d219d294d06b6ffc401f5d15f0415bc4a1fc6d1a08bb6b1acf574cd60",
+      "bytes": 208
+    },
+    {
+      "path": "engine/artifacts/renderer-reference.log",
+      "sha256": "6d7c3dec05b8c8f0de139af7d0f4ce5615bcc888077b68f7df50dfd81aea7aac",
+      "bytes": 5913
+    },
+    {
+      "path": "platform/browser-js/artifacts/renderer-unit.log",
+      "sha256": "7871ffbde450a2c44585aef28688126cca2aa4da8aa5ffbc8b953c0ff3fd4f9c",
+      "bytes": 7562
+    },
+    {
+      "path": "platform/browser-js/artifacts/renderer-build.log",
+      "sha256": "9edd4acf59c8ff3ccd3367f85068c6de0a93245aa03a140691b74626a0c3d157",
+      "bytes": 260
+    },
+    {
+      "path": "platform/browser-js/artifacts/renderer-browsers.log",
+      "sha256": "bac300cc5bb0c98e8e4ae7f1d838b6dfdb2d90ae6c219e6e46827564a236f57d",
+      "bytes": 39222
+    },
+    {
+      "path": "platform/browser-js/artifacts/renderer-final-scene.log",
+      "sha256": "dfe12943b699fbd46a0a0b2a957c66fae1645e971c61c35bbe51b5c1e309bb81",
+      "bytes": 815
+    },
+    {
+      "path": "platform/browser-js/artifacts/renderer-validation.log",
+      "sha256": "451d5fc3232144c1bd6df172eedd6abdb4654fbf4216d475b3a7818ba32a9940",
+      "bytes": 1813
+    },
+    {
+      "path": "platform/browser-js/artifacts/renderer-matrix.log",
+      "sha256": "671bc9611d0bc058d4aa7c8ded6d03d382584cdf70eb2d76e46432d9b6c51d6c",
+      "bytes": 3385
+    },
+    {
+      "path": "platform/browser-js/artifacts/renderer-long-matrix.log",
+      "sha256": "e2a2d408eedcd6cd343d70e5d2ee2531e364033b08c060980e9f6edb4d88cf33",
+      "bytes": 1945
+    },
+    {
+      "path": "platform/browser-js/artifacts/renderer-webkit-install.log",
+      "sha256": "1770f440b8018a5b179d62886886e4943ea2a47b87c655a19956b053710be58c",
+      "bytes": 4599
+    }
+  ],
+  "pinned_scene": {
+    "artifact": {
+      "path": "engine/reference/findings/m3-scene-presentation.json",
+      "sha256": "33d6c160960aa05f3aa844527f2c015997a31b52c20de67e8209bc591a9a5ea7",
+      "bytes": 43294
+    },
+    "cases": 96,
+    "compared": 43618,
+    "differences": 180
+  },
+  "workload_reports": [
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/browser-results/scene-workloads-renderer-w-167de-000-objects-at-60-Hz-smoke--chromium/renderer-workloads.json",
+        "sha256": "0eafd78605e5948c050431780a0cdca89d0e6aaca62b00f78ac65deac5186424"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "smoke only; full cadence/stall matrix not run",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.69999999999891,
+          "p95": 16.80000000000109,
+          "p99": 16.80000000000109
+        },
+        "findings": [
+          {
+            "workload": "10000-objects",
+            "cadence": 60,
+            "stalls": [
+              100
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 10106.5,
+            "frames": 175,
+            "capacity": 3836,
+            "peak_instances": 102,
+            "peak_commands": 8,
+            "static_bytes": 35304,
+            "wasm_bytes": 29884416,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0.2999999523162842,
+                "p99": 0.2999999523162842
+              },
+              "presentation": {
+                "p50": 0,
+                "p95": 0.7000000476837158,
+                "p99": 0.7000000476837158
+              },
+              "validation": {
+                "p50": 0.09999990463256836,
+                "p95": 0.2999999523162842,
+                "p99": 0.2999999523162842
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              },
+              "submission": {
+                "p50": 0.09999990463256836,
+                "p95": 4.700000047683716,
+                "p99": 4.700000047683716
+              },
+              "gpu": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/browser-results/scene-workloads-renderer-w-8aad4-ong-overlap-at-60-Hz-smoke--chromium/renderer-workloads.json",
+        "sha256": "222000e32dd5b22ece264afed9dd37acb0c1347df56fc6eb2a902e73e838ac13"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "smoke only; full cadence/stall matrix not run",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.699999999999818,
+          "p95": 16.800000000000182,
+          "p99": 16.800000000000182
+        },
+        "findings": [
+          {
+            "workload": "long-overlap",
+            "cadence": 60,
+            "stalls": [
+              100
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 4580.699999809265,
+            "frames": 715,
+            "capacity": 15232,
+            "peak_instances": 364,
+            "peak_commands": 56,
+            "static_bytes": 123240,
+            "wasm_bytes": 24772608,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0.10000014305114746,
+                "p99": 0.2999999523162842
+              },
+              "presentation": {
+                "p50": 0.09999990463256836,
+                "p95": 0.20000004768371582,
+                "p99": 1
+              },
+              "validation": {
+                "p50": 0.19999980926513672,
+                "p95": 0.2999999523162842,
+                "p99": 0.8999998569488525
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.10000014305114746
+              },
+              "submission": {
+                "p50": 0.10000014305114746,
+                "p95": 0.2999999523162842,
+                "p99": 4
+              },
+              "gpu": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/browser-results/scene-workloads-renderer-w-8ef40-inute-mixed-at-60-Hz-smoke--chromium/renderer-workloads.json",
+        "sha256": "25933d95e29e44c023765e47cb9e81d7ad5aa97e5ed6e29a8afdf75f62ce18bf"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "smoke only; full cadence/stall matrix not run",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.699999999953434,
+          "p95": 16.70000000001164,
+          "p99": 16.79999999998836
+        },
+        "findings": [
+          {
+            "workload": "three-minute-mixed",
+            "cadence": 60,
+            "stalls": [
+              100
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 18.40000009536743,
+            "frames": 10795,
+            "capacity": 2748,
+            "peak_instances": 765,
+            "peak_commands": 116,
+            "static_bytes": 178824,
+            "wasm_bytes": 20643840,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.10000014305114746
+              },
+              "presentation": {
+                "p50": 0.10000014305114746,
+                "p95": 0.2999999523162842,
+                "p99": 0.3000001907348633
+              },
+              "validation": {
+                "p50": 0.20000004768371582,
+                "p95": 0.5,
+                "p99": 0.5
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.09999990463256836
+              },
+              "submission": {
+                "p50": 0.10000014305114746,
+                "p95": 0.20000004768371582,
+                "p99": 4101.699999809265
+              },
+              "gpu": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/browser-results/scene-workloads-renderer-workload-dense-at-60-Hz-smoke--chromium/renderer-workloads.json",
+        "sha256": "f8f05907e157e1e962d2d90ee57094dcc938e95b328d17468ae2bd7bf860e7a0"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "smoke only; full cadence/stall matrix not run",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.699999999999818,
+          "p95": 16.799999999999955,
+          "p99": 16.800000000000182
+        },
+        "findings": [
+          {
+            "workload": "dense",
+            "cadence": 60,
+            "stalls": [
+              100
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 24.200000047683716,
+            "frames": 175,
+            "capacity": 20111,
+            "peak_instances": 2483,
+            "peak_commands": 8,
+            "static_bytes": 35304,
+            "wasm_bytes": 23920640,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0.20000004768371582,
+                "p99": 0.20000004768371582
+              },
+              "presentation": {
+                "p50": 0.5,
+                "p95": 2,
+                "p99": 2
+              },
+              "validation": {
+                "p50": 0.7000000476837158,
+                "p95": 3.200000047683716,
+                "p99": 3.200000047683716
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              },
+              "submission": {
+                "p50": 0.10000014305114746,
+                "p95": 4.400000095367432,
+                "p99": 4.400000095367432
+              },
+              "gpu": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/browser-results/scene-workloads-renderer-workload-tiny-at-60-Hz-smoke--chromium/renderer-workloads.json",
+        "sha256": "c5a1092aeda5ed580f09c03cdbfdcd3ef4e280d4f968e9b38687cba12364e82a"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "smoke only; full cadence/stall matrix not run",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.699999999999818,
+          "p95": 16.799999999999955,
+          "p99": 16.80000000000001
+        },
+        "findings": [
+          {
+            "workload": "tiny",
+            "cadence": 60,
+            "stalls": [
+              100
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 13,
+            "frames": 175,
+            "capacity": 2538,
+            "peak_instances": 31,
+            "peak_commands": 13,
+            "static_bytes": 37696,
+            "wasm_bytes": 20447232,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0.40000009536743164,
+                "p99": 0.40000009536743164
+              },
+              "presentation": {
+                "p50": 0,
+                "p95": 0.6000001430511475,
+                "p99": 0.6000001430511475
+              },
+              "validation": {
+                "p50": 0,
+                "p95": 0.10000014305114746,
+                "p99": 0.10000014305114746
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              },
+              "submission": {
+                "p50": 0.09999990463256836,
+                "p95": 1.5999999046325684,
+                "p99": 1.5999999046325684
+              },
+              "gpu": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-1f180-dense-at-60-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "e8867eac8900b6dfad599b15ff2bf53da97b024ec5af4f7ef094ee42a4053859"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.69999999999891,
+          "p95": 16.700000000000728,
+          "p99": 16.799999999999272
+        },
+        "findings": [
+          {
+            "workload": "dense",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 60,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 12542.400000095367,
+            "frames": 700,
+            "capacity": 20111,
+            "peak_instances": 2483,
+            "peak_commands": 8,
+            "static_bytes": 35304,
+            "wasm_bytes": 23920640,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0.10000014305114746,
+                "p99": 0.19999980926513672
+              },
+              "presentation": {
+                "p50": 0.5,
+                "p95": 1.2000000476837158,
+                "p99": 2.3000001907348633
+              },
+              "validation": {
+                "p50": 0.7000000476837158,
+                "p95": 1.5,
+                "p99": 3.0999999046325684
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0.09999990463256836,
+                "p99": 0.09999990463256836
+              },
+              "submission": {
+                "p50": 0.10000014305114746,
+                "p95": 0.20000004768371582,
+                "p99": 4.400000095367432
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-21bc2-dense-at-30-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "1e1df25a846156b08fbfb95b76fc745f6d9a683e4a93a6ab05595612bb08c7f8"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.699999999999818,
+          "p95": 16.800000000000182,
+          "p99": 16.800000000000182
+        },
+        "findings": [
+          {
+            "workload": "dense",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 30,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 1710.5,
+            "frames": 351,
+            "capacity": 20111,
+            "peak_instances": 2483,
+            "peak_commands": 8,
+            "static_bytes": 35304,
+            "wasm_bytes": 23920640,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0.39999985694885254,
+                "p99": 0.39999985694885254
+              },
+              "presentation": {
+                "p50": 0.7000000476837158,
+                "p95": 2.1000001430511475,
+                "p99": 2.1000001430511475
+              },
+              "validation": {
+                "p50": 0.8999998569488525,
+                "p95": 3.0999999046325684,
+                "p99": 3.0999999046325684
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              },
+              "submission": {
+                "p50": 0.10000014305114746,
+                "p95": 4.400000095367432,
+                "p99": 4.400000095367432
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-2483e-ects-at-120-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "88d4ae52b02dcf68ae554d8c320478175e53356dee94b7cc81888032846d7419"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.699999999999818,
+          "p95": 16.700000000000273,
+          "p99": 16.799999999999955
+        },
+        "findings": [
+          {
+            "workload": "10000-objects",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 120,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 341.09999990463257,
+            "frames": 1396,
+            "capacity": 3836,
+            "peak_instances": 102,
+            "peak_commands": 8,
+            "static_bytes": 35304,
+            "wasm_bytes": 29884416,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.2999999523162842
+              },
+              "presentation": {
+                "p50": 0,
+                "p95": 0.10000014305114746,
+                "p99": 0.5999999046325684
+              },
+              "validation": {
+                "p50": 0.09999990463256836,
+                "p95": 0.10000014305114746,
+                "p99": 0.20000004768371582
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              },
+              "submission": {
+                "p50": 0.09999990463256836,
+                "p95": 0.10000014305114746,
+                "p99": 4.3999998569488525
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-334a7-jects-at-30-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "d9858d701f136862ddf8bd8ed9e37fa8947c20ff9f60e90bbfcfdc5766866b76"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.69999999999709,
+          "p95": 16.70000000001164,
+          "p99": 16.80000000000291
+        },
+        "findings": [
+          {
+            "workload": "10000-objects",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 30,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 80637.20000004768,
+            "frames": 351,
+            "capacity": 3836,
+            "peak_instances": 102,
+            "peak_commands": 8,
+            "static_bytes": 35304,
+            "wasm_bytes": 29884416,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0.39999985694885254,
+                "p99": 0.39999985694885254
+              },
+              "presentation": {
+                "p50": 0,
+                "p95": 0.7000000476837158,
+                "p99": 0.7000000476837158
+              },
+              "validation": {
+                "p50": 0.09999990463256836,
+                "p95": 0.20000004768371582,
+                "p99": 0.20000004768371582
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              },
+              "submission": {
+                "p50": 0.09999990463256836,
+                "p95": 13.599999904632568,
+                "p99": 13.599999904632568
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-360ce-ense-at-144-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "248e5df7392356fbc70ab2195d8a0829d35a940c01a6962503ec98a966853133"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.699999999982538,
+          "p95": 16.79999999998836,
+          "p99": 16.800000000017462
+        },
+        "findings": [
+          {
+            "workload": "dense",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 144,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 57435.799999952316,
+            "frames": 1675,
+            "capacity": 20111,
+            "peak_instances": 2483,
+            "peak_commands": 8,
+            "static_bytes": 35304,
+            "wasm_bytes": 23920640,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0.09999990463256836,
+                "p99": 0.39999985694885254
+              },
+              "presentation": {
+                "p50": 0.5999999046325684,
+                "p95": 1.2000000476837158,
+                "p99": 2.4000000953674316
+              },
+              "validation": {
+                "p50": 0.8000001907348633,
+                "p95": 1.5,
+                "p99": 3.3999998569488525
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.10000014305114746
+              },
+              "submission": {
+                "p50": 0.09999990463256836,
+                "p95": 0.20000004768371582,
+                "p99": 8058
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-3d4f5-rlap-at-120-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "7dcf3bbef1fb1126e4334cd228f22cab8a290e5f2c9e0ec63c2acc49ea6c6363"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.69999999999709,
+          "p95": 16.70000000001164,
+          "p99": 16.80000000000291
+        },
+        "findings": [
+          {
+            "workload": "long-overlap",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 120,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 83001.59999990463,
+            "frames": 5716,
+            "capacity": 15232,
+            "peak_instances": 364,
+            "peak_commands": 56,
+            "static_bytes": 123240,
+            "wasm_bytes": 24772608,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.09999990463256836
+              },
+              "presentation": {
+                "p50": 0.09999990463256836,
+                "p95": 0.20000004768371582,
+                "p99": 0.20000004768371582
+              },
+              "validation": {
+                "p50": 0.10000014305114746,
+                "p95": 0.20000004768371582,
+                "p99": 0.3000001907348633
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.09999990463256836
+              },
+              "submission": {
+                "p50": 0.10000014305114746,
+                "p95": 0.20000004768371582,
+                "p99": 0.3000001907348633
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-4e6c6-rlap-at-144-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "b50110bc8086fcb15f355ec0ab0a2f377acd4efa08b21221526a1e63ec257a03"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.699999999982538,
+          "p95": 16.79999999998836,
+          "p99": 16.800000000017462
+        },
+        "findings": [
+          {
+            "workload": "long-overlap",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 144,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 149213,
+            "frames": 6859,
+            "capacity": 15232,
+            "peak_instances": 364,
+            "peak_commands": 56,
+            "static_bytes": 123240,
+            "wasm_bytes": 24772608,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.09999990463256836
+              },
+              "presentation": {
+                "p50": 0.09999990463256836,
+                "p95": 0.20000004768371582,
+                "p99": 0.20000004768371582
+              },
+              "validation": {
+                "p50": 0.10000014305114746,
+                "p95": 0.20000004768371582,
+                "p99": 0.2999999523162842
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.09999990463256836
+              },
+              "submission": {
+                "p50": 0.10000014305114746,
+                "p95": 0.20000004768371582,
+                "p99": 0.2999999523162842
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-55db4-erlap-at-30-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "063f1758131ca0b3e169ed79c589acd70746f4659138d758c91d419b10c8c4c2"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.69999999999709,
+          "p95": 16.700000000004366,
+          "p99": 16.80000000000291
+        },
+        "findings": [
+          {
+            "workload": "long-overlap",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 30,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 56680.89999985695,
+            "frames": 1431,
+            "capacity": 15232,
+            "peak_instances": 364,
+            "peak_commands": 56,
+            "static_bytes": 123240,
+            "wasm_bytes": 24772608,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.2999999523162842
+              },
+              "presentation": {
+                "p50": 0.09999990463256836,
+                "p95": 0.20000004768371582,
+                "p99": 1
+              },
+              "validation": {
+                "p50": 0.10000014305114746,
+                "p95": 0.20000004768371582,
+                "p99": 0.7999999523162842
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              },
+              "submission": {
+                "p50": 0.10000014305114746,
+                "p95": 0.20000004768371582,
+                "p99": 4.1000001430511475
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-56379-tiny-at-120-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "358fa3e33869d207e6f0411da215f279f2abf134efe80b1f86e976ea3780fa66"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.69999999999999,
+          "p95": 16.700000000000273,
+          "p99": 16.799999999999955
+        },
+        "findings": [
+          {
+            "workload": "tiny",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 120,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 53.59999990463257,
+            "frames": 1396,
+            "capacity": 2538,
+            "peak_instances": 32,
+            "peak_commands": 13,
+            "static_bytes": 37696,
+            "wasm_bytes": 20447232,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.19999980926513672
+              },
+              "presentation": {
+                "p50": 0,
+                "p95": 0.09999990463256836,
+                "p99": 0.5999999046325684
+              },
+              "validation": {
+                "p50": 0,
+                "p95": 0.09999990463256836,
+                "p99": 0.19999980926513672
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              },
+              "submission": {
+                "p50": 0.09999990463256836,
+                "p95": 0.20000004768371582,
+                "p99": 4.200000047683716
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-903be-ense-at-120-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "caba4cc100fc73adbdd6f1da11f5898f85d51f371aa6ce44e183ae6e04b3b393"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.69999999999709,
+          "p95": 16.80000000000291,
+          "p99": 16.80000000000291
+        },
+        "findings": [
+          {
+            "workload": "dense",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 120,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 44053.09999990463,
+            "frames": 1396,
+            "capacity": 20111,
+            "peak_instances": 2483,
+            "peak_commands": 8,
+            "static_bytes": 35304,
+            "wasm_bytes": 23920640,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0.09999990463256836,
+                "p99": 0.39999985694885254
+              },
+              "presentation": {
+                "p50": 0.5,
+                "p95": 1.2000000476837158,
+                "p99": 2.3000001907348633
+              },
+              "validation": {
+                "p50": 0.7000000476837158,
+                "p95": 1.5999999046325684,
+                "p99": 3.3999998569488525
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.10000014305114746
+              },
+              "submission": {
+                "p50": 0.09999990463256836,
+                "p95": 0.20000004768371582,
+                "p99": 4.1000001430511475
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-936ef-tiny-at-144-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "40978fed487fc0e8f2763676f0d365fede31451342d4d7ff98926c8d3890887b"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.699999999999818,
+          "p95": 16.700000000000273,
+          "p99": 16.800000000000182
+        },
+        "findings": [
+          {
+            "workload": "tiny",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 144,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 1150.0999999046326,
+            "frames": 1675,
+            "capacity": 2538,
+            "peak_instances": 32,
+            "peak_commands": 13,
+            "static_bytes": 37696,
+            "wasm_bytes": 20447232,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.2999999523162842
+              },
+              "presentation": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.5999999046325684
+              },
+              "validation": {
+                "p50": 0,
+                "p95": 0.10000014305114746,
+                "p99": 0.10000014305114746
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              },
+              "submission": {
+                "p50": 0.09999990463256836,
+                "p95": 0.20000004768371582,
+                "p99": 4.200000047683716
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-aad26-erlap-at-60-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "91a5cde835b8c929af511f2e04fd51788df118c9c7e75aee35b3059c2fbe5622"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.69999999999709,
+          "p95": 16.700000000004366,
+          "p99": 16.799999999995634
+        },
+        "findings": [
+          {
+            "workload": "long-overlap",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 60,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 43331.699999809265,
+            "frames": 2860,
+            "capacity": 15232,
+            "peak_instances": 364,
+            "peak_commands": 56,
+            "static_bytes": 123240,
+            "wasm_bytes": 24772608,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.09999990463256836
+              },
+              "presentation": {
+                "p50": 0.09999990463256836,
+                "p95": 0.10000014305114746,
+                "p99": 0.20000004768371582
+              },
+              "validation": {
+                "p50": 0.10000014305114746,
+                "p95": 0.20000004768371582,
+                "p99": 0.3000001907348633
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.09999990463256836
+              },
+              "submission": {
+                "p50": 0.10000014305114746,
+                "p95": 0.20000004768371582,
+                "p99": 0.2999999523162842
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-be97e-jects-at-60-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "729ebbe2606bba92de0c1db83793cf25e72fce858ef5c2fd6425c76c1d29e073"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.699999999999932,
+          "p95": 16.799999999999727,
+          "p99": 16.800000000000182
+        },
+        "findings": [
+          {
+            "workload": "10000-objects",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 60,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 275.2000000476837,
+            "frames": 700,
+            "capacity": 3836,
+            "peak_instances": 102,
+            "peak_commands": 8,
+            "static_bytes": 35304,
+            "wasm_bytes": 29884416,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0.09999990463256836,
+                "p99": 0.3000001907348633
+              },
+              "presentation": {
+                "p50": 0,
+                "p95": 0.10000014305114746,
+                "p99": 0.5999999046325684
+              },
+              "validation": {
+                "p50": 0.09999990463256836,
+                "p95": 0.20000004768371582,
+                "p99": 0.20000004768371582
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              },
+              "submission": {
+                "p50": 0.09999990463256836,
+                "p95": 0.20000004768371582,
+                "p99": 4.5
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-w-c8685-ects-at-144-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "4bbcef787079d5c627fc9949f1e9cf84d5eb209f17026f3d484e2d015f057460"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.699999999999818,
+          "p95": 16.700000000000728,
+          "p99": 16.799999999999727
+        },
+        "findings": [
+          {
+            "workload": "10000-objects",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 144,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 2224.9000000953674,
+            "frames": 1675,
+            "capacity": 3836,
+            "peak_instances": 102,
+            "peak_commands": 8,
+            "static_bytes": 35304,
+            "wasm_bytes": 29884416,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0.39999985694885254
+              },
+              "presentation": {
+                "p50": 0,
+                "p95": 0.10000014305114746,
+                "p99": 0.7000000476837158
+              },
+              "validation": {
+                "p50": 0.09999990463256836,
+                "p95": 0.10000014305114746,
+                "p99": 0.20000004768371582
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              },
+              "submission": {
+                "p50": 0.09999990463256836,
+                "p95": 0.10000014305114746,
+                "p99": 4.3999998569488525
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-workload-tiny-at-30-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "53cb505e0b72247c00a62ea26bea5a35db1b8bb9d2fa09808ad78cbd2aad5286"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.699999999999818,
+          "p95": 16.799999999999955,
+          "p99": 16.80000000000001
+        },
+        "findings": [
+          {
+            "workload": "tiny",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 30,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 13.100000143051147,
+            "frames": 351,
+            "capacity": 2538,
+            "peak_instances": 32,
+            "peak_commands": 12,
+            "static_bytes": 37696,
+            "wasm_bytes": 20447232,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0.20000004768371582,
+                "p99": 0.20000004768371582
+              },
+              "presentation": {
+                "p50": 0,
+                "p95": 0.7000000476837158,
+                "p99": 0.7000000476837158
+              },
+              "validation": {
+                "p50": 0,
+                "p95": 0.20000004768371582,
+                "p99": 0.20000004768371582
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              },
+              "submission": {
+                "p50": 0.09999990463256836,
+                "p95": 2.0999999046325684,
+                "p99": 2.0999999046325684
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "artifact": {
+        "path": "platform/browser-js/artifacts/renderer-matrix-results/scene-workloads-renderer-workload-tiny-at-60-Hz-full-stalls--chromium/renderer-workloads.json",
+        "sha256": "76177f676fc7f66ea4924b945d52b468d62cc006e10648f8ba6319b43a270e4c"
+      },
+      "report": {
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+        "classification": "local-renderer-measurements-unapproved-baseline",
+        "coverage": "one workload/cadence with full stall cases",
+        "gpu_time": "asynchronous disjoint timer queries when available; inspect gpu_samples",
+        "raf_idle_ms": {
+          "p50": 16.699999999999932,
+          "p95": 16.799999999999955,
+          "p99": 16.800000000000182
+        },
+        "findings": [
+          {
+            "workload": "tiny",
+            "renderer_name": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+            "cadence": 60,
+            "stalls": [
+              0,
+              50,
+              100,
+              250
+            ],
+            "gpu_samples": 0,
+            "prepare_ms": 165.20000004768372,
+            "frames": 700,
+            "capacity": 2538,
+            "peak_instances": 32,
+            "peak_commands": 13,
+            "static_bytes": 37696,
+            "wasm_bytes": 20447232,
+            "no_growth": true,
+            "uploads": 1,
+            "timings_ms": {
+              "simulation": {
+                "p50": 0,
+                "p95": 0.10000014305114746,
+                "p99": 0.20000004768371582
+              },
+              "presentation": {
+                "p50": 0,
+                "p95": 0.09999990463256836,
+                "p99": 0.6999998092651367
+              },
+              "validation": {
+                "p50": 0,
+                "p95": 0.10000014305114746,
+                "p99": 0.20000004768371582
+              },
+              "upload": {
+                "p50": 0,
+                "p95": 0,
+                "p99": 0
+              },
+              "submission": {
+                "p50": 0.09999990463256836,
+                "p95": 0.20000004768371582,
+                "p99": 3.9000000953674316
+              },
+              "gpu": null
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "limitations": [
+    "Full A22 remains open: spinner progress and post-stall tracking differences; incomplete nested/feedback/follow/cursor evidence.",
+    "Firefox 1543 and WebKit 2359 launch blocked by unavailable executables; download attempts timed out.",
+    "Workload measurements use SwiftShader, include concurrent development load and are unapproved diagnostics.",
+    "GPU sample count zero means unavailable. Idle RAF intervals are not loaded frame pacing. WASM pages are not total retained/peak memory.",
+    "Full matrix and shipping limit derivation remain open. The 10000-object workload renders only a three-second prefix.",
+    "Play, integrated lifecycle and full M3 remain gated."
+  ]
+}

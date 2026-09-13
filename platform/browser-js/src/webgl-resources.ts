@@ -27,7 +27,7 @@ export type Render_Publish_Input = Render_Resources | { bytes: Uint8Array };
 type Retained_Attachment = Render_Resource_Snapshot | Render_Resources;
 
 // Owns one map attachment in a dedicated WebGL2 context. All methods are resource
-// phase operations; there is deliberately no frame/draw policy in this service.
+// operations and validated command submission; presentation policy remains in Odin.
 export class WebGL_Resources {
   #canvas: HTMLCanvasElement;
   #gl: WebGL2RenderingContext;
@@ -48,6 +48,7 @@ export class WebGL_Resources {
   #queries: WebGLQuery[] = [];
   #query_pending = new Uint8Array(4);
   #query_cursor = 0;
+  #query_invalid = new Uint8Array(4);
   on_context_lost: (() => void) | null = null;
   readonly metrics = { validation_ms: 0, upload_ms: 0, submission_ms: 0, instances: 0, commands: 0,
     dynamic_bytes: 0, static_bytes: 0, gpu_ms: null as number | null, gpu_sequence: 0 };
@@ -281,6 +282,8 @@ export class WebGL_Resources {
     for (const query of this.#queries) context.deleteQuery(query);
     this.#queries.length = 0;
     this.#query_pending.fill(0);
+    this.#query_invalid.fill(0);
+    this.#query_cursor = 0;
     this.#timer = context.getExtension('EXT_disjoint_timer_query_webgl2');
     if (this.#timer) {
       for (let query_index = 0; query_index < 4; query_index++) {
@@ -396,15 +399,23 @@ export class WebGL_Resources {
       this.#query_cursor = (query_index + 1) % this.#queries.length;
       const query = this.#queries[query_index];
       const disjoint = context.getParameter(this.#timer.GPU_DISJOINT_EXT);
-      if (disjoint) this.metrics.gpu_ms = null;
+      if (disjoint) {
+        this.metrics.gpu_ms = null;
+        // Every outstanding interval may span the disjoint event, even when
+        // its result only becomes available on a later, non-disjoint frame.
+        for (let pending_index = 0; pending_index < this.#queries.length; pending_index++) {
+          if (this.#query_pending[pending_index]) this.#query_invalid[pending_index] = 1;
+        }
+      }
       if (this.#query_pending[query_index] && context.getQueryParameter(query, context.QUERY_RESULT_AVAILABLE)) {
-        if (!disjoint) {
+        if (!disjoint && !this.#query_invalid[query_index]) {
           this.metrics.gpu_ms = Number(context.getQueryParameter(query, context.QUERY_RESULT)) / 1000000;
           this.metrics.gpu_sequence++;
         }
         this.#query_pending[query_index] = 0;
       }
       if (!this.#query_pending[query_index]) {
+        this.#query_invalid[query_index] = disjoint ? 1 : 0;
         context.beginQuery(this.#timer.TIME_ELAPSED_EXT, query);
         measured_query = query_index;
       }

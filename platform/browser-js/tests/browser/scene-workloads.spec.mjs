@@ -1,11 +1,14 @@
 import { test, expect } from '@playwright/test';
 import { writeFile } from 'node:fs/promises';
 
-test('bounded renderer workload and cadence matrix', async ({ page }, test_info) => {
+const full_matrix = process.env.TAPWEAVE_RENDERER_MATRIX === '1';
+for (const workload_id of ['tiny', 'dense', 'long-overlap', '10000-objects', 'three-minute-mixed']) {
+for (const cadence of full_matrix ? [30, 60, 120, 144] : [60]) {
+test(`renderer workload ${workload_id} at ${cadence} Hz (${full_matrix ? 'full stalls' : 'smoke'})`, async ({ page }, test_info) => {
   test.setTimeout(600000);
   page.on('console', message => { if (message.text().startsWith('renderer-workload:')) console.log(message.text()); });
   await page.goto('/');
-  const report = await page.evaluate(async () => {
+  const report = await page.evaluate(async ({ workload_id, cadence, full_matrix }) => {
     const { Engine_Bridge, Gameplay_Output } = await import('/platform/browser-js/src/engine-bridge.js');
     const { Renderer } = await import('/platform/browser-js/src/renderer.js');
     const wasm = await (await fetch('/tapweave.wasm')).arrayBuffer();
@@ -23,11 +26,12 @@ test('bounded renderer workload and cadence matrix', async ({ page }, test_info)
     ];
     const findings = [];
     const percentile = samples => {
+      if (!samples.length) return null;
       samples.sort((left, right) => left - right);
       return { p50: samples[Math.floor(samples.length * .5)] ?? 0, p95: samples[Math.floor(samples.length * .95)] ?? 0,
         p99: samples[Math.floor(samples.length * .99)] ?? 0 };
     };
-    for (const workload of workloads) {
+    for (const workload of workloads.filter(candidate => candidate.id === workload_id)) {
       const engine = await Engine_Bridge.create(wasm);
       const prepare_started = performance.now();
       const map = engine.prepare_map(new TextEncoder().encode(header + workload.objects.join('\n')));
@@ -37,14 +41,17 @@ test('bounded renderer workload and cadence matrix', async ({ page }, test_info)
       const epoch = engine.snapshot(session, 0).summary.epoch;
       const renderer = new Renderer(engine, session, map.map_handle, canvas, epoch, () => {});
       const prepare_ms = performance.now() - prepare_started;
-      const stages = { simulation: [], presentation: [], validation: [], upload: [], submission: [] };
+      const context = canvas.getContext('webgl2');
+      const debug_renderer = context.getExtension('WEBGL_debug_renderer_info');
+      const renderer_name = debug_renderer ? context.getParameter(debug_renderer.UNMASKED_RENDERER_WEBGL) : context.getParameter(context.RENDERER);
+      const stages = { simulation: [], presentation: [], validation: [], upload: [], submission: [], gpu: [] };
+      let previous_gpu_sequence = 0;
       let peak_instances = 0, peak_commands = 0, frames = 0;
       const memory_before = engine.wasm.memory.buffer.byteLength;
       try {
         // Explicit virtual cadence/stalls. This measures production submission;
         // the separate RAF sample below measures real browser pacing.
-        for (const cadence of [30, 60, 120, 144]) {
-          for (const stall of [0, 50, 100, 250]) {
+        for (const stall of full_matrix ? [0, 50, 100, 250] : [100]) {
             engine.reset_session(session);
             const current_epoch = engine.snapshot(session, 0).summary.epoch;
             for (let frame_index = 0; frame_index * 1000 / cadence <= workload.duration; frame_index++) {
@@ -55,6 +62,10 @@ test('bounded renderer workload and cadence matrix', async ({ page }, test_info)
               const simulation_ms = performance.now() - simulation_started;
               if (gameplay_output.summary.batch_token) engine.acknowledge(session, gameplay_output.summary.batch_token);
               renderer.render(time_ms, viewport, current_epoch);
+              if (renderer.gpu.metrics.gpu_sequence !== previous_gpu_sequence) {
+                if (renderer.gpu.metrics.gpu_ms !== null) stages.gpu.push(renderer.gpu.metrics.gpu_ms);
+                previous_gpu_sequence = renderer.gpu.metrics.gpu_sequence;
+              }
               // Bounded measurement sampling; test arrays are not player allocations.
               if (frame_index % 20 === 0) {
                 stages.simulation.push(simulation_ms);
@@ -66,10 +77,12 @@ test('bounded renderer workload and cadence matrix', async ({ page }, test_info)
               peak_instances = Math.max(peak_instances, renderer.gpu.metrics.instances);
               peak_commands = Math.max(peak_commands, renderer.gpu.metrics.commands);
               frames++;
+              // Allow asynchronous query results to become visible. This is a
+              // harness yield, not a renderer clock or loaded pacing sample.
+              if (frame_index % 120 === 0) await new Promise(resolve => setTimeout(resolve, 0));
             }
-          }
         }
-        findings.push({ workload: workload.id, prepare_ms, frames, capacity: renderer.instance_capacity, peak_instances, peak_commands,
+        findings.push({ workload: workload.id, renderer_name, cadence, stalls: full_matrix ? [0, 50, 100, 250] : [100], gpu_samples: stages.gpu.length, prepare_ms, frames, capacity: renderer.instance_capacity, peak_instances, peak_commands,
           static_bytes: renderer.gpu.metrics.static_bytes, wasm_bytes: memory_before,
           no_growth: engine.wasm.memory.buffer.byteLength === memory_before, uploads: renderer.gpu.upload_count,
           timings_ms: Object.fromEntries(Object.entries(stages).map(([stage, samples]) => [stage, percentile(samples)])) });
@@ -84,8 +97,9 @@ test('bounded renderer workload and cadence matrix', async ({ page }, test_info)
       previous_time = timestamp;
     }
     return { user_agent: navigator.userAgent, classification: 'local-renderer-measurements-unapproved-baseline',
-      gpu_time: 'not measured; no timer-query instrumentation', raf_idle_ms: percentile(raf_intervals), findings };
-  });
+      coverage: full_matrix ? 'one workload/cadence with full stall cases' : 'smoke only; full cadence/stall matrix not run',
+      gpu_time: 'asynchronous disjoint timer queries when available; inspect gpu_samples', raf_idle_ms: percentile(raf_intervals), findings };
+  }, { workload_id, cadence, full_matrix });
   for (const finding of report.findings) {
     expect(finding.no_growth).toBe(true);
     expect(finding.uploads).toBe(1);
@@ -93,3 +107,6 @@ test('bounded renderer workload and cadence matrix', async ({ page }, test_info)
   }
   await writeFile(test_info.outputPath('renderer-workloads.json'), JSON.stringify(report, null, 2));
 });
+
+}
+}

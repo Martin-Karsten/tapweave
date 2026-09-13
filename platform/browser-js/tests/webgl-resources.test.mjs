@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { schema } from '../../../engine/abi/records.mjs';
-import { Engine_Bridge } from '../build/engine-bridge.js';
+import { Engine_Bridge, Scene_Output } from '../build/engine-bridge.js';
 import { WebGL_Resources, RESOURCE_LIMITS } from '../build/webgl-resources.js';
 
 const wasm_bytes = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));
@@ -22,7 +22,7 @@ function fake_canvas() {
     getProgramInfoLog() { return 'link diagnostic'; },
     bufferData() { this.uploads++; if (this.upload_error) this.error = 1285; },
   };
-  for (const resource_name of ['Shader', 'Program', 'Buffer', 'Texture', 'VertexArray']) {
+  for (const resource_name of ['Shader', 'Program', 'Buffer', 'Texture', 'VertexArray', 'Query']) {
     context['create' + resource_name] = () => {
       allocation_count++;
       if (allocation_count === context.fail_at) return null;
@@ -215,4 +215,57 @@ test('failed context rebuild retains bytes for retry; context limits reject with
     gpu.dispose();
     assert.equal(canvas.live.size, 0);
   });
+});
+
+
+test('scene timer queries discard all pending disjoint intervals without GPU allocations during submission', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  const canvas = fake_canvas();
+  const context = canvas.context;
+  const timer = { TIME_ELAPSED_EXT: 101, GPU_DISJOINT_EXT: 102 };
+  let disjoint = false;
+  context.QUERY_RESULT_AVAILABLE = 103;
+  context.QUERY_RESULT = 104;
+  context.getExtension = () => timer;
+  context.getUniformLocation = () => ({});
+  context.getContextAttributes = () => ({ stencil: true });
+  context.getParameter = parameter => parameter === timer.GPU_DISJOINT_EXT ? disjoint : 4096;
+  context.getQueryParameter = (query, parameter) => parameter === context.QUERY_RESULT_AVAILABLE ? true : 12500000;
+  for (const operation of ['beginQuery', 'endQuery', 'viewport', 'disable', 'enable', 'stencilMask', 'clearStencil',
+    'clearColor', 'clear', 'blendEquation', 'blendFunc', 'uniform4f', 'uniform1i', 'bufferSubData',
+    'stencilFunc', 'stencilOp', 'vertexAttribDivisor', 'drawElementsInstanced']) context[operation] = () => {};
+  const gpu = new WebGL_Resources(canvas);
+  try {
+    const map = engine.prepare_map(new TextEncoder().encode('osu file format v14\n[HitObjects]\n256,192,1000,1,0'));
+    const resources = engine.scene_resources(map.map_handle);
+    const session = engine.create_session(map.map_handle, { input_capacity: 8, batch_capacity: 8 });
+    const capacity = engine.scene_reserve(session);
+    engine.scene_reserve(session, capacity.required_instances, capacity.required_bytes);
+    gpu.reserve(capacity.required_instances);
+    gpu.publish(resources);
+    const output = new Scene_Output(resources, capacity.epoch);
+    const viewport = { css_left: 0, css_top: 0, css_width: 512, css_height: 384, device_pixel_ratio: 1 };
+    engine.scene_draw(session, 500, viewport, output);
+    const allocations = canvas.allocations;
+    const execute = () => gpu.execute(output, viewport, capacity.epoch, gpu.generation);
+    for (let query_index = 0; query_index < 4; query_index++) execute();
+    disjoint = true;
+    execute();
+    disjoint = false;
+    for (let query_index = 0; query_index < 4; query_index++) execute();
+    assert.equal(gpu.metrics.gpu_ms, null);
+    assert.equal(gpu.metrics.gpu_sequence, 0);
+    execute();
+    assert.equal(gpu.metrics.gpu_ms, 12.5);
+    assert.equal(gpu.metrics.gpu_sequence, 1);
+    assert.equal(canvas.allocations, allocations);
+    canvas.lose();
+    assert.equal(canvas.live.size, 0);
+    canvas.restore();
+    gpu.restore();
+    gpu.reserve(capacity.required_instances);
+    assert.equal(gpu.metrics.gpu_ms, null);
+    execute();
+  } finally { gpu.dispose(); engine.dispose(); }
+  assert.equal(canvas.live.size, 0);
 });

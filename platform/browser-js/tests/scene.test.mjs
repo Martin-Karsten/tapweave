@@ -4,6 +4,8 @@ import { createHash } from 'node:crypto';
 import { create_engine } from './helpers.mjs';
 import { Scene_Output } from '../build/engine-bridge.js';
 import { Render_Resources } from '../build/render-resources.js';
+import { schema } from '../../../engine/abi/records.mjs';
+import { Renderer } from '../build/renderer.js';
 
 export const mixed_map = new TextEncoder().encode(`osu file format v14
 [Difficulty]
@@ -76,5 +78,79 @@ test('scene resource recovery snapshot owns metadata and rejects bad geometry', 
     const bytes = retained.bytes.slice();
     new DataView(bytes.buffer).setUint32(retained.summary.indices_offset, vertex_count, true);
     assert.throws(() => new Render_Resources(bytes), /Index references/);
+  } finally { engine.dispose(); }
+});
+
+test('mixed scene reads preserve gameplay, pending audio acknowledgement and prior publication', async () => {
+  const engine = await create_engine();
+  try {
+    const map = engine.prepare_map(mixed_map);
+    const resources = engine.scene_resources(map.map_handle);
+    const session = engine.create_session(map.map_handle, { input_capacity: 32, batch_capacity: 32 });
+    const capacity = engine.scene_reserve(session);
+    engine.scene_reserve(session, capacity.required_instances, capacity.required_bytes);
+    const output = new Scene_Output(resources, engine.snapshot(session, 0).summary.epoch);
+    engine.submit_inputs(session, [{ sequence: 1n, raw_time_ms: 1000, effective_time_ms: 1000, x: 100, y: 100, action_bits: 1 }]);
+    const gameplay = engine.advance(session, 1000);
+    const pending_token = gameplay.summary.batch_token;
+    assert.notEqual(pending_token, 0n);
+    const before = engine.snapshot(session, 1000);
+    const token_offset = schema.records.find(record => record.kind === 19).fields.batch_token[0];
+    for (const time_ms of [1100, 6000, 500, 1700, 1100]) engine.scene_draw(session, time_ms, viewport, output);
+    const after = engine.snapshot(session, 1000);
+    // Diagnostic snapshot publication increments its batch token independently
+    // of rendering. Every canonical state/judgement/audio byte must be stable.
+    assert.equal(after.summary.batch_token, before.summary.batch_token + 1n);
+    before.bytes.fill(0, token_offset, token_offset + 8);
+    after.bytes.fill(0, token_offset, token_offset + 8);
+    assert.deepEqual(after.bytes, before.bytes);
+    const prior_draw = digest(output);
+    assert.throws(() => engine.scene_draw(session, NaN, viewport, output), { code: 'ENGINE_1' });
+    assert.equal(digest(output), prior_draw);
+    engine.acknowledge(session, after.summary.batch_token);
+    engine.scene_draw(session, 1100, viewport, output);
+    assert.equal(digest(output), prior_draw);
+    engine.reset_session(session);
+    assert.throws(() => engine.scene_draw(session, 1100, viewport, output), { code: 'INVALID_DRAW' });
+  } finally { engine.dispose(); }
+});
+
+
+test('renderer preparation rejects mismatched maps and stale epochs before acquiring a context', async () => {
+  const engine = await create_engine();
+  try {
+    const map = engine.prepare_map(mixed_map);
+    engine.scene_resources(map.map_handle);
+    const other_map = engine.prepare_map(mixed_map);
+    const session = engine.create_session(map.map_handle, { input_capacity: 32, batch_capacity: 32 });
+    const epoch = engine.snapshot(session, 0).summary.epoch;
+    const canvas = { getContext() { assert.fail('Invalid preparation must not acquire GPU resources'); } };
+    assert.throws(() => new Renderer(engine, session, other_map.map_handle, canvas, epoch, () => {}), { code: 'INVALID_DRAW' });
+    engine.reset_session(session);
+    assert.throws(() => new Renderer(engine, session, map.map_handle, canvas, epoch, () => {}), { code: 'INVALID_DRAW' });
+  } finally { engine.dispose(); }
+});
+
+test('scene capacity exhaustion preserves the last published frame bytes', async () => {
+  const engine = await create_engine();
+  try {
+    const map = engine.prepare_map(mixed_map);
+    const resources = engine.scene_resources(map.map_handle);
+    const session = engine.create_session(map.map_handle, { input_capacity: 32, batch_capacity: 32 });
+    const capacity = engine.scene_reserve(session);
+    engine.scene_reserve(session, capacity.required_instances, capacity.required_bytes);
+    const output = new Scene_Output(resources, capacity.epoch);
+    engine.scene_draw(session, 1400, viewport, output);
+    const busy_count = output.instances.count;
+    engine.scene_draw(session, -5000, viewport, output);
+    const quiet_count = output.instances.count;
+    assert.ok(busy_count > quiet_count);
+    engine.scene_reserve(session, quiet_count, capacity.required_bytes);
+    engine.scene_draw(session, -5000, viewport, output);
+    const prior = new Uint8Array(output.view.buffer, output.address, output.byte_count).slice();
+    const address = output.address;
+    assert.throws(() => engine.scene_draw(session, 1400, viewport, output), { code: 'ENGINE_8' });
+    assert.equal(output.required.required_instances, busy_count);
+    assert.deepEqual(new Uint8Array(engine.wasm.memory.buffer, address, prior.length), prior);
   } finally { engine.dispose(); }
 });

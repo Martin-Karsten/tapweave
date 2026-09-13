@@ -268,8 +268,6 @@ descriptor_sample_flags_mark_upstream_loop_names :: proc(test: ^testing.T) {
 		{name = "spinnerspin"},
 		{name = "hitnormal"},
 	}
-	defer delete(samples[0].candidates)
-	defer delete(samples)
 	expected_flags := [4]u32{1, 1, 1, 0}
 	builder := prepared.Binary_Builder{bytes = make([]byte, 4096), limit = 4096}
 	defer delete(builder.bytes)

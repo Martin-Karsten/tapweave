@@ -85,6 +85,9 @@ for (const scenario of scenarios) {
             assert.equal(upstream.slider_visual.snaking_in, true);
             assert.equal(upstream.slider_visual.snaking_out, true);
           }
+          let spinner_progress = 0;
+          let ball_present = false;
+          let tracking_present = false;
           for (let instance_index = 0; instance_index < output.instances.count; instance_index++) {
             output.record_into(output.instances, instance_index, instance);
             if (instance.primitive === 4 && upstream.slider_visual && frame.time_ms < scenario.end_ms) {
@@ -93,14 +96,36 @@ for (const scenario of scenarios) {
               comparisons.push({ time_ms: frame.time_ms, field: 'snaked_end', local: instance.clip_end, upstream: upstream.slider_visual.snaked_end,
                 error: Math.abs(instance.clip_end - upstream.slider_visual.snaked_end) });
             }
-            if (scenario.id.startsWith('spinner') && instance.primitive === 2 && instance.layer === 20 && instance.ordinal === 1 && frame.time_ms >= 1000 && frame.time_ms <= 2000) {
-              comparisons.push({ time_ms: frame.time_ms, field: 'spinner_progress', local: instance.progress, upstream: upstream.spinner_progress,
-                error: Math.abs(instance.progress - upstream.spinner_progress) });
+            if (upstream.slider_visual && instance.layer === 35) {
+              if (instance.primitive === 1 && instance.ordinal === 0) {
+                ball_present = true;
+                // DrawableSlider.Ball is relative to the slider origin. These
+                // fixtures have no stacking; compare canonical GPU f32 positions.
+                for (const [field, local, upstream_position] of [
+                  ['ball_x', instance.x, Math.fround(150 + upstream.slider_visual.ball_x)],
+                  ['ball_y', instance.y, Math.fround(180 + upstream.slider_visual.ball_y)],
+                ]) comparisons.push({ time_ms: frame.time_ms, field, local, upstream: upstream_position,
+                  error: Math.abs(local - upstream_position), tolerance: 1e-4 });
+              }
+              if (instance.primitive === 2 && instance.ordinal === 1) tracking_present = true;
             }
+            if (scenario.id.startsWith('spinner') && instance.primitive === 2 && instance.layer === 20 && instance.ordinal === 1 && frame.time_ms >= 1000 && frame.time_ms <= 2000) {
+              spinner_progress = instance.progress;
+            }
+          }
+          if (scenario.id.startsWith('spinner') && frame.time_ms >= 1000 && frame.time_ms <= 2000) {
+            comparisons.push({ time_ms: frame.time_ms, field: 'spinner_progress', local: spinner_progress, upstream: upstream.spinner_progress,
+              error: Math.abs(spinner_progress - upstream.spinner_progress), tolerance: 1e-6 });
+          }
+          if (upstream.slider_visual && frame.time_ms >= 1000 && frame.time_ms <= scenario.end_ms) {
+            comparisons.push({ time_ms: frame.time_ms, field: 'ball_present', local: ball_present, upstream: true,
+              error: ball_present ? 0 : 1, tolerance: 0 });
+            comparisons.push({ time_ms: frame.time_ms, field: 'tracking_indicator_present', local: tracking_present,
+              upstream: upstream.tracking, error: tracking_present === upstream.tracking ? 0 : 1, tolerance: 0 });
           }
         }
       } finally { engine.dispose(); }
-      const differences = comparisons.filter(comparison => comparison.error > (comparison.field === 'spinner_progress' ? 1e-6 : 1e-12));
+      const differences = comparisons.filter(comparison => comparison.error > (comparison.tolerance ?? (comparison.field === 'spinner_progress' ? 1e-6 : 1e-12)));
       const comparison_bytes = JSON.stringify(comparisons);
       await writeFile(resolve(artifacts, `${id}.comparison.json`), comparison_bytes);
       findings.push({ id, fixture_sha256: hash(fixture_bytes), observation_sha256: hash(observation_bytes),
@@ -122,7 +147,7 @@ await writeFile(resolve(root, 'reference/findings/m3-scene-presentation.json'), 
   test_ports: [{ source: 'TestSceneSliderSnaking.TestSnakingEnabled(0,1,2)', local: 'scene_snaking_enabled_upstream_assertion_port',
     adaptation: 'Odin supplied prepared path, semantic head hit and explicit sample times; Player/autoplay/seek infrastructure not ported',
     exclusions: ['TestSnakingDisabled: non-default setting', 'TestRepeatArrowDoesNotMove: adaptive arrow smoothing acceptance remains open'] }],
-  limitations: ['Only visible body clipping and spinner progress compared by this runner; adapter also records ball/head/tail/nested states.',
+  limitations: ['Compares visible body clipping, slider ball positions and presence, tracking indicator presence, and spinner progress; adapter also records head/tail/nested states.',
     'Complete nested transforms, follow points, cursor/trail and HUD appearance acceptance remain open.',
     'Original semantic trail is a deterministic cosmetic policy; it does not reproduce framework sprite sampling.'], findings,
 }, null, 2) + '\n');

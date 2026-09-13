@@ -3,7 +3,7 @@
 The Odin engine implements decoding, control points, immutable beatmap preparation
 and ABI v2 map/session ownership. See [status and evidence](../docs/status.md).
 Explicit gameplay sessions implement headless rules, scoring/health, replay and
-snapshots. Browser rendering and audio playback remain unsupported.
+snapshots. Production scene resources and draw commands are available to the browser renderer; integrated gameplay acceptance remains open.
 
 ## Build and test
 
@@ -118,8 +118,10 @@ transport, without test `trace_*` exports. The generated executable JavaScript
 ABI and TypeScript declarations share the schema with existing Odin/C bindings.
 The `presentation` package provides an allocation-free playfield transform and
 active projection with independent output lifetime. Runtime also exposes compact
-gameplay output. Native/WASM local contract tests cover these transports; object
-animation and WebGL rendering remain unsupported.
+gameplay output. The complete-scene transport adds mixed circle/slider/spinner
+instances, original glyphs, immutable slider geometry and ordered batches through
+`render_webgl`. Native/WASM tests cover resource and instance parity; pinned
+presentation acceptance remains partial. The legacy circle diagnostic is retained.
 
 See the [browser guide](../platform/browser-js/README.md) and
 [current status](../docs/status.md). Browser dependencies remain isolated

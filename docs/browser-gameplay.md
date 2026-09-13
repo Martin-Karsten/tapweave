@@ -1,7 +1,7 @@
 # Browser gameplay plan
 
-Play remains disabled. Only partial W01 and the W03 active-projection foundation
-are implemented; no unit below is complete. [Current status](status.md) owns
+Play remains disabled. W01–W06 have partial implementations, including the
+mixed-scene renderer and synchronous frame hook; no unit below is complete. [Current status](status.md) owns
 implemented coverage, the [reference harness](compatibility/reference-harness.md#remaining-gameplay-adapters)
 owns missing adapters, and the ADRs own resource/audio requirements.
 

@@ -105,7 +105,7 @@ dedicated context and one retained attachment; it is not wired into the player.
 `publish(resources)` runs during preparation/resource replacement. After context
 restoration, `restore()` rebuilds the retained bytes; it does not resume gameplay.
 `bind(generation, resource_id)` rejects stale identities and only binds resources.
-It does not execute draw records. See the [rendering ADR](../../docs/architecture/adr-003-rendering.md#bounded-w04-resource-service)
+The legacy `bind` operation does not execute draw records. See the [rendering ADR](../../docs/architecture/adr-003-rendering.md#bounded-w04-resource-service)
 for quotas and peak ownership. The Playwright resource test renders a diagnostic
 quad using the unchanged Odin shader payload; full W04 graphics remain open.
 
@@ -118,5 +118,46 @@ The render callback receives beatmap time and borrowed compact output; consume i
 synchronously before requesting draw output. Pause drains input through
 `frame.pause()`; resume with `playback.start()` and `frame.start()`. Dispose the DOM
 binding, stop the frame driver and dispose playback before releasing the session.
-Do not share this driver across session reset/replacement. The complete renderer,
-product lifecycle and Play gate remain unfinished; see the implementation status.
+Do not share this driver across session reset/replacement. The renderer service
+below can supply the synchronous callback. Product lifecycle and Play gates remain
+unfinished; see the implementation status.
+
+
+### Mixed-scene renderer
+
+`Renderer(engine, session_handle, map_handle, canvas, epoch, on_context_lost)`
+reserves scene output and GPU staging during preparation. Call
+`render(time_ms, viewport, epoch)` synchronously from the owner's frame callback;
+consume any other borrowed engine output first. It introduces no clock or RAF.
+The viewport contains CSS bounds and DPR; rendering applies resize automatically.
+The map and session must belong to the same engine and map attachment.
+
+On context loss, the callback must pause the lifecycle owner and release input
+and audio. `ready` becomes false. After the browser restores the context, call
+`restore()` explicitly and check readiness before allowing the owner to resume.
+Restoration rebuilds resources but does not resume gameplay. Call `dispose()`
+before releasing the engine/session. Dedicated contexts are required.
+
+Build and serve, then visit `/renderer-debug.html` to scrub the scripted production
+WASM circle/slider/spinner fixture. It includes explicit graphics restoration and
+keeps product Play disabled. `tests/browser/scene.spec.mjs` exercises this fixture
+and the command executor, including malformed-frame rejection and DPR changes.
+
+The default `scene-workloads.spec.mjs` run is a **smoke profile**: each workload at
+60 Hz with a 100 ms stall. Set `TAPWEAVE_RENDERER_MATRIX=1` to run all
+30/60/120/144 Hz and 0/50/100/250 ms cases. Use one worker for measurements:
+
+```sh
+TAPWEAVE_RENDERER_MATRIX=1 npm --prefix platform/browser-js run test:browser -- --project=chromium --workers=1 scene-workloads.spec.mjs
+```
+
+Each workload/cadence saves its own JSON report, so later failures retain completed
+measurements. Reports include sampled stage percentiles, optional asynchronous GPU
+timing, retained WASM pages and peak instance/command counts. Idle RAF intervals
+are not loaded frame-pacing evidence, and the 10,000-object workload measures a
+three-second prefix. These reports do not constitute approved performance limits;
+full memory profiling, loaded pacing and baseline approval remain required.
+
+Capture completed local renderer reports and their hashes with
+`node engine/scripts/record-renderer-findings.mjs` after the documented runs.
+It records missing acceptance separately and does not approve the baseline.

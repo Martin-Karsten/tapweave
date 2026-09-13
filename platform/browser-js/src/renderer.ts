@@ -19,6 +19,8 @@ export class Renderer {
     engine.scene_capabilities();
     this.resources = engine.scene_resources(map_handle);
     const capacity = engine.scene_reserve(session_handle);
+    require_condition(capacity.resource_id === this.resources.summary.resource_id && capacity.epoch === epoch,
+      'INVALID_DRAW', 'Renderer preparation requires the current session epoch and matching map attachment.');
     engine.scene_reserve(session_handle, capacity.required_instances, capacity.required_bytes);
     this.instance_capacity = capacity.required_instances;
     this.output = new Scene_Output(this.resources, epoch);

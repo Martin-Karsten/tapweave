@@ -55,17 +55,22 @@ HPDrainRate:0
       renderer.render(1400, viewport, epoch);
       const generation = renderer.gpu.generation;
       const extension = context.getExtension('WEBGL_lose_context');
-      const lost = new Promise(resolve => canvas.addEventListener('webglcontextlost', resolve, { once: true }));
-      extension.loseContext(); await lost;
-      const unavailable = !renderer.ready;
-      const restored = new Promise(resolve => canvas.addEventListener('webglcontextrestored', resolve, { once: true }));
-      setTimeout(() => extension.restoreContext(), 50); await restored;
-      renderer.restore();
-      renderer.render(1400, viewport, epoch);
+      let unavailable = true;
+      const recovered = [];
+      for (let recovery_cycle = 0; recovery_cycle < 3; recovery_cycle++) {
+        const lost = new Promise(resolve => canvas.addEventListener('webglcontextlost', resolve, { once: true }));
+        extension.loseContext(); await lost;
+        unavailable &&= !renderer.ready;
+        const restored = new Promise(resolve => canvas.addEventListener('webglcontextrestored', resolve, { once: true }));
+        setTimeout(() => extension.restoreContext(), 50); await restored;
+        renderer.restore();
+        renderer.render(1400, viewport, epoch);
+        recovered.push(sample());
+      }
       const after = sample();
       let stale;
       try { renderer.gpu.execute(renderer.output, viewport, epoch, generation); } catch (error) { stale = error.code; }
-      return { before, spinner, rejection, after_invalid, after, resized, loss_count, unavailable, stale,
+      return { before, spinner, rejection, after_invalid, after, recovered, resized, loss_count, unavailable, stale,
         uploads: renderer.gpu.upload_count };
     } finally { renderer.dispose(); engine.dispose(); }
   });
@@ -77,9 +82,70 @@ HPDrainRate:0
   expect(result.after_invalid).toEqual(result.before);
   expect(result.after).toEqual(result.before);
   expect(result.resized).toEqual([1536, 1152]);
-  expect(result.loss_count).toBe(1);
+  expect(result.loss_count).toBe(3);
+  for (const recovered of result.recovered) expect(recovered).toEqual(result.before);
   expect(result.unavailable).toBe(true);
   expect(result.stale).toBe('INVALID_DRAW');
-  expect(result.uploads).toBe(2);
+  expect(result.uploads).toBe(4);
   await page.locator('img').screenshot({ path: test_info.outputPath('mixed-scene.png') });
+});
+
+test('developer fixture scrubs production scenes and restores only on request', async ({ page }, test_info) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/renderer-debug.html');
+  await expect(page.locator('#status')).toContainText('static upload(s)');
+  for (const time_ms of [0, 1000, 1700, 2300, 3800, 4500, 5000, 1400]) {
+    await page.locator('#time').fill(String(time_ms));
+    await page.locator('#time').dispatchEvent('input');
+    await expect(page.locator('#time-label')).toHaveText(`${time_ms} ms`);
+    await expect(page.locator('#status')).toContainText('1 static upload(s)');
+  }
+  await page.locator('canvas').screenshot({ path: test_info.outputPath('developer-scene.png') });
+  await page.evaluate(() => {
+    const canvas = document.querySelector('canvas');
+    const extension = canvas.getContext('webgl2').getExtension('WEBGL_lose_context');
+    canvas.addEventListener('webglcontextlost', () => setTimeout(() => extension.restoreContext(), 100), { once: true });
+    extension.loseContext();
+  });
+  await expect(page.locator('#restore')).toBeEnabled();
+  await expect(page.locator('#time')).toBeDisabled();
+  await page.locator('#restore').click();
+  await expect(page.locator('#time')).toBeEnabled();
+  await expect(page.locator('#status')).toContainText('2 static upload(s)');
+  expect(errors).toEqual([]);
+});
+
+test('slider reversals and duplicate segments retain single-coverage body opacity', async ({ page }) => {
+  await page.goto('/');
+  const samples = await page.evaluate(async () => {
+    const { Engine_Bridge } = await import('/platform/browser-js/src/engine-bridge.js');
+    const { Renderer } = await import('/platform/browser-js/src/renderer.js');
+    const wasm = await (await fetch('/tapweave.wasm')).arrayBuffer();
+    const result = [];
+    for (const [path, length] of [['380:180', 230], ['380:180|150:180', 460], ['150:180|380:180|380:180|150:180', 460]]) {
+      const engine = await Engine_Bridge.create(wasm);
+      const canvas = document.createElement('canvas');
+      const map = engine.prepare_map(new TextEncoder().encode(`osu file format v14\n[Difficulty]\nHPDrainRate:0\n[TimingPoints]\n0,500,4,1,1,100,1,0\n[HitObjects]\n150,180,1500,2,0,L|${path},1,${length}`));
+      const session = engine.create_session(map.map_handle, { input_capacity: 32, batch_capacity: 32 });
+      const epoch = engine.snapshot(session, 0).summary.epoch;
+      const renderer = new Renderer(engine, session, map.map_handle, canvas, epoch, () => {});
+      try {
+        renderer.render(1400, { css_left: 0, css_top: 0, css_width: 512, css_height: 384, device_pixel_ratio: 1 }, epoch);
+        const context = canvas.getContext('webgl2');
+        const pixels = new Uint8Array(4);
+        // Interior samples avoid the head/tail/tick decorations and AA edges.
+        const sample_x = Math.floor(renderer.output.summary.client_left + 250 * renderer.output.summary.scale);
+        const sample_y = 383 - Math.floor(renderer.output.summary.client_top + 200 * renderer.output.summary.scale);
+        context.readPixels(sample_x, sample_y, 1, 1, context.RGBA, context.UNSIGNED_BYTE, pixels);
+        result.push({ pixels: [...pixels], error: context.getError() });
+      } finally { renderer.dispose(); engine.dispose(); }
+    }
+    return result;
+  });
+  expect(samples[0].pixels[2]).toBeGreaterThan(50);
+  for (const sample of samples) {
+    expect(sample.error).toBe(0);
+    for (let channel = 0; channel < 4; channel++) expect(Math.abs(sample.pixels[channel] - samples[0].pixels[channel])).toBeLessThanOrEqual(2);
+  }
 });
