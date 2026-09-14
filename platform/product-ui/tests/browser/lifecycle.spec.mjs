@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
 
+// Parity port of platform/browser-js/tests/browser/lifecycle.spec.mjs intent
+// for the product shell routes: full attempt lifecycle, keyboard pause,
+// resume, retry, authoritative results, audio suspension and GPU restoration.
+
 function music_wav(seconds = 8) {
   const samples = 8000 * seconds;
   const bytes = Buffer.alloc(44 + samples * 2);
@@ -41,7 +45,7 @@ async function observe_audio(page) {
   });
 }
 
-test('validation UI plays mixed maps, pauses with keyboard, resumes, retries and shows authoritative results', async ({ page }, test_info) => {
+test('shell plays mixed maps, pauses with keyboard, resumes, retries and shows authoritative results', async ({ page }, test_info) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await load(page);
@@ -51,7 +55,9 @@ test('validation UI plays mixed maps, pauses with keyboard, resumes, retries and
   await page.keyboard.down('z'); await page.keyboard.press('Escape'); await page.keyboard.up('z');
   await expect(page.locator('#lifecycle-title')).toHaveText('Paused');
   await expect(page.locator('#lifecycle-panel')).toBeFocused();
-  await expect(page.locator('#files')).toBeDisabled();
+  // The attempt locks file selection: the select route stays out of reach
+  // during play (the vanilla player disabled the input instead).
+  await expect(page.locator('#files')).toHaveCount(0);
   await page.locator('#resume').click();
   await expect(page.locator('#pause')).toBeVisible();
   await page.locator('#pause').click();
@@ -60,11 +66,11 @@ test('validation UI plays mixed maps, pauses with keyboard, resumes, retries and
   await expect(page.locator('#lifecycle-title')).toHaveText('Passed', { timeout: 12000 });
   await expect(page.locator('#result-stats')).toContainText('Accuracy');
   expect(await page.locator('#result-stats').textContent()).not.toContain('undefined');
-  await page.locator('#player').screenshot({ path: test_info.outputPath('results.png') });
+  await page.locator('.results-screen').screenshot({ path: test_info.outputPath('results.png') });
   await page.locator('#back').click();
   await expect(page.locator('#start')).toBeEnabled();
   await expect(page.locator('#start')).toBeFocused();
-  await expect(page.locator('#difficulty')).toBeEnabled();
+  await expect(page.locator('[data-virtual-list="difficulties"]')).toBeVisible();
   expect(errors).toEqual([]);
 });
 

@@ -20,6 +20,11 @@
 # TypeScript emit for the browser player.
 /platform/browser-js/build/
 
+# Product shell (ADR-006): sources are tracked; generated assets are not.
+!/platform/product-ui/
+/platform/product-ui/dist/
+/platform/product-ui/public/
+
 # Toolchains, dependencies, generated output, and credentials.
 **/.toolchain/
 /engine/.reference/

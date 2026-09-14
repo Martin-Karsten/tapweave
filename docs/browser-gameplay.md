@@ -17,7 +17,9 @@ Odin owns deterministic gameplay, presentation, sample selection and audio inten
 JavaScript owns browser resources and executes generated ABI commands. Use WebGL2,
 one Web Audio clock, plain modules and the existing browser package. Preserve
 Tapweave naming and third-party attribution. No new framework or npm dependency
-without a concrete requirement.
+without a concrete requirement; the one accepted exception is the Solid product
+shell decided by [ADR-006](architecture/adr-006-product-shell.md), whose
+`platform/product-ui` package re-uses the browser services unchanged.
 
 The canonical in/out-of-scope list is the [docs scope boundary](README.md#scope-boundary),
 restated here: mods, other rulesets, skins, storyboards, accounts, networking,

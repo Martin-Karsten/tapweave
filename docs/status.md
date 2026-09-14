@@ -581,3 +581,40 @@ Upstream lazer timestamps input during update polls rather than at DOM receipt,
 so no pinned equivalent exists; this is recorded as a documented transport
 policy, not a port. No acceptance gate changes. WebKit executables remain a
 validation blocker.
+
+## Product shell (ADR-006, S0b promotion)
+
+The Solid spike evidence (A1′–B4′ gates plus the Vue counter-evidence) is
+promoted into `platform/product-ui/`, an in-monorepo Solid 1.9 shell with
+exact-pinned dependencies and a mandatory `test:gates` suite
+(typecheck, expected-errors, build, Vitest and the HMR/B1/B2/B3
+probes writing JSON to `artifacts/gates/`). The WASM binary is copied from
+`engine/artifacts/` by `scripts/prepare_assets.mjs` into an ignored directory
+and is never committed. See [ADR-006](architecture/adr-006-product-shell.md)
+for ownership rules: components reach the engine only through `@browser`
+services, services contain no reactivity, judgement timestamps stay
+audio-clock-owned, and shell updates never enter the engine frame path.
+
+The W07 validation player is re-platformed into the shell. Routes are
+`/select`, `/play`, `/results` and `/diagnostics`: selection uses the
+generalized virtual list, `/play` is a host element only (the session service
+owns the canvas, RAF pump and audio clock; overlays read service state),
+results/retry read the authoritative engine record, and diagnostics carries
+the engine capabilities panel, gate fixtures, an engine round-trip check, an
+input binding fixture and the downloadable player diagnostics report. The
+vanilla `browser-js/src/main.ts` UI is retired; `platform/browser-js` remains
+the service layer with a minimal harness page, the renderer developer fixture
+and the `/debug.html` developer workspace. The in-player debug panel/HUD added
+with the debug suite targeted the retired vanilla page; re-homing it into the
+shell (subscribing to the unchanged diagnostics service) remains open.
+
+Validation is local only: `test:gates` (including expected TS2322/TS2769/
+TS1484 diagnostics), 7 Vitest component tests and the ported Playwright
+parity intent (selection, archive difficulty switching, malformed archives,
+diagnostics download, engine round-trip, full attempt lifecycle with keyboard
+pause/resume/retry/results/back, audio suspension, real GPU restoration and
+input aggregation) pass on Chromium and Firefox against the production WASM.
+WebKit executables could not be downloaded locally (CDN gateway failure) and
+stay a CI-side check; the product-shell CI job mirrors browser-foundation
+with a ten-second B3 probe. No upstream acceptance gate changes from this
+work, and native/WASM engine suites are untouched.

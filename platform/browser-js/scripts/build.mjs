@@ -8,7 +8,6 @@ await mkdir(new URL('platform/browser-js/src/', site_root), { recursive: true })
 await mkdir(new URL('engine/abi/', site_root), { recursive: true });
 await mkdir(new URL('vendor/', site_root), { recursive: true });
 await cp(new URL('build/', browser_root), new URL('platform/browser-js/src/', site_root), { recursive: true });
-await cp(new URL('style.css', browser_root), new URL('platform/browser-js/style.css', site_root));
 await cp(new URL('index.html', browser_root), new URL('index.html', site_root));
 await cp(new URL('debug.html', browser_root), new URL('debug.html', site_root));
 await cp(new URL('renderer-debug.html', browser_root), new URL('renderer-debug.html', site_root));
