@@ -14,6 +14,8 @@ import { download_text } from './debug-ui.js';
 const element = (identifier: string) => document.getElementById(identifier)!;
 const definitions = debug_scenarios();
 const diagnostics = new Diagnostics_Service();
+// The workspace always profiles the full detail profile for its runs.
+diagnostics.capture_mode = 'detailed';
 let wasm_bytes: Uint8Array | null = null;
 let active_run: Debug_Scenario_Run | null = null;
 let active_definition: Debug_Scenario_Definition | null = null;

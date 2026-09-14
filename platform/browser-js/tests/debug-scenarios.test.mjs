@@ -54,6 +54,7 @@ test('browser-only scenarios reject explicitly outside a browser workspace', asy
 test('clock mismatch retains exact mapped timestamps and lateness in production WASM', async () => {
   const definition = definitions.find(candidate => candidate.id === 'clock-mismatch-rejection');
   const diagnostics = new Diagnostics_Service();
+  diagnostics.capture_mode = 'detailed';
   const run = await Debug_Scenario_Run.create(wasm, definition, { diagnostics });
   try {
     await run.run_to_completion();

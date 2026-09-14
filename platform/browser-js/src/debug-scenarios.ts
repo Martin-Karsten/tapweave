@@ -263,8 +263,11 @@ export class Debug_Scenario_Run {
   private readonly interval_ms: number;
   private audio_starts = 0;
 
+  private readonly owns_diagnostics: boolean;
+
   private constructor(readonly wasm_bytes: Uint8Array, definition: Debug_Scenario_Definition,
     private readonly options: Scenario_Run_Options) {
+    this.owns_diagnostics = options.diagnostics === undefined || options.diagnostics === null;
     this.diagnostics = options.diagnostics ?? new Diagnostics_Service();
     this.definition = definition;
     this.end_ms = definition.parameters.end_ms ?? 5000;
@@ -280,7 +283,9 @@ export class Debug_Scenario_Run {
   }
 
   private async initialize() {
-    this.diagnostics.capture_mode = 'detailed';
+    // A caller-supplied diagnostics service keeps its capture mode; the
+    // default workspace service records the full detail profile.
+    if (this.owns_diagnostics) this.diagnostics.capture_mode = 'detailed';
     this.engine = await Engine_Bridge.create(this.wasm_bytes, { diagnostics: this.diagnostics });
     const map = this.engine.prepare_map(new TextEncoder().encode(DEBUG_SCENARIO_MAP));
     this.map_handle = map.map_handle;
