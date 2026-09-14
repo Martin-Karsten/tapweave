@@ -28,10 +28,10 @@ export const start_input_gate_fixture = async (): Promise<void> => {
   canvas.style.cssText = 'position:fixed;left:20px;top:40px;width:512px;height:384px;z-index:999';
   document.body.append(canvas);
   const frame = {
-    playback: { state: 'running', engine },
+    playback: { state: 'running', engine, clock: { epoch: 1 }, context: { currentTime: 0.5 } },
     input: new Input_Buffer(64),
     pause() {
-      this.input.release_all(performance.now());
+      this.input.release_all(this.playback.context.currentTime, this.playback.clock.epoch);
       this.playback.state = 'paused';
     },
     fail(error: unknown) {
