@@ -93,7 +93,7 @@ export function Virtual_List<Row>(props: Virtual_List_Props<Row>): JSX.Element {
                 height: `${virtual_row.size}px`,
                 transform: `translateY(${virtual_row.start}px)`,
                 'line-height': `${props.row_height}px`,
-                'border-bottom': '1px solid #2e2e44',
+                'border-bottom': '1px solid var(--color-border)',
                 cursor: props.disabled ? 'default' : 'pointer',
               }}
               onClick={() => activate(virtual_row.index)}
