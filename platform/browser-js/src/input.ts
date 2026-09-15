@@ -15,6 +15,7 @@ export interface Input_Snapshot {
   action_bits: number;
   source: string;
   focus_epoch: number;
+  flags?: number;
 }
 
 export interface Input_Receive {
@@ -44,6 +45,19 @@ export class Input_Buffer {
     require_condition(Number.isSafeInteger(maximum_records) && maximum_records > 0,
       'INVALID_ARGUMENT', 'Invalid input queue capacity.');
     this.maximum_records = maximum_records;
+  }
+
+  reconcile(sources: ReadonlyMap<string, number>, audio_seconds: number, clock_epoch: number, flags = 0, position?: { x: number; y: number }) {
+    require_condition(this.records.length < this.maximum_records && Number.isFinite(audio_seconds) &&
+      Number.isInteger(clock_epoch) && clock_epoch >= 0 && (flags === 0 || flags === 1) && (!position || all_finite([position.x, position.y])) &&
+      [...sources.values()].every(action => action === ACTION.LEFT || action === ACTION.RIGHT),
+    'INVALID_INPUT', 'Invalid resume input state.');
+    this.held_sources = new Map(sources);
+    if (position) { this.x = position.x; this.y = position.y; }
+    let action_bits = 0;
+    for (const action of sources.values()) action_bits |= action;
+    this.records.push({ sequence: ++this.sequence, audio_seconds, clock_epoch, raw_time_ms: performance.now(),
+      x: this.x, y: this.y, action_bits, source: 'resume', focus_epoch: this.focus_epoch, flags });
   }
 
   receive({ source_id, action = 0, held = false, audio_seconds, clock_epoch, raw_time_ms,

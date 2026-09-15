@@ -1,6 +1,10 @@
+import { Resume_Gate, mapped_sources } from './resume-gate.js';
+import { Held_Input } from './held-input.js';
+import { DEFAULT_PLAYER_SETTINGS, gameplay_control_hint, gameplay_accessible_label, type Gameplay_Input_Settings } from './player-settings.js';
 import { Engine_Bridge, type Session_Output } from './engine-bridge.js';
 import { Selection_Controller, type Active_Selection } from './selection.js';
 import { Audio_Playback } from './audio-playback.js';
+import type { Audio_Clock } from './clock.js';
 import { Gameplay_Frame } from './gameplay-frame.js';
 import { Gameplay_Input } from './gameplay-input.js';
 import { Renderer } from './renderer.js';
@@ -8,7 +12,7 @@ import { SESSION_STATE, ALL_VOICE_COMMAND_FAMILIES } from './abi-records.js';
 import { Browser_Error, require_condition } from './errors.js';
 import type { Diagnostics_Service } from './diagnostics.js';
 
-export type Gameplay_State = 'loading' | 'ready' | 'starting' | 'running' | 'paused' | 'recovering' | 'terminal' | 'disposed';
+export type Gameplay_State = 'loading' | 'ready' | 'starting' | 'running' | 'resuming' | 'paused' | 'recovering' | 'terminal' | 'disposed';
 export interface Gameplay_View {
   readonly state: Gameplay_State;
   readonly can_play: boolean;
@@ -28,6 +32,8 @@ export interface Gameplay_Options {
   sample_audio?: () => number;
   diagnostics?: Diagnostics_Service | null;
   on_frame?: () => void;
+  input_settings?: () => Gameplay_Input_Settings;
+  outputs?: { music?: AudioNode; effects?: AudioNode };
 }
 
 // Product lifecycle only. Engine records remain the authority for gameplay/results.
@@ -45,10 +51,14 @@ export class Gameplay_Controller {
   private renderer: Renderer | null = null;
   private frame: Gameplay_Frame | null = null;
   private input: Gameplay_Input | null = null;
+  private resume_gate: Resume_Gate | null = null;
+  private paused_cursor_flags = 0;
+  private paused_sources = new Map<string, number>();
   private in_attempt = false;
   private terminal_draining = false;
   private graphics_lost = false;
   private restoration_timer: ReturnType<typeof setTimeout> | null = null;
+  private readonly held_input: Held_Input;
   private readonly sample_audio: () => number;
   private readonly diagnostics: Diagnostics_Service | null;
 
@@ -60,9 +70,13 @@ export class Gameplay_Controller {
     const signal = this.listeners.signal;
     const document = canvas.ownerDocument;
     const window = document.defaultView!;
-    window.addEventListener('blur', () => this.pause('Window lost focus.'), { signal });
+    this.held_input = new Held_Input(window);
+    window.addEventListener('blur', () => {
+      this.pause('Window lost focus.');
+      this.paused_cursor_flags = 0;
+    }, { signal });
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden) this.pause('Page is hidden.');
+      if (document.hidden) { this.pause('Page is hidden.'); this.paused_cursor_flags = 0; }
     }, { signal });
     context.addEventListener('statechange', () => {
       if (context.state !== 'running') {
@@ -105,6 +119,12 @@ export class Gameplay_Controller {
       can_resume: this.state === 'paused' && this.playback?.state === 'paused' && graphics_usable,
       can_retry: this.in_attempt && this.state !== 'starting' && this.state !== 'disposed' && graphics_usable,
       recovery: this.recovery_details, in_attempt: this.in_attempt, message: this.message, error: this.error, result: this.result });
+  }
+
+  // Read-only diagnostic probe over the active playback clock (never drives
+  // gameplay). Browser parity specs use it to inject deterministic faults.
+  get playback_clock(): Audio_Clock | null {
+    return this.playback?.clock ?? null;
   }
 
   private publish() {
@@ -186,7 +206,7 @@ export class Gameplay_Controller {
   #require_complete_protocols() {
     const simulation = this.engine.simulation_capabilities;
     const output = this.engine.output_capabilities;
-    require_condition(simulation.simulation_version === 1 && simulation.rules_version === 1 &&
+    require_condition(simulation.simulation_version === 1 && simulation.rules_version === 2 &&
       simulation.flags === 1 && simulation.max_inputs >= 8192 &&
       output.compact_version === 1 && output.flags === 0 && output.reserved === 0 &&
       this.engine.transport_capabilities.voice_command_mask === ALL_VOICE_COMMAND_FAMILIES,
@@ -199,7 +219,7 @@ export class Gameplay_Controller {
   }
 
   private create_playback(reuse_voice_storage = false) {
-    this.playback = new Audio_Playback(this.engine, this.session_handle!, this.context, this.prepared_selection!, {}, reuse_voice_storage, this.diagnostics);
+    this.playback = new Audio_Playback(this.engine, this.session_handle!, this.context, this.prepared_selection!, {}, reuse_voice_storage, this.diagnostics, this.options.outputs);
     this.frame = new Gameplay_Frame(this.playback, (time_ms, output) => {
       const bounds = this.canvas.getBoundingClientRect();
       this.renderer!.render(time_ms, { css_left: bounds.left, css_top: bounds.top,
@@ -212,6 +232,7 @@ export class Gameplay_Controller {
       { diagnostics: this.diagnostics,
         frame_metrics: () => ({ instances: this.renderer?.gpu.metrics.instances ?? 0,
           batches: this.renderer?.gpu.metrics.commands ?? 0, gpu_ms: this.renderer?.gpu.metrics.gpu_ms ?? null }) });
+    this.frame.on_pause = reason => this.pause(reason);
     this.frame.on_error = error => this.recover(error);
     this.frame.on_terminal = () => this.terminal();
     this.frame.on_terminal_frame = () => this.drain_terminal();
@@ -224,24 +245,84 @@ export class Gameplay_Controller {
     await this.start();
   }
 
-  async resume() {
-    if (!this.view.can_resume) return;
-    await this.start();
+  private physical_position(): { x: number; y: number } | undefined {
+    const { pointer_x, pointer_y } = this.held_input;
+    if (!Number.isFinite(pointer_x) || !Number.isFinite(pointer_y)) return;
+    const bounds = this.canvas.getBoundingClientRect();
+    const transform = this.engine.playfield_transform({ css_left: bounds.left, css_top: bounds.top,
+      css_width: bounds.width, css_height: bounds.height,
+      device_pixel_ratio: this.canvas.ownerDocument.defaultView!.devicePixelRatio });
+    return { x: Number(transform.inverse_a) * pointer_x + Number(transform.inverse_c) * pointer_y + Number(transform.inverse_e),
+      y: Number(transform.inverse_b) * pointer_x + Number(transform.inverse_d) * pointer_y + Number(transform.inverse_f) };
   }
 
-  private async start() {
+  quarantine_input(source: string) {
+    this.held_input.quarantined.add(source);
+  }
+
+  async resume() {
+    if (!this.view.can_resume) return;
+    try {
+      const policy = this.engine.resume_policy(this.session_handle!, this.paused_cursor_flags);
+      if (!Number(policy.required)) { await this.start(true); return; }
+      const bounds = this.canvas.getBoundingClientRect();
+      const transform = this.engine.playfield_transform({ css_left: bounds.left, css_top: bounds.top,
+        css_width: bounds.width, css_height: bounds.height,
+        device_pixel_ratio: this.canvas.ownerDocument.defaultView!.devicePixelRatio });
+      const target_x = Number(transform.client_left) + Number(transform.scale) * Number(policy.x);
+      const target_y = Number(transform.client_top) + Number(transform.scale) * Number(policy.y);
+      this.state = 'resuming';
+      this.message = 'Move to the orange cursor and press a hit key or mouse button. Escape returns to pause.';
+      this.publish();
+      this.resume_gate = new Resume_Gate(this.canvas, this.options.input_settings?.() ?? DEFAULT_PLAYER_SETTINGS,
+        target_x, target_y, Number(policy.half_size) * Math.min(bounds.width / 1024, bounds.height / 768),
+        this.held_input.pointer_x, this.held_input.pointer_y, this.held_input.gameplay_sources, (action, source) => {
+          this.resume_gate?.dispose();
+          this.resume_gate = null;
+          void this.start(true, Number(action === 1 ? policy.left_input_flags : policy.right_input_flags), source);
+        }, () => this.pause('Paused.'));
+    } catch (error) { this.recover(error); }
+  }
+
+  private async start(resuming = false, resume_flags = 0, resume_source?: string) {
+    const resume_sources = new Set(this.held_input.gameplay_sources);
+    const input_settings = this.options.input_settings?.() ?? DEFAULT_PLAYER_SETTINGS;
+    const resume_position = resuming ? this.physical_position() : undefined;
+    const retained_sources = mapped_sources(resume_sources, input_settings);
+    for (const [source, action] of retained_sources) {
+      if (this.paused_sources.get(source) !== action) retained_sources.delete(source);
+    }
     const generation = ++this.generation;
     const playback = this.playback!;
     this.state = 'starting';
     this.message = 'Starting audio…';
     this.publish();
     try {
-      await playback.start(0);
+      await playback.start(0, () => {
+        if (!resuming) return;
+        const audio_seconds = playback.clock.anchor!.audio_seconds;
+        // PassThroughInputManager first synchronises releases, then forwards
+        // the actual resume event. Unrelated keys pressed while paused do not
+        // become new gameplay presses merely because input is re-enabled.
+        this.frame!.input.reconcile(retained_sources, audio_seconds, playback.clock.epoch, resume_flags, resume_position);
+        if (resume_source) {
+          const action = mapped_sources(resume_sources, input_settings).get(resume_source);
+          if (action) retained_sources.set(resume_source, action);
+        }
+        this.frame!.input.reconcile(retained_sources, audio_seconds, playback.clock.epoch);
+        const physical_sources = this.held_input.gameplay_sources;
+        for (const source of retained_sources.keys()) if (!physical_sources.has(source)) retained_sources.delete(source);
+        this.frame!.input.reconcile(retained_sources, audio_seconds, playback.clock.epoch, 0, this.physical_position());
+        this.frame!.drain();
+      });
       if (generation !== this.generation) return;
       require_condition(this.renderer?.ready && !this.graphics_lost, 'INVALID_STATE', 'Graphics are not ready.');
       this.state = 'running';
-      this.message = 'Z / X or mouse buttons · Escape to pause';
-      this.input = new Gameplay_Input(this.canvas, this.frame!, this.sample_audio, reason => this.pause(reason), false);
+      this.message = gameplay_control_hint(input_settings);
+      this.canvas.setAttribute?.('aria-label', gameplay_accessible_label(input_settings));
+      this.input = new Gameplay_Input(this.canvas, this.frame!, this.sample_audio, reason => this.pause(reason), false,
+        input_settings, resuming ? new Set([...this.held_input.sources].filter(source => !retained_sources.has(source))) : this.held_input.sources);
+      if (resuming) this.input.cursor_flags = this.paused_cursor_flags;
       this.frame!.start();
       this.publish();
     } catch (error) {
@@ -251,18 +332,28 @@ export class Gameplay_Controller {
 
   pause(reason = 'Paused.') {
     if (this.state === 'disposed') return;
+    if (this.state === 'resuming') {
+      this.resume_gate?.dispose();
+      this.resume_gate = null;
+      this.state = 'paused';
+      this.message = reason;
+      this.publish();
+      return;
+    }
     if (this.state === 'terminal') { this.finish_terminal(); return; }
     if (this.state === 'starting') {
       this.recover(new Browser_Error('START_INTERRUPTED', `${reason} Retry when ready.`));
       return;
     }
     if (this.state !== 'running') return;
+    this.paused_cursor_flags = this.input?.cursor_flags ?? 0;
     this.frame!.stop();
     this.input?.dispose();
     this.input = null;
     try {
       this.frame!.drain();
       const state = this.playback!.pause();
+      this.paused_sources = new Map(this.frame!.input.held_sources);
       this.frame!.input.held_sources.clear();
       this.frame!.input.focus_epoch++;
       this.diagnostics?.note_lifecycle(`Paused: ${reason}`, { engine_state: state });
@@ -307,6 +398,8 @@ export class Gameplay_Controller {
 
   recover(error: unknown) {
     if (this.state === 'disposed' || this.state === 'recovering') return;
+    this.resume_gate?.dispose();
+    this.resume_gate = null;
     this.generation++;
     // Playback context is captured before recovery cleanup runs; the engine
     // failure itself was already recorded by its owning layer.
@@ -379,6 +472,8 @@ export class Gameplay_Controller {
   }
 
   private stop_owners() {
+    this.resume_gate?.dispose();
+    this.resume_gate = null;
     this.frame?.stop();
     this.input?.dispose();
     this.input = null;
@@ -410,6 +505,7 @@ export class Gameplay_Controller {
     if (this.state === 'disposed') return;
     this.release_attempt();
     this.listeners.abort();
+    this.held_input.dispose();
     this.selection.dispose();
     this.engine.dispose();
     void this.context.close().catch(() => {});

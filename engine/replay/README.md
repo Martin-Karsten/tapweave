@@ -2,7 +2,7 @@
 
 These Odin APIs accept explicit typed inputs. The [M2 session transport](../../docs/status.md#m2-headless-sessions)
 now connects them to prepared identity, recording, playback and initial-checkpoint
-resimulation. Rules version 1 is shared by primitive and session APIs.
+resimulation. Rules version 2 is shared by primitive and session APIs.
 
 `validate_identity` requires supported version/profile/coordinate fields, rate 1,
 finite offsets and exact expected identity. Ruleset is fixed to osu and mods are
@@ -52,7 +52,9 @@ judgement digest for comparison. A checksum protects corruption, not authenticit
 No legacy `.osr` or upstream-certified whole-gameplay compatibility is claimed.
 
 Session recording stores ordinary frames at actual input and judgement timestamps,
-including exact-time pause release. Flags remain zero. No synthetic interpolation
+including exact-time retained action state at pause. Flag bit 0 records the
+one-shot resume press blocker; other bits are invalid. Old rules-version-1
+recordings are unsupported. No synthetic interpolation
 anchors are inserted. Complete recorder cadence/angular subdivision is still an
 acceptance gate.
 

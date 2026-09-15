@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+import { Audio_Mixer } from '../build/audio-mixer.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -6,6 +8,7 @@ import { Gameplay_Controller } from '../build/gameplay-controller.js';
 import { Selection_Controller } from '../build/selection.js';
 import { create_fallback_audio } from '../build/fallback-audio.js';
 import { load_sample_assets } from '../build/sample-assets.js';
+import { DEFAULT_PLAYER_SETTINGS } from '../build/player-settings.js';
 import { audio_context_fixture } from './audio-fixture.mjs';
 
 const wasm = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));
@@ -25,10 +28,12 @@ function dispatch(target, type, fields = {}) {
   target.dispatchEvent(event);
 }
 
-async function fixture({ map_text = mixed_map, renderer_failure = false, music = true } = {}) {
+async function fixture({ map_text = mixed_map, renderer_failure = false, music = true, input_settings, outputs, mixer_settings } = {}) {
   const engine = await Engine_Bridge.create(wasm);
   const context = Object.assign(new EventTarget(), audio_context_fixture());
   context.currentTime = 0;
+  const mixer = mixer_settings ? new Audio_Mixer(context, mixer_settings) : null;
+  if (mixer) outputs = { music: mixer.music, effects: mixer.effects };
   context.close = async () => { context.state = 'closed'; };
   const window = Object.assign(new EventTarget(), { devicePixelRatio: 1 });
   const document = Object.assign(new EventTarget(), { defaultView: window, hidden: false });
@@ -47,6 +52,7 @@ async function fixture({ map_text = mixed_map, renderer_failure = false, music =
   const views = [];
   let next_identifier = 0;
   const controller = new Gameplay_Controller(engine, selection, context, canvas, {
+    input_settings, outputs,
     request_frame: callback => { callbacks.set(++next_identifier, callback); return next_identifier; },
     cancel_frame: identifier => callbacks.delete(identifier),
     create_renderer(engine, session, map, canvas, epoch, lost) {
@@ -68,7 +74,7 @@ async function fixture({ map_text = mixed_map, renderer_failure = false, music =
     context.currentTime = time_ms / 1000;
     dispatch(window, held ? 'keydown' : 'keyup', { code: 'KeyZ', repeat: false });
   };
-  return { engine, context, window, document, canvas, selection, controller, callbacks, renderers, views, frame, key };
+  return { engine, context, window, document, canvas, selection, controller, callbacks, renderers, views, frame, key, mixer };
 }
 
 test('missing music and failed GPU preparation leave selection intact and no session leaks', async () => {
@@ -85,7 +91,7 @@ test('missing music and failed GPU preparation leave selection intact and no ses
   }
 });
 
-test('pause releases held actions, ignores paused input, freezes suspended audio, resumes once and reuses retry GPU', async () => {
+test('pause retains held actions, ignores paused input, freezes suspended audio, resumes once and reuses retry GPU', async () => {
   const fixture_ = await fixture();
   const { controller, engine, context, key, frame, callbacks, renderers, window } = fixture_;
   try {
@@ -361,7 +367,7 @@ test('early slider tail keeps its nominal time; active sound survives results un
   } finally { controller.dispose(); }
 });
 
-test('controller pause at a scheduled slider boundary matches direct engine release ordering', async () => {
+test('controller pause at a scheduled slider boundary matches direct engine retained-action ordering', async () => {
   const map_text = 'osu file format v14\n[Difficulty]\nHPDrainRate:0\nSliderMultiplier:1.4\n[TimingPoints]\n0,500\n[HitObjects]\n256,192,1000,2,0,L|396:192,2,140\n256,192,3000,1,0';
   let expected;
   for (const integrated of [false, true]) {
@@ -423,4 +429,95 @@ test('late keyboard input exposes frozen copyable timing evidence before recover
     assert.equal(fixture_.controller.view.recovery, null);
     assert.equal(details.input_samples[0].behind_committed_ms, 2);
   } finally { fixture_.controller.dispose(); }
+});
+
+test('settings capture quarantines binding keys until release and survives repeated retry', async () => {
+  let settings = DEFAULT_PLAYER_SETTINGS;
+  const player = await fixture({ input_settings: () => settings });
+  const { controller, engine, window, context, frame } = player;
+  try {
+    await controller.play();
+    player.key(300, true); frame(300);
+    controller.pause();
+    settings = { ...DEFAULT_PLAYER_SETTINGS, left_key: 'Space', mouse_buttons_enabled: false };
+    dispatch(window, 'keydown', { code: 'Space', repeat: false });
+    controller.quarantine_input('Space');
+    const session = [...engine.session_handles][0];
+    context.currentTime = .5;
+    await controller.resume();
+    assert.equal(controller.view.message, 'Space / X · Escape to pause');
+    dispatch(window, 'keydown', { code: 'Space', repeat: true });
+    frame(510);
+    assert.equal(controller.frame.input.held_sources.size, 0);
+    dispatch(window, 'keyup', { code: 'Space' });
+    dispatch(window, 'keydown', { code: 'Space', repeat: false });
+    frame(520);
+    assert.equal(controller.frame.input.held_sources.get('Space'), 1);
+    dispatch(window, 'keyup', { code: 'Space' });
+    for (let retry_index = 0; retry_index < 10; retry_index++) {
+      await controller.retry();
+      assert.equal(controller.view.message, 'Space / X · Escape to pause');
+      assert.equal(engine.session_handles.size, 1);
+      assert.equal(player.callbacks.size, 1);
+    }
+  } finally { controller.dispose(); }
+});
+
+test('custom keys and muted output retain result and audio-intent digests across cadence/stalls', async () => {
+  let expected_digest;
+  for (const custom of [false, true]) {
+    const settings = custom ? { ...DEFAULT_PLAYER_SETTINGS, left_key: 'Space', right_key: 'ArrowRight',
+      mouse_buttons_enabled: false, music_volume: 0, effects_volume: 0 } : DEFAULT_PLAYER_SETTINGS;
+    for (const rate of [30, 60, 120, 144]) {
+      for (const stall of [0, 50, 100, 250]) {
+        const player = await fixture({ input_settings: () => settings, mixer_settings: settings });
+        try {
+          const intent = [];
+          const audio = player.controller.playback.audio;
+          const enqueue = audio.enqueue.bind(audio);
+          audio.enqueue = events => { intent.push(...structuredClone(events)); enqueue(events); };
+          await player.controller.play();
+          assert.equal(player.context.sources[0].destination, player.mixer.music);
+          assert.equal(audio.destination, player.mixer.effects);
+          const inputs = [[1000, true], [1100, false], [2000, true], [2100, false]];
+          let input_index = 0;
+          for (let frame_index = 1; frame_index <= rate * 5; frame_index++) {
+            const time_ms = frame_index * 1000 / rate;
+            if (time_ms > 1950 && time_ms < 1950 + stall) continue;
+            while (input_index < inputs.length && inputs[input_index][0] <= time_ms) {
+              const [input_time, pressed] = inputs[input_index++];
+              player.context.currentTime = input_time / 1000;
+              dispatch(player.window, pressed ? 'keydown' : 'keyup', { code: settings.left_key, repeat: false });
+            }
+            player.frame(time_ms);
+          }
+          assert.equal(player.controller.view.state, 'terminal');
+          const digest = createHash('sha256').update(player.controller.view.result.bytes)
+            .update(JSON.stringify(intent, (_field, entry) => typeof entry === 'bigint' ? entry.toString() : entry)).digest('hex');
+          expected_digest ??= digest;
+          assert.equal(digest, expected_digest, `${custom ? 'custom/muted' : 'default'} / ${rate} Hz / ${stall} ms`);
+        } finally { player.controller.dispose(); player.mixer.dispose(); }
+      }
+    }
+  }
+});
+
+test('suspended audio observed before statechange requests ordinary pause at the audio boundary', async () => {
+  const player = await fixture();
+  try {
+    await player.controller.play();
+    player.key(300, true); player.frame(300);
+    player.context.state = 'suspended';
+    player.frame(350); // Deliberately before the browser's queued statechange.
+    assert.equal(player.controller.view.state, 'paused');
+    assert.equal(player.controller.view.error, null);
+    assert.equal(player.controller.frame.input.held_sources.size, 0);
+    const session = [...player.engine.session_handles][0];
+    assert.equal(player.engine.snapshot(session, 350).summary.committed_ms, 350);
+    dispatch(player.context, 'statechange');
+    assert.equal(player.controller.view.state, 'paused');
+    assert.equal(player.callbacks.size, 0);
+    await player.controller.resume();
+    assert.equal(player.controller.view.state, 'running');
+  } finally { player.controller.dispose(); }
 });

@@ -17,6 +17,7 @@ EngineStatus oe_session_advance(EngineHandle, SessionHandle, f64 target_ms, Outp
 EngineStatus oe_session_snapshot(EngineHandle, SessionHandle, f64 presentation_ms, OutputBatch*);
 EngineStatus oe_session_pause(EngineHandle, SessionHandle, f64 at_ms, OutputBatch*);
 EngineStatus oe_session_resume(EngineHandle, SessionHandle, const ClockAnchor*);
+EngineStatus oe_session_resume_policy(EngineHandle, SessionHandle, u32 cursor_flags, ByteSpan*);
 EngineStatus oe_session_reset(EngineHandle, SessionHandle, f64 lead_in_ms);
 EngineStatus oe_session_result(EngineHandle, SessionHandle, ByteSpan*);
 EngineStatus oe_session_release(EngineHandle, SessionHandle);
@@ -219,8 +220,21 @@ even when preparation fails. Describing an already published map does not alloca
 
 ## M2 headless session transport
 
+The resume policy extension uses kind 53/version 1/size 48:
+`required:u32` at 8, `held_action_bits:u32` at 12, `x:f64` at 16,
+`y:f64` at 24, `half_size:f64` at 32, `left_input_flags:u32` at 40 and
+`right_input_flags:u32` at 44. The last two fields are the engine-selected input
+flags to use when the corresponding action accepts the gate; the browser does
+not decide whether an action needs blocking. The query requires a PAUSED session;
+cursor flags are bit 0 visible and bit 1 inside, with unknown bits rejected.
+It writes a borrowed record into the session diagnostic output buffer without
+advancing, acknowledging events or allocating; it invalidates previous borrowed
+diagnostic bytes. The target half-size uses default upstream UI units, scaled by
+the browser's 1024×768 draw-size-preserving viewport. See
+[pause/resume](../compatibility/pause-resume.md) for behavior and evidence.
+
 Discover `oe_simulation_capabilities(engine, out_span)`: kind 25 reports session
-version 1, recording/rules version 1, flags 1 (headless sessions), and the maximum
+version 1, recording/rules version 2, flags 1 (headless sessions), and the maximum
 live input capacity. The legacy kind-4 gameplay field remains 0 because it denotes
 the full gameplay/presentation/browser capability set. Existing foundation
 sessions continue returning `UNSUPPORTED` for simulation calls.
@@ -245,7 +259,7 @@ The concrete records are generated from `engine/abi/records.json`:
 | 20 | Object identity, parent/head outcomes and times, tracking, rotation and sampled position |
 | 21 | Ordered judgement, cause, timing offset, score/combo/health before and after |
 | 22 | Resume beatmap/audio anchor, rate=1, flags/reserved=0 |
-| 23 | Input snapshot; source/focus epoch packed into one u32, flags/reserved=0 |
+| 23 | Input snapshot; source/focus epoch packed into one u32, flags bit 0 arms the resume press blocker; reserved=0 |
 | 24 | Terminal reason/time, score/rank/health, counts, raw/prepared/judgement digests, profile and clock settings |
 | 25 | Headless session capabilities |
 | 26 | Actual and maximum counts for each stable result ID |
@@ -310,8 +324,11 @@ uint32_t oe_session_replay_seek(oe_handle engine, oe_handle session, double time
 
 Load requires a fresh READY session with no queued/recorded input. It validates
 checksum, complete profile/raw/prepared identity and every frame before publishing.
-Export requires terminal state and writes replay v2 with rules version 1.
-All frames have flags=0 and represent actual input/judgement/pause times. The recorded final digest is metadata for consumers to compare with
+Export requires terminal state and writes replay v2 with rules version 2.
+Frames represent actual input/judgement/pause times. Flag bit 0 arms the
+one-shot resume press blocker; all other flag bits are invalid. The marker is
+recorded once, not copied into subsequent judgement frames. Rules version 1
+replays are rejected as unsupported rather than reinterpreted. The recorded final digest is metadata for consumers to compare with
 recomputed results, not an authenticity claim. Seek restores the READY checkpoint
 and resimulates; it suppresses historical output and increments the output epoch.
 Seek cost is proportional to events before the target, not elapsed milliseconds.

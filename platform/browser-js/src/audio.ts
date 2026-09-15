@@ -61,7 +61,7 @@ export class Audio_Service {
   metrics: Audio_Metrics = { dispatched: 0, dropped: 0, stale: 0, maximum_lateness_ms: 0 };
 
   constructor(audio_context: AudioContext, clock: Audio_Clock, { maximum_voices = 256, maximum_pending = 4096,
-    lookahead_ms = 25 }: Audio_Service_Limits = {}) {
+    lookahead_ms = 25 }: Audio_Service_Limits = {}, readonly destination: AudioNode = audio_context.destination) {
     require_condition(Number.isSafeInteger(maximum_voices) && maximum_voices > 0 &&
       Number.isSafeInteger(maximum_pending) && maximum_pending > 0 &&
       Number.isFinite(lookahead_ms) && lookahead_ms >= 0 && lookahead_ms <= 1000,
@@ -207,7 +207,7 @@ export class Audio_Service {
       panner.pan.setValueAtTime(event.pan, when_seconds);
       source.connect(gain);
       gain.connect(panner);
-      panner.connect(this.context.destination);
+      panner.connect(this.destination);
       source.onended = () => this.release_voice(voice, false);
       source.start(when_seconds);
       this.voices.set(event.voice_id, voice);
@@ -233,7 +233,7 @@ export class Audio_Service {
   suspend_one_shots() {
     require_condition(this.clock.anchor === null && !this.suspended,
       'INVALID_STATE', 'Pause the clock once before suspending audio.');
-    // The engine pause boundary releases input and retires its loop identities.
+    // The engine pause boundary retains input and retires its loop identities.
     // Resume recreates loops only in response to fresh authoritative starts.
     // One-shots compact in place: retained_write_index trails the scan cursor.
     let retained_write_index = 0;

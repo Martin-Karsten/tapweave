@@ -35,15 +35,16 @@ export class Audio_Playback {
 
   constructor(engine: Engine_Bridge, session_handle: bigint, context: AudioContext,
     selection: Playback_Selection, limits: Audio_Service_Limits = {}, reuse_voice_storage = false,
-    diagnostics: Diagnostics_Service | null = null) {
+    diagnostics: Diagnostics_Service | null = null,
+    outputs: { music?: AudioNode; effects?: AudioNode } = {}) {
     require_condition(selection.music_buffer && selection.samples,
       'MISSING_ASSET', 'Music and prepared hitsounds are required.');
     this.engine = engine;
     this.session_handle = session_handle;
     this.context = context;
     this.diagnostics = diagnostics;
-    this.audio = new Audio_Service(context, this.clock, limits);
-    this.music = new Music_Transport(context, this.clock);
+    this.audio = new Audio_Service(context, this.clock, limits, outputs.effects);
+    this.music = new Music_Transport(context, this.clock, outputs.music);
     this.admission = new Audio_Admission(engine, session_handle, this.audio);
     // Reset retains the same reserved voice arena. Re-reserving would allocate
     // a transactional replacement and unnecessarily raise the WASM high-water mark.
@@ -56,7 +57,7 @@ export class Audio_Playback {
     this.music.set_buffer(selection.music_buffer!);
   }
 
-  async start(beatmap_ms = 0) {
+  async start(beatmap_ms = 0, before_pump?: () => void) {
     require_condition(this.state === 'ready' || this.state === 'paused', 'INVALID_STATE', 'Playback must be ready or paused.');
     const resuming = this.state === 'paused';
     const generation = ++this.generation;
@@ -102,6 +103,7 @@ export class Audio_Playback {
       this.note('music start');
       this.music.start();
       this.state = 'running';
+      before_pump?.();
       this.pump();
     } catch (error) {
       if (generation === this.generation) this.recover(error);

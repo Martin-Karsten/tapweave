@@ -4,9 +4,10 @@ export function audio_context_fixture() {
   const parameter = () => ({
     setValueAtTime: (...arguments_) => calls.push(['set', ...arguments_]),
     cancelAndHoldAtTime: (...arguments_) => calls.push(['hold', ...arguments_]),
+    cancelScheduledValues: (...arguments_) => calls.push(['cancel', ...arguments_]),
     linearRampToValueAtTime: (...arguments_) => calls.push(['ramp', ...arguments_]),
   });
-  const node = () => ({ connect() {}, disconnect() { this.disconnected = true; } });
+  const node = () => ({ connect(destination) { this.destination = destination; }, disconnect() { this.disconnected = true; } });
   return { currentTime: 10, state: 'running', destination: {}, sources, calls,
     async resume() { this.state = 'running'; },
     createBufferSource() {

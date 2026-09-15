@@ -1,5 +1,11 @@
 # Third-party notices
 
+`engine/reference-host/PinnedPauseInputScene.cs` adapts the osu!standard methods
+from ppy/osu's `TestScenePauseInputHandling.cs` at revision
+`3c1c96f742e7aae2ff67a7361e058fe91ca3b955`. Its original MIT notice is retained.
+`engine/tests/resume_test.odin` and browser resume tests adapt the corresponding
+input/held-state assertions. See `docs/compatibility/pause-resume.md` for scope.
+
 Tapweave includes pinned source excerpts from osu! and osu!framework as compatibility references. Retained synthetic upstream test beatmaps provide preparation fixtures. Source-informed decoder work follows the pinned legacy decoder and parser; preparation work ports SliderPath, PathApproximator, CircularArcProperties, slider/spinner defaults and events, sample resolution, combo and stacking behavior. The source manifests record the origin, revision, licence, and SHA-256 of each retained file.
 
 - osu!: Copyright (c) ppy Pty Ltd. MIT licence; see [retained licence](engine/reference/sources/osu__LICENCE).

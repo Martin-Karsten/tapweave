@@ -8,6 +8,12 @@ using osu.Game.IO;
 using osu.Game.Rulesets.Objects.Types;
 using osu.Game.Rulesets.Objects.Legacy;
 
+if (args.Length == 2 && args[0] == "--pause")
+{
+    PauseObservation.Run(args[1]);
+    return;
+}
+
 if (args.Length == 3 && args[0] == "--player")
 {
     PlayerObservation.Run(args[1], args[2]);

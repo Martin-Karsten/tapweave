@@ -152,7 +152,7 @@ gameplay_transactional_input_pause_and_reset :: proc(test: ^testing.T) {
 	testing.expect_value(test, simulation.submit_inputs(&session.simulation, inputs[:1]), core_types.Status.OK)
 	testing.expect_value(test, simulation.pause_session(&session.simulation, 1050), core_types.Status.OK)
 	testing.expect_value(test, session.simulation.state, simulation.Session_Status.PAUSED)
-	testing.expect_value(test, session.simulation.cursor.action_bits, 0)
+	testing.expect_value(test, session.simulation.cursor.action_bits, 1)
 	testing.expect_value(test, simulation.advance_session(&session.simulation, 1100), core_types.Status.INVALID_STATE)
 	testing.expect_value(test, simulation.resume_session(&session.simulation, 1049), core_types.Status.INVALID_STATE)
 	testing.expect_value(test, simulation.resume_session(&session.simulation, 1050), core_types.Status.OK)

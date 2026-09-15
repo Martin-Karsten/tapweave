@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "acceptance": [
+    "A21",
+    "A23",
+    "A24"
+  ],
+  "complete": false,
+  "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "completed": [
+    "TestOsuNewKeyHeldWhilePausedIsNotRestored",
+    "TestOsuReleasedKeyboardSourceResumesWithMouseSource",
+    "TestOsuInputNotReceivedWhilePaused",
+    "TestOsuPreviouslyHeldInputReleaseOnResume",
+    "TestOsuHeldInputRemainHeldAfterResume",
+    "TestOsuHitCircleNotReceivingInputOnResume",
+    "TestOsuHitCircleNotReceivingInputOnResume_PauseWhileHoldingSameKey",
+    "TestOsuHitCircleNotReceivingInputOnResume_PauseWhileHoldingOtherKey"
+  ],
+  "oracle": "actual-pinned-upstream-test-bodies",
+  "upstream_path": "osu.Game.Tests/Visual/Gameplay/TestScenePauseInputHandling.cs",
+  "upstream_sha256": "f63186174995e802fbef0c4508ce295ef66402ce76cea3d3e20f7865f2584fbe",
+  "observation_sha256": "802a1a68df8d66d54e691f2d537d3a6b05ea74d7c6ff1b938bbde6793c4944e5",
+  "local_sources": [
+    {
+      "path": "reference-host/PinnedPauseInputScene.cs",
+      "sha256": "1ee0ac789ddd9719e1f163d6e72ceede44fc4b2f0d34a6ddbfd33caee76750c6"
+    },
+    {
+      "path": "reference-host/PauseObservation.cs",
+      "sha256": "30d94137a9a96ce73c86986afc0f9100f910814caccb7a5fef23bbc41a728132"
+    },
+    {
+      "path": "reference-host/PauseAdditionalScene.cs",
+      "sha256": "9f3631cf38ac2157c11ef1110a14e8d36d9bb1282f143c5ed23e3ee9dd921f4e"
+    },
+    {
+      "path": "tests/resume_test.odin",
+      "sha256": "139bac936f831bcc1a549826f4086e3552b306c01866e71e8929a8833890c3ac"
+    },
+    {
+      "path": "../platform/browser-js/tests/resume.test.mjs",
+      "sha256": "e54063d94461f1fd8ce2c68d22d8bee755fcf9f7a22c6266a02c69600c948d3f"
+    },
+    {
+      "path": "../platform/product-ui/tests/browser/resume.spec.mjs",
+      "sha256": "e2088114ba1f1cdfc20e9283e2cb7b2064684c4cb436eafaed7a8666aa63e73d"
+    },
+    {
+      "path": "../platform/product-ui/tests/browser/settings.spec.mjs",
+      "sha256": "840f1a0a7b16719f1a84c96ce17b2948dde9ace0ac9cf3e495bb73ac7cf638e3"
+    }
+  ],
+  "classifications": {
+    "omitted": "Mania test methods; outside the osu!standard profile",
+    "fixture": "Retained test-only inherited NoFail setup; local HP0 maps isolate the unmodded input assertions",
+    "remaining": "Full pause UI/cooldown, inactive-player and physical-device acceptance remain open"
+  },
+  "reproduce": "npm --prefix engine run test:pause:upstream",
+  "source_derived_probes": [
+    "TestOsuNewKeyHeldWhilePausedIsNotRestored",
+    "TestOsuReleasedKeyboardSourceResumesWithMouseSource"
+  ],
+  "original_test_methods": [
+    "TestOsuInputNotReceivedWhilePaused",
+    "TestOsuPreviouslyHeldInputReleaseOnResume",
+    "TestOsuHeldInputRemainHeldAfterResume",
+    "TestOsuHitCircleNotReceivingInputOnResume",
+    "TestOsuHitCircleNotReceivingInputOnResume_PauseWhileHoldingSameKey",
+    "TestOsuHitCircleNotReceivingInputOnResume_PauseWhileHoldingOtherKey"
+  ],
+  "local_path_base": "engine",
+  "source_files": [
+    {
+      "repository": "osu",
+      "path": "osu.Game.Rulesets.Osu/UI/OsuResumeOverlay.cs",
+      "sha256": "a3d7545260daa5b2d2cbf133924c320e637525a6b1a79b78eba229756d29ea80"
+    },
+    {
+      "repository": "osu",
+      "path": "osu.Game/Rulesets/UI/DrawableRuleset.cs",
+      "sha256": "8177902d73afe15e35e2a1406d89ea315d4aa257ebfb985c3a56a6ef0873beb0"
+    },
+    {
+      "repository": "osu",
+      "path": "osu.Game/Screens/Play/BreakTracker.cs",
+      "sha256": "3ef9d7a6a1799fe4968248ac2e7b906510ebeb25205cb1a33eb1fc9ddca1eb00"
+    },
+    {
+      "repository": "osu",
+      "path": "osu.Game/Beatmaps/Timing/BreakPeriod.cs",
+      "sha256": "2912bb99d5394bc620a4ea6ba415aa01ba23ac8ffe5676bf042bb2861b4ac99d"
+    },
+    {
+      "repository": "osu",
+      "path": "osu.Game/Screens/Play/Player.cs",
+      "sha256": "4d6377d1570d78962993783af6145c950bafa7dc244ce4b0f506dd97714dea6d"
+    },
+    {
+      "repository": "osu",
+      "path": "osu.Game.Rulesets.Osu/UI/Cursor/OsuCursor.cs",
+      "sha256": "4aa563578b5ae8a2dc596b5bd590dcb594b5293eeda239ac7fd77c1c94054e9b"
+    },
+    {
+      "repository": "osu",
+      "path": "osu.Game/Configuration/OsuConfigManager.cs",
+      "sha256": "0cdd4c8c99980bc21a78a1e15d7cfbb7dbb6175d0e97fe439163ab5a9c3588c2"
+    },
+    {
+      "repository": "framework",
+      "path": "osu.Framework/Input/PassThroughInputManager.cs",
+      "sha256": "85ced0ade44efdd07c2efc18b1493a978a172e06eaeac5742b047176c099ed30"
+    },
+    {
+      "repository": "framework",
+      "path": "osu.Framework/Graphics/Containers/DrawSizePreservingFillContainer.cs",
+      "sha256": "efab418d3342ac10b21f7c4c834241053be4f04a8a3bc7c64e1e3f32ff47875d"
+    }
+  ],
+  "local_validation": {
+    "engine_suite": "passed",
+    "browser_services": 138,
+    "product_unit_tests": 23,
+    "product_browser_passed": 77,
+    "product_browser_skipped": 1,
+    "product_gates": "passed",
+    "b3_fps": 60.05,
+    "logs": [
+      {
+        "path": "artifacts/pause/validation/engine.log",
+        "sha256": "51ae87908445f39e407e8fde2871777bc053ea3385147c665968a4209c048448"
+      },
+      {
+        "path": "artifacts/pause/validation/browser-services.log",
+        "sha256": "1a5f8a9e917f9277b51445ed0a265aee6a05d857fa258c3f60b53333e58c9ec2"
+      },
+      {
+        "path": "artifacts/pause/validation/browser-build.log",
+        "sha256": "b2ba46ba79528df5e0228c24fcb4746c75ffe110aefaba10857a1f4dc0e18d1b"
+      },
+      {
+        "path": "artifacts/pause/validation/browser-typecheck.log",
+        "sha256": "013b6f772dbdde4e4d1a0550dc6a7d570b197515968a53aacb5131827f84bb9f"
+      },
+      {
+        "path": "artifacts/pause/validation/product-gates.log",
+        "sha256": "cf69b654ce44e010441e56b55de292c3f3e1fd8658c294b092fb254588e5a75c"
+      },
+      {
+        "path": "artifacts/pause/validation/product-browser.log",
+        "sha256": "0985881e8445381e48c25519f9e7621e0ae9894eb79cc61688beccd19de7c39d"
+      },
+      {
+        "path": "artifacts/pause/validation/upstream-runner.log",
+        "sha256": "1f14c2f02b45d19bb8a5eec63af7511dd3365f7fd7138e6f742509d5317ae57f"
+      }
+    ]
+  }
+}

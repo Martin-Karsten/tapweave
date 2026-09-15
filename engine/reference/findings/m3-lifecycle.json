@@ -90,7 +90,8 @@
       "upstream": "TestScenePause.TestPauseResume; TestScenePauseInputHandling.TestOsuInputNotReceivedWhilePaused",
       "local": "pause releases held actions, ignores paused input, freezes suspended audio, resumes once and reuses retry GPU",
       "classification": "local-regression; not an exact test port",
-      "blocker": "Existing pinned Player adapter has no PauseOverlay/OsuResumeOverlay or key-counter driver. Native/WASM exact visual test ports remain open."
+      "blocker": "Six pause-input test bodies now execute in the pinned host; see pause-resume.json. Full pause UI and device coverage remain open.",
+      "historical_blocker": "Existing pinned Player adapter has no PauseOverlay/OsuResumeOverlay or key-counter driver. Native/WASM exact visual test ports remain open."
     },
     {
       "upstream": "TestScenePlayerLoader.TestQuickRetry; TestEarlyExitBeforePlayerConstruction; TestEarlyExitAfterPlayerConstruction",
@@ -216,5 +217,7 @@
     "Physical inputs, audible output, release Safari, Firefox/WebKit and full performance/resource certification remain open.",
     "Mods, other rulesets, accounts/score submission/import, menu styling and framework-native device recreation are outside this browser profile.",
     "Controller tests use production WASM with fake audio/render resources; Chromium lifecycle tests use real Web Audio/WebGL2. Browser hot-path allocation freedom is not claimed."
-  ]
+  ],
+  "historical_evidence": true,
+  "pause_policy_superseded_by": "docs/compatibility/pause-resume.md"
 }

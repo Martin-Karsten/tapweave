@@ -9,7 +9,7 @@ export class Music_Transport {
   source: AudioBufferSourceNode | null = null;
   buffer: AudioBuffer | null = null;
 
-  constructor(audio_context: AudioContext, clock: Audio_Clock) {
+  constructor(audio_context: AudioContext, clock: Audio_Clock, readonly destination: AudioNode = audio_context.destination) {
     this.context = audio_context;
     this.clock = clock;
   }
@@ -42,7 +42,7 @@ export class Music_Transport {
     try {
       source.buffer = this.buffer;
       source.playbackRate.setValueAtTime(1, when_seconds);
-      source.connect(this.context.destination);
+      source.connect(this.destination);
       source.onended = () => {
         source.disconnect();
         if (this.source === source) {

@@ -58,6 +58,7 @@ export const RECORD = Object.freeze({
   scene_instance: 50,
   scene_batch: 51,
   sample_probe: 52,
+  resume_policy: 53,
 } as const);
 
 // EngineStatus values returned by oe_* exports (docs/architecture/interface-v2.md).
@@ -274,6 +275,7 @@ export interface Odin_Exports {
     result_address: number): number;
   oe_session_pause(engine_handle: bigint, session_handle: bigint, time_ms: number,
     result_address: number): number;
+  oe_session_resume_policy(engine_handle: bigint, session_handle: bigint, cursor_flags: number, output_address: number): number;
   oe_session_resume(engine_handle: bigint, session_handle: bigint, mailbox_address: number): number;
   oe_session_acknowledge(engine_handle: bigint, session_handle: bigint, batch_token: bigint): number;
   oe_session_reset(engine_handle: bigint, session_handle: bigint, lead_in_ms: number): number;

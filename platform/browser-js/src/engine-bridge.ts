@@ -455,6 +455,11 @@ export class Engine_Bridge {
     return this.session_output(this.wasm.oe_session_pause, session_handle, time_ms);
   }
 
+  resume_policy(session_handle: bigint, cursor_flags: number) {
+    this.check_status(this.wasm.oe_session_resume_policy(this.engine_handle, session_handle, cursor_flags, this.result_address), false);
+    return readRecord(this.view(), this.read_span().address, RECORD.resume_policy);
+  }
+
   resume(session_handle: bigint, { beatmap_ms, audio_seconds }: { beatmap_ms: number; audio_seconds: number }) {
     this.note_operation('oe_session_resume', { beatmap_ms, audio_seconds, rate: 1 });
     this.write_creation(RECORD.clock_anchor, { beatmap_ms, audio_seconds, rate: 1 });

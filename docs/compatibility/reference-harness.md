@@ -228,13 +228,11 @@ claiming complete presentation acceptance.
 
 ## W07 pause/UI backfill
 
-The [W07 finding index](../../engine/reference/findings/m3-lifecycle.json) records
-source hashes and local mappings for `TestScenePause`, `TestScenePauseInputHandling`,
-`TestScenePauseWhenInactive`, and `TestScenePlayerLoader`. The existing real Player
-adapter executed the three source-derived `player-failure-hp*` scenarios. It does
-not drive PauseOverlay/OsuResumeOverlay, application focus or PlayerLoader retry;
-those exact visual test setups/sequences/assertions are not ported/executed by W07.
-Extend the pinned visual host before claiming their upstream acceptance. The
-browser's explicit Resume, immediate retry and lack of pause-menu loop are
-intentional validation UI policy, not an exact port of lazer cooldown/cursor flows.
+The [W07 finding index](../../engine/reference/findings/m3-lifecycle.json) retains
+historical lifecycle evidence. The subsequent [pause/resume finding](pause-resume.md)
+executes the six osu!standard `TestScenePauseInputHandling` bodies against pinned
+upstream and replaces the blanket release/repress policy with retained action
+state, physical reconciliation and cursor-resume press blocking. Complete
+`TestScenePause`, `TestScenePauseWhenInactive`, and `TestScenePlayerLoader`
+coverage remains open; cooldown and pause-menu sound loops are not claimed.
 Mods, mania, account/score import/submission and menu styling remain outside scope.

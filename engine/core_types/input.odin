@@ -5,6 +5,8 @@ import "core:math"
 LEFT :: u32(1)
 RIGHT :: u32(2)
 SMOKE :: u32(4)
+// Arm the pinned resume overlay blocker without changing held actions.
+BLOCK_NEXT_PRESS :: u32(1)
 Input_Snapshot :: struct {
 	sequence: u64,
 	raw_time_ms, effective_time_ms, x, y: f64,
@@ -25,6 +27,6 @@ valid_input :: proc(input: Input_Snapshot) -> bool {
 		finite(input.x) &&
 		finite(input.y) &&
 		(input.action_bits & ~(LEFT | RIGHT | SMOKE)) == 0 &&
-		input.flags == 0 \
+		(input.flags & ~BLOCK_NEXT_PRESS) == 0 \
 	)
 }

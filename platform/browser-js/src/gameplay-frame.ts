@@ -34,6 +34,7 @@ export class Gameplay_Frame {
   on_terminal: (() => void) | null = null;
   on_error: ((error: unknown) => void) | null = null;
   on_terminal_frame: (() => void) | null = null;
+  on_pause: ((reason: string) => void) | null = null;
 
   constructor(readonly playback: Audio_Playback,
     readonly render: (time_ms: number, output: Gameplay_Output) => void,
@@ -67,6 +68,7 @@ export class Gameplay_Frame {
       target.x = source.x;
       target.y = source.y;
       target.action_bits = source.action_bits;
+      target.flags = source.flags ?? 0;
       this.batch[record_index] = target;
       this.diagnostics?.note_input(Number(source.sequence), source.source, source.action_bits,
         source.raw_time_ms, time_ms, audio_seconds, source.x, source.y, record_index);
@@ -107,6 +109,13 @@ export class Gameplay_Frame {
     try {
       if (this.terminal && this.on_terminal_frame) {
         this.on_terminal_frame();
+        return;
+      }
+      // Audio state can become visible before its queued statechange event.
+      // Ask the lifecycle owner to pause before any ordinary advance; that
+      // owner drains and freezes input at the unchanged authoritative audio time.
+      if (this.playback.context.state !== 'running' && this.on_pause) {
+        this.on_pause('Audio output was interrupted.');
         return;
       }
       this.drain();
@@ -156,7 +165,7 @@ export class Gameplay_Frame {
     this.stop();
     try {
       this.drain();
-      // Engine pause appends the authoritative exact-boundary release snapshot.
+      // Engine pause records retained actions at the exact boundary.
       this.playback.pause();
       this.input.held_sources.clear();
       this.input.focus_epoch++;

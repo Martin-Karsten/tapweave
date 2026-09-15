@@ -70,7 +70,7 @@ At end: progress `>=1` gives Great, strictly `>0.9` gives Ok, strictly `>0.75` g
 
 ## Completion, focus, and late input
 
-All top-level and scoring nested components must reach terminal results; then score processing completes. Focus loss creates an all-actions-released snapshot before requesting pause. Inputs received with effective time earlier than committed simulation time return `LATE_INPUT` and do not mutate state; the browser must enqueue DOM events before advancing to the latest audio time. Replays are loaded ahead of simulation and cannot be late.
+All top-level and scoring nested components must reach terminal results; then score processing completes. Focus loss requests ordinary pause, which retains the last engine action state. The browser clears physical keys whose releases it can no longer observe, and reconciles physical state on explicit resume before advancing. See [pause/resume behavior](../compatibility/pause-resume.md). Inputs received with effective time earlier than committed simulation time return `LATE_INPUT` and do not mutate state; the browser must enqueue DOM events before advancing to the latest audio time. Replays are loaded ahead of simulation and cannot be late.
 
 ## Worked edge cases and tests
 

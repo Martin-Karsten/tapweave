@@ -1,3 +1,4 @@
+import { DEFAULT_PLAYER_SETTINGS, type Gameplay_Input_Settings } from './player-settings.js';
 import { ACTION } from './input.js';
 import { require_condition } from './errors.js';
 import type { Gameplay_Frame } from './gameplay-frame.js';
@@ -8,15 +9,21 @@ import type { Gameplay_Frame } from './gameplay-frame.js';
 // resize can change their meaning. No DOM timestamp, RAF timestamp or browser
 // judgement is used.
 export class Gameplay_Input {
+  cursor_flags = 0;
   private listeners = new AbortController();
   private touch_id: number | null = null;
   private captured_pointers = new Set<number>();
   private previous_touch_action: string;
+  private readonly suppressed_sources: Set<string>;
+  readonly settings: Gameplay_Input_Settings;
 
   constructor(readonly canvas: HTMLCanvasElement, readonly frame: Gameplay_Frame,
     readonly sample_audio: () => number = () => frame.playback.context.currentTime,
     readonly request_pause: (reason: string) => void = () => frame.pause(),
-    readonly owns_focus_events = true) {
+    readonly owns_focus_events = true, settings: Gameplay_Input_Settings = DEFAULT_PLAYER_SETTINGS,
+    held_sources: ReadonlySet<string> = new Set()) {
+    this.settings = Object.freeze({ ...settings });
+    this.suppressed_sources = new Set(held_sources);
     this.previous_touch_action = canvas.style.touchAction;
     canvas.style.touchAction = 'none';
     const options = { signal: this.listeners.signal };
@@ -27,15 +34,17 @@ export class Gameplay_Input {
       try { handler(event as Event_Type); } catch (error) { frame.fail(error); }
     };
     window.addEventListener('keydown', guarded((event: KeyboardEvent) => {
-      const action = event.code === 'KeyZ' ? ACTION.LEFT : event.code === 'KeyX' ? ACTION.RIGHT : 0;
+      const action = event.code === this.settings.left_key ? ACTION.LEFT : event.code === this.settings.right_key ? ACTION.RIGHT : 0;
       if (!action && event.code !== 'Escape') return;
       event.preventDefault();
       if (event.repeat) return;
       if (event.code === 'Escape') { this.pause(); return; }
+      if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey || this.suppressed_sources.has(event.code)) return;
       frame.input.receive({ source_id: event.code, action, held: true, ...this.stamp() });
     }), options);
     window.addEventListener('keyup', guarded((event: KeyboardEvent) => {
-      const action = event.code === 'KeyZ' ? ACTION.LEFT : event.code === 'KeyX' ? ACTION.RIGHT : 0;
+      if (this.suppressed_sources.delete(event.code)) return;
+      const action = event.code === this.settings.left_key ? ACTION.LEFT : event.code === this.settings.right_key ? ACTION.RIGHT : 0;
       if (!action) return;
       event.preventDefault();
       frame.input.receive({ source_id: event.code, action, held: false, ...this.stamp() });
@@ -46,19 +55,25 @@ export class Gameplay_Input {
         this.touch_id = event.pointerId;
       } else if (event.pointerType !== 'mouse' || ![0, 2].includes(event.button)) return;
       event.preventDefault();
-      this.pointer(event, true);
+      this.pointer(event, event.pointerType === 'mouse' && (!this.settings.mouse_buttons_enabled ||
+        this.suppressed_sources.has(`mouse:${event.button}`)) ? undefined : true);
       canvas.setPointerCapture(event.pointerId);
       this.captured_pointers.add(event.pointerId);
     }), options);
     window.addEventListener('pointermove', guarded((event: PointerEvent) => {
       if (event.pointerType === 'touch' ? event.pointerId !== this.touch_id : event.pointerType !== 'mouse') return;
+      if (event.pointerType === 'mouse') {
+        if (!(event.buttons & 1)) this.suppressed_sources.delete('mouse:0');
+        if (!(event.buttons & 2)) this.suppressed_sources.delete('mouse:2');
+      }
       this.pointer(event);
     }), options);
     window.addEventListener('pointerup', guarded((event: PointerEvent) => {
       if (event.pointerType === 'touch' ? event.pointerId !== this.touch_id :
         event.pointerType !== 'mouse' || ![0, 2].includes(event.button)) return;
       event.preventDefault();
-      this.pointer(event, false);
+      const suppressed = this.suppressed_sources.delete(`mouse:${event.button}`);
+      this.pointer(event, event.pointerType === 'mouse' && (!this.settings.mouse_buttons_enabled || suppressed) ? undefined : false);
       if (event.pointerType === 'touch') this.touch_id = null;
       this.captured_pointers.delete(event.pointerId);
     }), options);
@@ -90,6 +105,9 @@ export class Gameplay_Input {
   private pointer(event: PointerEvent, held?: boolean) {
     const stamp = this.stamp();
     const bounds = this.canvas.getBoundingClientRect();
+    this.cursor_flags = event.pointerType === 'mouse' ? 1 |
+      (event.clientX >= bounds.left && event.clientX <= bounds.right &&
+        event.clientY >= bounds.top && event.clientY <= bounds.bottom ? 2 : 0) : 0;
     const transform = this.frame.playback.engine.playfield_transform({ css_left: bounds.left, css_top: bounds.top,
       css_width: bounds.width, css_height: bounds.height,
       device_pixel_ratio: this.canvas.ownerDocument.defaultView!.devicePixelRatio });

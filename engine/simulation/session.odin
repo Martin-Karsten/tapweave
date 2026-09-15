@@ -76,6 +76,7 @@ Session :: struct {
 	state: Session_Status,
 	committed_ms, lead_in_ms, health_time_ms, drain_start_ms, drain_end_ms, drain_rate: f64,
 	live_input_capacity, submitted_input_count, pause_count, completed_objects: int,
+	block_next_press: bool,
 	epoch: u32,
 	cursor: core_types.Input_Snapshot,
 	score: scoring.Score,
@@ -374,6 +375,7 @@ reset_session :: proc(session: ^Session, lead_in_ms: f64) -> core_types.Status {
 	session.health_time_ms = lead_in_ms
 	session.submitted_input_count = 0
 	session.pause_count = 0
+	session.block_next_press = false
 	session.completed_objects = 0
 	session.work = {}
 	reset_candidates(session)
@@ -687,8 +689,17 @@ press :: proc(session: ^Session, action, previous_actions: u32, time_ms: f64) {
 apply_input :: proc(session: ^Session, input: core_types.Input_Snapshot) {
 	previous_actions := session.cursor.action_bits
 	pressed := input.action_bits & ~previous_actions & 3
+	if input.flags & core_types.BLOCK_NEXT_PRESS != 0 {
+		session.block_next_press = true
+	}
+	if pressed != 0 && session.block_next_press {
+		// OsuResumeOverlayInputBlocker consumes the first dispatched action.
+		pressed &= pressed - 1
+		session.block_next_press = false
+	}
 	session.cursor = input
 	record_frame(session, input.effective_time_ms)
+	session.cursor.flags = 0
 	if pressed & core_types.LEFT != 0 {
 		press(session, core_types.LEFT, previous_actions, input.effective_time_ms)
 	}
@@ -731,10 +742,9 @@ record_frame :: proc(session: ^Session, time_ms: f64) {
 	frame := session.cursor
 	frame.raw_time_ms = time_ms
 	frame.effective_time_ms = time_ms
-	frame.flags = 0
 	if session.recording_count > 0 {
 		previous := session.recording[session.recording_count - 1]
-		if previous.effective_time_ms == time_ms && previous.x == frame.x && previous.y == frame.y && previous.action_bits == frame.action_bits {
+		if previous.effective_time_ms == time_ms && previous.x == frame.x && previous.y == frame.y && previous.action_bits == frame.action_bits && previous.flags == frame.flags {
 			return
 		}
 	}
@@ -772,7 +782,7 @@ release_actions :: proc(session: ^Session, time_ms: f64) {
 	apply_input(session, release_frame)
 }
 
-advance_session :: proc(session: ^Session, target_ms: f64, pause_at_target := false) -> core_types.Status {
+advance_session :: proc(session: ^Session, target_ms: f64) -> core_types.Status {
 	if !core_types.finite(target_ms) {
 		return .INVALID_ARGUMENT
 	}
@@ -786,7 +796,6 @@ advance_session :: proc(session: ^Session, target_ms: f64, pause_at_target := fa
 		return .OK
 	}
 	session.state = .RUNNING
-	release_applied := !pause_at_target
 	for !terminal(session) {
 		event, has_event := peek(&session.events)
 		input, has_input := peek_input(&session.inputs)
@@ -803,10 +812,6 @@ advance_session :: proc(session: ^Session, target_ms: f64, pause_at_target := fa
 		}
 		if !has_event || event.key.time_ms > target_ms {
 			break
-		}
-		if !release_applied && event.key.time_ms == target_ms {
-			release_actions(session, target_ms)
-			release_applied = true
 		}
 		pop(&session.events)
 		object_index := int(event.key.object_index)
@@ -832,9 +837,6 @@ advance_session :: proc(session: ^Session, target_ms: f64, pause_at_target := fa
 	if terminal(session) {
 		stop_voice_objects(session, session.terminal_ms)
 	}
-	if !terminal(session) && !release_applied {
-		release_actions(session, target_ms)
-	}
 	if !terminal(session) {
 		if session.completed_objects == len(session.objects) {
 			session.state = .PASSED
@@ -852,12 +854,13 @@ pause_session :: proc(session: ^Session, time_ms: f64) -> core_types.Status {
 	if session.epoch == max(u32) || session.pause_count >= session.live_input_capacity + 2 {
 		return .QUOTA_EXCEEDED
 	}
-	status := advance_session(session, time_ms, true)
+	status := advance_session(session, time_ms)
 	if status != .OK || terminal(session) {
 		return status
 	}
-	// Pause participates at the requested timestamp, before its scheduled
-	// judgement phase. Future timestamped inputs remain queued (ADR-002).
+	// The paused input manager retains actions. Physical state is reconciled
+	// on resume; pausing itself must not manufacture releases.
+	record_frame(session, time_ms)
 	pause_voices(session, time_ms)
 	session.state = .PAUSED
 	session.epoch += 1

@@ -20,7 +20,8 @@ const path_exists = async (candidate: string) => {
 // browser-js sources use node16-style ".js" specifiers for their ".ts" modules.
 // TypeScript applies the extension substitution; esbuild/Vite does not, so the
 // candidate ".ts" source is returned for unresolved in-package specifiers.
-const browser_source_resolver: Plugin = {
+// Exported so the Vitest config resolves @browser imports identically.
+export const browser_source_resolver: Plugin = {
   name: 'tapweave-browser-source-resolver',
   resolveId: {
     order: 'pre',

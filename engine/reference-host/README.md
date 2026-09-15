@@ -58,6 +58,14 @@ complete object preparation. Geometry provenance lives in
 
 ## Independent M2 observations
 
+Run `npm --prefix engine run test:pause:upstream` with the pinned checkout and
+.NET environment above. It verifies retained test bodies and performs the locked
+restore/build before invoking `ReferenceHost.dll --pause output.json`. It executes the
+six retained osu!standard pause-input test bodies with the actual upstream test
+runner plus two separately identified source-derived input synchronization
+probes. The six original assertions remain intact; Mania is outside scope. See
+[pause/resume evidence](../../docs/compatibility/pause-resume.md).
+
 `npm --prefix engine run test:simulation:upstream` executes actual result
 properties, `OsuScoreProcessor`, `OsuHitWindows`, `SpinnerSpinHistory` and
 `DrainingHealthProcessor` against explicit synthetic inputs. `--simulation` is

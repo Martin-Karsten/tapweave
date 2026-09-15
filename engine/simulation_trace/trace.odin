@@ -315,7 +315,7 @@ run :: proc(input: []byte) -> ([]byte, bool) {
 			identity := replay.Identity {
 				schema_version = 2,
 				compatibility_version = 1,
-				rules_version = 1,
+				rules_version = replay.RULES_VERSION,
 				behavior_id = 202608042,
 				coordinate_version = 1,
 				rate = 1,

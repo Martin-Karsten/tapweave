@@ -175,7 +175,7 @@ input or RAF. This is an event-driven interpretation: update-quantised upstream
 motion and drawable expiry still require H11 comparisons; differences are not
 accepted divergences. No render read produces commands.
 
-Pause first releases input at the exact engine boundary. It then retires remaining
+Pause retains input state at the exact engine boundary. It then retires remaining
 loop resource identities while retaining requested state and beatmap-relative gain
 ramps. Resume emits fresh starts with the sampled gain and the remaining ramp
 duration. Browser pause discards queued loop commands and cancels loop nodes;
@@ -223,7 +223,7 @@ use the engine inverse transform for the canvas's current CSS bounds and DPR at
 receipt, before buffering. Z/primary mouse and X/secondary mouse aggregate physical
 sources; repeats are suppressed. One primary touch maps to cursor/left, as required
 by the browser plan. Escape, cancellation, focus loss and hidden-document events
-drain input and call engine pause, which owns the exact-boundary release. Resume
+drain input and call engine pause, which retains action state at the exact boundary. Resume
 uses the existing playback anchor and an explicit frame restart. Disposal removes
 listeners and restores touch-action. Reset/replacement require new driver/input
 owners; W07 owns that lifecycle. Browser event/transform allocation remains; the
@@ -239,7 +239,7 @@ wrappers and invalidates its callback generation on every stop.
 
 Pause drains accepted input, samples AudioContext time once and invokes engine
 pause directly, before any ordinary advance at that boundary. This preserves
-ADR-002 release ordering and also works when audio is suspended. The returned
+ADR-002 input/deadline ordering and also works when audio is suspended. The returned
 state may already be terminal; the controller reads results rather than attempting
 resume in that case. Pause leaves newly emitted engine voice intent retained;
 resume consumes it under the new anchor while restoring previously admitted
@@ -259,6 +259,41 @@ its sound keeps the nominal endpoint time. Active sample tails can outlive the
 results transition. Music is cancelled once sound intent drains. Failure,
 navigation and visibility loss cancel all terminal playback immediately.
 
-These are Tapweave validation UI policies: no lazer resume-cursor overlay,
-pause cooldown, pause-menu sound loop or auto-resume is introduced. Pinned pause
-UI tests remain an explicit adapter gap, independently of local regression passes.
+The cursor resume flow now follows the pinned lazer policy described in
+[pause/resume](../compatibility/pause-resume.md). Pause cooldown and pause-menu
+sound loops remain separate validation UI gaps. Passing the six pause-input
+tests does not close the complete pause/UI acceptance matrix.
+
+## MVP essential settings policy
+
+The approved [MVP Plan 2](../mvp-player-experience.md) adds a page-session-owned
+`Audio_Mixer` with separate final music/effects gains. Music feeds the music
+output; per-voice gain/pan feeds the effects output. Percentages map to amplitude
+by division by 100. Saved values apply before playback; changes use a continuous
+20 ms linear ramp computed from the mixer's own prior ramp, with
+`cancelScheduledValues` and an explicit current value (no dependency on
+`cancelAndHoldAtTime`). Retry/map replacement keep this owner; disposal releases
+it. Muting changes only output gain, never scheduling, anchors or simulation.
+
+The page reads validated v1 preferences once. On start/resume the controller
+installs a fresh input owner with an immutable physical-key/mouse configuration.
+A controller-owned observer tracks held physical sources even while menus own
+focus. Ordinary pause drains input and retains engine actions. Resume reconciles
+physical state before the first advance, preserving held actions and consuming
+the cursor-resume press. Inputs used within settings are quarantined until
+release; unrelated held gameplay inputs are not blanket-suppressed. The shared modal pauses through the lifecycle owner,
+never resumes on close, and excludes the debug modal/background shortcuts.
+
+The earlier release/repress policy is superseded by the lazer behavior. The six
+osu!standard methods in `TestScenePauseInputHandling` have been executed through
+the pinned upstream host; local implementation checks and remaining acceptance
+limits are recorded in [pause/resume](../compatibility/pause-resume.md). Timing offsets remain zero;
+any future calibration needs a separate ADR-002/004 and ABI/replay contract.
+See [settings evidence and human evaluation protocol](../compatibility/settings-evaluation.md).
+
+The frame coordinator may observe a suspended context before the queued browser
+`statechange` event. It reports a pause request to the same controller before
+ordinary advancement; the controller drains and freezes the retained action state at the actual audio time.
+This closes an observed Chromium suspension race without clamping, offsets or a
+second transition owner. A production-WASM regression delays `statechange` until
+after the frame and checks the exact committed pause timestamp.

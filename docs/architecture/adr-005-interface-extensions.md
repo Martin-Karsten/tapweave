@@ -66,10 +66,14 @@ See the [binary contract](interface-v2.md#m1-prepared-map-transport).
 Gameplay uses a separate `GameplayCreateV1` (kind 18, flag 2) passed to
 `oe_session_create`, requiring a fully prepared map. Kind 3/flag 1 retains its
 foundation behavior. `oe_simulation_capabilities` advertises headless session
-version 1 and recording/rules version 1 separately; the old aggregate gameplay
+version 1 and recording/rules version 2 separately; the old aggregate gameplay
 field stays zero because the complete browser capability set is not available.
 Kinds 19–28 concretize snapshots, judgements, anchors, inputs, final results,
-capabilities, counts, one-shot audio intent and sample availability.
+capabilities, counts, one-shot audio intent and sample availability. Kind 53
+adds the read-only resume policy query: Odin supplies gate geometry and
+per-action input flags. Rules version 2 admits the recorded one-shot blocker
+marker in input flag bit 0 and rejects old rules-version-1 recordings. See
+[pause/resume](../compatibility/pause-resume.md).
 
 Creation reserves the entire bounded judgement journal, component/object state,
 schedule, input ring, recording, sample availability, audio journal and output

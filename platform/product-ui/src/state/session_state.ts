@@ -1,8 +1,19 @@
+import { bind_player_settings } from './settings_state.js';
 import { createSignal } from 'solid-js';
 import { INITIAL_SHELL_STATE, Player_Session_Service, type Shell_State } from '../services/player_session.js';
 
 // Module-level app state: Solid signals live here (and in components), never
 // inside services. The service is created once per page load.
+
+declare global {
+  interface Window {
+    // Browser-spec probe (mirrors the diagnostics input fixture): exposes the
+    // session service so Playwright can inspect state and inject
+    // deterministic clock faults on the playback clock probe.
+    __tapweave_player_probe?: { session: Player_Session_Service };
+  }
+}
+
 let boot_promise: Promise<void> | null = null;
 let service: Player_Session_Service | null = null;
 const [shell_state, set_shell_state] = createSignal<Shell_State>(INITIAL_SHELL_STATE);
@@ -12,8 +23,10 @@ export const boot_player_session = (): Promise<void> => {
     try {
       const created = await Player_Session_Service.create();
       service = created;
-      created.subscribe(() => set_shell_state(created.state));
+      created.own_cleanup(bind_player_settings(created.settings));
+      created.own_cleanup(created.subscribe(() => set_shell_state(created.state)));
       set_shell_state(created.state);
+      window.__tapweave_player_probe = { session: created };
     } catch (error) {
       const failed_state: Shell_State = { ...INITIAL_SHELL_STATE, phase: 'boot-failed',
         boot_error: error instanceof Error ? error.message : String(error) };

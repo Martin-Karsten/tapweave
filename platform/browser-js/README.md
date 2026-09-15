@@ -170,8 +170,13 @@ It records missing acceptance separately and does not approve the baseline.
 ## W07 player lifecycle
 
 Load local files and select a difficulty, then Play. Use Z/X, primary/secondary
-mouse, or primary touch. Escape/Pause freezes the run; Resume is an explicit
-button gesture. Retry resets the attempt without reloading assets. Back returns
+mouse, or primary touch. Escape/Pause freezes the run while retaining engine action state. Resume
+requests the frozen cursor target when required; press a hit key or mouse button
+over that target to continue, or Escape to return to pause. Intro/break and
+hidden/outside-cursor cases bypass the target under engine policy. Resume first
+synchronizes releases, then delivers the actual resume event before advancing.
+Newly held paused sources stay inactive until a fresh press; retained sources
+can stay held. See [pause/resume behavior and evidence](../../docs/compatibility/pause-resume.md). Retry resets the attempt without reloading assets. Back returns
 to the retained difficulty selection. Pass/fail results come directly from the
 engine. Diagnostics include sample warnings, final identity/counts and bounded
 rejected-input recovery context. The profile uses rate 1 and zero offsets.
@@ -247,7 +252,7 @@ isolates failures between attempts while ring history is retained.
   corpus with search, parameters, Run/Step/Reset/Run All, declared assertions
   and report export. Scenarios cover aligned clocks and deliberate ±2/±10 ms
   discrepancies plus a rejection case; 30/60/120/144 Hz delivery with
-  0/50/100/250 ms stalls; keyboard/mouse aggregation, repeats, release-all and
+  0/50/100/250 ms stalls; keyboard/mouse aggregation, repeats, explicit release-all buffering and
   rejected batches; pause/resume, audio suspension, rejected audio start and
   retry; GPU loss/restoration, dispatch failure and capacity exhaustion.
   Synthetic scenarios use explicit injected clocks and production WASM through

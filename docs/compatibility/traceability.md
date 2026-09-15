@@ -119,6 +119,7 @@ follow points, HUD, graphics coverage and measured limits remain A22/W04 gates.
 The [lifecycle findings](../../engine/reference/findings/m3-lifecycle.json) link
 production-WASM controller, Chromium UI/recovery tests and the executed pinned
 Player failure adapters. A19 has selected HP0/5/10 source-derived comparisons;
-A21/A23/A24 have bounded local lifecycle evidence. Exact upstream pause UI ports,
+A21/A23/A24 have bounded local lifecycle evidence. The six pinned osu!standard pause-input methods are now executed by the
+[resume host](pause-resume.md); complete pause UI coverage,
 physical input/audible output and the complete release/resource matrix remain
 open. Play exposes a validation build, not an assertion that these rows pass.

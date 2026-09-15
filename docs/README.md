@@ -4,6 +4,13 @@ These documents specify the Odin/WASM osu!standard engine. They distinguish impl
 
 Implementation lives in [`engine/`](../engine/README.md). See [Implementation status](status.md) for tested coverage and remaining exit gates.
 
+The approved public MVP onboarding and settings work is specified in the
+[parallel implementation handoff](mvp-player-experience.md). Its shared settings
+foundation now supports the implemented settings dialog. The
+[pause/resume contract](compatibility/pause-resume.md) supersedes the original held-input
+suppression plan; combined onboarding integration and release certification remain
+separate gates.
+
 ## Pinned baseline
 
 | Component | Version | Revision |

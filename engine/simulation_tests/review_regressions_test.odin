@@ -188,7 +188,7 @@ replay_decode_rejects_checksummed_malformed_records_transactionally :: proc(test
 		{"nonfinite cursor", SECOND_FRAME_OFFSET + 24, 8, transmute(u64)math.inf_f64(1), .INVALID_ARGUMENT},
 		{"nonfinite time", SECOND_FRAME_OFFSET + 16, 8, transmute(u64)math.nan_f64(), .INVALID_ARGUMENT},
 		{"unknown action", SECOND_FRAME_OFFSET + 40, 4, 8, .INVALID_ARGUMENT},
-		{"unknown flags", SECOND_FRAME_OFFSET + 48, 4, 1, .INVALID_ARGUMENT},
+		{"unknown flags", SECOND_FRAME_OFFSET + 48, 4, 2, .INVALID_ARGUMENT},
 		{"zero sequence", SECOND_FRAME_OFFSET, 8, 0, .INVALID_ARGUMENT},
 		{"reused sequence", SECOND_FRAME_OFFSET, 8, 1, .INVALID_ARGUMENT},
 		{"offset timestamp", SECOND_FRAME_OFFSET + 8, 8, transmute(u64)f64(201), .INVALID_ARGUMENT},

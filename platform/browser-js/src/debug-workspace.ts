@@ -3,13 +3,21 @@ import { debug_scenarios, Debug_Scenario_Run, type Debug_Scenario_Definition,
 import { Diagnostics_Service } from './diagnostics.js';
 import { build_debug_report, serialize_debug_report, PINNED_SOURCE_REVISIONS,
   type Debug_Report_Identity } from './debug-report.js';
-import { download_text } from './debug-ui.js';
 
 // Developer workspace for the debug scenario corpus. The searchable listing,
 // per-scenario controls and run-all structure follow the pinned osu!framework
 // TestBrowser; every scenario executes through the production WASM engine and
 // the production browser services. The mixed-scene scrubber remains available
 // at /renderer-debug.html.
+
+const download_text = (filename: string, text: string) => {
+  const object_url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+  const link = document.createElement('a');
+  link.href = object_url;
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(object_url), 1000);
+};
 
 const element = (identifier: string) => document.getElementById(identifier)!;
 const definitions = debug_scenarios();

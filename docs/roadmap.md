@@ -37,7 +37,10 @@ Every scenario runs native and WASM. Discrete traces must be byte-identical; com
 
 ### Browser/audio/lifecycle
 
-- Offset components positive/negative, music seek, pause/resume, resume gate, focus loss/reacquire, context suspend and rate.
+- Pause/resume input and the cursor gate are implemented with bounded upstream
+  evidence; see [the current contract](compatibility/pause-resume.md). Complete
+  audio/device acceptance still includes offset components positive/negative,
+  music seek, focus loss/reacquire, context suspend and rate.
 - Missing music, missing hitsound with fallback/silence, early tail future sample, slider/spinner loop toggles, scheduling stall and epoch cancellation.
 - Repeated loads, failed replacement, small↔large maps, four sessions sharing a map, reset/dispose, WebAssembly memory growth, stale typed views, context loss and asset release.
 

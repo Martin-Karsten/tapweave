@@ -19,7 +19,7 @@ Use WebGL2. Odin owns animation curves, culling, z/order, path tessellation, ins
 
 No JavaScript object exists per hit object. Static path/body meshes are uploaded once per prepared map; frame buffers contain compact instances and dynamic uniforms. A backend-neutral render protocol permits a later WebGPU executor without moving presentation policy out of Odin. Canvas 2D is retained only as a diagnostic fallback, not a compatible production capability.
 
-Context capabilities are queried at startup. WebGL2 absence returns `CAP_RENDER_UNAVAILABLE`. Context loss pauses gameplay, releases actions and audio, invalidates GPU generation, then rebuilds resources from prepared/asset data before resume.
+Context capabilities are queried at startup. WebGL2 absence returns `CAP_RENDER_UNAVAILABLE`. Context loss pauses gameplay, retains engine action state for resume reconciliation, stops music and loop playback, invalidates GPU generation, then rebuilds resources from prepared/asset data before resume.
 
 ## Consequences
 
@@ -210,7 +210,7 @@ shared map attachments survive public map release while sessions retain them.
 `Renderer` prepares one scene, consumes explicit beatmap time synchronously and
 provides loss/restoration/disposal hooks. Loss invalidates GPU and dynamic-buffer
 ownership and calls the lifecycle owner; that owner must stop its driver and
-pause/release input/audio. Explicit restoration rebuilds resources but never
+pause with retained engine input state and stop music/loop playback. Explicit restoration rebuilds resources but never
 resumes gameplay. The developer-only `/renderer-debug.html` fixture exercises this
 path without enabling Play or creating another gameplay clock.
 

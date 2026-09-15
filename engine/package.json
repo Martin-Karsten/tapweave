@@ -28,6 +28,7 @@
     "analyze:scenario-audio": "node scripts/analyze-scenario-audio.mjs",
     "measure:input-cost": "node scripts/measure-input-cost.mjs",
     "compare:voice-intent": "node scripts/compare-voice-intent.mjs",
-    "compare:scene:upstream": "node scripts/compare-scene.mjs"
+    "compare:scene:upstream": "node scripts/compare-scene.mjs",
+    "test:pause:upstream": "node scripts/test-pause.mjs"
   }
 }

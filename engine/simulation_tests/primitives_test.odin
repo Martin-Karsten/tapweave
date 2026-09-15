@@ -205,7 +205,7 @@ replay_identity_validation_and_interpolation :: proc(test: ^testing.T) {
 	identity := replay.Identity {
 		schema_version = 2,
 		compatibility_version = 1,
-		rules_version = 1,
+		rules_version = replay.RULES_VERSION,
 		behavior_id = 202608042,
 		coordinate_version = 1,
 		rate = 1,
@@ -282,7 +282,7 @@ replay_codec_roundtrip_and_transactional_corruption :: proc(test: ^testing.T) {
 	identity := replay.Identity {
 		schema_version = 2,
 		compatibility_version = 1,
-		rules_version = 1,
+		rules_version = replay.RULES_VERSION,
 		behavior_id = 202608042,
 		coordinate_version = 1,
 		rate = 1,

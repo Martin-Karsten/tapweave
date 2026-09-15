@@ -226,12 +226,14 @@ judgement/audio-intent/final digests under direct advance, 30/60/120/144 Hz and
 
 Primary areas: one browser lifecycle controller, main UI and resource owners.
 
-- Coordinate loading, ready, running, paused, recovering, terminal and disposed
+- Coordinate loading, ready, running, paused, resuming, recovering, terminal and disposed
   states around engine authority. Preserve a valid selection on failed replacement.
-- Pause by draining input to the boundary, releasing actions, invoking engine
+- Pause by draining input to the boundary, retaining action state, invoking engine
   pause, invalidating audio and saving media position. Preserve queued future
   input according to the existing M2 contract. Resume requires a gesture, running
-  audio, valid graphics and a valid engine anchor.
+  audio, valid graphics and a valid engine anchor. The engine decides whether the
+  cursor gate is required; its acceptance precedes clock restart and physical
+  input reconciliation. See [pause/resume behavior](compatibility/pause-resume.md).
 - Route focus loss, context suspension/loss, audio execution failure and map
   replacement through consistent cleanup/recovery. Rebuild GPU resources from
   owned immutable data after restoration. Invalidate stale asynchronous callbacks.
@@ -448,7 +450,7 @@ not a single boolean for the entire harness.
 | Player score/health | HP0/5/10, breaks, combo ends, mixed results, failure crossing/freeze and terminal rank | Every score/count/combo/health transition and final record | H09/H10; A17–A19 |
 | Samples/loops | Ordered candidates and missing assets, future tails, tracking toggles, spinner volume/frequency ramps, replacement of in-flight ramps, pause/resume | Selected asset, requested time, voice play/stop and parameter changes | H11; A20–A21 |
 | Drawable presentation | Reveal/preempt/fade boundaries, approach circle, hit/miss feedback; slider body/head/ball/repeats/follow; spinner activation/progress/feedback | Visibility, transforms, alpha, progress and child lifetime | A22 |
-| Replay/lifecycle | Same recorded stream across schedules, pause release/future input, final results and recorder/replay round trip | Frames, judgement/audio/final traces and identity | A23, with relevant H05–H10 families |
+| Replay/lifecycle | Same recorded stream across schedules, pause retention/resume blocking/future input, final results and recorder/replay round trip | Frames, judgement/audio/final traces and identity | A23, with relevant H05–H10 families |
 
 **W02.4 — Compare schedules and retain evidence.**
 Run relevant upstream drawables at 30/60/144 Hz and 50/100/250 ms stalls placed

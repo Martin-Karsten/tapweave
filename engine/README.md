@@ -135,3 +135,11 @@ schedules and two dense/long local workloads. `test:gameplay:upstream` executes
 pinned drawable, Player and recorder adapters and fails on comparison errors.
 The existing simulation reference CI job runs both upstream suites and uploads
 their raw observations. See [coverage and limitations](../docs/compatibility/gameplay-tests.md).
+
+## Pause-input reference tests
+
+`npm --prefix engine run test:pause:upstream` executes the six retained pinned
+osu!standard pause-input test bodies and two source-derived input synchronization
+probes. Configure the clean pinned checkouts and .NET SDK as described in the
+[reference-host guide](reference-host/README.md). The [pause/resume contract](../docs/compatibility/pause-resume.md)
+records the input/replay behavior, local ports, evidence hashes and open scope.

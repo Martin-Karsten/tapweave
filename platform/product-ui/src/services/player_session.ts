@@ -1,9 +1,13 @@
+import { Audio_Mixer } from '@browser/audio-mixer.js';
+import { gameplay_accessible_label } from '@browser/player-settings.js';
+import { Player_Settings_Service } from './player_settings.js';
 import { Engine_Bridge } from '@browser/engine-bridge.js';
 import { Selection_Controller, type Active_Selection } from '@browser/selection.js';
 import { Gameplay_Controller, type Gameplay_View } from '@browser/gameplay-controller.js';
 import { create_fallback_audio } from '@browser/fallback-audio.js';
 import type { Browser_Error } from '@browser/errors.js';
 import type { Engine_Diagnostic, Prepared_Descriptor_Record } from '@browser/abi-records.js';
+import { Debug_Session_Service } from './debug_session.js';
 
 const MAXIMUM_ENGINE_MESSAGES = 64;
 
@@ -63,46 +67,91 @@ export class Player_Session_Service {
   private boot_error: string | null = null;
   private readonly listeners = new Set<() => void>();
   private readonly gameplay: Gameplay_Controller;
+  private readonly cleanup_callbacks = new Set<() => void>();
+
+  own_cleanup(cleanup: () => void): void { this.cleanup_callbacks.add(cleanup); }
+
+  private cleanup_settings(): void {
+    for (const cleanup of this.cleanup_callbacks) cleanup();
+    this.cleanup_callbacks.clear();
+  }
 
   private constructor(readonly engine: Engine_Bridge, readonly selection: Selection_Controller,
     readonly audio_context: AudioContext, readonly canvas: HTMLCanvasElement,
-    gameplay: Gameplay_Controller, private readonly engine_logs: Engine_Diagnostic[]) {
+    gameplay: Gameplay_Controller, private readonly engine_logs: Engine_Diagnostic[],
+    readonly debug: Debug_Session_Service, readonly settings: Player_Settings_Service, readonly mixer: Audio_Mixer) {
     this.gameplay = gameplay;
   }
 
   static async create(fetch_engine_wasm: () => Promise<ArrayBuffer> = Player_Session_Service.default_engine_fetch): Promise<Player_Session_Service> {
+    const settings = new Player_Settings_Service(() => window.localStorage);
     const wasm_bytes = await fetch_engine_wasm();
     const engine_logs: Engine_Diagnostic[] = [];
-    const engine = await Engine_Bridge.create(wasm_bytes, (message) => {
-      if (engine_logs.length >= MAXIMUM_ENGINE_MESSAGES) {
-        engine_logs.shift();
-      }
-      engine_logs.push(message);
-    });
-    const audio_context = new AudioContext();
-    const fallback_assets = new Map<string, AudioBuffer>();
-    const canvas = document.createElement('canvas');
-    canvas.id = 'playfield';
-    canvas.tabIndex = 0;
-    canvas.setAttribute('aria-label', 'Tapweave playfield. Z and X or mouse buttons to play. Escape pauses.');
-    const selection = new Selection_Controller(engine, {
-      fallback_assets,
-      on_change: () => {},
-      decode_audio: async (bytes) => {
-        if (fallback_assets.size === 0) {
-          for (const [name, buffer] of create_fallback_audio(audio_context)) fallback_assets.set(name, buffer);
+    const debug = new Debug_Session_Service();
+    const engine = await Engine_Bridge.create(wasm_bytes, {
+      diagnostics: debug.diagnostics,
+      on_engine_log: (message) => {
+        if (engine_logs.length >= MAXIMUM_ENGINE_MESSAGES) {
+          engine_logs.shift();
         }
-        return audio_context.decodeAudioData(bytes as ArrayBuffer);
+        engine_logs.push(message);
+        debug.record_engine_log(message);
       },
     });
-    // The gameplay controller rewires selection.on_change to its own handler,
-    // so its published views are the single lifecycle notification point. The
-    // indirection keeps the callback alive before the shell is constructed.
-    let publish: () => void = () => {};
-    const gameplay = new Gameplay_Controller(engine, selection, audio_context, canvas, { on_change: () => publish() });
-    const shell = new Player_Session_Service(engine, selection, audio_context, canvas, gameplay, engine_logs);
-    publish = () => shell.publish();
-    return shell;
+    debug.note_player_started();
+    let audio_context: AudioContext | null = null;
+    let mixer: Audio_Mixer | null = null;
+    let selection: Selection_Controller | null = null;
+    let gameplay: Gameplay_Controller | null = null;
+    try {
+      audio_context = new AudioContext();
+      const context = audio_context;
+      mixer = new Audio_Mixer(context, settings.snapshot.settings);
+      const fallback_assets = new Map<string, AudioBuffer>();
+      const canvas = document.createElement('canvas');
+      canvas.id = 'playfield';
+      canvas.tabIndex = 0;
+      canvas.setAttribute('aria-label', gameplay_accessible_label(settings.snapshot.settings));
+      selection = new Selection_Controller(engine, {
+        fallback_assets,
+        on_change: () => {},
+        decode_audio: async (bytes) => {
+          if (fallback_assets.size === 0) {
+            for (const [name, buffer] of create_fallback_audio(context)) fallback_assets.set(name, buffer);
+          }
+          return context.decodeAudioData(bytes as ArrayBuffer);
+        },
+      });
+      debug.bind({ engine: () => engine, selection: () => selection!.active, audio_context: () => context });
+      // The gameplay controller rewires selection.on_change to its own handler,
+      // so its published views are the single lifecycle notification point. The
+      // indirection keeps the callback alive before the shell is constructed.
+      let publish: () => void = () => {};
+      gameplay = new Gameplay_Controller(engine, selection, context, canvas, {
+        input_settings: () => settings.snapshot.settings,
+        outputs: { music: mixer.music, effects: mixer.effects },
+        on_change: () => publish(),
+        diagnostics: debug.diagnostics,
+        on_frame: () => debug.note_frame_tick(),
+      });
+      const shell = new Player_Session_Service(engine, selection, audio_context, canvas, gameplay, engine_logs, debug, settings, mixer);
+      shell.own_cleanup(settings.subscribe(() => {
+        mixer!.update(settings.snapshot.settings);
+        // Running input keeps its frozen configuration until the next start.
+        if (shell.view.state !== 'running' && shell.view.state !== 'starting') {
+          canvas.setAttribute('aria-label', gameplay_accessible_label(settings.snapshot.settings));
+        }
+      }));
+      shell.own_cleanup(() => mixer!.dispose());
+      publish = () => shell.publish();
+      return shell;
+    } catch (error) {
+      if (gameplay) gameplay.dispose();
+      else { selection?.dispose(); engine.dispose(); }
+      mixer?.dispose();
+      if (audio_context && audio_context.state !== 'closed') await audio_context.close().catch(() => {});
+      throw error;
+    }
   }
 
   private static async default_engine_fetch(): Promise<ArrayBuffer> {
@@ -114,7 +163,12 @@ export class Player_Session_Service {
   }
 
   private publish() {
+    this.debug.note_gameplay_view(this.gameplay.view, this.selection.active);
     for (const listener of [...this.listeners]) listener();
+    if (this.gameplay.view.state === 'disposed') {
+      this.cleanup_settings();
+      this.listeners.clear();
+    }
   }
 
   subscribe(listener: () => void): () => void {
@@ -139,6 +193,12 @@ export class Player_Session_Service {
     return this.gameplay.view;
   }
 
+  // Read-only diagnostic probe over the active playback clock; browser specs
+  // use the window player probe to inject deterministic clock faults.
+  get playback_clock() {
+    return this.gameplay.playback_clock;
+  }
+
   // The canvas is owned by this service and survives route changes; the play
   // route only lends it a host element. Appending moves the same node, keeping
   // the WebGL context, listeners and renderer bindings intact.
@@ -149,7 +209,8 @@ export class Player_Session_Service {
   }
 
   async play() { await this.gameplay.play(); }
-  pause() { this.gameplay.pause(); }
+  quarantine_input(source: string) { this.gameplay.quarantine_input(source); }
+  pause(reason?: string) { this.gameplay.pause(reason); }
   async resume() { await this.gameplay.resume(); }
   async retry() { await this.gameplay.retry(); }
   back() { this.gameplay.back(); }
@@ -185,5 +246,7 @@ export class Player_Session_Service {
 
   dispose() {
     this.gameplay.dispose();
+    this.cleanup_settings();
+    this.listeners.clear();
   }
 }

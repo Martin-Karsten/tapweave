@@ -2795,6 +2795,42 @@
           "u64"
         ]
       }
+    },
+    {
+      "name": "resume_policy",
+      "kind": 53,
+      "version": 1,
+      "size": 48,
+      "fields": {
+        "required": [
+          8,
+          "u32"
+        ],
+        "held_action_bits": [
+          12,
+          "u32"
+        ],
+        "x": [
+          16,
+          "f64"
+        ],
+        "y": [
+          24,
+          "f64"
+        ],
+        "half_size": [
+          32,
+          "f64"
+        ],
+        "left_input_flags": [
+          40,
+          "u32"
+        ],
+        "right_input_flags": [
+          44,
+          "u32"
+        ]
+      }
     }
   ],
   "transport": {

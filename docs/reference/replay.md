@@ -8,6 +8,13 @@ Replay timestamps are beatmap/gameplay milliseconds. Offsets belong to session c
 
 ## Rules identity
 
+The current internal envelope is schema version 2 with rules version 2. Ordinary
+pause retains actions. Input flag bit 0 records the one-shot resume press blocker
+so replay can reproduce a held action whose initial press did not reach a hit
+object. This is an internal deterministic control marker, not a claim about the
+upstream legacy replay format. Rules-version-1 imports reject as unsupported.
+See [pause/resume](../compatibility/pause-resume.md).
+
 An Odin replay envelope contains:
 
 - schema version and engine compatibility version;

@@ -24,7 +24,7 @@ phase: input snapshot -> tracking recompute -> scheduled judgement
 
 All equal-time input records are applied before automatic deadlines. A press edge may select at most one head. Live cursor is sample-and-hold; replay cursor linearly interpolates. Slider tracking predicates are evaluated at input times and exact child deadlines. Spinner deltas are input-segment based with recorder subdivision. Presentation samples arbitrary time but receives readonly committed state.
 
-The browser uses the Web Audio anchor conversion in ADR-004: each DOM handler stamps input with the audio clock directly, and one coordinator collects inputs, submits them, then advances, so results never depend on which RAF callback ran first. Input time earlier than committed time is rejected as `LATE_INPUT`; no hidden clamp, rollback, or changed accuracy. Input time equal to committed time, and equal-time inputs among themselves, keep sequence order and precede automatic deadlines. An input beyond the target remains queued. Pause emits release-all, commits pause time, freezes the anchor, increments epoch; resume establishes a new epoch, and input carrying a closed epoch is rejected rather than remapped. Rate/offset cannot change while running.
+The browser uses the Web Audio anchor conversion in ADR-004: each DOM handler stamps input with the audio clock directly, and one coordinator collects inputs, submits them, then advances, so results never depend on which RAF callback ran first. Input time earlier than committed time is rejected as `LATE_INPUT`; no hidden clamp, rollback, or changed accuracy. Input time equal to committed time, and equal-time inputs among themselves, keep sequence order and precede automatic deadlines. An input beyond the target remains queued. Pause retains the current action state, commits pause time, freezes the anchor, and increments epoch; resume establishes a new epoch, and input carrying a closed epoch is rejected rather than remapped. Rate/offset cannot change while running.
 
 Replay validation occurs before session start. Rendering stalls only make `advance` consume a larger event interval. Seeking restores the nearest deterministic checkpoint and resimulates. Final digest hashes canonical discrete outputs and score state, not presentation floats.
 
@@ -39,13 +39,19 @@ Run every replay at direct-final advance, 30/60/120/144 Hz and with 50/100/250 m
 ## M2 session implementation
 
 The implementation must follow the decisions above. Input equal to committed time
-is admitted; only earlier input is late. Pause releases actions at the requested
-time before scheduled judgements and retains queued future inputs. It must not
+is admitted; only earlier input is late. Pause retains actions at the requested
+time and retains queued future inputs. Resume synchronizes releases from retained
+physical sources, updates cursor position, and forwards the actual resume event
+before the first resumed advance; unrelated newly held paused sources remain
+inactive until release/repress. A consumed resume press updates held state
+without dispatching a hit. It must not
 shift input to adjacent floating-point timestamps or change replay interpolation
 to make live/replay comparisons pass.
 
 The session recorder stores ordinary frames at actual input and judgement times,
-with release-all at pause time. Replay positions use the pinned framework's
+including the retained action state at pause time. Rules version 2 additionally
+records a one-shot resume-blocker marker in input flags, so replay preserves the
+difference between an action becoming held and a press reaching hit objects. Replay positions use the pinned framework's
 `Vector2` interpolation precision. Full recorder sampling/subdivision and
 whole-drawable schedule comparisons remain acceptance gates; local round trips
 are not evidence of upstream compatibility.

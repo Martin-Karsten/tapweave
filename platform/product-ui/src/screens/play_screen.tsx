@@ -1,6 +1,8 @@
 import { Show, createEffect, onCleanup, onMount, type Component } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { Lifecycle_Panel } from './lifecycle_panel';
+import { Debug_Hud } from '../components/debug_hud';
+import { debug_hud_visible, open_debug_dialog, toggle_debug_hud } from '../state/debug_state';
 import { player_session, shell_state } from '../state/session_state';
 
 // Gameplay route: a host element only (ADR-006). The canvas, RAF pump and
@@ -28,7 +30,7 @@ export const Play_Screen: Component = () => {
       return;
     }
     if (previous_state !== view.state) {
-      if (view.state === 'running') {
+      if (view.state === 'running' || view.state === 'resuming') {
         player_session()?.canvas.focus();
       } else if (view.in_attempt) {
         document.getElementById('lifecycle-panel')?.focus();
@@ -38,7 +40,7 @@ export const Play_Screen: Component = () => {
   });
 
   const view = () => shell_state().gameplay;
-  const panel_visible = () => view().in_attempt && view().state !== 'running';
+  const panel_visible = () => view().in_attempt && view().state !== 'running' && view().state !== 'resuming';
 
   return (
     <main class="screen play-screen" aria-label="Gameplay">
@@ -50,6 +52,19 @@ export const Play_Screen: Component = () => {
           class="playfield-host"
           aria-label="Tapweave playfield host"
         />
+        <div class="floating-controls">
+          <Show when={view().state === 'running'}>
+            <button id="debug-open-running" type="button" onClick={open_debug_dialog}>
+              Debug
+            </button>
+          </Show>
+          <button id="hud-toggle" type="button" aria-pressed={debug_hud_visible()} onClick={toggle_debug_hud}>
+            HUD
+          </button>
+        </div>
+        <Show when={debug_hud_visible()}>
+          <Debug_Hud />
+        </Show>
         <Show when={view().state === 'running'}>
           <button id="pause" type="button" onClick={() => player_session()?.pause()}>
             Pause

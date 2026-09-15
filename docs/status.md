@@ -90,7 +90,8 @@ frozen availability and ordered fallback, with explicit missing-sample silence.
 See [ABI v2](architecture/interface-v2.md#m2-headless-session-transport) for the
 production operations and ownership contract.
 
-Replay records ordinary input/judgement frames and exact-time pause releases.
+Replay records ordinary input/judgement frames, retained actions at pause, and
+one-shot resume-blocker markers under rules version 2.
 Playback uses framework f32 interpolation; seeking resimulates from the initial
 checkpoint. More frequent bounded checkpoint caching is unimplemented. Input and
 recording capacity are fixed at creation; exhaustion rejects batches. Imported
@@ -618,3 +619,95 @@ WebKit executables could not be downloaded locally (CDN gateway failure) and
 stay a CI-side check; the product-shell CI job mirrors browser-foundation
 with a ten-second B3 probe. No upstream acceptance gate changes from this
 work, and native/WASM engine suites are untouched.
+
+## MVP settings shared foundation
+
+The [parallel MVP handoff](mvp-player-experience.md) defines ownership and
+integration for onboarding and essential settings. An additive shared module
+now defines versioned preferences, defaults, atomic validation and control-label
+helpers. A plain in-memory service publishes immutable subscribed snapshots;
+the Solid adapter provides guarded settings-dialog entry points, requesting the
+ordinary lifecycle pause before opening and never resuming on close.
+
+The foundation is not mounted in production. Persistence, configurable live
+input, output volume channels, the settings dialog and onboarding/demo delivery
+remain the two follow-up tasks. Zero-offset gameplay is unchanged. Six new local
+regressions cover invalid updates, snapshot ownership, key labels, subscription
+cleanup and dialog lifecycle guards. Browser typecheck/build and all 126 browser
+service tests pass; all product `test:gates` checks pass, including typecheck,
+19 unit/component tests, HMR/B1/B2 and the 60-second B3 probe (60.05 fps,
+no reported long tasks or heap growth). Documentation link/diff checks pass.
+No engine or upstream acceptance gate changes from these additive contracts.
+
+## MVP essential persistent settings (Plan 2)
+
+Plan 2 now mounts the shared settings foundation described above. The page-owned
+service reads validated version-1 localStorage once before audio/input setup,
+retains unknown versions until explicit edit/reset, and keeps edits usable with
+an unsaved warning when storage fails. The shared Audio/Controls dialog supports
+physical key capture, duplicate/chord rejection, mouse hits without disabling
+aiming, volume/mute, reset, modal focus containment and opener restoration.
+Opening from play uses ordinary pause; closing never resumes. Debug and settings
+cannot stack, and binding capture blocks background shortcuts.
+
+A persistent mixer applies independent 70% music / 80% effects defaults and
+20 ms output ramps. Settings do not modify per-voice engine intent, clock anchors,
+judgement timestamps or replay identity. Each start/resume freezes its input
+configuration and refreshes shared canvas/controller labels. Ordinary resume
+reconciles held physical sources; settings-capture sources alone remain
+quarantined until release. The cursor resume press is consumed without dropping
+its held action, as described in [pause/resume](compatibility/pause-resume.md). Retry/map changes retain the mixer; disposal
+releases subscriptions, gains and held-input observers. A frame-observed audio
+suspension now requests ordinary pause before advance, covering a Chromium race
+where `statechange` arrives later, without timestamp adjustment.
+
+Pre-mirror Plan 2 evidence: 134 browser service tests, browser typecheck/build, 23 product
+unit tests and the full engine suite pass. Custom/muted and default inputs retain
+identical final-result/audio-intent digests across the existing cadence/stall
+matrix. Real offline audio independently scales/mutes both outputs in Chromium,
+Firefox and WebKit. Settings journeys exercise persistence, focus/capture,
+remap/resume, muted simulation, retry and injected boot cleanup in all three.
+The [evidence and calibration protocol](compatibility/settings-evaluation.md)
+records fixture identities, pinned-source search, actual exposed latency samples
+and limitations. No human testers or perceived timing results were available;
+offsets remain zero and human calibration evaluation is pending.
+
+The inherited diagnostics/evidence changes and Plan 1 screen work are not claimed
+as this increment. Combined onboarding/custom-settings/demo acceptance remains
+an integration task. Full M2/M3, H11 and release-browser certification remain
+open; Firefox's existing per-voice `cancelAndHoldAtTime` dependency still fails
+the broader voice-loop audio test, independently of the new mixer.
+
+Pre-mirror Plan 2 product verification: all `test:gates` assertions passed on isolated ports
+(including the 60-second B3 probe at 60.05 fps with no reported long tasks or heap
+growth); the full sequential browser matrix passes 68 tests with one existing
+WebKit reserved Ctrl+F10 shortcut skip. Temporary port overrides did not change
+checked-in gate assertions or dependency pins. Those checks cover the earlier settings baseline. Validation of the subsequent
+resume behavior change is tracked separately in [pause/resume](compatibility/pause-resume.md).
+
+## Mirrored pause/resume input
+
+The [resume contract and evidence](compatibility/pause-resume.md) supersedes the
+initial Plan 2 release-all/suppress-until-release policy. Pause retains engine
+actions. Resume synchronizes released physical sources and cursor position,
+then forwards the actual resume event before the first advance. Retained sources
+can remain held; unrelated keys pressed during pause stay inactive until a fresh
+press. Settings-capture sources remain quarantined until release.
+
+Odin supplies the cursor-gate decision, target and per-action blocker flags through
+kind 53. The browser keeps time frozen until gate acceptance, supports Escape
+cancellation, and handles intro/break/hidden-cursor bypasses. Rules version 2
+records the blocker marker, and replay import/seek reproduce the result. Older
+rules-version-1 local recordings reject as unsupported.
+
+Validation: the six retained pinned osu!standard pause-input test bodies and two
+source-derived real-Player probes pass. The full engine suite, 138 browser service
+tests, browser typecheck/build, 23 product unit tests and product gates pass. The
+final Chromium/Firefox/WebKit product matrix passes 77 tests with one existing
+WebKit shortcut skip. The 60-second B3 probe reports 60.05 fps with no long tasks
+or heap growth. Documentation links and diff checks pass.
+
+A21/A23/A24 remain open as complete rows: cooldown, pause-menu sound loops, the
+full inactive-player/resource matrix, H11 and physical-device certification are
+not implied by these bounded input tests. The finding index retains pinned
+revisions, source/test hashes, classifications and the upstream observation digest.
