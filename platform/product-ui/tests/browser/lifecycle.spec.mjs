@@ -28,7 +28,7 @@ HPDrainRate:0
 256,192,3500,8,0,4500`;
 
 async function load(page, text = mixed) {
-  await page.goto('/');
+  await page.goto('/select');
   await expect(page.locator('#status')).toContainText('Engine ready');
   await page.locator('#files').setInputFiles([
     { name: 'mixed.osu', mimeType: 'text/plain', buffer: Buffer.from(text) },

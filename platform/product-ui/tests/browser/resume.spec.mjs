@@ -7,7 +7,7 @@ async function load(page) {
   music.writeUInt32LE(8000, 24); music.writeUInt32LE(16000, 28);
   music.writeUInt16LE(2, 32); music.writeUInt16LE(16, 34); music.write('data', 36);
   music.writeUInt32LE(160000, 40);
-  await page.goto('/');
+  await page.goto('/select');
   await expect(page.locator('#status')).toContainText('Engine ready');
   await page.locator('#files').setInputFiles([
     { name: 'resume.osu', mimeType: 'text/plain', buffer: Buffer.from('osu file format v14\n[General]\nAudioFilename: music.wav\n[Difficulty]\nHPDrainRate:0\n[HitObjects]\n256,192,1000,1,0\n256,192,8000,1,0') },

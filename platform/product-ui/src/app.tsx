@@ -1,7 +1,9 @@
 import { Settings_Dialog } from './components/settings_dialog';
 import { open_settings_dialog } from './state/settings_state';
-import { onMount, type Component, type ParentProps } from 'solid-js';
-import { A, Route, Router } from '@solidjs/router';
+import { onMount, Show, type Component, type ParentProps } from 'solid-js';
+import { Route, Router, useLocation } from '@solidjs/router';
+import { Intro_Screen } from './screens/intro_screen';
+import { Main_Menu_Screen } from './screens/main_menu_screen';
 import { Select_Screen } from './screens/select_screen';
 import { Play_Screen } from './screens/play_screen';
 import { Results_Screen } from './screens/results_screen';
@@ -11,6 +13,8 @@ import { bind_debug_session, register_debug_shortcuts } from './state/debug_stat
 import { boot_player_session, player_session, shell_state } from './state/session_state';
 
 const App_Frame: Component<ParentProps> = (props) => {
+  const location = useLocation();
+
   onMount(() => {
     void boot_player_session().then(() => {
       const debug_service = player_session()?.debug;
@@ -21,26 +25,28 @@ const App_Frame: Component<ParentProps> = (props) => {
 
   return (
     <div class="app-frame">
-      <header>
-        <A href="/" class="brand">
-          tapweave<span class="brand-dot">●</span>
-        </A>
-        <span class="badge">VALIDATION PLAYER</span>
-        <nav aria-label="Screens">
-          <A href="/select" end>
-            Select
-          </A>
-          <A href="/diagnostics">Diagnostics</A>
-          <button type="button" disabled={shell_state().phase !== 'ready' ||
-            !['ready', 'paused', 'terminal'].includes(shell_state().gameplay.state)}
-            onClick={event => { event.currentTarget.focus(); open_settings_dialog(); }}>Settings</button>
-        </nav>
-      </header>
       {props.children}
       <Debug_Dialog />
       <Settings_Dialog />
-      <p class="gate">Validation build: full upstream compatibility and release-browser certification remain open.</p>
-      <footer>Independent rhythm game. Not affiliated with osu! or ppy. <span>Unmodded lazer osu!standard target.</span></footer>
+      {/* The intro screen carries its own prominent disclaimer, so the frame
+          footer (with the relocated Settings entry point) stays hidden there. */}
+      <Show when={location.pathname !== '/'}>
+        <footer>
+          <p class="footer-note">
+            Independent rhythm game. Not affiliated with osu! or ppy.{' '}
+            <span>Unmodded lazer osu!standard target.</span>
+            <span>
+              Validation build: full upstream compatibility and release-browser certification remain
+              open. Validation player.
+            </span>
+          </p>
+          <div class="footer-actions">
+            <button type="button" disabled={shell_state().phase !== 'ready' ||
+              !['ready', 'paused', 'terminal'].includes(shell_state().gameplay.state)}
+              onClick={event => { event.currentTarget.focus(); open_settings_dialog(); }}>Settings</button>
+          </div>
+        </footer>
+      </Show>
     </div>
   );
 };
@@ -48,7 +54,8 @@ const App_Frame: Component<ParentProps> = (props) => {
 export const App: Component = () => {
   return (
     <Router root={App_Frame}>
-      <Route path="/" component={Select_Screen} />
+      <Route path="/" component={Intro_Screen} />
+      <Route path="/menu" component={Main_Menu_Screen} />
       <Route path="/select" component={Select_Screen} />
       <Route path="/play" component={Play_Screen} />
       <Route path="/results" component={Results_Screen} />

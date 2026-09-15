@@ -37,7 +37,7 @@ HPDrainRate:0
 }
 
 test('settings persist, capture rejects conflicts/chords, and modal focus returns to opener', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/select');
   await open_settings(page);
   const dialog = page.getByRole('dialog', { name: 'Settings', exact: true });
   await dialog.getByRole('slider', { name: /^Music/ }).fill('0');
@@ -80,7 +80,7 @@ test('unknown storage remains untouched; blocked saving leaves usable preference
     localStorage.setItem(key, '{"version":9,"future":true}');
     Storage.prototype.setItem = () => { throw new DOMException('blocked', 'SecurityError'); };
   }, { key: storage_key });
-  await page.goto('/');
+  await page.goto('/select');
   await open_settings(page);
   expect(await page.evaluate(key => localStorage.getItem(key), storage_key)).toBe('{"version":9,"future":true}');
   await page.getByRole('slider', { name: /^Music/ }).fill('20');
@@ -89,7 +89,7 @@ test('unknown storage remains untouched; blocked saving leaves usable preference
 });
 
 test('paused settings retain gameplay holds but quarantine captured bindings; mute, retry and disposal work', async ({ page }, test_info) => {
-  await page.goto('/');
+  await page.goto('/select');
   await open_settings(page);
   await page.getByRole('button', { name: 'Close settings' }).click();
   await load_map(page);
@@ -153,7 +153,7 @@ test('failed mixer boot closes the context and disconnects its candidate gain', 
     };
     AudioContext.prototype.close = function () { window.failed_mixer_probe.closed++; return close.call(this); };
   });
-  await page.goto('/');
+  await page.goto('/select');
   await expect(page.locator('#status')).toHaveText('Engine unavailable.');
   await expect(page.getByRole('button', { name: 'Settings', exact: true })).toBeDisabled();
   expect(await page.evaluate(() => window.failed_mixer_probe)).toEqual({ created: 2, disconnected: 1, closed: 1 });

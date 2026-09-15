@@ -10,7 +10,7 @@ const beatmap = 'osu file format v14\n[General]\nAudioFilename: missing.wav\n[Di
 test('loads real engine, prepares local map and preserves it after failure', async ({ page }) => {
   const page_errors = [];
   page.on('pageerror', error => page_errors.push(error.message));
-  await page.goto('/');
+  await page.goto('/select');
   await expect(page.getByRole('status')).toHaveText('Engine ready. Open a beatmap to begin.');
   await page.getByLabel('Open local files', { exact: true }).setInputFiles({ name: 'local.osu', mimeType: 'text/plain', buffer: Buffer.from(beatmap) });
   await expect(page.getByRole('status')).toHaveText('Beatmap prepared successfully.');
@@ -27,7 +27,7 @@ test('loads real engine, prepares local map and preserves it after failure', asy
 test('archive difficulty selection and narrow viewport remain usable', async ({ page }) => {
   const archive = zipSync({ 'Easy.osu': strToU8(beatmap), 'Hard.osu': strToU8(beatmap + '\n128,192,1200,1,0') });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('/select');
   await expect(page.getByRole('status')).toContainText('Engine ready');
   await page.getByLabel('Open local files', { exact: true }).setInputFiles({ name: 'set.osz', mimeType: 'application/zip', buffer: Buffer.from(archive) });
   await expect(page.getByRole('status')).toContainText('successfully');
@@ -37,12 +37,13 @@ test('archive difficulty selection and narrow viewport remain usable', async ({ 
 });
 
 test('malicious archive reports a typed error and diagnostics download works', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/select');
   await expect(page.getByRole('status')).toContainText('Engine ready');
   const archive = zipSync({ '../bad.osu': strToU8(beatmap) });
   await page.getByLabel('Open local files', { exact: true }).setInputFiles({ name: 'bad.osz', mimeType: 'application/zip', buffer: Buffer.from(archive) });
   await expect(page.getByRole('alert')).toContainText('Ambiguous asset path');
-  await page.getByRole('link', { name: 'Diagnostics' }).click();
+  // The frame navigation chrome is gone; diagnostics is directly addressable.
+  await page.goto('/diagnostics');
   const download_pending = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download diagnostics' }).click();
   const download = await download_pending;

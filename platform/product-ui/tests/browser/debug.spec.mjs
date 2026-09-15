@@ -30,7 +30,7 @@ HPDrainRate:0
 256,192,3500,8,0,4500`;
 
 async function load(page) {
-  await page.goto('/');
+  await page.goto('/select');
   await expect(page.locator('#status')).toContainText('Engine ready');
   await page.locator('#files').setInputFiles([
     { name: 'mixed.osu', mimeType: 'text/plain', buffer: Buffer.from(mixed) },
@@ -50,7 +50,7 @@ async function fault_input_time(page) {
 }
 
 test('debug panel opens from selection with tabs, filtering, search and freeze', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/select');
   await expect(page.locator('#status')).toContainText('Engine ready');
   await page.locator('#debug-open').click();
   const dialog = page.locator('#debug-dialog');
@@ -121,7 +121,7 @@ test('opening the panel during play requests the normal pause path', async ({ pa
 });
 
 test('manual export downloads a bounded report and persists it locally', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/select');
   await expect(page.locator('#status')).toContainText('Engine ready');
   await page.locator('#debug-open').click();
   const download_pending = page.waitForEvent('download');
@@ -163,7 +163,7 @@ test('failure reports persist across reload and remain listed with controls', as
   await expect(page.locator('#recovery-report')).toBeVisible();
   // The vanilla single page reloaded in place; the shell returns to the
   // selection route, whose status element gates the fresh boot.
-  await page.goto('/');
+  await page.goto('/select');
   await expect(page.locator('#status')).toContainText('Engine ready');
   await page.locator('#files').setInputFiles([
     { name: 'mixed.osu', mimeType: 'text/plain', buffer: Buffer.from(mixed) },
@@ -182,7 +182,7 @@ test('failure reports persist across reload and remain listed with controls', as
 
 test('Ctrl+F10 opens the log panel when the browser delivers the shortcut', async ({ browserName, page }) => {
   test.skip(browserName === 'webkit', 'WebKit reserves or drops function-key chords; visible controls remain the required path.');
-  await page.goto('/');
+  await page.goto('/select');
   await expect(page.locator('#status')).toContainText('Engine ready');
   await page.keyboard.press('Control+F10');
   await expect(page.locator('#debug-dialog')).toBeVisible();

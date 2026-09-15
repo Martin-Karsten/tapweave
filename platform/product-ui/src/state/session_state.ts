@@ -36,6 +36,21 @@ export const boot_player_session = (): Promise<void> => {
   return boot_promise;
 };
 
+// A failed boot never constructed the service: Player_Session_Service.create
+// failure paths run before resource ownership is published, so a retry only
+// needs to drop the cached failure and start a fresh attempt. Calling outside
+// the boot-failed phase returns the existing (or resolved) boot promise, which
+// also makes repeated Retry clicks idempotent through boot_player_session's
+// boot_promise ??= pattern.
+export const retry_boot = (): Promise<void> => {
+  if (shell_state().phase !== 'boot-failed') {
+    return boot_promise ?? Promise.resolve();
+  }
+  boot_promise = null;
+  set_shell_state(INITIAL_SHELL_STATE);
+  return boot_player_session();
+};
+
 export { shell_state };
 
 // Command access for screens; null until boot finishes or fails.
