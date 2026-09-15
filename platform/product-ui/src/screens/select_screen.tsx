@@ -1,6 +1,7 @@
 import { For, Show, createEffect, type Component } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { Virtual_List } from '../components/virtual_list';
+import { debug_dialog_open, open_debug_dialog } from '../state/debug_state';
 import { player_session, shell_state } from '../state/session_state';
 
 const map_display_name = (filename: string): string =>
@@ -129,6 +130,12 @@ export const Select_Screen: Component = () => {
         <p id="play-gate" class="gate">
           {gameplay().message}
         </p>
+        <div class="debug-entry">
+          <button id="debug-open" type="button" aria-expanded={debug_dialog_open()} onClick={open_debug_dialog}>
+            Debug
+          </button>
+        </div>
+        <p class="gate">Debug: Ctrl+F10 panel · Ctrl+F11 HUD during play (when the browser delivers them).</p>
         <Show when={active()?.samples?.warnings.length} keyed>
           {(warning_count) => (
             <ul class="warnings">

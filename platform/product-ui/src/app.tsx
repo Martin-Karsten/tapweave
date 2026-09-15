@@ -4,11 +4,17 @@ import { Select_Screen } from './screens/select_screen';
 import { Play_Screen } from './screens/play_screen';
 import { Results_Screen } from './screens/results_screen';
 import { Diagnostics_Screen } from './screens/diagnostics_screen';
-import { boot_player_session } from './state/session_state';
+import { Debug_Dialog } from './components/debug_dialog';
+import { bind_debug_session, register_debug_shortcuts } from './state/debug_state';
+import { boot_player_session, player_session } from './state/session_state';
 
 const App_Frame: Component<ParentProps> = (props) => {
   onMount(() => {
-    void boot_player_session();
+    void boot_player_session().then(() => {
+      const debug_service = player_session()?.debug;
+      if (debug_service) bind_debug_session(debug_service);
+    });
+    register_debug_shortcuts();
   });
 
   return (
@@ -26,6 +32,7 @@ const App_Frame: Component<ParentProps> = (props) => {
         </nav>
       </header>
       {props.children}
+      <Debug_Dialog />
       <p class="gate">Validation build: full upstream compatibility and release-browser certification remain open.</p>
       <footer>Independent rhythm game. Not affiliated with osu! or ppy. <span>Unmodded lazer osu!standard target.</span></footer>
     </div>

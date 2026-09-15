@@ -604,17 +604,53 @@ the engine capabilities panel, gate fixtures, an engine round-trip check, an
 input binding fixture and the downloadable player diagnostics report. The
 vanilla `browser-js/src/main.ts` UI is retired; `platform/browser-js` remains
 the service layer with a minimal harness page, the renderer developer fixture
-and the `/debug.html` developer workspace. The in-player debug panel/HUD added
-with the debug suite targeted the retired vanilla page; re-homing it into the
-shell (subscribing to the unchanged diagnostics service) remains open.
+and the `/debug.html` developer workspace.
+
+The debug suite's player interface is re-homed into the shell (the open item
+is closed): `src/services/debug_session.ts` owns the unchanged
+`@browser` Diagnostics_Service, IndexedDB report store and report identity;
+`src/state/debug_state.ts` converts service publishes into throttled
+(≥250 ms) signal bumps whose writes never run inside the frame callback
+(`on_frame` only records a timestamp check); `components/debug_dialog.tsx`
+provides the Logs/Timing/Audio/Resources tabs with filters, search, freeze,
+import/export and stored-report management, and `components/debug_hud.tsx`
+the non-interactive play metrics. Recovery views auto-build and persist one
+failure report per interruption with the copyable textarea and
+clipboard-fallback selection on the lifecycle overlay; opening the panel
+during play requests the normal pause path. Ctrl+F10/Ctrl+F11 remain
+best-effort shortcuts with visible controls as the required path, and the
+retired vanilla `browser-js/src/debug-ui.ts` is deleted. The shell exposes a
+`window.__tapweave_player_probe` handle so parity specs can inject
+deterministic playback-clock faults through a read-only `playback_clock`
+probe.
 
 Validation is local only: `test:gates` (including expected TS2322/TS2769/
-TS1484 diagnostics), 7 Vitest component tests and the ported Playwright
+TS1484 diagnostics), Vitest component/service tests and the ported Playwright
 parity intent (selection, archive difficulty switching, malformed archives,
 diagnostics download, engine round-trip, full attempt lifecycle with keyboard
-pause/resume/retry/results/back, audio suspension, real GPU restoration and
-input aggregation) pass on Chromium and Firefox against the production WASM.
-WebKit executables could not be downloaded locally (CDN gateway failure) and
-stay a CI-side check; the product-shell CI job mirrors browser-foundation
-with a ten-second B3 probe. No upstream acceptance gate changes from this
-work, and native/WASM engine suites are untouched.
+pause/resume/retry/results/back, audio suspension, real GPU restoration,
+input aggregation, debug panel/HUD flows, failure-report persistence and the
+interruption-report clipboard fallback) pass on Chromium and Firefox against
+the production WASM. WebKit executables could not be downloaded locally (CDN
+gateway failure) and stay a CI-side check; the product-shell CI job mirrors
+browser-foundation with a ten-second B3 probe. No upstream acceptance gate
+changes from this work, and native/WASM engine suites are untouched.
+
+## MVP settings shared foundation
+
+The [parallel MVP handoff](mvp-player-experience.md) defines ownership and
+integration for onboarding and essential settings. An additive shared module
+now defines versioned preferences, defaults, atomic validation and control-label
+helpers. A plain in-memory service publishes immutable subscribed snapshots;
+the Solid adapter provides guarded settings-dialog entry points, requesting the
+ordinary lifecycle pause before opening and never resuming on close.
+
+The foundation is not mounted in production. Persistence, configurable live
+input, output volume channels, the settings dialog and onboarding/demo delivery
+remain the two follow-up tasks. Zero-offset gameplay is unchanged. Six new local
+regressions cover invalid updates, snapshot ownership, key labels, subscription
+cleanup and dialog lifecycle guards. Browser typecheck/build and all 126 browser
+service tests pass; all product `test:gates` checks pass, including typecheck,
+19 unit/component tests, HMR/B1/B2 and the 60-second B3 probe (60.05 fps,
+no reported long tasks or heap growth). Documentation link/diff checks pass.
+No engine or upstream acceptance gate changes from these additive contracts.

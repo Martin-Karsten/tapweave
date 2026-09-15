@@ -1,6 +1,7 @@
 import { Engine_Bridge, type Session_Output } from './engine-bridge.js';
 import { Selection_Controller, type Active_Selection } from './selection.js';
 import { Audio_Playback } from './audio-playback.js';
+import type { Audio_Clock } from './clock.js';
 import { Gameplay_Frame } from './gameplay-frame.js';
 import { Gameplay_Input } from './gameplay-input.js';
 import { Renderer } from './renderer.js';
@@ -105,6 +106,12 @@ export class Gameplay_Controller {
       can_resume: this.state === 'paused' && this.playback?.state === 'paused' && graphics_usable,
       can_retry: this.in_attempt && this.state !== 'starting' && this.state !== 'disposed' && graphics_usable,
       recovery: this.recovery_details, in_attempt: this.in_attempt, message: this.message, error: this.error, result: this.result });
+  }
+
+  // Read-only diagnostic probe over the active playback clock (never drives
+  // gameplay). Browser parity specs use it to inject deterministic faults.
+  get playback_clock(): Audio_Clock | null {
+    return this.playback?.clock ?? null;
   }
 
   private publish() {

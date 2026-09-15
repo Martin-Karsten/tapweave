@@ -4,6 +4,7 @@ import { Gameplay_Controller, type Gameplay_View } from '@browser/gameplay-contr
 import { create_fallback_audio } from '@browser/fallback-audio.js';
 import type { Browser_Error } from '@browser/errors.js';
 import type { Engine_Diagnostic, Prepared_Descriptor_Record } from '@browser/abi-records.js';
+import { Debug_Session_Service } from './debug_session.js';
 
 const MAXIMUM_ENGINE_MESSAGES = 64;
 
@@ -66,19 +67,26 @@ export class Player_Session_Service {
 
   private constructor(readonly engine: Engine_Bridge, readonly selection: Selection_Controller,
     readonly audio_context: AudioContext, readonly canvas: HTMLCanvasElement,
-    gameplay: Gameplay_Controller, private readonly engine_logs: Engine_Diagnostic[]) {
+    gameplay: Gameplay_Controller, private readonly engine_logs: Engine_Diagnostic[],
+    readonly debug: Debug_Session_Service) {
     this.gameplay = gameplay;
   }
 
   static async create(fetch_engine_wasm: () => Promise<ArrayBuffer> = Player_Session_Service.default_engine_fetch): Promise<Player_Session_Service> {
     const wasm_bytes = await fetch_engine_wasm();
     const engine_logs: Engine_Diagnostic[] = [];
-    const engine = await Engine_Bridge.create(wasm_bytes, (message) => {
-      if (engine_logs.length >= MAXIMUM_ENGINE_MESSAGES) {
-        engine_logs.shift();
-      }
-      engine_logs.push(message);
+    const debug = new Debug_Session_Service();
+    const engine = await Engine_Bridge.create(wasm_bytes, {
+      diagnostics: debug.diagnostics,
+      on_engine_log: (message) => {
+        if (engine_logs.length >= MAXIMUM_ENGINE_MESSAGES) {
+          engine_logs.shift();
+        }
+        engine_logs.push(message);
+        debug.record_engine_log(message);
+      },
     });
+    debug.note_player_started();
     const audio_context = new AudioContext();
     const fallback_assets = new Map<string, AudioBuffer>();
     const canvas = document.createElement('canvas');
@@ -95,12 +103,17 @@ export class Player_Session_Service {
         return audio_context.decodeAudioData(bytes as ArrayBuffer);
       },
     });
+    debug.bind({ engine: () => engine, selection: () => selection.active, audio_context: () => audio_context });
     // The gameplay controller rewires selection.on_change to its own handler,
     // so its published views are the single lifecycle notification point. The
     // indirection keeps the callback alive before the shell is constructed.
     let publish: () => void = () => {};
-    const gameplay = new Gameplay_Controller(engine, selection, audio_context, canvas, { on_change: () => publish() });
-    const shell = new Player_Session_Service(engine, selection, audio_context, canvas, gameplay, engine_logs);
+    const gameplay = new Gameplay_Controller(engine, selection, audio_context, canvas, {
+      on_change: () => publish(),
+      diagnostics: debug.diagnostics,
+      on_frame: () => debug.note_frame_tick(),
+    });
+    const shell = new Player_Session_Service(engine, selection, audio_context, canvas, gameplay, engine_logs, debug);
     publish = () => shell.publish();
     return shell;
   }
@@ -114,6 +127,7 @@ export class Player_Session_Service {
   }
 
   private publish() {
+    this.debug.note_gameplay_view(this.gameplay.view, this.selection.active);
     for (const listener of [...this.listeners]) listener();
   }
 
@@ -139,6 +153,12 @@ export class Player_Session_Service {
     return this.gameplay.view;
   }
 
+  // Read-only diagnostic probe over the active playback clock; browser specs
+  // use the window player probe to inject deterministic clock faults.
+  get playback_clock() {
+    return this.gameplay.playback_clock;
+  }
+
   // The canvas is owned by this service and survives route changes; the play
   // route only lends it a host element. Appending moves the same node, keeping
   // the WebGL context, listeners and renderer bindings intact.
@@ -149,7 +169,7 @@ export class Player_Session_Service {
   }
 
   async play() { await this.gameplay.play(); }
-  pause() { this.gameplay.pause(); }
+  pause(reason?: string) { this.gameplay.pause(reason); }
   async resume() { await this.gameplay.resume(); }
   async retry() { await this.gameplay.retry(); }
   back() { this.gameplay.back(); }
