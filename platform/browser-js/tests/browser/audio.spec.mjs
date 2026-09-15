@@ -51,6 +51,12 @@ test('real Web Audio renders Odin one-shots, slider loops and shared music with 
       context.currentTime = 0.6;
       audio.pump();
       const rendered = await offline.startRendering();
+      // Firefox may resolve rendering before delivering queued source ended
+      // events. Observe those real callbacks before asserting resource cleanup.
+      const cleanup_deadline = performance.now() + 1000;
+      while ((audio.voices.size || audio.retiring_voices.size) && performance.now() < cleanup_deadline) {
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
       const channel = rendered.getChannelData(0);
       const energy = (start_seconds, end_seconds) => {
         let sum = 0;

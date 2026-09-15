@@ -1,0 +1,1871 @@
+{
+  "schema_version": 1,
+  "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "lock_sha256": "a6cf520b8e80b0e7c06da2bb4493db9173ba20a734433348fe0df54dc4ff7e8a",
+  "acceptance": [
+    "A22"
+  ],
+  "complete": false,
+  "command": "npm --prefix engine run compare:scene:corrections",
+  "legacy_findings_sha256": "33d6c160960aa05f3aa844527f2c015997a31b52c20de67e8209bc591a9a5ea7",
+  "adapter_sha256": "d70753dc4b40fa36c1e79bc6861a9560f53f64710c18d634771a339121a1c098",
+  "comparison_script_sha256": "ffe51ac216cd832786088aac1a1e1273ce2e279694e3f9ed981a568383c19f5f",
+  "layout": "Explicit absolute 512x384 playfield; legacy relative-size observations retained unchanged.",
+  "diagnostic_policy": "Spinner sampled input is an intervention using actual upstream tracker coordinates; slider compares current and previous child tracking. No production input retiming.",
+  "source_evidence": [
+    {
+      "path": "osu.Game/Rulesets/UI/Playfield.cs",
+      "sha256": "52d31402258618d06556121884e17f842f0e8058a25de1e8e40692da490fa1d9"
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu/Skinning/Default/SpinnerRotationTracker.cs",
+      "sha256": "a2cf88bc99cec9e6867091716e2f6481398ba03be443f5808269bed81a9f7c17"
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableSpinner.cs",
+      "sha256": "522a12290fda08b61c28e190052c39d0dd37356de45b44cc88eaab62b4fd87e0"
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableSlider.cs",
+      "sha256": "8f4e06899935c6e5240046ef8b42b69a4686668272af31bd56b77cc45b4fc198"
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu/Objects/Drawables/SliderInputManager.cs",
+      "sha256": "f2102a20402b6d33f14d4d1de18ae0915e0eea19e1f2d035ce51ebc6b317f0bc"
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerRotation.cs",
+      "sha256": "f38079ba8f7db10e6197eeb48b6c3822eab313c0858ec1a70aec2597209a6ba7"
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs",
+      "sha256": "15517761715a62eb343c54f47cc5cdbf8220433c6953e58c32d68fd3468af710"
+    }
+  ],
+  "local_regressions": {
+    "source": "presentation_trace/cases.odin::semantic_values",
+    "cases": 7,
+    "classification": "source-derived local contract; not exact upstream test-body ports",
+    "search_notes": "TestRotationDirection asserts damped disc direction after autoplay seek; TestMidSliderTrackingAcquired asserts tail results from replay. Neither tests the first post-stall update. Existing slider and spinner judgement ports remain in the gameplay suite."
+  },
+  "input_policy": "delivery diagnostic at declared upstream updates; not original timestamp session equivalence",
+  "search_scope": [
+    "osu.Game.Rulesets.Osu.Tests/TestSceneSliderSnaking.cs",
+    "osu.Game.Rulesets.Osu.Tests/TestSceneSliderInput.cs",
+    "osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerRotation.cs",
+    "osu.Game.Rulesets.Osu.Tests/TestSceneSpinnerJudgement.cs",
+    "osu.Game.Rulesets.Osu.Tests/Visual",
+    "osu.Framework/Graphics/Transforms/DefaultEasingFunction.cs"
+  ],
+  "test_ports": [
+    {
+      "source": "TestSceneSliderSnaking.TestSnakingEnabled(0,1,2)",
+      "local": "scene_snaking_enabled_upstream_assertion_port",
+      "adaptation": "Odin supplied prepared path, semantic head hit and explicit sample times; Player/autoplay/seek infrastructure not ported",
+      "exclusions": [
+        "TestSnakingDisabled: non-default setting",
+        "TestRepeatArrowDoesNotMove: adaptive arrow smoothing acceptance remains open"
+      ]
+    }
+  ],
+  "limitations": [
+    "Compares visible body clipping, slider ball positions and presence, tracking indicator presence, and spinner progress; adapter also records head/tail/nested states.",
+    "Complete nested transforms, follow points, cursor/trail and HUD appearance acceptance remain open.",
+    "Original semantic trail is a deterministic cosmetic policy; it does not reproduce framework sprite sampling."
+  ],
+  "findings": [
+    {
+      "id": "slider-1-span-miss-30hz-0ms",
+      "fixture_sha256": "f17ec0e2536554679bca72867a7af26440cdedbc1e0ceb55749d313af0d8fd53",
+      "observation_sha256": "6e16b4d348bd7604a95aa973c3b0334aad263b72147ab68ff24a68b2a470b284",
+      "comparison_sha256": "4e0d5060941d6b0388bf796e0a30f86c543386fecae96e72ad78cbb371ab27df",
+      "compared": 170,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-30hz-50ms",
+      "fixture_sha256": "feeb4845325dd4bc1f02a26091e820eca2afef1285e487c347a8b288d714bedd",
+      "observation_sha256": "3204caacbc823bf232d7f3f9ec22c5b2afa0d69c246c020ab192bb8989380310",
+      "comparison_sha256": "ab723dd64639da371ba05f2c9e266a3d48294fe693bbcb7512b1aa872b1b2a80",
+      "compared": 156,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-30hz-100ms",
+      "fixture_sha256": "a4b9ec07aced14bddeea78e9ae2251753f39a7cf086d6a16aa64ff7a9a391a24",
+      "observation_sha256": "4a65dd55d60d474b174e8e4d67ac1d3b21d5125f71aa10b5851beffec6806ebc",
+      "comparison_sha256": "f30f689dcb29ce01ac5a6e4e269b52237a64fd226769ab7c01a54cce59df19bd",
+      "compared": 149,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-30hz-250ms",
+      "fixture_sha256": "a8d7ae933e201b1d574512e31c0fdba359d5a851553ab5b1714d0f5055cda6f9",
+      "observation_sha256": "506aef0944c2a7d09b9a1cc3986f3625300dc47c20f66a36490d4ecb15bc0ead",
+      "comparison_sha256": "e0521a10699b959329dfb48f3714410a0505090bafcbfe121dee67764a9fd62e",
+      "compared": 114,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-60hz-0ms",
+      "fixture_sha256": "f9f68a53d4fd2a17d6600bedb3a8c6091ee3c8f3f54680122dff192752bcf1ea",
+      "observation_sha256": "a109db2cc40932714a04b1829f01b2b0bb6db03c4237f70a9b76a4cb78c51710",
+      "comparison_sha256": "2125d9d9d7afd19a0606ef2501469da459a13b8770dde67d59dd6d477854a7e5",
+      "compared": 335,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-60hz-50ms",
+      "fixture_sha256": "e7b9a240c2b84a488f0966f8643fa804e3608ef46c800276982ecb169bf1b39f",
+      "observation_sha256": "9bc86f8ab8b0aeaa82948549e0d9a5baac2f19399b9e49b43fe9cfd2d152d111",
+      "comparison_sha256": "4fa088d62e783e57d72d93c57b8f43bbc5df75bbf28b2b302977a37ecaf16139",
+      "compared": 314,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-60hz-100ms",
+      "fixture_sha256": "89c3f8c6900850f3cc68aa4ba3481758619844d740f4e9ec3c3d565a95784c79",
+      "observation_sha256": "87912971275e1e75e46b0b70f5e1302d3fea4b3807ed34b9ee97961e9344d08a",
+      "comparison_sha256": "7f46c3bc9b890242f45521371e4d9ff99431dbc01f51700f397e329bbb2db68b",
+      "compared": 293,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-60hz-250ms",
+      "fixture_sha256": "9afc00742d4ab37a53d79676ee89e2d58fd9ae551cd710483890b5e5047fbbd3",
+      "observation_sha256": "9d48d537a6fd0b59b10bbc0a27c959e99b86bbeacf5e1b0dd133c5ebe64c70a7",
+      "comparison_sha256": "a8b219fc4c39a322a19b1df0c62458627ab956304221ee7ad7adc4c3a8e35907",
+      "compared": 230,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-120hz-0ms",
+      "fixture_sha256": "f4f543911166c34f958bd85c66ac79f348940974a2158d57a8bfd42a0dec481f",
+      "observation_sha256": "a7972076da1618d553d17c6d6f34e6a4165537f289d76720ae274f5422efff04",
+      "comparison_sha256": "0eec320dd20b044368885f09e2b74ddda55f6827e239fd161c2e27d5a8068b7f",
+      "compared": 665,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-120hz-50ms",
+      "fixture_sha256": "0c7764da533cea9cf388fa6d592b578855926972015542d0e115bd9d2f0d37c8",
+      "observation_sha256": "6ef92a3cdffa3b86c89ea6f24447682aa04bfa5a6a5b3a5d991d91e66a854a61",
+      "comparison_sha256": "8da7a3d1cea21f8ca84175be49f5d8e585137772c14e256168ea15f1e7d089ac",
+      "compared": 628,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-120hz-100ms",
+      "fixture_sha256": "ec60e341383befaa2a6c92cd189de133d6842653d4e43c6bc103940adcff7f67",
+      "observation_sha256": "8c5d83ba3a783d3c482a4b54fec7fa127f8abacd54c039dbb50e60f3f124160e",
+      "comparison_sha256": "de9fd5cebe668bc66f010c5b3a8733e3304395550694147c5416b756b6502379",
+      "compared": 586,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-120hz-250ms",
+      "fixture_sha256": "3eb3cc7d6714e38a02741853cba050fb1620b507effe5c4b78ed8cfa1a70a4a4",
+      "observation_sha256": "dfb9982189480eb929859ed30b7bf62a5ba50fbd89811e06314b0aadb050822f",
+      "comparison_sha256": "f1359d3faf87733647787af0606c295c421f6c2201e264b652180b71d7f20774",
+      "compared": 460,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-144hz-0ms",
+      "fixture_sha256": "3dcd7610f3e867305e20b3361f0b5322feef94e82264fb2fc7639d98ca48051a",
+      "observation_sha256": "34c9e4116021142a480fa26b2ae35cd36db069b4b1bae473af02480430949d61",
+      "comparison_sha256": "a189d9b6f45ba5c4199ee15da4761f6f29b6cf3f77f356e6791155edea6674dd",
+      "compared": 797,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-144hz-50ms",
+      "fixture_sha256": "5f67f42106bee2b59d7ad64935b4985bbd4eb68870f1b59cd924c07d98ea0914",
+      "observation_sha256": "b7ed48bdb6094914010352063f13853b97e9f4abbb781ac38567349f067ef22b",
+      "comparison_sha256": "41b9fe83dd71a97dea26ff98d908aa947fb6cdd453a19f65181224ced574a248",
+      "compared": 753,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-144hz-100ms",
+      "fixture_sha256": "1137fa9f52b17162dd669486f561a7a958b4ea6528290d67678281ec17d94f6c",
+      "observation_sha256": "7d9746adfb65c00b5a802815527e060334fe0ffacf5f0727934ded10c187a54c",
+      "comparison_sha256": "7c6501a8434607ffcbb91e1e9470d3446c9a54dbac617f130525ffdfc036c1b6",
+      "compared": 704,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-miss-144hz-250ms",
+      "fixture_sha256": "3fbd9b1f0efcd4ee810dce89c1f750144cbc7a04a0a96eed325bc420d459195d",
+      "observation_sha256": "37ba01c64fed81a5e6e13fd6e67aeb7c0a5d2d5da0691c6c9e4f68624bf644e3",
+      "comparison_sha256": "2404fb982d59ed2858f9a75cce2765069c6f346414ebfd8aaa05dd343e60509f",
+      "compared": 550,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-hit-30hz-0ms",
+      "fixture_sha256": "c6e0abbf14b4b730f81ee26b9be57481192397442d45622f469aec904a317cc7",
+      "observation_sha256": "17dff7f73ae324c759aa933e3372fff62b88cf98e7228ffc494162a045a0d7a1",
+      "comparison_sha256": "bd8509ed796b2a737f70debca523300c8556e101cb7c5048ab5abaf9c5c4a3d3",
+      "compared": 170,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-hit-30hz-50ms",
+      "fixture_sha256": "25877eb6551525e534089cf288d15f1c81cd4ab75c2778042bb57b6ab86a64be",
+      "observation_sha256": "25984b886ee30dd0941af09f57a91a5ab123a4c1b5b2fbe1cc4ee7e306be0e28",
+      "comparison_sha256": "04dcbb2d3a8757d974c1557711367700c548605a9b1cde2de402f0ef2b1a2e73",
+      "compared": 156,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-hit-30hz-100ms",
+      "fixture_sha256": "d4a65b52c9c4bdeb37bda1c7d34658d24b28072e92a41b1f7fdf9bb187f8c650",
+      "observation_sha256": "1d13348f53be626bb577652f2eaf77c0311a306e8d1d54dc6ab38c725d45c29b",
+      "comparison_sha256": "0cefe0abe799e8c5f3678be0428078be78e9ce482a33238de416b6894b1e27ec",
+      "compared": 149,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-hit-30hz-250ms",
+      "fixture_sha256": "351a4aec33c0a4efd2eb4500b3dc5f678f24ad7c03ead2ceca02a9733fe17f9a",
+      "observation_sha256": "bc28673590b03ac8d4c5e6b3d142df08df24355269a611b71d0e5c67bef8ac37",
+      "comparison_sha256": "b781c313059304e390699dfcebd7f5ea583d5b7d40c20aac57c17d6f0444c981",
+      "compared": 114,
+      "differences": 1,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 1
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "slider-1-span-hit-60hz-0ms",
+      "fixture_sha256": "9f555221efc27a385dc279ac4c4e8942fee1281bfdc81d66e8e37c50eabf2a43",
+      "observation_sha256": "383681e8b118a2fd49d6b986f8f5a5b974334837c70c4de022613e58ea48155c",
+      "comparison_sha256": "5edcdc756e788a5a2ce277f91957cf963a1cc1acb2a288df7a2477cf315580d0",
+      "compared": 335,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-hit-60hz-50ms",
+      "fixture_sha256": "a3cf78c0e08d5994e617f10a16a732dcb31c2ee6e57629871fcdf75fd3ab854c",
+      "observation_sha256": "9195e7fc6e05d73df7032df83779993ecc2a77a2ef88fa73e400d4e3107c6e31",
+      "comparison_sha256": "d416dd82b1e0e72fb7ca418efefdad55cf55695e5106600b155f7e2cc1894f45",
+      "compared": 314,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-hit-60hz-100ms",
+      "fixture_sha256": "68589023684d40e1011008ec32291f78991bc22d01f43da15db9fa5ba686f773",
+      "observation_sha256": "1759ddcd284467863fe437ea71f9f162c735c10d5c186f004727cacb5ae1bde7",
+      "comparison_sha256": "818d05a90d7832f55b8336d0acb8a830ce1ab1cb15959ef2252d5f6fa43fa14e",
+      "compared": 293,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-hit-60hz-250ms",
+      "fixture_sha256": "8564a89f7ace9fc8f07441a5034a5adaffdf1d6488fa7b12f610fad227726827",
+      "observation_sha256": "df405c8e30c6d5abec45e494fb95550ec9b2cbd30a311b4b77229d7fcff99ed8",
+      "comparison_sha256": "a3b433c452b9180d91d8980e20745187f9dfc257a99d90670001a0aade5004c1",
+      "compared": 230,
+      "differences": 1,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 1
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "slider-1-span-hit-120hz-0ms",
+      "fixture_sha256": "3460750b5be8412315946882f2731979f45ff43244f7ee90f1c421c9306b35d7",
+      "observation_sha256": "89f6e7bd7bb38ea1b8f31eadb430642cda9763f9df93f675b4de05b0dd3b7bd5",
+      "comparison_sha256": "0df74c60d100d873eede052739b87bf2378c42642858ade850838ada43009844",
+      "compared": 665,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-hit-120hz-50ms",
+      "fixture_sha256": "440ea01d0a1069c52cc6cf83c99102d7aee5ea6c9fda48d353ead8f23a56938c",
+      "observation_sha256": "70bc135ba970a38424b5746a1a3100247e3eb2c279a9f6e07261518ce7bd3542",
+      "comparison_sha256": "9209ff693e1865372d8eb60d50aa0ea602b2e432a7469ebcb4b0a31f0b6f8180",
+      "compared": 628,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-hit-120hz-100ms",
+      "fixture_sha256": "8e3c66cfe546e808102a73784c8952ac3a67451df9f114d33215589ba6c483c4",
+      "observation_sha256": "477b3e40f82fb415831a512dfe41afe817966370d8557fffa6f92d96687c41aa",
+      "comparison_sha256": "a0a8c805eaee90189aa0e37d6285d7d5771cecbb4833b05a9c2c1bcb571e3d12",
+      "compared": 586,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-hit-120hz-250ms",
+      "fixture_sha256": "6d88dd9d3f27abe432f28a0ff76f9ce825ac793dccf062e6f5c56893f131a72e",
+      "observation_sha256": "2f63c42e2fad352a5e3e52a42796b100fd8a43669e3175408fa5233d27d86500",
+      "comparison_sha256": "cf867c331a4b2c9e46bd930c283561ecf048edf5ec8b029825891dfdb37acff2",
+      "compared": 460,
+      "differences": 1,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 1
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "slider-1-span-hit-144hz-0ms",
+      "fixture_sha256": "b4c73e028d1447fd82924a58826fac3f731dc7b991db08d468e52a483b6aa1e6",
+      "observation_sha256": "eff7da28b2d84b9b25d86314ef9bce12d015c77ab537374b8f8b5dd93f1cfafe",
+      "comparison_sha256": "25c5498b9d2d91604909cde5dab4952a1f5ab00e8fb3e63dc98ea7afcb4ee407",
+      "compared": 797,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-hit-144hz-50ms",
+      "fixture_sha256": "4946d892ca63eae4250f4cc4c0eaa2661bd079c93b87c7a4c05f9d387e453f04",
+      "observation_sha256": "d83e7fff5cb381c9626b81f35de0f98d7eb4c422157ba7b2290ad2ca9f0ada77",
+      "comparison_sha256": "7474d5ed41a86f25b120476c3aed5e8d9dc31e95caae5922c3c8cbf8c373354b",
+      "compared": 753,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-hit-144hz-100ms",
+      "fixture_sha256": "173d21b7b9eab29bf2794928d4651b06ace7c1d4971ec36bb5051cbebf3bab1b",
+      "observation_sha256": "4bef2b6a3b7195fdda12ab26ae76b8c9aadee582854883960229cbed2c8144ec",
+      "comparison_sha256": "7a71df406bcbc6c9e7acb111241da10db2f7bbb2282ebe179ae2b0f0d1f8a552",
+      "compared": 704,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-1-span-hit-144hz-250ms",
+      "fixture_sha256": "b2898ee202be448eb0d04d8a963c8e6213e21f0543505a11efa8d37be782f538",
+      "observation_sha256": "73792de44204678dc1499fcb6005d703736a5690d227a12752a4fb2c3b797fc6",
+      "comparison_sha256": "4ff6561e9e789cac71fa41779087034fa8c76aa8ce88b4528f537928ba106f86",
+      "compared": 550,
+      "differences": 1,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 1
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "slider-2-span-miss-30hz-0ms",
+      "fixture_sha256": "83f2560a33b9d964a40619ecc96bb452226fc3f435a578ca883f5707a0f8f669",
+      "observation_sha256": "d42f78afc9c76e1ab88b18b98f9b4e523c34aff12046f1fc18ed33db748738dd",
+      "comparison_sha256": "2ae5be708fe708b9c1f7d9431d97e571e53bccc8c116a81e4d6172d0d5d456bc",
+      "compared": 275,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-30hz-50ms",
+      "fixture_sha256": "dda758c434a0091d4d1989965298e22d5acaf6df73120e7ef11dfac30ea51b12",
+      "observation_sha256": "0dfca355d0292f764e009e4c5fd9aced0e09c92d1e8b869a868e075cc30bf3e5",
+      "comparison_sha256": "bf190f40fdd3581116e107f1763653fa699a2277e1be64b8858413cc3eda914d",
+      "compared": 261,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-30hz-100ms",
+      "fixture_sha256": "49639e3d67193db290407c084e16001ecf3c95f28441c3c8983174b5ff1e89e7",
+      "observation_sha256": "5cdf0eb2316779f59a59a1118e503325239ce35c779eae6c838fd5d7c7cdd098",
+      "comparison_sha256": "67cd507ab62a1364a81f47366d0d96c222bfdce8f2b392b1f9402173afcddce0",
+      "compared": 254,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-30hz-250ms",
+      "fixture_sha256": "69a14ca25e2b20a6e8b698d4d10963ed37839ee4163b9f8d33a27c0491a1f86f",
+      "observation_sha256": "20eae5ab6c93690e94ee5853e8825ef9f327f440aef680f0fca22878eec478f6",
+      "comparison_sha256": "b3b33a7c0c795f4b4dbcd77817a0718d311f153dfb947c177bc9e102e2d1e290",
+      "compared": 219,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-60hz-0ms",
+      "fixture_sha256": "68f2e2f83b159dcd03852ba0d4a3e4d5ee9839d90bff1d73377abe316f196468",
+      "observation_sha256": "ca5675e62f53c2bfbfc36b5752291302edce488a08301a463c42a0904c279c0b",
+      "comparison_sha256": "63e331ac2952d1706a8df2e9df2c147581353a49aaf6586a41a2ffd097d82c25",
+      "compared": 545,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-60hz-50ms",
+      "fixture_sha256": "60874c1d38022dd9386d81ae8f748653ac8477f3c92e0aad584a7900bc8343c7",
+      "observation_sha256": "29052d72c29ca81c366c9484569b6bfd66694eef12386110dddf6174880766d0",
+      "comparison_sha256": "91a71b5d2fd6a6b3276bf422ca694b770d65797942398463f0afe5743f660043",
+      "compared": 524,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-60hz-100ms",
+      "fixture_sha256": "35d73a3819013dd40e2ea1806d41d07f98e48960c144a50f3f86c5f42fa901a5",
+      "observation_sha256": "496766b621ac10ef31be0087ea0ca22a7074ca95ca037238093c0315921d85ca",
+      "comparison_sha256": "1d183eea729656883382140664282d40ff72512733ed57007c6573647b9e85ae",
+      "compared": 503,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-60hz-250ms",
+      "fixture_sha256": "6fa06599f9b7cd13e7dc405b47b4c77d24e451bf8c48d3a1447a7119523f1877",
+      "observation_sha256": "3ea52b054c7e00e0e5e297917492cf8a1d57e5d699b952d4a0e96e9f7bd6faeb",
+      "comparison_sha256": "664a0218119ed210f1c11e48a96ac0195a611fa6b37f723f1bea6b6510d08cb5",
+      "compared": 440,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-120hz-0ms",
+      "fixture_sha256": "0192a2604d164d4508ca39331aa5788bf597dd1f14f6810af0a8f525f7029a7b",
+      "observation_sha256": "7191891af8c5eabcd0f7b697fae38786604575a6bdcde866fcce7f6520616b42",
+      "comparison_sha256": "a36560a68c12b993c44e81eac0150a285db1034230840822ef43a43c1721a7cf",
+      "compared": 1085,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-120hz-50ms",
+      "fixture_sha256": "dce474832c95cd6bc349ecdc097e36d96b1eef1afdca66fba99c47f355808ab6",
+      "observation_sha256": "eb07e7041fe7b12232eb1c2c04eebe64b22c0ddab3570c49928487b682b7ff82",
+      "comparison_sha256": "71d2a377b006cad9ecdba459eed1bdbc09eb72169684776f8d2573fd5c278fba",
+      "compared": 1048,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-120hz-100ms",
+      "fixture_sha256": "1c227654e015249aef78bc6033766ab80b3c203724bc8ebab30b7c6ad3322a38",
+      "observation_sha256": "a617b3f963dc629a96d788909b52167d4698a1e72a2a1785737e1fb3cd19c854",
+      "comparison_sha256": "bc93f3dbeb22726d2ca1dc9e7b7902c52228120e60f606e36eca6c71009763d8",
+      "compared": 1006,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-120hz-250ms",
+      "fixture_sha256": "1a9284fe91eac5b9e2e89957798728d7db9081d40a7c94a890f96b5089b78c87",
+      "observation_sha256": "90cfd456393f21e062d75f6c4d76e38f9870221098c21d46f553b800f5cc84c6",
+      "comparison_sha256": "42a4a8af22bfd0f9440a97ed054e55c50ec30436c9e651060d65f48bc2560f0f",
+      "compared": 880,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-144hz-0ms",
+      "fixture_sha256": "86207d8ecc3f7e5fc5e05a98fa6c668336c874f2077f5ede463ac984230f8c3e",
+      "observation_sha256": "18193367c6f65aa25ed7a28d7776569818583108adc8061cab29adf4b7807056",
+      "comparison_sha256": "65b17ddf28366ba42dfe91a10997ea566297abed92622286e9f7ae896c1a2d5d",
+      "compared": 1301,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-144hz-50ms",
+      "fixture_sha256": "6982d808705f9d4c75c3e328b0874241e168bad161fa2da4b0206a7c3dda8bf0",
+      "observation_sha256": "2dbd1334451d6e2a8a4a10493f204b1407eef5a9dec596083b8efcbf98e8f540",
+      "comparison_sha256": "a86ad50a86914eeaef6ecf9793330a14fb340876ba25963054c0b31d559499b6",
+      "compared": 1257,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-144hz-100ms",
+      "fixture_sha256": "35968de194df627516e58b807a1273f2128ca428d2deabbde18501976567954b",
+      "observation_sha256": "1628d623ba13f8897dd77c9599277f8f983ae33242dee5af05315fb93c392d15",
+      "comparison_sha256": "170e64003b42fe4551ce4e21352740d8b0ce7281ffd04af22ab7b64bbab1ac19",
+      "compared": 1208,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-miss-144hz-250ms",
+      "fixture_sha256": "0528f820c2c410acb1f733e4d0ddf186bb3d73ffa5d490b59727b175bf3b8b66",
+      "observation_sha256": "b8f56eb2bbc6ae8d95a21a91b182744d11de0ed8baf63702bc22dc69277611ae",
+      "comparison_sha256": "8ae101571e93a94058e6aca7d004c0d987a5367cabd4490cf627f5ad86b2bdbc",
+      "compared": 1054,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-hit-30hz-0ms",
+      "fixture_sha256": "c6fd56b1d831f7b40cfc47706cf1cb7bf70b09665350933f3bf9009729160fb5",
+      "observation_sha256": "f943b3dc11d96b31b17b0d614a68bc90a4546bdd7849872bcd56646ed566f48b",
+      "comparison_sha256": "dda07be8bf438659d4080668c0944bbb5ed5622dd9f14f18edaa0cc397c3f841",
+      "compared": 275,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-hit-30hz-50ms",
+      "fixture_sha256": "ffad3bff1bb2d279d0c6c3ae6f3da15be47f81b6750aefd6a6ce072fe79fa369",
+      "observation_sha256": "9dab94909a347110a9c97d325655a27b65895e090c531ad7d50f628f45e513d0",
+      "comparison_sha256": "3cc3343704c3f0c7e382ee21b73df1ae481cce208100e1c433396876ff9c7e51",
+      "compared": 261,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-hit-30hz-100ms",
+      "fixture_sha256": "3b260c76e6e2f75425eaa117b034bdaf43641e29185ce3555aafc58e685689ca",
+      "observation_sha256": "17a9635578882417173b3c5dd4baaf949a4b062433b1fd57c4187133f490995c",
+      "comparison_sha256": "d8d620a496f961556e1dbf42a32fb56640b15c06c3db1bd593784ca85476850f",
+      "compared": 254,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-hit-30hz-250ms",
+      "fixture_sha256": "5f90ba216187641e53953d64a815d0a984950ee22a428cbca0b0ea3a46d68f89",
+      "observation_sha256": "52c97eebb86e6f2934f6b42759ea54b11c74321e6e1af431b3b7f5604ce4b88a",
+      "comparison_sha256": "59b9a15aede956ed996503384f731718d7f8dad52c4d5de8606be6efef69b725",
+      "compared": 219,
+      "differences": 1,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 1
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "slider-2-span-hit-60hz-0ms",
+      "fixture_sha256": "2cb2b075c0ccb1d0baf5be1d25e7c7cb810e60459bdff916c2c7d362fed9f439",
+      "observation_sha256": "f36cb30639bad756c41cc900ce4a976919ef0c3d2bc10ec7a26586353e9725de",
+      "comparison_sha256": "787692b1d50543e5600e66f2f4c61f1d9cdd199af899feae5f34fe160d17114a",
+      "compared": 545,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-hit-60hz-50ms",
+      "fixture_sha256": "0d59eddbfaa351ec84928dd1a5ad0c4260b2c658fa557993fcc1d32d99756ef2",
+      "observation_sha256": "deacd735cf9126cadf39d1e9750b99c7658f0ce4707629d67693c0de2217de5c",
+      "comparison_sha256": "a9e546ed23f3ec791264a4d2e7a90effa880a3df9858dae5610910849de68263",
+      "compared": 524,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-hit-60hz-100ms",
+      "fixture_sha256": "ac03384a638960e9ab63a19862799196d5b3cd3a5a308ff6eee2842995992ace",
+      "observation_sha256": "169082f2745207a5045a48d70d2e8e0b4295921862795a2387b564384f3cc224",
+      "comparison_sha256": "f1ede41af7b023614181a2b1f7c1288ab347c1fa38ac23b090dcdb616f64d672",
+      "compared": 503,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-hit-60hz-250ms",
+      "fixture_sha256": "9dd162761aa570ef1703e8c60a9a655acf9d6e5b92df1721a9742d7e143a9136",
+      "observation_sha256": "e6fee2e393aa5df55ac3f366a99847b3473a97b6858c1d60c0907f4286dfcf6a",
+      "comparison_sha256": "1078bd7714b3f245166b502a3f8e9d56ec933781a4f1b7136f24971240b7edc3",
+      "compared": 440,
+      "differences": 1,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 1
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "slider-2-span-hit-120hz-0ms",
+      "fixture_sha256": "55903ee68e5d329b24c21fb54190d93ba131ae298d823eddbb3abe60e169edf5",
+      "observation_sha256": "22d839343a97224e7d462bb4235cb57d6e92271575500a044753780645d607b1",
+      "comparison_sha256": "e79f89abb15eed6f890a98d504a9ec7775375a8a50da1cd1410094668ffb8959",
+      "compared": 1085,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-hit-120hz-50ms",
+      "fixture_sha256": "395b07d6155b5fea3157eea4fe024028de9ba5cd491786b251b792ed6c84cbfb",
+      "observation_sha256": "f5404ce8daa8ce5afef9b15f396b9c7da362dbfaebe2feb2bc9ad2b1b5776082",
+      "comparison_sha256": "0aaa43a4e31fbb3122a907da1c1011649da6dba811b5972f07e4dd86e7255582",
+      "compared": 1048,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-hit-120hz-100ms",
+      "fixture_sha256": "d5c39a6ceefccab2a2a044e24a6165de661e480327ddf59018ed2c263c665417",
+      "observation_sha256": "e2d6111db2120e050641d0722d55ffc74ea20618307ea6364bb72688a0de912d",
+      "comparison_sha256": "3713c34578da15b07a02a0f975902e8127d65f089a004af2d4c9c641d3b67b62",
+      "compared": 1006,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-hit-120hz-250ms",
+      "fixture_sha256": "2372f4b9b57e63879d32e5d9062bb98a9d18f75ac5307341b04b30715d439c38",
+      "observation_sha256": "6f895944f75fad36868ecbf50dd3ef205cd5098f2e480c55734affeae2d2dc45",
+      "comparison_sha256": "c240878342b58ad3cf4fc47a9e05d5616c2c5e5dc954352beefacc60dc478c4a",
+      "compared": 880,
+      "differences": 1,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 1
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "slider-2-span-hit-144hz-0ms",
+      "fixture_sha256": "f8b4d6f02bbd6ad050cdb9929ec79c7fe1edff9da55d706472fb926658983587",
+      "observation_sha256": "3d7e0ee991fdb6f10409891145f908cc2db31313780214f442ebbc48579f80be",
+      "comparison_sha256": "8ae7a276f3b69f805c784f4ff0e8cae28002c2aeaa00158599a64b62d41ef453",
+      "compared": 1301,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-hit-144hz-50ms",
+      "fixture_sha256": "aef35dbbc98af1ca2cbf82697a16eca253f1436b0e257c13a69e67c6992d152e",
+      "observation_sha256": "fc3b4a59f0b03894bdbf0c4b5e3232294ec7659360a8961a5c3b2cfe61d7620a",
+      "comparison_sha256": "72de09d386d520ce19603ed3411c338497f7f283fe3e211cf1663191a830f774",
+      "compared": 1257,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-hit-144hz-100ms",
+      "fixture_sha256": "f01ac5ff680ad1f99dbeb01474052152612a8810760f94c2137086133d584596",
+      "observation_sha256": "2f936c9739fc4d18559970701662036c67dda1786a0c2535d36360facc4043e0",
+      "comparison_sha256": "6e5b4a1097dffce3b66be71bd8a051861e244b9bb909dcfb600cd09203f672ba",
+      "compared": 1208,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-2-span-hit-144hz-250ms",
+      "fixture_sha256": "6bd31ddcfaaf957d29867d251d4bd7737206d1c0b4d7f3e6e341fb813490fc2e",
+      "observation_sha256": "85e34177ebf7faf68e268f05e2ee1e8a6181167952be781dddde85f3767009b0",
+      "comparison_sha256": "80c0c9b6b749e3586362694308d5a7ad2359f9c668a762a8436aba92c5e5952f",
+      "compared": 1054,
+      "differences": 1,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 1
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "slider-3-span-miss-30hz-0ms",
+      "fixture_sha256": "f27b348579cdfad1e8c27f8741d4e5e9f3b922a8cc3eb4b9a448e98fd51b25d4",
+      "observation_sha256": "cbacec09f60bf1c426f868110496b1f516245822a40ba7547d61c5926ec1dd61",
+      "comparison_sha256": "f8863a71b6815f7ccdce5263c405419325c3ccf196d3aaccfedfbce7d9071d80",
+      "compared": 380,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-30hz-50ms",
+      "fixture_sha256": "afc88c1398f5b70607e9a86be67643fbf53bb70d6668c363b8461eebed5c9f79",
+      "observation_sha256": "eb66c3f60912efef1ebc5ddd986ece7707925e9d0bb5c0538b6883c7c0058ee2",
+      "comparison_sha256": "e6c3793381507d8f159a1991ce96a5c6accb4f5a0321c543ef76b3c334638843",
+      "compared": 366,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-30hz-100ms",
+      "fixture_sha256": "1188c3bacf830ff3abaef088144debc4f7fd0e9dcbbb8fa37e9e225818a156d8",
+      "observation_sha256": "ef63213bd0e4e61de3bc4967d4d2ce88adb903b934c800fb997999fe0b699ff8",
+      "comparison_sha256": "801b8b2f521a122ec7bc808cf9cfdc57f1c3d01bbea2c647543f5c22b8b95eec",
+      "compared": 359,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-30hz-250ms",
+      "fixture_sha256": "174926846afe9e0bdcbdb3e1be18b5c0d37866a8d1899f4b7d1380a717f0f410",
+      "observation_sha256": "9580e2f08b019626fd2ca052593718ae3a7d2348f72a5f63b40b5f5511786fa5",
+      "comparison_sha256": "3cc7fe610182565a3168d56362f7c771980fb2b3c85ed6e816fd9a4c1f27ecf6",
+      "compared": 324,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-60hz-0ms",
+      "fixture_sha256": "c44bc2eb5f24fec183d059cdcdd19bd5be59db6872f9817fa1b2178879e25f4c",
+      "observation_sha256": "03f04a95276559c769dddd78cf6e4021ca3461f7c48df078b9716ca43eb0f8b0",
+      "comparison_sha256": "7af024edd48caed5579c6bfc530441469112bb9fc61c5382c712b020dd840e0f",
+      "compared": 755,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-60hz-50ms",
+      "fixture_sha256": "33af25db3dd4b8d1dd605b675a9e86d4e0ddfb7726619a8797bf06d4234b57bb",
+      "observation_sha256": "80f7678641e46e789e33a9673509a05cb4b8cc77786e637717f093408fcbb540",
+      "comparison_sha256": "c02691a6afeaa7ae1e2104b8e76d57d090007127b6a1119ff60611ee657a0502",
+      "compared": 734,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-60hz-100ms",
+      "fixture_sha256": "e361bc98874e764171e5975658b20f0b47a499238d9549553e823e78ab201f74",
+      "observation_sha256": "c9e3df88605715d86498a85a9579ee00df5e48346136aca7100b34502ab3b74c",
+      "comparison_sha256": "a85b456772470a27d60e2ca266cf7fc3c506ee8f2712bb755a002487f5fd612a",
+      "compared": 713,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-60hz-250ms",
+      "fixture_sha256": "65bcdc7085576f1e912f8f97792d897115e9d8dad9f4ef5ab7adb7c187ea72cf",
+      "observation_sha256": "9c2e79fdbaaae1bb953e01994bc1dd84c5d42c480e555eeb5450be1508c0ad59",
+      "comparison_sha256": "6816bc28f1fe4962955e30725a71efb64f860a5c057fdb1ac96eb8f87b9a82e6",
+      "compared": 650,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-120hz-0ms",
+      "fixture_sha256": "b5e36222958b4fbe0741bd8ff065f2bb05b03161b9b6efb87edb3ad0f271421d",
+      "observation_sha256": "6c4ccef57f8ddd1d040f45217ec81866985720fb85e0c4bcacb432ba6c19abdb",
+      "comparison_sha256": "b8159d1f9f466b321ab7e97d19fb775969a2f4b090b6dace4befb5dad7a6f82c",
+      "compared": 1505,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-120hz-50ms",
+      "fixture_sha256": "22ff56ca4c305aad93452b365a17d1b093663ae1a0f3c27f2723e8d816c1d6c2",
+      "observation_sha256": "71ed33550dce1e342aa5d1a46719b14a0465fca38c53531c80a6fee52177fb0e",
+      "comparison_sha256": "94ba36e24a2ff67c92afa64576192cd47727081200032c561b1758831dd5634b",
+      "compared": 1468,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-120hz-100ms",
+      "fixture_sha256": "a8637e5cd8bb8ce1bc561fde302b1f1ddd1f75846b501b437af4fefad48fa39a",
+      "observation_sha256": "0c58829562da57bce3c7538cf51a1207270eaf59572ee7303c5f83fae218455f",
+      "comparison_sha256": "fc8091e61c94629880f38a6b13ca171c5d3a9f9560ab6454c29c35aa5efe1ef3",
+      "compared": 1426,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-120hz-250ms",
+      "fixture_sha256": "a91207422d722ef8267ce473f7464a995a5d1594dba73b8898127f02159f6fe2",
+      "observation_sha256": "bccfe72b0a5b7f7036526246b331bc07ea3c04554267a0e2e5590481f4b05c0c",
+      "comparison_sha256": "c1d761e3ba91863c9af700b6d119f0b894f95024cd4a3d2da2a96eea8bca2a22",
+      "compared": 1300,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-144hz-0ms",
+      "fixture_sha256": "b8476f9fcc5fa41fe3b0338aa86f4a4cd91b95e719a2d5dad198200974abce0b",
+      "observation_sha256": "72280ac2f41f5a79374f311fcc8b2c46a98a36a7de018af19eb2cbfec0c36274",
+      "comparison_sha256": "6c85b7230f94b1e69c7f99d21864afa4707fe3bd54dcf4f54539637d0bc60515",
+      "compared": 1805,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-144hz-50ms",
+      "fixture_sha256": "1316e5a82275de735b89a21caff9f21b8d256f9baac314ef6dc5a0cae6d5b3b7",
+      "observation_sha256": "d9d0b3e62205bd5f7516168088cc1b7540ea4d96eb3bf29c0eacdb99956ce637",
+      "comparison_sha256": "4d1900d8b88b377eca71fb64e66c19df241a832a0299b71204d110717fb4e374",
+      "compared": 1761,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-144hz-100ms",
+      "fixture_sha256": "38f2b8af86b9da0ba2911e41f3ec1a306be670de3d7aa2255f759d129195aaf6",
+      "observation_sha256": "4d772e7d012f24e5de84e5832b085f8663690883582e023264d8af22bdfc09ed",
+      "comparison_sha256": "1494ea4797d7795000adbe9df24c66ab029f0774f8b6a15e0baf2fcfcc08651e",
+      "compared": 1712,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-miss-144hz-250ms",
+      "fixture_sha256": "516fcedfaef1273617b9f3d53878e894274a08b965054e0bdaeaedef6598fc5a",
+      "observation_sha256": "ba6dc4f48bb9b239d6e5cdce7e5ae1708f6bf3ea00552a72289555a3336b20cc",
+      "comparison_sha256": "a7a5dfd54badbeeb6ec2528a3e56143e6b45ff6adc27ad6014e52feeeb0caadb",
+      "compared": 1558,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-hit-30hz-0ms",
+      "fixture_sha256": "7ba266519b878f797f85f9cab2b42efff3c080d375759f2d5f281dd81346f8f6",
+      "observation_sha256": "3ace868b6f4cd9bd1ae6e2677945675507cd6145d182e42507dd607bc13840b1",
+      "comparison_sha256": "5e1e97eff82a4c186b711763b7355427196f26552f511573e1f49daf76e88113",
+      "compared": 380,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-hit-30hz-50ms",
+      "fixture_sha256": "5e0bf3645f497b8aa1f9e69265f9c30362a4da28edbd4cd183c8768eea16e8cd",
+      "observation_sha256": "9191d6efe123b9f042fb62058e487ef76011fffe5230c5e3f3456c747e125a27",
+      "comparison_sha256": "04cf546a749c01375d1936552c0c2357b90a8b10a426ca1d0db0438717622185",
+      "compared": 366,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-hit-30hz-100ms",
+      "fixture_sha256": "567bb824803c960f9f5214c27c9df0c5573dc50f0bd630ec8cf789c48e329b2f",
+      "observation_sha256": "a47cfccfa5fa81705e1eb0d6d063b19e221c4b320ce65bcf17bfe5665bfe4771",
+      "comparison_sha256": "4ab1743882ea0a6b7bfba6d189de70f4462d1a0afb95a9aa80a0dce870f9338d",
+      "compared": 359,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-hit-30hz-250ms",
+      "fixture_sha256": "a3dfb47c78df9b9aea2dec026efc5dcb7b53868b6db23d2a22b9c0f378ef70cd",
+      "observation_sha256": "6737d45c7a1a880b5f4141621daec468cd28fdcceab335640fca290f065c9360",
+      "comparison_sha256": "77e49e3cc27931ea1c3c847f25b08f28c6a2354a54b16babcff0657bf43646a9",
+      "compared": 324,
+      "differences": 1,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 1
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "slider-3-span-hit-60hz-0ms",
+      "fixture_sha256": "33cdbe87d0fbe47467851551e7054f7ae621e8f28f24c20dc9c8c288b549cb43",
+      "observation_sha256": "6c1e4fbd3502673d7989d6c187d997ac4ef664b703c6930673b4873c914334e7",
+      "comparison_sha256": "3662e6a96280fc48acefb169fc1ec6de62e8a6d4073e332fc27c8079a5f7315b",
+      "compared": 755,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-hit-60hz-50ms",
+      "fixture_sha256": "86d338362691cfc00d0512af1373e43b44a486908c54765fa728e61f811fde4e",
+      "observation_sha256": "c5d1addb19870cf012aa0751a53d955d87b940e496ab4da1baac04993c1ca39a",
+      "comparison_sha256": "374a1f2ab298c953b85cddec0fd833b47db5355e1015e090d8a00c7f262bbbd9",
+      "compared": 734,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-hit-60hz-100ms",
+      "fixture_sha256": "f0fe2b375d531571c564505b15183215de692893137f5397aa9f8242f662ed67",
+      "observation_sha256": "9000d76cedfdfa77d3ee3fa659214e37b6ead21b76103d6aada062e3f1b9768d",
+      "comparison_sha256": "1c8462ff9d7f5f3138e95179e45f4afede4400cd80555734d21aeb1afe3c456a",
+      "compared": 713,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-hit-60hz-250ms",
+      "fixture_sha256": "e96aa70779bb2ba74fdb1567407d114a456f220dd6465e2ef38816af19d8064a",
+      "observation_sha256": "26f25a3b47d74a76ca1262ecc36cd4bdcc7cc80ef937d55242db573764123962",
+      "comparison_sha256": "3d67afecc94374265c82d94859ba1844282fe9a89a69147ff239a670bccc9169",
+      "compared": 650,
+      "differences": 1,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 1
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "slider-3-span-hit-120hz-0ms",
+      "fixture_sha256": "41f1264372adaa9de841724cb633477d2e6f6a1ccb7691085444bbc9bae0bc90",
+      "observation_sha256": "e0480fa73ad5240783e7661a7c2a18628bc5fb40b47b66e633668c0fff5ae597",
+      "comparison_sha256": "b10fb66c0d21ef57b31213a40ad1724020fe465b4cf99b843a6b65ae8e7475a1",
+      "compared": 1505,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-hit-120hz-50ms",
+      "fixture_sha256": "7b48d68f23cbe9c250ddf97211aca0b46f41c7b7bbc1a191ee8843e63cf0eb9f",
+      "observation_sha256": "7df57d6da08d8b204304119d80b415a410b97e071b72935ed2df6b30d5b65afa",
+      "comparison_sha256": "de09cdd42a121e1be1ce2c38250758ac0baeef7bb099c768ccede7b98fdd98fa",
+      "compared": 1468,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-hit-120hz-100ms",
+      "fixture_sha256": "a4b3f548f27d7fccbdd38fe4c8b68e160dea89186d4414a0b8a2c5482eba7dc8",
+      "observation_sha256": "a35866605f2439e6b229bb7f4ccf35c248680b4dcb5adbc8ba1a56e57646bf68",
+      "comparison_sha256": "63e8ac220019bf00b83dcefd88b0f494d517302d55c2272eeb0ea71dbeb3d9bb",
+      "compared": 1426,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-hit-120hz-250ms",
+      "fixture_sha256": "af33c80431c07e442156fb77860b1ed0465d8fcfc6b5631da32b8b68d98a5b75",
+      "observation_sha256": "4cc3343f811ff4cf58b07bb0f696844d883966ba969e4aac96909f7d1d3f54a3",
+      "comparison_sha256": "c46928bf8ff41be22f26bb316898e19ebee784665b6581b4080361dbd84e154b",
+      "compared": 1300,
+      "differences": 1,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 1
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "slider-3-span-hit-144hz-0ms",
+      "fixture_sha256": "b7f26ca0596700f518c72a7c694afc7f30555ec4b5ec946b87caa0d5121aab1e",
+      "observation_sha256": "2db76800758e750aee18093cdbd297f50010780daa7c49407a22312545e844a8",
+      "comparison_sha256": "1ddec82764f8b4b3b7d16c54668055c32a4910bc76ef1f04070857a92fb0931e",
+      "compared": 1805,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-hit-144hz-50ms",
+      "fixture_sha256": "0c8a82332843d2df2cebd90169d8f8785db6374472affb258aa39ea92cfedec7",
+      "observation_sha256": "30f5203c9ca4af2d98c22d17ebe5716236c5685fdf5d263ccb128b2d7af6e282",
+      "comparison_sha256": "5c18623d02a9df7d8ec1bc3018789ca49ec687d31789f2b2776b079458264db4",
+      "compared": 1761,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-hit-144hz-100ms",
+      "fixture_sha256": "e5056afff53f656b40c880a0e6c93a18e8bfcb8f7290d6cd508daf84f9373133",
+      "observation_sha256": "80d8eae5c0f1fd3018277bad33b9886f01261ab0d79d8bb5c6e2c9774dadb0cf",
+      "comparison_sha256": "516af3d71d9ee125f2774dfe7133c4630c8a1349f4e61039daa41cca232e3176",
+      "compared": 1712,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "slider-3-span-hit-144hz-250ms",
+      "fixture_sha256": "f96e259423f832e146f0ba443b9ea3d16b355b3dd976671a79719fd02cadb82d",
+      "observation_sha256": "53fe78aa4e0979451f78c7bf13a05f2ab5e5f70ec96059cca6ee566b529a69f3",
+      "comparison_sha256": "1566e69fae5d4c25b3ca4ecda3336bd8634b1cbb39d159e83b3abbc7105ca012",
+      "compared": 1558,
+      "differences": 1,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 1
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "spinner-idle-30hz-0ms",
+      "fixture_sha256": "d0a8c4da082f8f9612ddcd47223f137ea67b38067fb6bdb7fff1bdb7011eecab",
+      "observation_sha256": "82429b4048f2326177076c17988fcce2a8a4af07a5c98757cf5c9f7dfe1a3cd2",
+      "comparison_sha256": "a0536115d3a816ca179a9b8267d40723bf29d17a64728d5fcac8adc2d24d30b9",
+      "compared": 124,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-30hz-50ms",
+      "fixture_sha256": "1a5bc1034d88514f251759399482163eeeeb09f0b193dbfa2be9423fa0b238d6",
+      "observation_sha256": "8b6a67e2066b9251bd0a3b0fc1393e6cafa2d62c3dbfd22b7c67d9c2cb5f84cc",
+      "comparison_sha256": "523abccca6a81387ea3a8e77389484dad908cdf1e9467e2bfc2abe0f2630cdfe",
+      "compared": 116,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-30hz-100ms",
+      "fixture_sha256": "9d1335e8c5536e5b74408accf83d22b6ee399f0ac443c4fda64ee0b05e0c42c5",
+      "observation_sha256": "5a70b8fbc36443b545f39a83f5f05a02444aa88ae1eed21350217ede9348ed44",
+      "comparison_sha256": "c769698190c1b49b84f53c6fd9f78828a5dea22aead308806b0b5d213c2816a0",
+      "compared": 112,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-30hz-250ms",
+      "fixture_sha256": "914311bfbf0fbd7248f66a49878698c22f4339882fb37880531b758029e79b32",
+      "observation_sha256": "9dfc736477e25e6eb4c79d44ad1bd485c148e607cc6012e0fccd8dd66d30eb92",
+      "comparison_sha256": "cb56138e6e4e4fae7c7d9ff8612e00bb70f381dde525b7d608e3250913d235ae",
+      "compared": 92,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-60hz-0ms",
+      "fixture_sha256": "5931c8ca0dcb75f26437c7025f728145ccf823a31769c5befafbe8aaccd853f5",
+      "observation_sha256": "fc938fd74643a91a16013b874bc4e0e5da004f6e1f21dbb19b2afeb9da3e857b",
+      "comparison_sha256": "04f8dfb0c093aca8c48bd9e41e3b5242f196d0081ecf9aac6865be359f61b89d",
+      "compared": 244,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-60hz-50ms",
+      "fixture_sha256": "4addc50300c160b75fbebd3bd9e4a17c9aa5fe765a564255a582e90ee5ad9029",
+      "observation_sha256": "af77e405b71849975b894afd6d21d9bbdfd5a7c13d26eeb9000d9603ed3aa9fd",
+      "comparison_sha256": "e4f7e5a0b2656f70e2497bbbbb69169cae2063066153b071ebd9fd643a9cc29e",
+      "compared": 232,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-60hz-100ms",
+      "fixture_sha256": "08f34ef67063c04fbe4c6984f84c0864b29941f8d664be183f2947f4ca06745d",
+      "observation_sha256": "8c4edc7eeaebdec3e190e7900a00b6f61b626dce631df1594abb4e663c630360",
+      "comparison_sha256": "2bddf09cc6793c07c5ce59b82008c2465f6335a02b79668038d163b767f3961a",
+      "compared": 220,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-60hz-250ms",
+      "fixture_sha256": "2881a219d6e30e0a076d4b66012ff015f917e5761ecc62bc17bbd1eaf57c35ae",
+      "observation_sha256": "b2d53373637d526af1819694a1bf44022c2ffa8167e9b4a887ec29b6d5f86c0a",
+      "comparison_sha256": "3e19781fd767e210dd645376e8ff85d42ec43b8d9223210fe7f322b1ba383939",
+      "compared": 184,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-120hz-0ms",
+      "fixture_sha256": "167941e3895f8725489af9d12ce0ec270dd7f3e331114cb06bc5e9514bdbf0e3",
+      "observation_sha256": "9fa3a0c9cdc471d25a0af27949ff029af0eb8b5553aa28cb47db2f554e69ab0a",
+      "comparison_sha256": "cdd49d29ec06b983d5b986f7dca84adf12b698da3feeb1040d84fdbe30990250",
+      "compared": 484,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-120hz-50ms",
+      "fixture_sha256": "1e122a2ba099032ca945632522726add523c0e62858dddaa1c977f144b0c42c9",
+      "observation_sha256": "3e10813ebe823b8125e82f531608a592e1ae7a22c98afd9636b8124bc6a79f98",
+      "comparison_sha256": "85fe9b7fa07d21aed5d626d2459f956b3bea0f54b5c3f9da7ddb1357ecf04a83",
+      "compared": 464,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-120hz-100ms",
+      "fixture_sha256": "ca0748315bea2344b24b190f95e151449697c35600c4f3dc841a79ccd9f27151",
+      "observation_sha256": "9a5c4a54e047cacb9bcbbeda38cf2816d9357d548582bfb50a210e4dc3910b75",
+      "comparison_sha256": "609fe8a53d830107cfb4f75df0341d17df1d9c50be9f2fdb5de684be765b519a",
+      "compared": 440,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-120hz-250ms",
+      "fixture_sha256": "56bf06b6dbceec87ed0aa615cefc580283a96514a5fc1142d7fc171024415650",
+      "observation_sha256": "1d2c3cf7160a665a1d5fe8710a815fb1e2ec046084b09f8f012c103bed8909f9",
+      "comparison_sha256": "2848149e1365d9cbc5a4d565356b2075cbbe58b48ff36c01964123b0f888f6e7",
+      "compared": 368,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-144hz-0ms",
+      "fixture_sha256": "65b124b47471c216a2f8b6903c03a573f2ff2cfba2a0a80e925b89162a2eb2ee",
+      "observation_sha256": "157992d7f7e960bbe5137a38eb1df013a604d404fd7226abe74ae051ba6793a4",
+      "comparison_sha256": "88ce2654f6f0533cd22a102f2f2f7084ec32aa43a2ef055edf855b501de867d1",
+      "compared": 580,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-144hz-50ms",
+      "fixture_sha256": "e7be86bc25a2711a875c72c06a4585683f65ad2278199cedf6fa19facb219ea7",
+      "observation_sha256": "ffc879e756fd2803778e7ae2c04a5850a762a468e05e66870191af0154e35193",
+      "comparison_sha256": "8df97944b4907d1233253b03691ad7bc709e6802c3ad28fdc95d11bf975dbe5e",
+      "compared": 556,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-144hz-100ms",
+      "fixture_sha256": "4ac1a11ae84dc438e2f10c06755fbb7d0f78727ec42220990510db129a75f8d3",
+      "observation_sha256": "59944bfc3a97632bede6b94cd7a94c412b36e1a4047496fbaad051cac3f0ff88",
+      "comparison_sha256": "d01e9656ef4376ecfffcde54d62386ccc24b0568cf03d29d3a76a04fd14ec7ed",
+      "compared": 528,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-idle-144hz-250ms",
+      "fixture_sha256": "6c8583e4ecf25e2af23dcf6f779dd0aa623ebf3bf3377b18e93bf4950071dc9e",
+      "observation_sha256": "cb5e75e2f1daf8cee2d8d0ffebf744c9570c49ccba696ef1ae7e2bc52e6d6ddd",
+      "comparison_sha256": "07769965865e5bbf2ef8be87653e120c7ce603877105244ae0bd8f7c3e5c6859",
+      "compared": 440,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-motion-30hz-0ms",
+      "fixture_sha256": "911f7882f47e965c981614fb420c18e91e1d9e1ebd7994081d2d49ebb8fc9a33",
+      "observation_sha256": "5ba2d567c425b8b90562d46c25c6a3fa0fae0a5e9001f62d34a4db59f76e6103",
+      "comparison_sha256": "dae4bc4b02b1ea694f33c723cc7d77807b5e617e3c7e06a0d704da48b0f0db6b",
+      "compared": 124,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-motion-30hz-50ms",
+      "fixture_sha256": "7b2a2bd74b5c859b13d274a8f007fb771d6c5529b9079e0359024333a9c58b15",
+      "observation_sha256": "0030118e33ded28147200be5de76c3d4a61078566c5018c728ad9588bbbb1fbb",
+      "comparison_sha256": "71fc0df56b2520a734d81b25f05b236414ae8596bae2a868cdd1b9acb809523e",
+      "compared": 116,
+      "differences": 35,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 35,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "spinner-motion-30hz-100ms",
+      "fixture_sha256": "6f3a6a268b28bdcf3672b24a08efc77e65cd663db5809e9c6d4d89dd20883452",
+      "observation_sha256": "542f067c05c2a7d8182a3e8fa89fecd9812a697ccd4b924ebc963d781fdc9afb",
+      "comparison_sha256": "3af5fab449f55b779c4651b6219084ddf649bd0be4321c59f192b4ef8458744a",
+      "compared": 112,
+      "differences": 34,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 34,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "spinner-motion-30hz-250ms",
+      "fixture_sha256": "99182ef5e56cd797c6697165eedc70e2d0aa5bdfe10aa43a283399ff1232a69d",
+      "observation_sha256": "d4ee9245fa6cf2eb89c01e9ff758e47a49a66cd17551de3d366cef7a66ff1c97",
+      "comparison_sha256": "00ce0bbad50ecc3cb400eab6d2767855d0f29562f9b69bdbc55483421317edf2",
+      "compared": 92,
+      "differences": 29,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 29,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "spinner-motion-60hz-0ms",
+      "fixture_sha256": "f6dfb3a998339c72d5db7585e412109e35b9715e63f71f864c4394147963a354",
+      "observation_sha256": "389ab446c915b48cd9c78ba473268b0bedb86e85acd91428ec2902c4a2f16880",
+      "comparison_sha256": "10f599e13d81c0fc54b25933582b20178a428b61ce5e58a5290e6a1d7d3a929b",
+      "compared": 244,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-motion-60hz-50ms",
+      "fixture_sha256": "24c2a00f6cba5f14ac5a29023d8730e97f1b736f73c470c56b63b0a118847161",
+      "observation_sha256": "2406b4e914422018b6f859447e28b9b0b8d17aea2e072ce0d44eb08e5a9514ff",
+      "comparison_sha256": "1062752b8a09bd72cb271e0cd4718db4ca95edcb17935eda93579c83e9391d60",
+      "compared": 232,
+      "differences": 70,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 70,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "spinner-motion-60hz-100ms",
+      "fixture_sha256": "c70c1e02f4832998035b515ce6f59a59be4d511802fd695e9ad68258498c7b77",
+      "observation_sha256": "72b6f73f2c597723eb88bf87435e2610efcc74274cd3cb08df8d954a1d8f2fb0",
+      "comparison_sha256": "4adc95c6835646af1337555fa010aa0e508831a1e5dcf5d16f1b5eebae4bbf37",
+      "compared": 220,
+      "differences": 67,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 67,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "spinner-motion-60hz-250ms",
+      "fixture_sha256": "2b59ae8e1d435c9b217f7a79f2c2160d99861c63fe455392e002aa531728e273",
+      "observation_sha256": "647f1c54ea84874d9a96e74a91651168dd2cd05f6c0f97872c51c7b479b8734a",
+      "comparison_sha256": "8867dd321a298a7567efcdd5f26206b4d0f1347945ab238de8eaf89e277285d1",
+      "compared": 184,
+      "differences": 58,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 58,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "spinner-motion-120hz-0ms",
+      "fixture_sha256": "10f347e643a8390012e0146b5e55361f67db53b261aaf924c7efd4b5ab6d7fad",
+      "observation_sha256": "50b88525f29aa8b553d0c382de950dc24135d3b7e74aac5652637e6b2f6a4e77",
+      "comparison_sha256": "b320c5a852222e8c34eae3466eb8c76a1b50737b83a0934cd2d9233772f9db89",
+      "compared": 484,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-motion-120hz-50ms",
+      "fixture_sha256": "c41256817f85a77490580f6d884e8f3b7ad89b418696e4aa8f8ff58150a8183f",
+      "observation_sha256": "6033c84abaf4e829fca333158846630b894a27db11422b5dd91b634bf4c1fc30",
+      "comparison_sha256": "a98693615258a2d35fac62c6a8d8fd27d96975e5f9ec209f2786cb1e31b36f93",
+      "compared": 464,
+      "differences": 140,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 140,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "spinner-motion-120hz-100ms",
+      "fixture_sha256": "ebfa7bc216ca7d00ab31ec8a35b84f7c1ea58b469f8c52274f4f3e71d104842d",
+      "observation_sha256": "2b5db8037f07e2b22086a3a909156a5a0ce75a7d74b53a156ba590dfe76b9a8a",
+      "comparison_sha256": "6a0e0b5619a292af5169faffe87346fc275fdefd6b3f857c567ead262a8d43ed",
+      "compared": 440,
+      "differences": 134,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 134,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "spinner-motion-120hz-250ms",
+      "fixture_sha256": "42b95804d60a9d6c0b59565ec94f371d3f9504e6440b96b121a64b2b12217a8d",
+      "observation_sha256": "c1979231de443bdbe85f61153087bae00b476643ccb325e9ff8aff43c08c387f",
+      "comparison_sha256": "a059f5857a503aec54d09105484c06cf67443ad70a4c4b618dd6f84478e50289",
+      "compared": 368,
+      "differences": 116,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 116,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "spinner-motion-144hz-0ms",
+      "fixture_sha256": "a6d5ca77f2e87665151594a0c8e35159e5915932e40c6b280b5efaf044b77d0b",
+      "observation_sha256": "58bbb958efc20db0f240930729400211bf072989f271396918d87decd4925f07",
+      "comparison_sha256": "962ce1487ea1084ced30021014bcadd7c65093fd38417e3a8ad4b924516bf9f1",
+      "compared": 580,
+      "differences": 0,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 0,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-and-matched"
+    },
+    {
+      "id": "spinner-motion-144hz-50ms",
+      "fixture_sha256": "ccfe00b4d3e0d56ec8086d2abc5943a81a068c8db476b95a2f108228e0a2f834",
+      "observation_sha256": "f710e1e902974ba5b6ef03607d14c87a87569fe6b0e1ee9981acb2490bae8400",
+      "comparison_sha256": "e463abc2232a9a72783e046859e55cdc79b6e553a65a54ba46610bae68f6ebfb",
+      "compared": 556,
+      "differences": 168,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 168,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "spinner-motion-144hz-100ms",
+      "fixture_sha256": "8bbced2abc887688195840431fcb030cf922fcdfb08cdfe9861c8d481896e76d",
+      "observation_sha256": "f041534a61ffac45729855cd8695e5835d784697d3865b01828eae8b16f0cae0",
+      "comparison_sha256": "6fc6d286a80ac01f034dce7012ff376406f9980aba06814652ccc519305b0eaa",
+      "compared": 528,
+      "differences": 160,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 160,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-with-classified-divergence"
+    },
+    {
+      "id": "spinner-motion-144hz-250ms",
+      "fixture_sha256": "abd7c2bcafd5ba3bb23be7f10456a0d3c96ff94cc75cdf18740c82bd7c07ef73",
+      "observation_sha256": "c3f631ad78d15ab0dcb84b9b25979d9dc8f7228dafe2701b53af3682c806a1b1",
+      "comparison_sha256": "9ee873050c968e86c323de6d7a93c3f8df6cab9426e3b78b6bb54a4b32a99005",
+      "compared": 440,
+      "differences": 139,
+      "unresolved": 0,
+      "dispositions": {
+        "accepted-spinner-update-sampling": 139,
+        "accepted-slider-feedback-update-lag": 0
+      },
+      "classification": "executed-with-classified-divergence"
+    }
+  ]
+}

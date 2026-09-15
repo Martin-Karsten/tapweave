@@ -199,6 +199,20 @@ and dispatch cancellation. Node creation/configuration failure disconnects parti
 resources as well as active/retiring voices. The existing immediate late policy
 remains source-based and provisional; future nominal tails are never retimed.
 
+Per-voice parameter execution uses explicit set/linear automation history rather
+than requiring `AudioParam.cancelAndHoldAtTime`. For each gain/pan/rate parameter,
+the browser evaluates the value at the scheduled replacement time, cancels later
+automation and reconstructs any truncated incoming ramp endpoint before anchoring
+the replacement. This also preserves a ramp ending exactly at that time. A zero
+duration is a set, and parameter masks leave other channels untouched.
+
+History retains only segments not yet completed at audio `currentTime`, bounded
+by `maximum_pending` segments per parameter per voice. This supports replacement
+before an already scheduled future start without reading `AudioParam.value` as
+though it were the future value. Exhaustion follows ordinary typed dispatch
+failure and cancellation; voice release drops its history. These executor details
+do not alter engine intent, receipt timestamps, replay identity or late policy.
+
 `Audio_Playback` joins the production session, sample bindings, generated voice
 reader, admission, music and one AudioContext anchor. It freezes the same pause
 coordinate in music/engine/clock, guards pending gesture resumes with a generation

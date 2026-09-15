@@ -101,7 +101,12 @@ discrete audio delivery, local cadence invariance and remaining browser work.
 `scene_snaking_enabled_upstream_assertion_port` and record the pinned test search.
 The real drawable adapter executes 96 schedule cases with default snaking enabled;
 visible slider clipping and ball positions match in the compared cases, while
-spinner-motion progress and post-stall tracking differences remain unresolved. Inputs use declared delivery updates, so
+spinner-motion progress and post-stall tracking differences were unresolved at
+that increment. The [correction investigation](scene-corrections.md) repairs the
+adapter layout and closes those bounded findings with 128 runs / 81,528
+comparisons: zero unexplained differences, 1,150 raw progress/rotation sampling
+differences and 12 raw tracking-feedback differences under explicit ADR-002
+dispositions. The original index stays unchanged. Inputs use declared delivery updates, so
 these comparisons do not establish original receipt-time gameplay equivalence.
 
 [Local renderer findings](../../engine/reference/findings/m3-renderer.json) retain

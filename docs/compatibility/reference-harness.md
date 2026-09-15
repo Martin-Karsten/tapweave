@@ -225,6 +225,13 @@ spinner and tracking differences. Do not relax those assertions or close A22 fro
 scene parity. Extend field coverage and pinned equivalent test ports before
 claiming complete presentation acceptance.
 
+The [scene correction investigation](scene-corrections.md) supersedes those known
+spinner/tracking blockers for its bounded corpus. Run
+`npm --prefix engine run compare:scene:corrections` for the corrected absolute
+playfield, 120 Hz extension and enforced sampled-input/child-state diagnostics.
+The original runner and finding index remain historical evidence. Full A22 is
+still open.
+
 
 ## W07 pause/UI backfill
 

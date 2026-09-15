@@ -15,6 +15,7 @@ resume_retains_actions_and_blocks_only_the_resume_press :: proc(test: ^testing.T
 		instance, _ := engine_runtime.instance_create()
 		defer engine_runtime.instance_destroy(&instance)
 		engine, _ := engine_runtime.engine_create(&instance)
+		defer engine_runtime.engine_release(&instance, engine)
 		map_handle, error := engine_runtime.map_prepare(&instance, engine,
 			"osu file format v14\n[Difficulty]\nHPDrainRate:0\n[HitObjects]\n256,192,1000,1,0\n256,192,6000,1,0\n256,192,11000,1,0\n256,192,16000,1,0\n", true)
 		testing.expect_value(test, error.status, core_types.Status.OK)

@@ -3,7 +3,6 @@ export function audio_context_fixture() {
   const calls = [];
   const parameter = () => ({
     setValueAtTime: (...arguments_) => calls.push(['set', ...arguments_]),
-    cancelAndHoldAtTime: (...arguments_) => calls.push(['hold', ...arguments_]),
     cancelScheduledValues: (...arguments_) => calls.push(['cancel', ...arguments_]),
     linearRampToValueAtTime: (...arguments_) => calls.push(['ramp', ...arguments_]),
   });

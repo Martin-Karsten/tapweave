@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-15",
+  "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "scope": "Known voice-automation defect and bounded scene discrepancies; not full release acceptance",
+  "full_m2_m3_acceptance": false,
+  "source_files": [
+    {
+      "path": "platform/browser-js/src/audio-automation.ts",
+      "sha256": "ba026b713eb086304fd100de402e3489cb3dd2dacda9cc83b451066ae19af7b9"
+    },
+    {
+      "path": "platform/browser-js/src/audio.ts",
+      "sha256": "e474d117df299773aa7ac5aabbfa5cbbb49a77f48410027e8dd4b17a0ef1c98d"
+    },
+    {
+      "path": "platform/browser-js/tests/audio-automation.test.mjs",
+      "sha256": "cb1550809ab25126e87716daae9c817cc9172da616192da466633467a7efc95d"
+    },
+    {
+      "path": "platform/browser-js/tests/audio.test.mjs",
+      "sha256": "a7713585c19ef5275b92d12e1314642f4b17fa883d60f3a65288626b24cca061"
+    },
+    {
+      "path": "platform/browser-js/tests/browser/audio-automation.spec.mjs",
+      "sha256": "20178cf2c7f2812ba7318f244085d19bf838689e19edf72c16de73b3bbc677f9"
+    },
+    {
+      "path": "platform/browser-js/tests/browser/audio.spec.mjs",
+      "sha256": "9f186cbee6f99e45e3792e0c07715b260b85354f14620fbcb59bcfffed949578"
+    },
+    {
+      "path": "engine/presentation_trace/cases.odin",
+      "sha256": "c1ba9db1db90c30276f0617d88a16b66466cd9b8ede434648c0a360baa0900b0"
+    },
+    {
+      "path": "engine/scripts/test-presentation.mjs",
+      "sha256": "d4836e1787a766eda3f9682abd612e9450a020d67e3c6923af3e6e44e57a53c6"
+    },
+    {
+      "path": "engine/tests/resume_test.odin",
+      "sha256": "406281c00539c33930b975f62f48aa28f7b27b43958ad1ac4c3257d497643937"
+    }
+  ],
+  "scene": {
+    "index": "engine/reference/findings/m3-scene-corrections.json",
+    "sha256": "d5d0daba630d9029017c4662c30eafa2078fb0ce1b8404ea1562f1193796e2f4",
+    "runs": 128,
+    "comparisons": 81528,
+    "unexplained": 0,
+    "dispositions": {
+      "spinner_update_sampling": 1150,
+      "slider_feedback_update_lag": 12
+    }
+  },
+  "validation": [
+    {
+      "id": "engine",
+      "command": "npm --prefix engine test",
+      "result": "passed",
+      "log": "engine/artifacts/known-defects/engine.log",
+      "sha256": "2efa8f3348ee7d4021bfbfa12be181b9853f3662390d661d44e2e99c027508b2"
+    },
+    {
+      "id": "presentation",
+      "command": "npm --prefix engine run test:presentation",
+      "result": "passed",
+      "log": "engine/artifacts/known-defects/presentation.log",
+      "sha256": "9f66991e3ea61a1d64e490f7fb440a649ebb54a02067b4ddbe1cec89b20eaf83"
+    },
+    {
+      "id": "gameplay-upstream",
+      "command": "npm --prefix engine run test:gameplay:upstream",
+      "result": "passed",
+      "log": "engine/artifacts/known-defects/gameplay-upstream.log",
+      "sha256": "c4dfb9207ce4b86a1acead286be6ac134bed959340b7b4221fd33ba5ac98df94"
+    },
+    {
+      "id": "simulation-upstream",
+      "command": "npm --prefix engine run test:simulation:upstream",
+      "result": "passed",
+      "log": "engine/artifacts/known-defects/simulation-upstream.log",
+      "sha256": "d5f773325d788167de1bb11cc65c3599877baeb4818054da05d36882eee3c44e"
+    },
+    {
+      "id": "scene",
+      "command": "npm --prefix engine run compare:scene:corrections -- --reuse-build",
+      "result": "passed",
+      "log": "engine/artifacts/known-defects/scene.log",
+      "sha256": "095656ac4c1be85c855ccd206562eea90a7512193897f807fa4650d8e70b7b3a"
+    },
+    {
+      "id": "browser-typecheck",
+      "command": "npm --prefix platform/browser-js run typecheck",
+      "result": "passed",
+      "log": "engine/artifacts/known-defects/browser-typecheck.log",
+      "sha256": "013b6f772dbdde4e4d1a0550dc6a7d570b197515968a53aacb5131827f84bb9f"
+    },
+    {
+      "id": "browser-build",
+      "command": "npm --prefix platform/browser-js run build",
+      "result": "passed",
+      "log": "engine/artifacts/known-defects/browser-build.log",
+      "sha256": "44bef3b4bb8f04f63bf337c152414e90809267bd8203aa6314461b9eeaf2000e"
+    },
+    {
+      "id": "browser-unit",
+      "command": "npm --prefix platform/browser-js test",
+      "result": "passed",
+      "log": "engine/artifacts/known-defects/browser-unit.log",
+      "sha256": "0099ee31e3900948b84de8f2ea90a17b184283415216ded1cd198a11b768de7e"
+    },
+    {
+      "id": "browser-integration",
+      "command": "npm --prefix platform/browser-js run test:browser -- --config artifacts/playwright-fixes.config.mjs --grep-invert \"renderer workload\" --workers=1",
+      "result": "passed",
+      "log": "engine/artifacts/known-defects/browser-integration.log",
+      "sha256": "290ab870103069e872532324e9095dd439304f846a5d8f6bfb634db02e9e9996"
+    },
+    {
+      "id": "product-gates",
+      "command": "npm --prefix platform/product-ui run test:gates (isolated port 15180; temporary port edits restored)",
+      "result": "passed",
+      "log": "engine/artifacts/known-defects/product-gates.log",
+      "sha256": "fe36cec8ee2f4c0fb58c068fba803aceee2bb543b5e0718c902573579f0e79a8"
+    },
+    {
+      "id": "product-browser",
+      "command": "npm --prefix platform/product-ui run test:browser -- --config artifacts/playwright-external.config.mjs --workers=1 (separate preview server on 17591)",
+      "result": "passed",
+      "log": "engine/artifacts/known-defects/product-browser.log",
+      "sha256": "6d6313cd8cb92f50c9496f618fc865acb1b7e6525ae768db8c3b051b824ba868"
+    }
+  ],
+  "retained_reports": [
+    {
+      "path": "platform/browser-js/artifacts/browser-results.json",
+      "sha256": "1df5f400ae13e7cc4ded666f4b4cb2ccaf07d65e86f24773fa5fc7b8b999daa8"
+    },
+    {
+      "path": "platform/product-ui/artifacts/browser-results.json",
+      "sha256": "c2e6c57b3064248a8831a9e89afa530b6fb817a95719705d6763938961717192"
+    },
+    {
+      "path": "platform/product-ui/artifacts/gates/gates.json",
+      "sha256": "afe80503d972b28bb2fe696688b920b4ed1be179fc95a7a248f77ed138d6adea"
+    },
+    {
+      "path": "engine/artifacts/presentation.json",
+      "sha256": "e20bb713e9c71d422f3e48f670077848031d22f6408774cdd0c14a274c29110a"
+    }
+  ],
+  "counts": {
+    "browser_unit": 145,
+    "browser_integration": 37,
+    "browser_expected_skips": 2,
+    "product_browser": 77,
+    "product_expected_skips": 1,
+    "product_unit": 23,
+    "upstream_gameplay": 116,
+    "upstream_components": 108,
+    "new_native_wasm_projection_cases": 7
+  },
+  "limitations": [
+    "A broad browser attempt passed 13 tests including Chromium workload smoke cases before interruption; the successful integration run excludes renderer workloads.",
+    "An overlapping product run failed one Firefox held-key assertion. Its next rerun passed that assertion but lost its preview server. The final separately hosted run passed 77 tests with one expected shortcut skip; assertions were unchanged.",
+    "Native/WASM consistency and bounded drawable comparisons do not certify full A22/H11/M2/M3, physical audible output or release performance."
+  ]
+}

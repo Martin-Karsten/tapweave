@@ -8,7 +8,7 @@ function fake_context() {
   const sources = [];
   const parameter = () => ({
     setValueAtTime: (...values) => calls.push(['set', ...values]),
-    cancelAndHoldAtTime: (...values) => calls.push(['hold', ...values]),
+    cancelScheduledValues: (...values) => calls.push(['cancel', ...values]),
     linearRampToValueAtTime: (...values) => calls.push(['ramp', ...values]),
   });
   const node = () => ({ connect() {}, disconnect() { calls.push(['disconnect']); } });
@@ -118,6 +118,53 @@ test('loop ramps, rapid stop/restart and epoch cancellation clean resources', ()
   assert.equal(audio.voices.size, 0);
   assert.equal(audio.retiring_voices.size, 0);
   assert.equal(audio.pending.length, 0);
+});
+
+test('masked and equal-time ramps affect only selected parameters within one lookahead pump', () => {
+  const context = fake_context();
+  const clock = new Audio_Clock();
+  clock.start(10, 0);
+  const audio = new Audio_Service(context, clock);
+  audio.set_assets([[1n, {}]]);
+  audio.enqueue([
+    audio_event(clock, 1, { kind: 'loop_start', voice_id: 1n }),
+    audio_event(clock, 2, { kind: 'param_ramp', voice_id: 1n, volume: 1, duration_ms: 20, parameter_mask: 1 }),
+    audio_event(clock, 3, { kind: 'param_ramp', voice_id: 1n, beatmap_time_ms: 10,
+      volume: 0, duration_ms: 20, parameter_mask: 1 }),
+    audio_event(clock, 4, { kind: 'param_ramp', voice_id: 1n, beatmap_time_ms: 10,
+      pan: -1, rate: 2, duration_ms: 0, parameter_mask: 6 }),
+  ]);
+  audio.pump();
+  assert.deepEqual(context.calls.filter(call => call[0] === 'cancel'), [['cancel', 10], ['cancel', 10.01], ['cancel', 10.01], ['cancel', 10.01]]);
+  assert.ok(context.calls.some(call => call[0] === 'ramp' && call[1] === 0.75 && call[2] === 10.01));
+  assert.ok(context.calls.some(call => call[0] === 'set' && call[1] === -1 && call[2] === 10.01));
+  assert.ok(context.calls.some(call => call[0] === 'set' && call[1] === 2 && call[2] === 10.01));
+  audio.dispose();
+});
+
+test('automation quota failure cancels active and pending voices and permits a clean restart', () => {
+  const context = fake_context();
+  const clock = new Audio_Clock();
+  clock.start(10, 0);
+  const audio = new Audio_Service(context, clock, { maximum_pending: 2 });
+  audio.set_assets([[1n, {}]]);
+  audio.enqueue([audio_event(clock, 1, { kind: 'loop_start' })]);
+  audio.pump();
+  for (const sequence of [2, 3]) {
+    audio.enqueue([audio_event(clock, sequence, { kind: 'param_ramp', voice_id: 1n,
+      beatmap_time_ms: sequence, duration_ms: 1, parameter_mask: 1 })]);
+    audio.pump();
+  }
+  audio.enqueue([audio_event(clock, 4, { kind: 'param_ramp', voice_id: 1n,
+    beatmap_time_ms: 4, duration_ms: 1, parameter_mask: 1 })]);
+  assert.throws(() => audio.pump(), { code: 'QUOTA_EXCEEDED' });
+  assert.equal(audio.voices.size, 0);
+  assert.equal(audio.retiring_voices.size, 0);
+  assert.equal(audio.pending.length, 0);
+  audio.enqueue([audio_event(clock, 5, { kind: 'loop_start' })]);
+  audio.pump();
+  assert.equal(audio.voices.size, 1);
+  audio.dispose();
 });
 
 test('malformed batch rejects transactionally; new epoch retains new events', () => {

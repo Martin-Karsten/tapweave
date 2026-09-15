@@ -90,3 +90,23 @@ or replay timestamps, and does not accept any other frame-dependent quantity:
 wherever every tested upstream schedule agrees, exact matching is still
 required, and the voice-intent command-time differences stay open pending H11
 because loop/ramp production is unimplemented.
+
+## Bounded scene update dispositions
+
+The [scene correction investigation](../compatibility/scene-corrections.md)
+extends dispositions only for its executed spinner-motion and slider-tracking
+matrix. Production continues to consume every receipt-time input segment and
+presentation continues to read current committed tracking.
+
+`accepted-spinner-update-sampling` applies to stalled spinner comparisons only
+when a separate diagnostic session using the actual upstream once-per-update
+cursor samples eliminates the progress and unclamped-rotation differences.
+`accepted-slider-feedback-update-lag` applies only to the first update after the
+250 ms stall, where Odin agrees with current child tracking and upstream's
+displayed tracking agrees with the previous child value. Reproducing those update
+artifacts in production would make results or feedback depend on render cadence.
+
+The original raw observations remain retained. Correction fixtures also repair
+the reference host's relative-size layout error with an explicitly absolute
+512×384 playfield. That is an adapter correction, not an accepted engine numeric
+divergence. Neither disposition permits other mismatches or closes full A22/H11.

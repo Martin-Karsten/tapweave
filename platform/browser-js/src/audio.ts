@@ -1,5 +1,6 @@
 import type { Audio_Clock } from './clock.js';
 import { require_condition } from './errors.js';
+import { Audio_Automation } from './audio-automation.js';
 
 export type Voice_Kind = 'one_shot' | 'loop_start' | 'loop_stop' | 'param_ramp';
 export type Voice_Policy = 'drop' | 'immediate';
@@ -27,6 +28,9 @@ export interface Audio_Voice {
   stopping: boolean;
   event: Audio_Event;
   when_seconds: number;
+  volume_automation: Audio_Automation;
+  pan_automation: Audio_Automation;
+  rate_automation: Audio_Automation;
 }
 
 export interface Audio_Metrics {
@@ -174,12 +178,11 @@ export class Audio_Service {
     if (event.kind === 'param_ramp') {
       const voice = this.voices.get(event.voice_id);
       if (voice) {
-        const until_seconds = when_seconds + event.duration_ms / 1000;
-        for (const [parameter, target, mask] of [[voice.gain!.gain, event.volume, 1],
-          [voice.panner!.pan, event.pan, 2], [voice.source!.playbackRate, event.rate, 4]] as const) {
+        for (const [parameter, automation, target, mask] of [[voice.gain!.gain, voice.volume_automation, event.volume, 1],
+          [voice.panner!.pan, voice.pan_automation, event.pan, 2],
+          [voice.source!.playbackRate, voice.rate_automation, event.rate, 4]] as const) {
           if (((event.parameter_mask ?? 7) & mask) === 0) continue;
-          parameter.cancelAndHoldAtTime(when_seconds);
-          parameter.linearRampToValueAtTime(target, until_seconds);
+          automation.replace(parameter, this.context.currentTime, when_seconds, event.duration_ms / 1000, target);
         }
       }
       return;
@@ -192,7 +195,10 @@ export class Audio_Service {
     require_condition(!this.voices.has(event.voice_id), 'INVALID_AUDIO_EVENT', 'Voice ID is already active.');
     require_condition(this.voices.size + this.retiring_voices.size < this.maximum_voices,
       'QUOTA_EXCEEDED', 'Audio voice quota exceeded.');
-    const voice: Audio_Voice = { source: null, gain: null, panner: null, stopping: false, event: { ...event }, when_seconds };
+    const voice: Audio_Voice = { source: null, gain: null, panner: null, stopping: false, event: { ...event }, when_seconds,
+      volume_automation: new Audio_Automation(event.volume, this.maximum_pending),
+      pan_automation: new Audio_Automation(event.pan, this.maximum_pending),
+      rate_automation: new Audio_Automation(event.rate, this.maximum_pending) };
     try {
       voice.source = this.context.createBufferSource();
       voice.gain = this.context.createGain();

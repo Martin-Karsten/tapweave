@@ -11,6 +11,10 @@ statements that product Play is disabled: the M3, W04, W06 and mixed-scene
 sections describe their increments, in which Play stayed disabled; W07 exposes
 Play in the validation build.
 
+The final **Known gameplay MVP defects** section supersedes the historical
+Firefox ramp failure and unresolved spinner/tracking findings below. It closes
+those bounded issues, not full M2/M3 or release certification.
+
 ## M0: foundation
 
 The owned decoder supports versions 1–14 and 128, defaults, gameplay metadata,
@@ -729,3 +733,53 @@ A21/A23/A24 remain open as complete rows: cooldown, pause-menu sound loops, the
 full inactive-player/resource matrix, H11 and physical-device certification are
 not implied by these bounded input tests. The finding index retains pinned
 revisions, source/test hashes, classifications and the upstream observation digest.
+
+## Known gameplay MVP defects
+
+The audio executor no longer requires `cancelAndHoldAtTime`. It retains bounded
+per-voice gain/pan/rate automation, evaluates replacements at their scheduled
+audio time and restores the incoming ramp prefix, including exact-endpoint
+replacement. Zero-duration changes, parameter masks, future replacements,
+quota failure and voice cleanup have focused regressions. Real offline audio
+checks ramp continuity and masked playback-rate changes in Chromium, Firefox
+and WebKit. The earlier Firefox voice-loop test now passes; its cleanup assertion
+waits for actual queued `ended` callbacks after offline rendering completes.
+
+The [scene correction investigation](compatibility/scene-corrections.md) found
+an adapter layout bug and two frame-update effects. Correction fixtures explicitly
+use an absolute 512×384 playfield, removing precision loss from the historical
+relative-size setup. The pinned spinner consumes one cursor position per update;
+the slider's displayed tracking flag copies its previous child-manager state.
+Tapweave retains deterministic input segments and current committed feedback.
+The original finding index is unchanged; the new index preserves every raw
+difference with a narrowly scoped ADR-002 disposition and an eliminating
+diagnostic. It compares unclamped rotation as well as progress.
+
+The corrected matrix passes **128 runs / 81,528 comparisons with zero unexplained
+differences**. It retains 1,150 progress/rotation sampling differences and 12
+first-post-stall tracking-feedback differences. The 120 Hz extension and new
+rotation fields mean these counts are not comparable to the earlier 180
+progress/indicator discrepancies.
+
+The [validation index](../engine/reference/findings/m3-known-defects.json) retains
+source/report/log hashes. The full engine suite passes, including seven new
+source-derived native/WASM projection cases. An existing resume test now releases
+its engine before destroying its handle tables; the final allocation-tracked run
+has no leak warnings. All 116 existing pinned gameplay scenarios and 108 pinned
+component comparisons pass again. Browser typecheck/build and all
+**145 service tests** pass. The browser integration run passes **37 tests**, with
+two expected non-Chromium heap-profile skips; renderer workloads were excluded
+from that run. A broader attempt passed 13 tests, including Chromium's workload
+smoke cases, before being interrupted; it is not a full matrix pass. Product gates
+pass all 23 unit/component tests and the 60-second B3 probe (60.05 fps, no long
+tasks, no measured heap growth). Temporary isolated-port overrides were restored
+without changing gate assertions.
+
+The final separately hosted Chromium/Firefox/WebKit product run passes **77
+tests** with one expected WebKit shortcut skip. Earlier attempts encountered a
+Firefox held-key assertion during overlapping browser runs and a stopped preview
+server; the final run uses unchanged assertions and a separately managed server.
+
+These results close the known defect investigation only. Full upstream/audio
+acceptance, additional presentation coverage, human audible playtesting and
+release performance/resource certification remain open.

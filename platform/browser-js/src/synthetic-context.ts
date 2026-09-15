@@ -24,7 +24,7 @@ export interface Synthetic_Audio_Context {
 
 const build_parameter = (observations: Synthetic_Context_Observations) => ({
   setValueAtTime(...arguments_: number[]) { observations.connections++; },
-  cancelAndHoldAtTime() {},
+  cancelScheduledValues() {},
   linearRampToValueAtTime() {},
 });
 

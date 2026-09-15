@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Reflection;
 using System.Text.Json;
 using osu.Framework;
 using osu.Framework.Allocation;
@@ -67,7 +68,8 @@ static class ScenarioObservation
 
 sealed record ScenarioInput(double time_ms, float x, float y, uint actions);
 sealed record ScenarioFixture(int schema_version, string id, string profile, string map,
-    double[] schedule_ms, ScenarioInput[] inputs, bool replay = false, bool capture_frames = true, bool record = false, bool observe_audio = false, bool observe_presentation = false)
+    double[] schedule_ms, ScenarioInput[] inputs, bool replay = false, bool capture_frames = true, bool record = false, bool observe_audio = false, bool observe_presentation = false,
+    bool canonical_playfield = false)
 {
     public static ScenarioFixture Parse(byte[] bytes)
     {
@@ -146,6 +148,9 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
         if (fixture.replay)
             replay_sampler = new GameplayReplaySampler(fixture.inputs);
         playfield = new OsuPlayfield { Size = new Vector2(512, 384) };
+        // Playfield defaults to relative sizing. Historical fixtures retain that
+        // setup for reproducibility; correction fixtures explicitly use pixels.
+        if (fixture.canonical_playfield) playfield.RelativeSizeAxes = Axes.None;
         foreach (var hit_object in prepared_map.HitObjects.Cast<OsuHitObject>())
         {
             DrawableOsuHitObject drawable = hit_object switch
@@ -217,6 +222,8 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
             if (fixture.capture_frames) Frames.Add(new
             {
                 time_ms = scenario_clock.CurrentTime,
+                input_cursor = fixture.observe_presentation ? ObserveCursor() : null,
+                playfield_size = fixture.observe_presentation ? new { width = playfield.DrawWidth, height = playfield.DrawHeight } : null,
                 objects = drawables.Select(drawable => new
                 {
                     alpha = drawable.Alpha,
@@ -271,7 +278,11 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
                     } : null,
                     spinner_rotation = drawable is DrawableSpinner rotation_spinner ? (float?)rotation_spinner.Result.TotalRotation : null,
                     tracking = drawable is DrawableSlider slider ? (bool?)slider.Tracking.Value : null,
+                    tracking_after_children = fixture.observe_presentation && drawable is DrawableSlider tracked_slider ?
+                        (bool?)tracked_slider.SliderInputManager.Tracking : null,
                     spinner_progress = drawable is DrawableSpinner spinner ? (float?)spinner.Progress : null,
+                    spinner_input = fixture.observe_presentation && drawable is DrawableSpinner sampled_spinner ?
+                        ObserveSpinnerInput(sampled_spinner) : null,
                     sounds = drawable.ChildrenOfType<PausableSkinnableSound>().Select((sound, sound_index) => new
                     {
                         sound_index,
@@ -318,6 +329,31 @@ partial class ScenarioGame(ScenarioFixture fixture) : Game, IBeatSyncProvider
                 manual_input.ReleaseKey(key);
         }
         previous_actions = input.actions;
+    }
+
+    private object ObserveCursor()
+    {
+        Vector2 screen_position = manual_input.CurrentState.Mouse.Position;
+        Vector2 position = playfield.ToLocalSpace(screen_position);
+        return new { x = position.X, y = position.Y, screen_x = screen_position.X, screen_y = screen_position.Y,
+            actions = (manual_input.CurrentState.Keyboard.Keys.IsPressed(Key.Z) ? 1u : 0u) |
+                (manual_input.CurrentState.Keyboard.Keys.IsPressed(Key.X) ? 2u : 0u) };
+    }
+
+    // Read real tracker state after its update. Do not calculate an oracle angle
+    // or rotation from fixture coordinates: layout round trips can change them.
+    private static readonly FieldInfo spinner_mouse_position = typeof(SpinnerRotationTracker)
+        .GetField("mousePosition", BindingFlags.Instance | BindingFlags.NonPublic)!;
+    private static readonly FieldInfo spinner_last_angle = typeof(SpinnerRotationTracker)
+        .GetField("lastAngle", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+    private static object ObserveSpinnerInput(DrawableSpinner spinner)
+    {
+        var tracker = spinner.RotationTracker;
+        Vector2? position = (Vector2?)spinner_mouse_position.GetValue(tracker);
+        return new { x = position?.X, y = position?.Y, centre_x = tracker.DrawSize.X / 2,
+            centre_y = tracker.DrawSize.Y / 2, last_angle = (float?)spinner_last_angle.GetValue(tracker),
+            tracking = tracker.Tracking };
     }
 
     protected override void Dispose(bool is_disposing)

@@ -140,6 +140,15 @@ acceptance claim.
 
 ## Gameplay regression acceptance
 
+The scene-specific correction gate is
+`npm --prefix engine run compare:scene:corrections`. It executes 128 runs with an
+explicit absolute playfield and records real tracker coordinates, rotation,
+actions and current/previous slider tracking. Its separate finding index retains
+raw mismatches and rejects unexplained differences. The legacy
+`compare:scene:upstream` layout and original findings remain reproducible; see
+[the correction scope and dispositions](../../docs/compatibility/scene-corrections.md).
+
+
 `npm --prefix engine run test:gameplay:upstream` runs the ported circle, slider,
 spinner, Player and recorder corpus. Unlike `test:scenarios:upstream`, it fails
 on assertion or comparison differences. `--scenario` supports replay input and

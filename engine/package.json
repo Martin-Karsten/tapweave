@@ -29,6 +29,7 @@
     "measure:input-cost": "node scripts/measure-input-cost.mjs",
     "compare:voice-intent": "node scripts/compare-voice-intent.mjs",
     "compare:scene:upstream": "node scripts/compare-scene.mjs",
+    "compare:scene:corrections": "node scripts/compare-scene.mjs --corrections",
     "test:pause:upstream": "node scripts/test-pause.mjs"
   }
 }

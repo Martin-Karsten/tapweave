@@ -15,8 +15,15 @@ const wasm_values = native_values.map((_case_values, case_index) =>
   Array.from({ length: 9 }, (_unused_value, value_index) => instance.exports.trace_presentation_value(case_index, value_index)));
 assert.deepEqual(wasm_values, native_values);
 assert.deepEqual(native_values[0], [1, 0, 0, 1, 0, 0, 1, -0, -0]);
+assert.deepEqual(native_values.slice(-7), [
+  [0, 90, 180, 180, 180, 0.25, 180, 0, 0],
+  [0, 90, 180, 180, 180, 0.25, 180, 0, 0],
+  [90, 180, 270, 270, 270, 0.375, 270, 0, 0],
+  [90, 180, 270, 270, 270, 0.375, 270, 0, 0],
+  ...Array.from({ length: 3 }, () => [0, 1, 1, 220, 180, 0, 1, 0, 0]),
+]);
 writeFileSync(resolve(root, 'artifacts/presentation.json'), JSON.stringify({
   oracle: 'local-contract-only', acceptance: ['A12', 'A22'], complete: false, values: native_values,
   compiler: verifyCompiler(),
 }, null, 2) + '\n');
-console.log(`4 viewport and ${native_values.length - 4} circle boundary fixtures: exact native/WASM values. Full A12/A22 remain open.`);
+console.log(`4 viewport, ${native_values.length - 11} circle boundary and 7 semantic projection fixtures: exact native/WASM values. Full A12/A22 remain open.`);
