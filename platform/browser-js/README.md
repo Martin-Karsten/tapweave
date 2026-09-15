@@ -223,21 +223,26 @@ batch position, advance target and lateness, with observation timestamps kept
 distinct from the authoritative engine `committed_ms`. `begin_attempt`
 isolates failures between attempts while ring history is retained.
 
-- The **player interface** (`src/debug-ui.ts`) targeted the now-retired
-  vanilla player page; with the product shell as the player (ADR-006), its
-  panel/HUD wiring is pending re-homing into `platform/product-ui`, which will
-  subscribe to the same diagnostics service. The service, report store and
-  developer workspace below are unaffected. It adds a Debug button on the selection, pause and
-  recovery screens (and a floating control during play whose use requests the
-  normal pause path). The panel provides Logs/Timing/Audio/Resources tabs with
-  severity and category filters, text search and display freezing while
-  recording continues; a non-interactive live HUD shows frame intervals, CPU
-  stage timings, clock discrepancy, input queue depth, audio queues/voices,
-  WASM memory, draw counts and the existing asynchronous GPU measurement,
-  marking unavailable or disjoint results honestly. Diagnostic UI refresh rides
-  the existing frame driver at most four times per second; no scheduler is
+- The **player interface** is re-homed into the product shell
+  (`platform/product-ui`, ADR-006): `src/services/debug_session.ts` owns the
+  diagnostics service, report store and report identity, and the shell's
+  `debug_dialog`/`debug_hud` components subscribe to the unchanged
+  `@browser` services. The retired vanilla `src/debug-ui.ts` is deleted. It
+  adds a Debug button on the selection, pause and recovery screens (and a
+  floating control during play whose use requests the normal pause path). The
+  panel provides Logs/Timing/Audio/Resources tabs with severity and category
+  filters, text search and display freezing while recording continues; a
+  non-interactive live HUD shows frame intervals, CPU stage timings, clock
+  discrepancy, input queue depth, audio queues/voices, WASM memory, draw
+  counts and the existing asynchronous GPU measurement, marking unavailable or
+  disjoint results honestly. Diagnostic UI refresh rides the existing frame
+  driver at most four times per second (a timestamp check in the frame
+  callback; signal writes happen in a timer outside it); no scheduler is
   added. Ctrl+F10 (logs) and Ctrl+F11 (HUD) work when the browser delivers
-  them; visible controls remain the required path.
+  them; visible controls remain the required path. Shell parity specs live in
+  `platform/product-ui/tests/browser/debug.spec.mjs` and
+  `lifecycle.spec.mjs`; the shell also exposes a `window.__tapweave_player_probe`
+  handle so those specs can inject deterministic playback-clock faults.
 - **Reports** use the versioned `tapweave-debug-report` JSON format with typed
   categories, bigint identifiers as decimal strings, capture mode, truncation
   and timing provenance. Reports are bounded to 2 MiB, preserving failure
@@ -272,14 +277,17 @@ under MIT in `engine/reference/sources/`, see the
 implementation is original Tapweave work for the Odin/browser ownership model.
 Run `npm test` for ring/bound/serialization/isolation/storage/import
 regressions, production-WASM clock-mismatch timestamps and capture-mode
-parity, and `npm run test:browser` with `tests/browser/debug.spec.mjs` for the
-browser flows. These are local regression and usability checks; no upstream
-acceptance gate closes from this suite.
+parity, and `npm run test:browser` with `tests/browser/debug.spec.mjs` for
+the workspace browser flows (the player-facing debug flows moved to
+`platform/product-ui/tests/browser/debug.spec.mjs`). These are local
+regression and usability checks; no upstream acceptance gate closes from
+this suite.
 
 Run `tests/gameplay-controller.test.mjs` through `npm test` for the W07
 lifecycle regressions. The retired vanilla player's Playwright intent
-(selection, difficulty switching, full attempt lifecycle, GPU restoration and
-input aggregation) now runs against the product shell in
-`platform/product-ui/tests/browser/`. Chromium checks are local browser
-evidence, not physical-device or full upstream acceptance. See the
+(selection, difficulty switching, full attempt lifecycle, GPU restoration,
+input aggregation and the debug panel/HUD/recovery reports) now runs against
+the product shell in `platform/product-ui/tests/browser/`. Chromium checks
+are local browser evidence, not physical-device or full upstream acceptance.
+See the
 [status](../../docs/status.md#product-shell-adr-006-s0b-promotion).
