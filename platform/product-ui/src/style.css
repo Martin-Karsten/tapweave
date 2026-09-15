@@ -185,21 +185,62 @@ a {
   color: var(--color-text-faint);
 }
 
+/* Lazer MainMenu structure (structure reference only): the pulsing logo
+   anchors the screen center while the live action column hugs the left. */
 .menu-screen {
-  place-content: center;
+  grid-template-columns: minmax(140px, 1fr) auto minmax(140px, 1fr);
+  align-content: center;
+}
+
+.menu-logo {
+  grid-area: 1 / 2;
+  display: grid;
+  gap: 14px;
   justify-items: center;
   text-align: center;
 }
 
-.menu-screen .brand-mark {
-  width: 64px;
-  height: 64px;
+.menu-logo .brand-mark {
+  width: 96px;
+  height: 96px;
+  animation: menu-logo-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes menu-logo-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .menu-buttons {
+  grid-area: 1 / 1;
+  align-self: center;
+  justify-self: start;
   display: grid;
   gap: 12px;
-  min-width: 220px;
+  min-width: 180px;
+  text-align: left;
+}
+
+@media (max-width: 760px) {
+  .menu-screen {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-logo {
+    grid-area: 1 / 1;
+  }
+
+  .menu-buttons {
+    grid-area: 2 / 1;
+    justify-self: center;
+    text-align: center;
+  }
 }
 
 .select-screen {
@@ -361,6 +402,10 @@ footer {
 .footer-note {
   margin: 0;
   max-width: 640px;
+}
+
+.footer-baseline {
+  font-size: 0.72rem;
 }
 
 footer span {

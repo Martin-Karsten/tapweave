@@ -14,6 +14,10 @@ import { boot_player_session, player_session, shell_state } from './state/sessio
 
 const App_Frame: Component<ParentProps> = (props) => {
   const location = useLocation();
+  // The service pointer itself is not reactive: tracking the shell phase
+  // re-reads it once the engine capabilities exist to quote in the footer.
+  const ready_player_session = () =>
+    shell_state().phase === 'ready' ? player_session() : null;
 
   onMount(() => {
     void boot_player_session().then(() => {
@@ -33,8 +37,18 @@ const App_Frame: Component<ParentProps> = (props) => {
       <Show when={location.pathname !== '/'}>
         <footer>
           <p class="footer-note">
-            Independent rhythm game. Not affiliated with osu! or ppy.{' '}
+            <span>Independent rhythm game. Not affiliated with osu! or ppy.</span>
             <span>Unmodded lazer osu!standard target.</span>
+            <Show when={ready_player_session()}>
+              {(session) => (
+                <span
+                  class="footer-baseline"
+                  data-footer-baseline={session().engine.capabilities.lazer_version}
+                >
+                  Compatibility baseline: lazer {session().engine.capabilities.lazer_version}.
+                </span>
+              )}
+            </Show>
             <span>
               Validation build: full upstream compatibility and release-browser certification remain
               open. Validation player.
