@@ -642,6 +642,39 @@ under Mirrored pause/resume input below. The product-shell CI job mirrors
 browser-foundation. This debugger increment did not change engine behavior or
 close upstream acceptance gates.
 
+## Product flow chrome (ADR-007)
+
+The shell now carries the product flow `intro → menu → song select → play →
+results`: a boot/disclaimer intro route (`/`) with retry, a main menu
+(`/menu`, centered logo plus a live action column with roving keyboard
+navigation and a P shortcut), and a reworked song select. Song select follows
+the pinned lazer structure as regions: a FilterControl-position top bar (back
+to `/menu`, screen title, a working difficulty text filter, and the import
+control), the active set as a sheared set panel (set title, difficulty count)
+expanded into the virtualized difficulty rows, a BeatmapTitleWedge-position
+sheared info panel (`#map-name`, `#map-detail`, object count, CS/AR/OD/HP
+from the prepared descriptor, `#play-gate`), and a ScreenFooter-position
+action bar (Back, Play, Debug). Import accepts the file input and files
+dropped onto the screen; both feed the unchanged transactional `load_files`
+path, and the established a11y/test anchors and Play gating/focus behavior
+are preserved.
+
+Classification is honest and narrow: this is structure-reference chrome, not
+upstream acceptance. The structural citations (SongSelect.cs, FilterControl.cs,
+BeatmapTitleWedge.cs, PanelBeatmapSet.cs, ScreenFooter.cs, MainMenu.cs at
+pinned commit `3c1c96f7`) and the documented MVP divergences — purple
+palette, enter-only transitions, single-set session with filename-derived
+titles, and the HTML-shell substitutions — are recorded in
+[ADR-007](architecture/adr-007-product-flow.md). Visual similarity to lazer is
+explicitly not compatibility evidence, and menu/song-select styling stays
+outside the compatibility claims. Local evidence only: `test:gates`,
+Vitest, and the Playwright suite including `tests/browser/select.spec.mjs`
+(back navigation, set panel + difficulty filter, drag-and-drop import, wedge
+stats) pass on Chromium, Firefox and WebKit against the production WASM; the
+synthetic file-drop test skips on WebKit, whose automation cannot construct
+such events. No engine, ABI, or service behavior changed, and no upstream
+acceptance scenario is closed by this chrome.
+
 ## MVP settings shared foundation
 
 The [parallel MVP handoff](mvp-player-experience.md) defines ownership and

@@ -1,5 +1,5 @@
 import { For, Show, type JSX } from 'solid-js';
-import { Generic_Select, type Song_Entry } from '../a1/generic_select.js';
+import { Generic_Select, type Song_Entry } from '../typecheck_fixtures/generic_select.js';
 
 // Deliberate diagnostics: items require { id: number }; these entries have none.
 const misaligned_entries = [{ identifier: 1 }, { identifier: 2 }];

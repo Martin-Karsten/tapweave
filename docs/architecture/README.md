@@ -53,5 +53,6 @@ runtime and browser exports do not import that test-only package.
 - [ADR-004: Browser audio and synchronization](adr-004-audio.md)
 - [ADR-005: ABI, capabilities, and extensions](adr-005-interface-extensions.md)
 - [ADR-006: Product shell](adr-006-product-shell.md)
+- [ADR-007: Product flow chrome](adr-007-product-flow.md)
 
 The production successor is specified in [interface v2](interface-v2.md). ABI v1 and its demo remain local research material outside this repository.

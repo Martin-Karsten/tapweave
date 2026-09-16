@@ -242,4 +242,9 @@ upstream and replaces the blanket release/repress policy with retained action
 state, physical reconciliation and cursor-resume press blocking. Complete
 `TestScenePause`, `TestScenePauseWhenInactive`, and `TestScenePlayerLoader`
 coverage remains open; cooldown and pause-menu sound loops are not claimed.
-Mods, mania, account/score import/submission and menu styling remain outside scope.
+Mods, mania, and account/score import/submission remain outside scope. Menu
+and song-select styling are implemented only as pinned-commit structure
+reference with documented MVP divergences (purple palette, enter-only
+transitions, single-set session; [ADR-007](../architecture/adr-007-product-flow.md)):
+visual similarity to lazer is not upstream acceptance and stays excluded from
+the compatibility claims.

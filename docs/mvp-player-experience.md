@@ -64,16 +64,28 @@ passing isolated tasks does not establish combined acceptance.
 
 ## Plan 1: self-explanatory first session
 
+### Entry flow (intro and menu)
+
+The first session now opens through the product flow chrome
+([ADR-007](architecture/adr-007-product-flow.md)): a boot/disclaimer intro
+route (`/`) leads into a main menu (`/menu`, logo plus a live action column)
+and on to song select (`/select`). Plan 1 revises the onboarding copy across
+that flow — intro disclaimer/retry wording, menu labels, and the song-select
+guidance — instead of adding a separate entry screen, and keeps the
+structure-reference divergences documented in the ADR.
+
 ### Selection and instructions
 
-Offer Try the demo and Open beatmap files on the initial screen. Explain .osz
-versus an .osu with its music/assets and that files stay on the device. Keep
-import available after demo selection. Show pre-play guidance: aim with the
-pointer, tap the configured keys/enabled mouse buttons as the approach circle
-reaches the object, hold/follow sliders, hold/rotate for spinners, Escape pauses.
-Use `settings_snapshot().settings` and shared key-label helpers; never hardcode
-Z/X in new hints. Guidance remains accessible from pause. No autoplay, timed
-popups, new tutorial engine, or in-play tutorial overlays.
+Offer Try the demo and Open beatmap files from the song-select flow (the
+import control and screen-wide drop target already live in its top bar).
+Explain .osz versus an .osu with its music/assets and that files stay on the
+device. Keep import available after demo selection. Show pre-play guidance:
+aim with the pointer, tap the configured keys/enabled mouse buttons as the
+approach circle reaches the object, hold/follow sliders, hold/rotate for
+spinners, Escape pauses. Use `settings_snapshot().settings` and shared
+key-label helpers; never hardcode Z/X in new hints. Guidance remains
+accessible from pause. No autoplay, timed popups, new tutorial engine, or
+in-play tutorial overlays.
 
 ### Metadata
 

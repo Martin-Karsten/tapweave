@@ -46,7 +46,7 @@ chapters link directly to pinned upstream symbols.
 
 ## Scope boundary
 
-The normative target is unmodded lazer osu!standard. “Classic” always means the `OsuModClassic` compatibility mod, not default lazer. Skins, storyboards, mods (including Classic support, deferred to M5), difficulty calculation, performance points, legacy replay containers, mobile certification, and other rulesets are surveyed only far enough to keep today’s design extensible. Validation-player selection, pause/recovery and results are included in W07. Other product screens, accounts, networking, editing, and score submission are out of scope. This is the canonical scope list; other documents restate rather than extend it.
+The normative target is unmodded lazer osu!standard. “Classic” always means the `OsuModClassic` compatibility mod, not default lazer. Skins, storyboards, mods (including Classic support, deferred to M5), difficulty calculation, performance points, legacy replay containers, mobile certification, and other rulesets are surveyed only far enough to keep today’s design extensible. Validation-player selection, pause/recovery and results are included in W07. The shell's intro/menu/song-select flow chrome is implemented as pinned-commit structure reference with documented MVP divergences ([ADR-007](architecture/adr-007-product-flow.md)); it is product styling, not upstream acceptance. Accounts, networking, editing, and score submission are out of scope. This is the canonical scope list; other documents restate rather than extend it.
 
 ## Normative priority
 

@@ -1,12 +1,17 @@
 # Tapweave
 
-A browser rhythm game written in Odin, targeting osu!standard beatmap compatibility.
+A browser rhythm game written in Odin, targeting pinned osu!lazer osu!standard behavior.
 
 Tapweave is an independent project, not affiliated with or endorsed by osu! or ppy.
 
 ## Status
 
-M0 (decoder, control points and lifecycle) and M1 (complete beatmap preparation) are implemented and tested against pinned upstream behavior. The engine prepares paths, object schedules, samples, combo and stacking, and exposes immutable maps through ABI v2. Headless gameplay sessions now integrate rules, score/health, replay and snapshots. The browser validation player integrates rendering, audio, input, pause/retry/recovery and results. Full upstream M2/M3 acceptance remains open.
+M0 (compatibility foundation) and M1 (beatmap preparation) are implemented and
+validated against pinned upstream behavior. Headless M2 sessions integrate rules,
+scoring/health, replay and snapshots. The browser exposes a playable validation
+player through the product shell: rendering, audio, input, pause/retry/recovery,
+settings and results. Full upstream M2/M3 acceptance and release-browser
+certification remain open.
 
 See [implementation status and evidence](docs/status.md), the [roadmap](docs/roadmap.md), and [architecture](docs/architecture/README.md).
 
@@ -23,20 +28,18 @@ npm --prefix engine run build
 engine/artifacts/decode-native path/to/map.osu
 ```
 
-Setup downloads a checksum-verified Odin compiler into the ignored `engine/.toolchain/` directory. The version, commit, and supported Linux/macOS archives are pinned in [toolchain.json](engine/toolchain.json). Alternatively, set `ODIN_BIN` to an existing matching compiler. The new engine has no npm dependencies.
+Setup downloads a checksum-verified Odin compiler into the ignored `engine/.toolchain/` directory, pinned in [toolchain.json](engine/toolchain.json); set `ODIN_BIN` to use an existing matching compiler.
 
-Tests verify upstream source hashes, run allocation-tracked Odin and native C ABI checks, and compare generated native/WASM traces byte-for-byte. The `test:reference`, `test:geometry:upstream` and `test:prepared:upstream` scripts execute pinned upstream comparisons; see the [reference-host setup](engine/reference-host/README.md).
+Tests verify upstream source hashes, run allocation-tracked Odin and native C ABI checks, and compare native/WASM traces byte-for-byte. The `test:*:upstream` scripts execute pinned upstream comparisons; see the [reference-host setup](engine/reference-host/README.md).
 
 ## Repository layout
 
-- `engine/`: engine implementation, tests, schemas, and tooling.
+- `engine/`: Odin engine implementation, tests, schemas, and tooling.
+- `platform/browser-js/`: browser service layer (WASM runtime, input/audio/renderer services) with developer fixtures.
+- `platform/product-ui/`: Solid product shell hosting the playable player ([ADR-006](docs/architecture/adr-006-product-shell.md)); holds the repo's exact-pinned npm dependencies.
 - `docs/`: implementation specification, decisions, and roadmap.
 - `.github/workflows/`: automated validation.
-
-The [browser foundation](platform/browser-js/README.md) can load and prepare local
-beatmap sets. See the browser guide for the playable validation profile and remaining acceptance gates.
-
-Exploratory spikes, downloaded toolchains, caches, generated binaries, and game assets are not distributed in this repository.
+- `engines/`, `plans/`, `comparison/`, `shared/`: retained historical spike and benchmark material, not part of the current implementation.
 
 ## Licence
 

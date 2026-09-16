@@ -1,4 +1,4 @@
-import { For, Show, createEffect, type Component } from 'solid-js';
+import { For, Show, createEffect, createSignal, type Component } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { Virtual_List } from '../components/virtual_list';
 import { debug_dialog_open, open_debug_dialog } from '../state/debug_state';
@@ -6,6 +6,24 @@ import { player_session, shell_state } from '../state/session_state';
 
 const map_display_name = (filename: string): string =>
   filename.split('/').at(-1)?.replace(/\.osu$/i, '') ?? filename;
+
+// Filename-derived stand-in for the lazer set panel title: the shared prefix
+// of the loaded scope's difficulty filenames, falling back to the active
+// difficulty until decoder-owned metadata arrives with the Plan 1 ABI query.
+const set_display_title = (filenames: readonly string[], active_filename: string): string => {
+  let shared_prefix = map_display_name(filenames[0] ?? active_filename);
+  for (const filename of filenames.slice(1)) {
+    const display_name = map_display_name(filename);
+    let shared_length = 0;
+    const shared_limit = Math.min(shared_prefix.length, display_name.length);
+    while (shared_length < shared_limit && shared_prefix[shared_length] === display_name[shared_length]) {
+      shared_length += 1;
+    }
+    shared_prefix = shared_prefix.slice(0, shared_length);
+  }
+  shared_prefix = shared_prefix.replace(/[\s\-_.([{$]+$/, '');
+  return shared_prefix || map_display_name(active_filename);
+};
 
 const selection_status = (): string => {
   const state = shell_state();
@@ -16,8 +34,14 @@ const selection_status = (): string => {
   return 'Engine ready. Open a beatmap to begin.';
 };
 
+// Lazer SongSelect structure (structure reference only): the FilterControl
+// bar on top, the sheared BeatmapTitleWedge on the left, the beatmap-set
+// carousel with expanded difficulty rows on the right, and a ScreenFooter
+// action bar below.
 export const Select_Screen: Component = () => {
   const navigate = useNavigate();
+  const [difficulty_filter, set_difficulty_filter] = createSignal('');
+  const [drop_active, set_drop_active] = createSignal(false);
   const state = () => shell_state();
   const selection = () => state().selection;
   const active = () => selection().active;
@@ -27,10 +51,23 @@ export const Select_Screen: Component = () => {
     const current = active();
     return current ? current.source.list_maps() : [];
   };
+  const visible_difficulty_rows = (): readonly string[] => {
+    const query = difficulty_filter().trim().toLowerCase();
+    if (!query) return difficulty_rows();
+    return difficulty_rows().filter((filename) =>
+      filename.toLowerCase().includes(query) || map_display_name(filename).toLowerCase().includes(query));
+  };
 
   const map_name = (): string => {
     const current = active();
     return current ? map_display_name(current.filename) : 'Ready when you are.';
+  };
+
+  const set_title = (): string => set_display_title(difficulty_rows(), active()?.filename ?? '');
+
+  const difficulty_count_text = (): string => {
+    const count = difficulty_rows().length;
+    return `${count} ${count === 1 ? 'difficulty' : 'difficulties'}`;
   };
 
   const selection_error_message = (): string => {
@@ -48,7 +85,7 @@ export const Select_Screen: Component = () => {
   };
 
   const choose_difficulty = (row_index: number) => {
-    const filename = difficulty_rows()[row_index];
+    const filename = visible_difficulty_rows()[row_index];
     if (filename !== undefined && filename !== active()?.filename) {
       void player_session()?.select_map(filename);
     }
@@ -57,6 +94,40 @@ export const Select_Screen: Component = () => {
   const start_play = () => {
     navigate('/play');
     void player_session()?.play();
+  };
+
+  const back_to_menu = () => {
+    navigate('/menu');
+  };
+
+  const drag_carries_files = (event: DragEvent): boolean =>
+    (event.dataTransfer?.types ?? []).includes('Files');
+
+  const handle_drag_over = (event: DragEvent) => {
+    if (selection_locked() || !drag_carries_files(event)) return;
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+    set_drop_active(true);
+  };
+
+  const handle_drag_leave = (event: DragEvent) => {
+    const left_element = event.currentTarget;
+    const next_target = event.relatedTarget;
+    if (left_element instanceof Node && next_target instanceof Node && left_element.contains(next_target)) {
+      return;
+    }
+    set_drop_active(false);
+  };
+
+  const handle_drop = (event: DragEvent) => {
+    if (!drag_carries_files(event)) return;
+    event.preventDefault();
+    set_drop_active(false);
+    if (selection_locked()) return;
+    const dropped_files = [...(event.dataTransfer?.files ?? [])];
+    if (dropped_files.length) {
+      void player_session()?.load_files(dropped_files);
+    }
   };
 
   // Match the vanilla player: once playback is possible, focus Play so the
@@ -68,19 +139,49 @@ export const Select_Screen: Component = () => {
   });
 
   return (
-    <main class="screen select-screen" aria-label="Beatmap preparation">
-      <section class="panel selection" aria-label="Beatmap selection">
-        <h2>Choose your beatmap</h2>
-        <p>Load an .osz archive, or select an .osu file together with its music.</p>
+    <main
+      class="screen select-screen"
+      classList={{ 'drop-target': drop_active() }}
+      data-drop-active={drop_active() ? 'true' : 'false'}
+      aria-label="Beatmap selection"
+      onDragOver={handle_drag_over}
+      onDragLeave={handle_drag_leave}
+      onDrop={handle_drop}
+    >
+      <header class="select-topbar" aria-label="Song select controls">
+        <button id="select-back" type="button" aria-label="Back to menu" onClick={back_to_menu}>
+          <span aria-hidden="true">←</span>
+        </button>
+        <h1 class="select-title">Song select</h1>
+        <input
+          id="difficulty-filter"
+          class="difficulty-filter"
+          type="search"
+          placeholder="Filter difficulties"
+          aria-label="Filter difficulties"
+          value={difficulty_filter()}
+          onInput={(event) => set_difficulty_filter(event.currentTarget.value)}
+        />
         <label class="file-control">
           Open local files
           <input id="files" type="file" multiple aria-label="Open local files" disabled={selection_locked()} onChange={open_files} />
         </label>
-        <Show when={difficulty_rows().length > 0}>
-          <h3 id="difficulty-label">Difficulty</h3>
+      </header>
+      <section class="select-carousel" aria-label="Beatmap set">
+        <Show
+          when={difficulty_rows().length > 0}
+          fallback={<p class="carousel-empty">Load an .osz archive, or drop files onto this screen. An .osu file belongs with its music.</p>}
+        >
+          <div class="set-panel">
+            <div class="set-panel-content">
+              <h2 class="set-title">{set_title()}</h2>
+              <p class="set-count">{difficulty_count_text()}</p>
+            </div>
+          </div>
+          <h3 id="difficulty-label" class="difficulty-heading">Difficulty</h3>
           <div class="difficulty-list" role="listbox" aria-labelledby="difficulty-label">
             <Virtual_List
-              rows={difficulty_rows()}
+              rows={visible_difficulty_rows()}
               row_height={44}
               list_name="difficulties"
               aria_label="Difficulty"
@@ -89,6 +190,9 @@ export const Select_Screen: Component = () => {
               on_activate={choose_difficulty}
             />
           </div>
+          <Show when={difficulty_filter().trim() !== '' && visible_difficulty_rows().length === 0}>
+            <p class="filter-empty">No difficulty matches this filter.</p>
+          </Show>
         </Show>
         <p id="status" role="status" aria-live="polite">
           {selection_status()}
@@ -97,53 +201,70 @@ export const Select_Screen: Component = () => {
           {selection_error_message()}
         </p>
       </section>
-      <section class="panel preview" aria-label="Beatmap overview">
-        <p class="eyebrow">BEATMAP OVERVIEW</p>
-        <h2 id="map-name">{map_name()}</h2>
-        <Show when={active()} keyed>
-          {(selection) => (
-            <>
-              <p id="map-detail">{selection.music_error || 'Music decoded. Prepared map and assets are ready.'}</p>
-              <dl id="stats">
-                <div>
-                  <dt>Objects</dt>
-                  <dd id="objects">{Number(selection.descriptor.summary.objects_count).toLocaleString()}</dd>
-                </div>
-                <div>
-                  <dt>Circle size</dt>
-                  <dd id="circle-size">{String(selection.descriptor.summary.cs)}</dd>
-                </div>
-                <div>
-                  <dt>Approach rate</dt>
-                  <dd id="approach-rate">{String(selection.descriptor.summary.ar)}</dd>
-                </div>
-              </dl>
-            </>
-          )}
-        </Show>
-        <Show when={!active()}>
-          <p id="map-detail">Your files stay in this browser.</p>
-        </Show>
-        <button id="start" type="button" disabled={!gameplay().can_play} onClick={start_play}>
-          Play
+      <section class="select-wedge" aria-label="Beatmap details">
+        <div class="wedge-shear-edge">
+          <p class="eyebrow">Beatmap details</p>
+        </div>
+        <div class="wedge-content">
+          <h2 id="map-name">{map_name()}</h2>
+          <Show when={active()} keyed>
+            {(selection) => (
+              <>
+                <p id="map-detail">{selection.music_error || 'Music decoded. Prepared map and assets are ready.'}</p>
+                <dl id="stats">
+                  <div>
+                    <dt>Objects</dt>
+                    <dd id="objects">{Number(selection.descriptor.summary.objects_count).toLocaleString()}</dd>
+                  </div>
+                  <div>
+                    <dt>Circle size</dt>
+                    <dd id="circle-size">{String(selection.descriptor.summary.cs)}</dd>
+                  </div>
+                  <div>
+                    <dt>Approach rate</dt>
+                    <dd id="approach-rate">{String(selection.descriptor.summary.ar)}</dd>
+                  </div>
+                  <div>
+                    <dt>Overall difficulty</dt>
+                    <dd id="overall-difficulty">{String(selection.descriptor.summary.od)}</dd>
+                  </div>
+                  <div>
+                    <dt>Health drain</dt>
+                    <dd id="health-drain">{String(selection.descriptor.summary.hp)}</dd>
+                  </div>
+                </dl>
+              </>
+            )}
+          </Show>
+          <Show when={!active()}>
+            <p id="map-detail">Your files stay in this browser.</p>
+          </Show>
+          <p id="play-gate" class="gate">
+            {gameplay().message}
+          </p>
+          <Show when={active()?.samples?.warnings.length} keyed>
+            {(warning_count) => (
+              <ul class="warnings">
+                <For each={active()!.samples!.warnings.slice(0, warning_count)}>{(warning) => <li>{warning}</li>}</For>
+              </ul>
+            )}
+          </Show>
+        </div>
+      </section>
+      <footer class="select-footer" aria-label="Song select actions">
+        <button id="footer-back" type="button" onClick={back_to_menu}>
+          <span>Back</span>
         </button>
-        <p id="play-gate" class="gate">
-          {gameplay().message}
-        </p>
-        <div class="debug-entry">
+        <p class="footer-shortcuts">Debug: Ctrl+F10 panel · Ctrl+F11 HUD during play (when the browser delivers them).</p>
+        <div class="select-footer-buttons">
+          <button id="start" type="button" disabled={!gameplay().can_play} onClick={start_play}>
+            <span>Play</span>
+          </button>
           <button id="debug-open" type="button" aria-expanded={debug_dialog_open()} onClick={open_debug_dialog}>
-            Debug
+            <span>Debug</span>
           </button>
         </div>
-        <p class="gate">Debug: Ctrl+F10 panel · Ctrl+F11 HUD during play (when the browser delivers them).</p>
-        <Show when={active()?.samples?.warnings.length} keyed>
-          {(warning_count) => (
-            <ul class="warnings">
-              <For each={active()!.samples!.warnings.slice(0, warning_count)}>{(warning) => <li>{warning}</li>}</For>
-            </ul>
-          )}
-        </Show>
-      </section>
+      </footer>
     </main>
   );
 };
