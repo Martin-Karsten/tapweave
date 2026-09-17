@@ -636,3 +636,33 @@ test('interrupted watch startup recovers and keeps the completed run re-watchabl
     assert.equal(player.controller.view.can_watch_replay, true);
   } finally { player.controller.dispose(); }
 });
+
+test('default session completes 65,000 audio-stamped cursor moves and watches the retained replay', async () => {
+  const map_text = `osu file format v14
+[Difficulty]
+HPDrainRate:0
+[HitObjects]
+256,192,550000,1,0`;
+  const { controller, context, window, frame, engine } = await fixture({ map_text });
+  try {
+    await controller.play();
+    assert.equal(controller.view.state, 'running');
+    const memory_bytes = engine.wasm.memory.buffer.byteLength;
+    for (let input_index = 0; input_index < 65_000; input_index++) {
+      const time_ms = input_index * 8;
+      context.currentTime = time_ms / 1000;
+      dispatch(window, 'pointermove', { pointerType: 'mouse', pointerId: 1, button: -1,
+        buttons: 0, clientX: 100 + input_index % 400, clientY: 240 });
+      if (input_index % 8 === 7) frame(time_ms);
+    }
+    frame(551000);
+    assert.equal(controller.view.state, 'terminal');
+    assert.equal(controller.view.error, null);
+    assert.equal(engine.wasm.memory.buffer.byteLength, memory_bytes);
+    const completed_result = controller.view.result;
+    await controller.watch_replay();
+    frame(1102000);
+    assert.equal(controller.view.state, 'terminal');
+    assert.deepEqual(controller.view.result, completed_result);
+  } finally { controller.dispose(); }
+});

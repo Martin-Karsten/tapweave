@@ -50,7 +50,14 @@ Quotas :: struct {
 	duration_ms: u64,
 }
 
-DEFAULT_QUOTAS :: Quotas{8 * 1024 * 1024, 250_000, 10_000, 50_000, 64 * 1024 * 1024, 24 * 60 * 60 * 1000}
+DEFAULT_QUOTAS :: Quotas{
+	raw_bytes = 8 * 1024 * 1024,
+	lines = 250_000,
+	objects = 10_000,
+	timing_points = 50_000,
+	arena_bytes = 128 * 1024 * 1024,
+	duration_ms = 24 * 60 * 60 * 1000,
+}
 CEILING_QUOTAS :: DEFAULT_QUOTAS
 valid_quotas :: proc(quotas: Quotas) -> bool {
 	return(

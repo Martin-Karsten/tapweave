@@ -38,7 +38,7 @@ oe_buffer_reserve(engine, INPUT, byte_count, &span);
 oe_session_inputs_from_reserved(..., span.token, record_count, ...);
 ```
 
-Tokens prevent arbitrary pointer submission. Output overflow never truncates silently: return `OUTPUT_REQUIRED` with required bytes; the caller reserves and retries the idempotent snapshot/read. `advance` retains undrained outputs in the pre-reserved session journal (sized at creation for the entire bounded journal) until acknowledged by batch token.
+Tokens prevent arbitrary pointer submission. Output overflow never truncates silently: return `OUTPUT_REQUIRED` with required bytes; the caller reserves and retries the idempotent snapshot/read. `advance` retains undrained outputs in pre-reserved storage until acknowledged by batch token. Gameplay journals cover the complete attempt; the voice journal reuses acknowledged slots and preflights pending work as specified below.
 
 ## Core records
 
@@ -300,8 +300,8 @@ included in that snapshot. Repeated snapshots keep pending events until ack.
 Tokens are nonzero, scoped to the session, and invalidated by reset/new snapshots; a replacement publication carries the still-unacknowledged events forward rather than dropping them, and the reader re-reads under the new token.
 Acknowledging the same current token twice is safe. Final results are available
 only after pass/failure, remain immutable, and include a SHA-256 over the prepared
-identity followed by canonical kind-21 judgement bytes. Output buffers are sized
-at creation for the entire bounded journal, so there is no mid-transition loss.
+identity followed by canonical kind-21 judgement bytes. Gameplay output buffers cover the entire bounded result journal. Voice storage
+covers bounded pending work, with transactional admission before transitions.
 
 Copy an array of exact 64-byte kind-23 records into the reserved inbox, then call
 `oe_session_inputs_from_reserved(engine, session, token, record_count, error)`.
@@ -558,10 +558,10 @@ quota and `command_capacity` a u32 count; flags must be 1 (authoritative
 journal); reserved must be zero. Any other flag value returns `UNSUPPORTED`.
 Zero count queries kind 43 (32 bytes), containing requested/required counts,
 required arena bytes and session epoch. The required count includes
-input/pause capacity, maximum concurrent loop samples and scheduled
-transitions; its byte count also includes journal, loop state and indexed
+pending input headroom (at most 8,192 visits by default), maximum concurrent
+loop samples and scheduled transitions; its byte count also includes journal, loop state and indexed
 deadlines. Reserve requires READY and a capacity at or above the session's
-bound. Draw and voice storage jointly count
+pending-work bound. Draw and voice storage jointly count
 against the engine's session arena quota. Candidate failure preserves prior
 storage. Counts above 1,000,000 and non-WASM32 byte sizes return typed quota errors.
 
@@ -572,6 +572,17 @@ authoritative journal; reserved is zero. Commands carry their emit-time epoch,
 so a frame after pause/resume legitimately mixes epochs. Insufficient capacity
 returns OUTPUT_REQUIRED and kind 43 without overwriting the
 previous voice frame. No gameplay advancement, allocation or memory growth occurs.
+
+Acknowledged command slots are reusable. Sequence and voice IDs remain absolute
+u64 identities until reset; physical ring indices are never exposed. Advance
+checks the queued prefix due by its target, map transition allowance and free
+slots before any mutation. Pause and resume also preflight, and replay seek
+checks its reconstructed prefix before reset. Insufficient headroom returns
+`QUOTA_EXCEEDED`, preserving gameplay, input queues, recordings, voices and the
+current output token. The host may acknowledge and retry, or use smaller advance
+targets without changing input timestamps. The default reserve does not promise
+an arbitrary whole-replay advance or seek in one call. Larger explicit reserves
+remain possible in READY. See [ADR-004](adr-004-audio.md).
 
 Kind 45 (`voice_command`, 112 bytes) contains:
 
@@ -604,7 +615,7 @@ judgements, and gameplay acknowledgement consumes judgements, not unheard audio.
 watermark, admitting a complete suffix before acknowledgement. Admission rejection
 retains pending output; an acknowledgement retry cannot enqueue it twice.
 
-Ordinary pause preserves queued and scheduled future one-shots under the creation-time bound (pause frames and journal capacity are reserved at creation; at most `live_input_capacity + 2` pauses before `QUOTA_EXCEEDED`) and lets already-started one-shots finish. Loop voices are retired with resume-pending state at pause and reconstructed from the resumed journal; the browser cancels loop nodes and rebuilds them there (see ADR-004 W05). Resume requires a fresh
+Ordinary pause preserves queued and scheduled future one-shots under the creation-time bound (pause recording frames are reserved at creation; at most `live_input_capacity + 2` pauses, with additional transactional pending-voice headroom checks) and lets already-started one-shots finish. Loop voices are retired with resume-pending state at pause and reconstructed from the resumed journal; the browser cancels loop nodes and rebuilds them there (see ADR-004 W05). Resume requires a fresh
 clock mapping for the resumed session epoch and restores retained nominal times
 once. Reset/replacement/failure cancel instead. W05 supplies loop cancellation
 and authoritative reconstruction; W07 now integrates these services into the

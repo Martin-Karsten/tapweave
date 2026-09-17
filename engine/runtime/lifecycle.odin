@@ -37,14 +37,15 @@ Map_Resource :: struct {
 // per-stream counts that acknowledgement settles.
 Session_Outputs :: struct {
 	token: u64,
-	judgement_count, audio_count, voice_count: int,
+	judgement_count, audio_count: int,
+	voice_count: u64,
 }
 
 outputs_exhausted :: proc(outputs: ^Session_Outputs) -> bool {
 	return outputs.token == max(u64)
 }
 
-outputs_publish :: proc(outputs: ^Session_Outputs, judgement_count, audio_count, voice_count: int) -> core_types.Status {
+outputs_publish :: proc(outputs: ^Session_Outputs, judgement_count, audio_count: int, voice_count: u64) -> core_types.Status {
 	if outputs_exhausted(outputs) {
 		return .QUOTA_EXCEEDED
 	}

@@ -378,6 +378,18 @@ oe_session_replay_seek :: proc "c" (engine, session_handle: core_types.Handle, t
 	if simulation_state.epoch == max(u32) || session.outputs.token == max(u64) {
 		return abi_status(.QUOTA_EXCEEDED)
 	}
+	// Seek reconstructs from READY. Reject oversized undrained work before reset
+	// so the old gameplay, replay and output publication survive admission failure.
+	due_frame_count: u64
+	for frame in simulation_state.replay_frames {
+		if frame.effective_time_ms > time_ms {
+			break
+		}
+		due_frame_count += 1
+	}
+	if !simulation.voice_has_headroom(simulation_state, simulation.voice_work_capacity(simulation_state, due_frame_count), true) {
+		return abi_status(.QUOTA_EXCEEDED)
+	}
 	// The immutable READY simulation_state is the initial checkpoint. Reset reconstructs
 	// its queues in reserved storage, then resimulates; it never reverses rules.
 	frame_count := simulation_state.recording_count

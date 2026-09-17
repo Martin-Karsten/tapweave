@@ -1,5 +1,5 @@
 import { Engine_Bridge } from '@browser/engine-bridge.js';
-import type { Engine_Diagnostic } from '@browser/abi-records.js';
+import { WASM_PAGE_BYTES, type Engine_Diagnostic } from '@browser/abi-records.js';
 
 export interface Engine_Boot_Result {
   engine: Engine_Bridge;
@@ -50,5 +50,5 @@ export const capabilities_view = (engine: Engine_Bridge): Engine_Capabilities_Vi
   output_flags: engine.output_capabilities.flags,
   transport_flags: engine.transport_capabilities.flags,
   voice_command_mask: engine.transport_capabilities.voice_command_mask,
-  wasm_pages: engine.wasm.memory.buffer.byteLength / 65536,
+  wasm_pages: engine.wasm.memory.buffer.byteLength / WASM_PAGE_BYTES,
 });

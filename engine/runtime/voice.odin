@@ -20,7 +20,7 @@ voice_required_bytes :: proc(command_count: u64) -> (u64, core_types.Status) {
 }
 
 // The authoritative voice journal is the only producer: reserve must happen
-// at READY with at least the session's upper command bound, and one-shot,
+// at READY with at least the session's pending-work command bound, and one-shot,
 // loop and ramp commands all carry their emit-time epoch.
 voice_reserve :: proc(instance: ^Instance, engine, session_handle: core_types.Handle, command_count: u64, arena_bytes: u64) -> core_types.Status {
 	session, status := session_get(instance, engine, session_handle)
@@ -153,7 +153,7 @@ oe_session_voice_output :: proc "c" (engine, session_handle: core_types.Handle, 
 		return abi_status(.INVALID_STATE)
 	}
 	simulation_state := &session.simulation
-	command_count := simulation_state.voices.count - simulation_state.voices.acknowledged
+	command_count := int(simulation_state.voices.count - simulation_state.voices.acknowledged)
 	if command_count > int(session.voice_storage.capacity) {
 		write_voice_capacity(session, session.voice_storage.capacity, u32(command_count))
 		return abi_status(.OUTPUT_REQUIRED)
@@ -164,7 +164,7 @@ oe_session_voice_output :: proc "c" (engine, session_handle: core_types.Handle, 
 	bytes := session.voice_storage.arena.bytes
 	for command_index := 0; command_index < command_count; command_index += 1 {
 		write_voice_command(bytes[ABI_VOICE_FRAME_SIZE + command_index * ABI_VOICE_COMMAND_SIZE:],
-			simulation_state.voices.commands[simulation_state.voices.acknowledged + command_index])
+			simulation_state.voices.commands[(simulation_state.voices.acknowledged + u64(command_index)) % u64(len(simulation_state.voices.commands))])
 	}
 	// A voice-only read never consumes unseen gameplay judgement records.
 	outputs_publish(&session.outputs, simulation_state.acknowledged_count, simulation_state.audio_count, simulation_state.voices.count)

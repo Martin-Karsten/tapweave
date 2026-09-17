@@ -55,3 +55,18 @@ Node sample lists are scanned once per object/pass. Scratch uses the same checke
 aligned count/fill reservations as map storage, and every reservation is checked.
 Work units are deterministic resource accounting, not a wall-clock deadline;
 preparation and asset work still belong outside real-time gameplay callbacks.
+
+## Live-input capacity policy
+
+The default and ceiling `arena_bytes` quota is 128 MiB; the WASM linker ceiling
+remains 256 MiB. This quota is applied independently to combined map resources
+and to each session's mutable/scene/draw/voice reserves, not to an aggregate of
+all engine allocations. It must not be described as a single shared engine-wide
+arena or used to infer remaining map headroom from session size.
+
+The browser's default gameplay session reserves 40 MiB and accepts 65,536 lifetime
+live input records. The frame driver's 8,192-record pending browser queue remains
+separate. Voice storage follows ADR-004's reusable pending journal. Rejected
+creation and output-reserve candidates retain existing ownership; larger defaults
+are limits and explicit session reserves, not a 128 MiB eager engine allocation.
+See [capacity evidence and limitations](../compatibility/live-input-capacity.md).

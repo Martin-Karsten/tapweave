@@ -8,7 +8,7 @@ import type { Audio_Clock } from './clock.js';
 import { Gameplay_Frame } from './gameplay-frame.js';
 import { Gameplay_Input } from './gameplay-input.js';
 import { Renderer } from './renderer.js';
-import { SESSION_STATE, ALL_VOICE_COMMAND_FAMILIES } from './abi-records.js';
+import { SESSION_STATE, ALL_VOICE_COMMAND_FAMILIES, SESSION_INPUT_CAPACITY, INPUT_STAGING_RECORDS, WASM_PAGE_BYTES } from './abi-records.js';
 import { Browser_Error, require_condition } from './errors.js';
 import type { Diagnostics_Service } from './diagnostics.js';
 
@@ -148,7 +148,7 @@ export class Gameplay_Controller {
   private publish() {
     this.diagnostics?.update_resources({ map_handles: this.engine.map_handles.size,
       session_handles: this.engine.session_handles.size,
-      wasm_pages: this.engine.wasm.memory.buffer.byteLength / 65536,
+      wasm_pages: this.engine.wasm.memory.buffer.byteLength / WASM_PAGE_BYTES,
       input_queue_depth: this.frame?.input.records.length ?? 0,
       audio_pending: this.playback?.audio.pending.length ?? 0,
       audio_voices: this.playback?.audio.voices.size ?? 0,
@@ -225,7 +225,7 @@ export class Gameplay_Controller {
     const simulation = this.engine.simulation_capabilities;
     const output = this.engine.output_capabilities;
     require_condition(simulation.simulation_version === 1 && simulation.rules_version === 2 &&
-      simulation.flags === 1 && simulation.max_inputs >= 8192 &&
+      simulation.flags === 1 && simulation.max_inputs >= SESSION_INPUT_CAPACITY &&
       output.compact_version === 1 && output.flags === 0 && output.reserved === 0 &&
       this.engine.transport_capabilities.voice_command_mask === ALL_VOICE_COMMAND_FAMILIES,
     'UNSUPPORTED', 'Complete gameplay, scene and audio protocols are required.');
@@ -246,7 +246,7 @@ export class Gameplay_Controller {
       // Diagnostic UI refresh rides the existing frame driver; no scheduler is
       // added and the callback itself never touches gameplay state.
       this.options.on_frame?.();
-    }, 8192, this.options.request_frame, this.options.cancel_frame,
+    }, INPUT_STAGING_RECORDS, this.options.request_frame, this.options.cancel_frame,
       { diagnostics: this.diagnostics,
         frame_metrics: () => ({ instances: this.renderer?.gpu.metrics.instances ?? 0,
           batches: this.renderer?.gpu.metrics.commands ?? 0, gpu_ms: this.renderer?.gpu.metrics.gpu_ms ?? null }) });

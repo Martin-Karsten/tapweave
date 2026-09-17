@@ -931,3 +931,24 @@ provisioned from the public Chrome-for-Testing 153.0.8010.12 bucket into the
 Playwright cache as a workaround. The cross-browser matrix remains to be
 re-run when the CDN is reachable, as previously recorded for the WebKit
 gate interruption.
+
+## Live-input capacity
+
+The browser's default session now reserves 40 MiB and admits 65,536 lifetime
+input records. The default/ceiling arena quota is 128 MiB; the WASM ceiling is
+unchanged at 256 MiB. Map resources and combined per-session reserves have
+separate quota checks, not one global engine-wide arena.
+
+Voice storage is now an acknowledged ring with absolute u64 identities. Its
+pending-input headroom is independent of lifetime input capacity. Advance,
+pause/resume and replay seek reject insufficient headroom before mutating state;
+large undrained advances or seeks can still return `QUOTA_EXCEEDED`. Ordinary
+frame-by-frame playback reclaims acknowledged commands. This replaces the
+complete-lifetime voice-storage guarantee, with unchanged ABI record layouts.
+
+The [capacity investigation](compatibility/live-input-capacity.md) records the
+user-reported 8,193rd-input incident, corrected capacity model, pinned upstream
+search and local regressions. A 65,000-move controller run reaches terminal and
+watches its retained replay; native and WASM long-slider runs exercise 50,000
+held-action tracking changes and ring wraparound. No upstream acceptance row or
+release-browser certification is closed by these local resource checks.

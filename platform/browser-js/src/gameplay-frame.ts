@@ -1,6 +1,6 @@
 import type { Audio_Playback } from './audio-playback.js';
 import type { Gameplay_Output } from './engine-bridge.js';
-import { record_size, RECORD, SESSION_STATE, type Input_Snapshot_Values } from './abi-records.js';
+import { record_size, RECORD, SESSION_STATE, INPUT_STAGING_RECORDS, WASM_PAGE_BYTES, type Input_Snapshot_Values } from './abi-records.js';
 import { Input_Buffer } from './input.js';
 import { Browser_Error, require_condition } from './errors.js';
 import type { Diagnostics_Service } from './diagnostics.js';
@@ -38,7 +38,7 @@ export class Gameplay_Frame {
 
   constructor(readonly playback: Audio_Playback,
     readonly render: (time_ms: number, output: Gameplay_Output) => void,
-    maximum_records = 8192,
+    maximum_records = INPUT_STAGING_RECORDS,
     readonly request_frame: (callback: FrameRequestCallback) => number = callback => requestAnimationFrame(callback),
     readonly cancel_frame: (request_id: number) => void = request_id => cancelAnimationFrame(request_id),
     options: Gameplay_Frame_Options = {}) {
@@ -138,7 +138,7 @@ export class Gameplay_Frame {
           input_queue_depth: queue_depth_before_drain,
           audio_pending: this.playback.audio.pending.length,
           audio_voices: this.playback.audio.voices.size,
-          wasm_pages: this.playback.engine.wasm.memory.buffer.byteLength / 65536,
+          wasm_pages: this.playback.engine.wasm.memory.buffer.byteLength / WASM_PAGE_BYTES,
           instances: gpu_metrics?.instances, batches: gpu_metrics?.batches, gpu_ms: gpu_metrics?.gpu_ms ?? null });
       }
       if (this.terminal) this.on_terminal?.();

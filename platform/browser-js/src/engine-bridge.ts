@@ -6,15 +6,18 @@ import { read_record, record_size,
   type Draw_Output_Header, type Engine_Capabilities_Record, type Engine_Diagnostic, type Gameplay_Output_Header,
   type Input_Snapshot_Values, type Odin_Exports, type Output_Capabilities_Record,
   type Prepared_Descriptor_Record, type Preparation_Capabilities_Record, type Record_Kind, type Record_Values,
-  type Render_Capacity_Record, type Result_Count_Record, type Sample_Binding_Values, type Sample_Probe_Record,
+  type Result_Count_Record, type Sample_Binding_Values, type Sample_Probe_Record,
   type Simulation_Capabilities_Record, type Scene_Frame_Header, type Typed_Record,
   type Transport_Capabilities_Record, type Viewport_Values, type Voice_Capacity_Record,
   type Presentation_Output_Header, RECORD, ENGINE_STATUS, PREPARED_OBJECT_KIND, PREPARED_COMPONENT_KIND,
-  SAMPLE_FLAG_LOOP, VOICE_COMMAND_FAMILY_BIT, ALL_VOICE_COMMAND_FAMILIES } from './abi-records.js';
+  SAMPLE_FLAG_LOOP, VOICE_COMMAND_FAMILY_BIT, ALL_VOICE_COMMAND_FAMILIES,
+  SESSION_INPUT_CAPACITY, SESSION_ARENA_BYTES } from './abi-records.js';
 import { Browser_Error, require_condition } from './errors.js';
 import type { Diagnostics_Service } from './diagnostics.js';
 
 const MAILBOX = schema.transport.mailbox;
+// WebCrypto scatters at most 64 KiB per getRandomValues call.
+const CRYPTO_RANDOM_CHUNK_BYTES = 65_536;
 const BYTE_SPAN = schema.transport.byte_span;
 const RECORD_HEADER = schema.transport.record_header;
 const VIEWPORT_RECORD = schema.records.find(record => record.kind === RECORD.viewport)!;
@@ -93,8 +96,8 @@ export class Engine_Bridge {
       },
       rand_bytes(address: number, byte_count: number) {
         const bytes = new Uint8Array(wasm_memory.buffer, address, byte_count);
-        for (let byte_offset = 0; byte_offset < bytes.length; byte_offset += 65536) {
-          crypto.getRandomValues(bytes.subarray(byte_offset, byte_offset + 65536));
+        for (let byte_offset = 0; byte_offset < bytes.length; byte_offset += CRYPTO_RANDOM_CHUNK_BYTES) {
+          crypto.getRandomValues(bytes.subarray(byte_offset, byte_offset + CRYPTO_RANDOM_CHUNK_BYTES));
         }
       },
     } }) as unknown as { instance: WebAssembly.Instance };
@@ -240,8 +243,8 @@ export class Engine_Bridge {
     return this.input_span;
   }
 
-  create_session(map_handle: bigint, { arena_bytes = 16n * 1024n * 1024n, lead_in_ms = 0,
-    input_capacity = 8192, batch_capacity = 256 }: Session_Create_Options = {}) {
+  create_session(map_handle: bigint, { arena_bytes = SESSION_ARENA_BYTES, lead_in_ms = 0,
+    input_capacity = SESSION_INPUT_CAPACITY, batch_capacity = 256 }: Session_Create_Options = {}) {
     require_condition(Number.isSafeInteger(batch_capacity) && batch_capacity > 0 && batch_capacity <= input_capacity,
       'INVALID_ARGUMENT', 'Invalid input batch capacity.');
     this.reserve_input(batch_capacity * record_size(RECORD.input_snapshot));

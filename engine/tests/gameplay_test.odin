@@ -555,3 +555,86 @@ authoritative_slider_voice_journal_is_reserved_and_deterministic :: proc(test: ^
 		testing.expect_value(test, voice.voice_id, 0)
 	}
 }
+
+// Resource admission is local policy, not an upstream gameplay assertion.
+@(test)
+voice_ring_reuses_acknowledged_slots_and_preflights_without_mutation :: proc(test: ^testing.T) {
+	commands: [4]audio_protocol.Command
+	inputs: [2]core_types.Input_Snapshot
+	prepared_map: prepared.Map
+	session := simulation.Session{prepared_map = &prepared_map, epoch = 1,
+		voices = {commands = commands[:]}, inputs = {storage = inputs[:]},
+		maximum_voice_overlap = 1}
+	context.allocator = mem.panic_allocator()
+	for command_index in 0 ..< 12 {
+		if command_index > 0 && command_index % 4 == 0 {
+			session.voices.acknowledged = session.voices.count
+		}
+		simulation.emit_voice(&session, {command_kind = .LOOP_START,
+			time_ms = f64(command_index), asset_id = 7, rate = 1, volume = 1, late_policy = .IMMEDIATE})
+		testing.expect_value(test, commands[command_index % 4].sequence, u64(command_index + 1))
+		testing.expect_value(test, commands[command_index % 4].voice_id, u64(command_index + 1))
+	}
+	testing.expect_value(test, session.voices.count, 12)
+	testing.expect(test, !simulation.voice_has_headroom(&session, 1))
+	inputs[0] = input_frame(1, 10, 256, 192, 1)
+	session.inputs.count = 1
+	testing.expect_value(test, simulation.advance_session(&session, 10), core_types.Status.QUOTA_EXCEEDED)
+	testing.expect_value(test, simulation.pause_session(&session, 10), core_types.Status.QUOTA_EXCEEDED)
+	testing.expect_value(test, session.state, simulation.Session_Status.READY)
+	testing.expect_value(test, session.inputs.count, 1)
+	testing.expect_value(test, session.committed_ms, 0)
+	testing.expect_value(test, session.recording_count, 0)
+	testing.expect_value(test, session.epoch, 1)
+	session.state = .PAUSED
+	testing.expect_value(test, simulation.resume_session(&session, 0), core_types.Status.QUOTA_EXCEEDED)
+	testing.expect_value(test, session.state, simulation.Session_Status.PAUSED)
+	testing.expect_value(test, session.epoch, 1)
+	session.voices.acknowledged = session.voices.count
+	testing.expect(test, simulation.voice_advance_headroom(&session, 10))
+	session.voices.count = max(u64)
+	session.voices.acknowledged = max(u64)
+	testing.expect(test, !simulation.voice_has_headroom(&session, 1))
+}
+
+@(test)
+long_slider_reclaims_voice_commands_while_retaining_live_recording :: proc(test: ^testing.T) {
+	map_text :: "osu file format v14\n[Difficulty]\nHPDrainRate:0\nSliderMultiplier:1.4\n[TimingPoints]\n0,500,4,1,1,100,1,0\n[HitObjects]\n256,192,1000,2,0,L|396:192,1100,140"
+	instance, _ := engine_runtime.instance_create()
+	defer engine_runtime.instance_destroy(&instance)
+	engine, _ := engine_runtime.engine_create(&instance)
+	defer engine_runtime.engine_release(&instance, engine)
+	map_handle, preparation_error := engine_runtime.map_prepare(&instance, engine, map_text, true)
+	testing.expect_value(test, preparation_error.status, core_types.Status.OK)
+	// Mirrors the browser production session profile (abi-records.ts).
+	session_arena_bytes: u64 = 40 * 1024 * 1024
+	session_input_capacity: u64 = 65_536
+	session_handle, created := engine_runtime.session_create(&instance, engine, map_handle, session_arena_bytes, 0, true, session_input_capacity)
+	testing.expect_value(test, created, core_types.Status.OK)
+	session, _ := engine_runtime.session_get(&instance, engine, session_handle)
+	capacity := simulation.voice_command_capacity(&session.simulation)
+	required_bytes, _ := engine_runtime.voice_storage_bytes(session, capacity)
+	testing.expect_value(test, engine_runtime.voice_reserve(&instance, engine, session_handle, capacity, required_bytes), core_types.Status.OK)
+	context.allocator = mem.panic_allocator()
+	last_sequence: u64
+	for input_index in 0 ..< 50_000 {
+		time_ms := f64(1000 + input_index * 10)
+		progress := f64((input_index * 10) % 1000) / 500
+		position := 256 + (1 - abs(progress - 1)) * 140
+		input := input_frame(u64(input_index + 1), time_ms, position, input_index % 2 == 0 ? 192 : 1000, 1)
+		testing.expect_value(test, simulation.submit_inputs(&session.simulation, mem.slice_ptr(&input, 1)), core_types.Status.OK)
+		testing.expect_value(test, simulation.advance_session(&session.simulation, time_ms), core_types.Status.OK)
+		for command_sequence := session.simulation.voices.acknowledged; command_sequence < session.simulation.voices.count; command_sequence += 1 {
+			command := session.simulation.voices.commands[command_sequence % capacity]
+			last_sequence += 1
+			testing.expect_value(test, command.sequence, last_sequence)
+			testing.expect(test, audio_protocol.valid_command(command))
+		}
+		session.simulation.voices.acknowledged = session.simulation.voices.count
+	}
+	testing.expect(test, last_sequence > capacity)
+	testing.expect_value(test, session.simulation.submitted_input_count, 50_000)
+	testing.expect_value(test, simulation.advance_session(&session.simulation, 552000), core_types.Status.OK)
+	// The deliberately missed final repeats end this resource fixture in failure.
+	testing.expect_value(test, session.simulation.state, simulation.Session_Status.FAILED)
+}

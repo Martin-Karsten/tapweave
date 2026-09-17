@@ -1,4 +1,5 @@
 import { all_finite, require_condition } from './errors.js';
+import { INPUT_STAGING_RECORDS } from './abi-records.js';
 
 export const ACTION = Object.freeze({ LEFT: 1, RIGHT: 2 });
 
@@ -41,7 +42,7 @@ export class Input_Buffer {
   x = 256;
   y = 192;
 
-  constructor(maximum_records = 8192) {
+  constructor(maximum_records = INPUT_STAGING_RECORDS) {
     require_condition(Number.isSafeInteger(maximum_records) && maximum_records > 0,
       'INVALID_ARGUMENT', 'Invalid input queue capacity.');
     this.maximum_records = maximum_records;

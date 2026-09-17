@@ -66,6 +66,22 @@ export const RECORD = Object.freeze({
 // This transport branches on OK and OUTPUT_REQUIRED only; every other status is an error.
 export const ENGINE_STATUS = Object.freeze({ OK: 0, OUTPUT_REQUIRED: 8 } as const);
 
+// Production session profile: live input storage sized for display-rate
+// cursor movement on full-length maps (one record per pointermove, ~60-120/s,
+// so 65,536 records cover roughly 9-13 minutes), with the arena covering the
+// derived engine storage (input/recording/replay arrays plus the voice
+// reserve). The engine mirrors the interactive bound as
+// INTERACTIVE_INPUT_CAPACITY in engine/simulation/voices.odin.
+export const SESSION_INPUT_CAPACITY = 65_536;
+export const SESSION_ARENA_BYTES = 40n * 1024n * 1024n;
+
+// Per-drain staging bound shared by the frame driver and the input buffer;
+// one RAF interval accumulates at most a few move/key records.
+export const INPUT_STAGING_RECORDS = 8192;
+
+// WebAssembly linear-memory page granularity (64 KiB), used by diagnostics.
+export const WASM_PAGE_BYTES = 65_536;
+
 // Decoder fault codes carried by the kind-7 error record, mirroring
 // Error_Code in engine/core_types/types.odin (explicitly numbered from zero).
 export const DECODE_ERROR_CODE = Object.freeze({ NONE: 0, HEADER: 1, FORMAT_VERSION: 2, UTF8: 3, NUMBER: 4,

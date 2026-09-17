@@ -87,10 +87,10 @@ within an epoch. Asset zero is diagnostic silence. Stops must execute even late.
 
 Odin emits transitions from semantic input/judgement/tracking events, never RAF.
 The H11 observations must determine rapid-toggle/ramp replacement semantics and
-late one-shot policy before those are advertised. Reserve maximum journals and
-voices at session creation with checked arithmetic; a failed admission cannot
-partially change gameplay or lose pending sound. Do not assume a bounded number
-of loop toggles from object count: account for accepted input capacity.
+late one-shot policy before those are advertised. Reserve bounded pending journals and voices at session creation with checked
+arithmetic; a failed admission cannot partially change gameplay or lose pending
+sound. Do not assume a bounded number of loop toggles from object count: account
+for every input due in an advance, including cursor-only records.
 
 The browser must copy/admit a complete unacknowledged batch transactionally, save
 its session/epoch/sequence watermark, then acknowledge. An acknowledgement retry
@@ -154,14 +154,40 @@ acknowledgement cannot erase unread voice commands; voice acknowledgement cannot
 erase unread judgements. Voice IDs are never reused within a journal, including
 across pause/resume. Reset clears both journals and changes the engine epoch.
 
-Reserve counts the complete journal before enabling it. A creation-time sweep
-measures maximum concurrent auxiliary samples; the input-derived bound uses that
-maximum, accepted input/pause capacity and each object's scheduled transitions.
-It does not multiply every input by the total map object count. All arithmetic
-is checked; the one-million-command and shared arena limits reject oversized
-configurations before publication. The runtime owns journal/state/deadline/output
-storage; simulation only borrows it. Replacement while an authoritative session
-is paused is rejected, preserving retained commands and live ramp state.
+Reserve counts a reusable pending-command journal before enabling it. A
+creation-time sweep measures maximum concurrent auxiliary samples and caches the
+map's scheduled-transition bound. The input term is four commands per concurrent
+loop per pending input, with default headroom capped at 8,192 input visits,
+independent of the lifetime live-input/recording quota. Small sessions retain the
+smaller previous input/pause bound. This is a work reserve, not an assumption
+that only 8,192 lifetime inputs can affect audio: all due inputs are charged,
+including aim-only moves and movement while holding an action.
+
+The journal is a ring indexed by absolute u64 sequence. Acknowledgement releases
+only the published prefix. Pending commands and emit-time epochs survive slot
+reuse; command and voice identities never repeat before reset. The runtime's
+serialized output storage is separate, so ring reuse cannot overwrite a borrowed
+voice frame. Existing record layouts, reserve calls and acknowledgement tokens
+are unchanged.
+
+Before advance, simulation binary-searches the time-ordered input queue and
+checks a conservative command bound against free slots and sequence headroom.
+The bound includes all map scheduled transitions, minus already emitted
+one-shots, plus four commands per concurrent loop per due input. Pause adds an
+input-sized allowance; resume checks its loop restart/ramp allowance separately.
+Replay seek checks the empty-journal bound for its replay prefix before reset.
+Failure returns `QUOTA_EXCEEDED` before gameplay, queues, epochs, recordings,
+voices or output publications change. No hot-path allocation or voice stealing
+is permitted. This intentionally replaces the complete-lifetime voice guarantee:
+a large undrained advance/seek may reject; hosts can acknowledge pending output
+and/or advance to smaller target times without retimestamping inputs. A full
+8,192-input burst plus pause can also exceed the default pending reserve.
+
+All arithmetic is checked; the one-million-command and per-session combined
+arena limits reject oversized configurations before publication. The runtime owns
+journal/state/deadline/output storage; simulation only borrows it. Replacement
+while an authoritative session is paused remains rejected. The regression and
+pinned-source search are recorded in [live input capacity](../compatibility/live-input-capacity.md).
 
 Slider slide/whistle samples use auxiliary sample ordinals and component identity
 `0xfffffffe`. Tail copies in the auxiliary list are excluded. Odin emits starts,

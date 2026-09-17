@@ -470,6 +470,14 @@ voice_budget_tracks_overlap_instead_of_total_map_length :: proc(test: ^testing.T
 	simulation.measure_voice_overlap(&session)
 	testing.expect_value(test, session.maximum_voice_overlap, 1)
 	sparse_capacity := simulation.voice_command_capacity(&session)
+	// Lifetime live-input growth stops affecting the pending command reserve.
+	session.live_input_capacity = 65_536
+	streaming_capacity := simulation.voice_command_capacity(&session)
+	session.live_input_capacity = 131_072
+	testing.expect_value(test, simulation.voice_command_capacity(&session), streaming_capacity)
+	testing.expect_value(test, streaming_capacity, session.voice_transition_capacity +
+		simulation.COMMANDS_PER_INPUT_VISIT * simulation.INTERACTIVE_INPUT_CAPACITY)
+
 	for &object in objects {
 		object.time_ms = 0
 		object.end_time_ms = 100

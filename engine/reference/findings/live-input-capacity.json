@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "classification": "local-resource-policy-with-pinned-source-search",
+  "acceptance": [
+    "A20",
+    "A21",
+    "A23",
+    "A24",
+    "H11"
+  ],
+  "acceptance_complete": false,
+  "upstream_executed": false,
+  "equivalent_upstream_test": "No equivalent pending command ring or lifetime input quota test in inspected sample/channel suites; audio lifetime and modulation tests are distinct behavior.",
+  "incident": {
+    "classification": "user-reported-not-independently-reproduced",
+    "rejected_input_sequence": 8193,
+    "status": "QUOTA_EXCEEDED",
+    "approximate_elapsed_seconds": 90
+  },
+  "source_files": [
+    {
+      "repository": "ppy/osu",
+      "path": "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableSlider.cs",
+      "sha256": "db6ad93d92109c7cf77f5c2e56cecb22411a0bf393559f9b01ad546f5ddeab76"
+    },
+    {
+      "repository": "ppy/osu",
+      "path": "osu.Game.Rulesets.Osu/Objects/Drawables/DrawableSpinner.cs",
+      "sha256": "18e577e71a9cb47871c24d480e259c2eb3f9e9545ea7ab1baf9102b4657bdf32"
+    },
+    {
+      "repository": "ppy/osu",
+      "path": "osu.Game.Rulesets.Osu.Tests/TestSceneOsuHitObjectSamples.cs",
+      "sha256": "d7ce2d62d24b5b27c6c1ca6a9f89fdc629166c38f7c761f81cd9e50fd8f801ac"
+    },
+    {
+      "repository": "ppy/osu",
+      "path": "osu.Game.Rulesets.Osu.Tests/TestSceneSpinner.cs",
+      "sha256": "9f2665437b85e01ca1e9a3fdde65b139237b4187c3a861729bdfe14df78cd574"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework/Audio/Sample/ISampleChannel.cs",
+      "sha256": "82ecf283ed030d41660043d5560a6f7f214dc1f67c409c45fc83f79e846df568"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework/Audio/Sample/ISampleStore.cs",
+      "sha256": "0f6b9e840295f5766370aac0b9080f5b7d893612e86d4d9342309f8360a9d2cc"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework/Audio/Sample/Sample.cs",
+      "sha256": "7b9b39a916f67c15b35a44eaaaa9b84fe1cbccb530f1e9acef77cca570b23a9c"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework/Audio/Sample/SampleBass.cs",
+      "sha256": "11aa922edfe2793c1270129e34dbf99c4617a005bbe573b252f0f61dac23c906"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework/Audio/Sample/SampleBassFactory.cs",
+      "sha256": "e859c6e6e08a46c9acc7d591c475d09b82f6b6e448ad1feac608b3a14c4c25da"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework/Audio/Sample/SampleChannel.cs",
+      "sha256": "07bc840f9d678d23e23fe0c2ba87a349570eb195a352f88354ce2597346c0412"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework/Audio/Sample/SampleChannelBass.cs",
+      "sha256": "00da6060cfe4fb6a1194c39945ec6854ecfc7dec7935de851779318c850c2fe4"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework/Audio/Sample/SampleChannelVirtual.cs",
+      "sha256": "0ed5723d5c8a6401c010ffd2d2b8080d1a9a7b10250a840190faf8c7fb1b2b0c"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework/Audio/Sample/SampleStore.cs",
+      "sha256": "ed94cd82ee541ea25a09c4c1752e4af30f54440a7d9c31a8a7f9bb8d7ea87373"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework.Tests/Audio/SampleBassInitTest.cs",
+      "sha256": "1c95ebd2890537a7c620bb39b243f3285a8bbd2bc365a4b5767dd443d9e921c8"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework.Tests/Audio/SampleBassTest.cs",
+      "sha256": "175c692aba54f404a70bc73f525cf929ba467987a76eabd379c79c4c5c7dee0f"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework.Tests/Audio/SampleChannelVirtualTest.cs",
+      "sha256": "82a5d483995d4b86825cebe2c2fb4d06cfef109b911933bdcf7de2d983f0aa15"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework.Tests/Visual/Audio/TestSceneAudioManager.cs",
+      "sha256": "e7490391726e5b4e4bf91d56caf6dc77a5f12cf5b34ae3acf5f135a212876bc7"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework.Tests/Visual/Audio/TestSceneAudioMixer.cs",
+      "sha256": "44112c8e6990f37cee399d92e4d9e857654fb19bdcd4b9c735aa39ff75a558b9"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework.Tests/Visual/Audio/TestSceneSampleAmplitudes.cs",
+      "sha256": "699d9859f3168af8fc7ad67930abf64e3d04b597aa24711c49eb352d2288942f"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework.Tests/Visual/Audio/TestSceneSampleChannels.cs",
+      "sha256": "dd549b4cc48b9be5f353e05ea7d4703dcea021048c03fb77ae4f107923e25ce7"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework.Tests/Visual/Audio/TestSceneSampleLooping.cs",
+      "sha256": "e389a24a78cdd4a524f9fe6eed377aa7808bc40e515c4e3f56f9bf52b3ecb99b"
+    },
+    {
+      "repository": "ppy/osu-framework",
+      "path": "osu.Framework.Tests/Visual/Audio/TestSceneSamples.cs",
+      "sha256": "1d669dfdeaa7c318da9643622db644ad4d54c34cb432dd4b453c16d9a66cbad9"
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "long-slider-50000-tracking-inputs",
+      "map_sha256": "73bf8355d2e47d1aacb65a1834754a1f3eb875b687d63fc6806d62c7890c9d4d",
+      "local_tests": [
+        "engine/tests/gameplay_test.odin::long_slider_reclaims_voice_commands_while_retaining_live_recording",
+        "platform/browser-js/tests/voice.test.mjs::voice ring wraps across sustained tracking changes without lost commands or WASM growth",
+        "platform/browser-js/tests/voice.test.mjs::oversized advance and replay seek preserve state and output tokens before retry"
+      ]
+    },
+    {
+      "id": "controller-65000-pointer-moves",
+      "map_sha256": "b1aae79a15cb2c452aaa83aa2f48b1af9eb75689a5da2ce3e6aae471d95d4c51",
+      "local_tests": [
+        "platform/browser-js/tests/gameplay-controller.test.mjs::default session completes 65,000 audio-stamped cursor moves and watches the retained replay"
+      ]
+    }
+  ],
+  "allocation_observations": [
+    {
+      "input_capacity": 8192,
+      "session_arena_bytes": "41943040",
+      "voice": {
+        "requested_commands": 0,
+        "required_commands": 42717,
+        "required_bytes": "9332744",
+        "epoch": 1,
+        "flags": 0
+      },
+      "wasm_memory_bytes": 55312384
+    },
+    {
+      "input_capacity": 65536,
+      "session_arena_bytes": "41943040",
+      "voice": {
+        "requested_commands": 0,
+        "required_commands": 42717,
+        "required_bytes": "9332744",
+        "epoch": 1,
+        "flags": 0
+      },
+      "wasm_memory_bytes": 55312384
+    },
+    {
+      "input_capacity": 131072,
+      "session_arena_bytes": "83886080",
+      "voice": {
+        "requested_commands": 0,
+        "required_commands": 42717,
+        "required_bytes": "9332744",
+        "epoch": 1,
+        "flags": 0
+      },
+      "wasm_memory_bytes": 97255424
+    }
+  ],
+  "limitations": [
+    "No original incident beatmap/capture supplied",
+    "No fresh upstream executable audio comparison",
+    "Large undrained advance/seek can reject transactionally",
+    "No universal ranked-map/marathon coverage claim",
+    "Allocation observations exclude browser media/GPU and scene/draw storage"
+  ]
+}

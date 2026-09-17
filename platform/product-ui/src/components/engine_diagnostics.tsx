@@ -1,5 +1,6 @@
 import { createResource, createSignal, For, Show, type Component } from 'solid-js';
 import { boot_engine, capabilities_view, type Engine_Capabilities_View } from '../services/engine_boot';
+import { WASM_PAGE_BYTES } from '@browser/abi-records.js';
 
 export const Engine_Diagnostics_Panel: Component = () => {
   const [boot, { refetch }] = createResource(boot_engine);
@@ -55,7 +56,7 @@ export const Engine_Diagnostics_Panel: Component = () => {
               onClick={() => {
                 const result = boot();
                 if (result) {
-                  set_memory_pages(result.engine.wasm.memory.buffer.byteLength / 65536);
+                  set_memory_pages(result.engine.wasm.memory.buffer.byteLength / WASM_PAGE_BYTES);
                 }
               }}
             >

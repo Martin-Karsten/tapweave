@@ -72,7 +72,7 @@ Session :: struct {
 	audio: []audio_protocol.Event,
 	audio_count, acknowledged_audio_count: int,
 	voices: Voice_Journal,
-	maximum_voice_overlap: u64,
+	maximum_voice_overlap, voice_transition_capacity: u64,
 	state: Session_Status,
 	committed_ms, lead_in_ms, health_time_ms, drain_start_ms, drain_end_ms, drain_rate: f64,
 	live_input_capacity, submitted_input_count, pause_count, completed_objects: int,
@@ -795,6 +795,9 @@ advance_session :: proc(session: ^Session, target_ms: f64) -> core_types.Status 
 	if terminal(session) {
 		return .OK
 	}
+	if !voice_advance_headroom(session, target_ms) {
+		return .QUOTA_EXCEEDED
+	}
 	session.state = .RUNNING
 	for !terminal(session) {
 		event, has_event := peek(&session.events)
@@ -854,6 +857,9 @@ pause_session :: proc(session: ^Session, time_ms: f64) -> core_types.Status {
 	if session.epoch == max(u32) || session.pause_count >= session.live_input_capacity + 2 {
 		return .QUOTA_EXCEEDED
 	}
+	if core_types.finite(time_ms) && time_ms >= session.committed_ms && !voice_advance_headroom(session, time_ms, true) {
+		return .QUOTA_EXCEEDED
+	}
 	status := advance_session(session, time_ms)
 	if status != .OK || terminal(session) {
 		return status
@@ -876,6 +882,9 @@ resume_session :: proc(session: ^Session, beatmap_ms: f64) -> core_types.Status 
 		return .INVALID_STATE
 	}
 	if session.epoch == max(u32) {
+		return .QUOTA_EXCEEDED
+	}
+	if !voice_has_headroom(session, 4 * session.maximum_voice_overlap) {
 		return .QUOTA_EXCEEDED
 	}
 	session.state = .RUNNING

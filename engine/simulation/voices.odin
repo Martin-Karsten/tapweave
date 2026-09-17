@@ -25,22 +25,44 @@ Voice_Journal :: struct {
 	commands: []audio_protocol.Command,
 	states: []Voice_State,
 	deadlines: Candidate_Index,
-	count, acknowledged: int,
+	count, acknowledged: u64,
 }
 
 loop_sample :: proc(sample: prepared.Sample) -> bool {
 	return prepared.is_loop_sample(sample.name)
 }
 
-// Input cost scales with maximum simultaneous loops, not total map length.
-// Four commands cover a motion/tracking update and its decay deadline. The
-// per-object term covers scheduled judgements, start/end and terminal cleanup.
+// Pending work is bounded independently of lifetime input/recording capacity.
+// Every accepted advance is preflighted; acknowledgement reuses ring slots.
+INTERACTIVE_INPUT_CAPACITY :: 8192
+
+// Each input visit to a live loop voice costs a motion/tracking update plus
+// its decay deadline and ordering/cleanup slots.
+COMMANDS_PER_INPUT_VISIT :: 4
+
 voice_command_capacity :: proc(session: ^Session) -> u64 {
-	input_visits, fits := core_types.checked_product(session.maximum_voice_overlap, u64(len(session.inputs.storage) + session.live_input_capacity + 4))
+	input_headroom := min(u64(len(session.inputs.storage)) + u64(session.live_input_capacity) + 4, INTERACTIVE_INPUT_CAPACITY)
+	return voice_work_capacity(session, input_headroom)
+}
+
+// Input visits cost COMMANDS_PER_INPUT_VISIT each; the cached map term
+// covers all scheduled judgements, loop deadlines and cleanup.
+voice_work_capacity :: proc(session: ^Session, input_count: u64) -> u64 {
+	input_visits, fits := core_types.checked_product(session.maximum_voice_overlap, input_count)
 	if !fits {
 		return max(u64)
 	}
-	visits := input_visits
+	input_commands, product_fits := core_types.checked_product(input_visits, COMMANDS_PER_INPUT_VISIT)
+	if !product_fits {
+		return max(u64)
+	}
+	command_count, count_fits := core_types.checked_add(session.voice_transition_capacity, input_commands)
+	return count_fits ? command_count : max(u64)
+}
+
+// Creation-only calculation. Do not walk map objects in the advance preflight.
+measure_voice_transitions :: proc(session: ^Session) -> u64 {
+	visits: u64
 	for object in session.prepared_map.objects {
 		loop_count: u64
 		for sample in object.auxiliary_samples {
@@ -52,17 +74,51 @@ voice_command_capacity :: proc(session: ^Session) -> u64 {
 		if !product_fits {
 			return max(u64)
 		}
+		fits: bool
 		visits, fits = core_types.checked_add(visits, object_visits)
 		if !fits {
 			return max(u64)
 		}
 	}
-	loop_commands, product_fits := core_types.checked_product(visits, 4)
+	loop_commands, product_fits := core_types.checked_product(visits, COMMANDS_PER_INPUT_VISIT)
 	if !product_fits {
 		return max(u64)
 	}
 	command_count, count_fits := core_types.checked_add(sample_count(session.prepared_map), loop_commands)
 	return count_fits ? command_count : max(u64)
+}
+
+voice_has_headroom :: proc(session: ^Session, required: u64, empty := false) -> bool {
+	if len(session.voices.commands) == 0 {
+		return true
+	}
+	pending := empty ? u64(0) : session.voices.count - session.voices.acknowledged
+	return required <= u64(len(session.voices.commands)) - pending &&
+		(empty || required <= max(u64) - session.voices.count)
+}
+
+// Inputs are time ordered, even across the ring boundary. Count due records
+// with a binary search so ordinary frames do not scan a queued replay suffix.
+voice_advance_headroom :: proc(session: ^Session, target_ms: f64, pause := false) -> bool {
+	if len(session.voices.commands) == 0 {
+		return true
+	}
+	lower_index, upper_index := 0, session.inputs.count
+	for lower_index < upper_index {
+		middle_index := lower_index + (upper_index - lower_index) / 2
+		input := session.inputs.storage[(session.inputs.read_index + middle_index) % len(session.inputs.storage)]
+		if input.effective_time_ms <= target_ms {
+			lower_index = middle_index + 1
+		} else {
+			upper_index = middle_index
+		}
+	}
+	required := voice_work_capacity(session, u64(lower_index) + (pause ? 1 : 0))
+	if required == max(u64) {
+		return false
+	}
+	// One-shots already emitted cannot recur within this attempt.
+	return voice_has_headroom(session, required - u64(session.audio_count))
 }
 
 Voice_End :: struct {
@@ -77,6 +133,7 @@ measure_voice_overlap :: proc(session: ^Session) {
 	end_count := 0
 	active_count: u64
 	session.maximum_voice_overlap = 0
+	session.voice_transition_capacity = measure_voice_transitions(session)
 	for object in session.prepared_map.objects {
 		for end_count > 0 && storage[0].time_ms <= object.time_ms {
 			active_count -= storage[0].loop_count
@@ -141,7 +198,7 @@ emit_voice :: proc(session: ^Session, command: audio_protocol.Command) {
 	if len(session.voices.commands) == 0 {
 		return
 	}
-	assert(session.voices.count < len(session.voices.commands))
+	assert(session.voices.count - session.voices.acknowledged < u64(len(session.voices.commands)))
 	command := command
 	command.sequence = u64(session.voices.count + 1)
 	command.epoch = session.epoch
@@ -149,7 +206,7 @@ emit_voice :: proc(session: ^Session, command: audio_protocol.Command) {
 		command.voice_id = command.sequence
 	}
 	assert(audio_protocol.valid_command(command))
-	session.voices.commands[session.voices.count] = command
+	session.voices.commands[session.voices.count % u64(len(session.voices.commands))] = command
 	session.voices.count += 1
 }
 

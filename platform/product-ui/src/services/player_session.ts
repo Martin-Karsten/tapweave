@@ -6,7 +6,7 @@ import { Selection_Controller, type Active_Selection } from '@browser/selection.
 import { Gameplay_Controller, type Gameplay_View } from '@browser/gameplay-controller.js';
 import { create_fallback_audio } from '@browser/fallback-audio.js';
 import type { Browser_Error } from '@browser/errors.js';
-import type { Engine_Diagnostic, Prepared_Descriptor_Record } from '@browser/abi-records.js';
+import { WASM_PAGE_BYTES, type Engine_Diagnostic, type Prepared_Descriptor_Record } from '@browser/abi-records.js';
 import { Debug_Session_Service } from './debug_session.js';
 
 const MAXIMUM_ENGINE_MESSAGES = 64;
@@ -239,7 +239,7 @@ export class Player_Session_Service {
     const selection_error = this.selection.error;
     record.error = selection_error ? { code: selection_error.code, message: selection_error.message,
       details: selection_error.details } : null;
-    record.wasm_pages = this.engine.wasm.memory.buffer.byteLength / 65536;
+    record.wasm_pages = this.engine.wasm.memory.buffer.byteLength / WASM_PAGE_BYTES;
     const view = this.gameplay.view;
     record.gameplay = view.can_play || view.in_attempt;
     record.lifecycle = { state: view.state, message: view.message, recovery: view.recovery,

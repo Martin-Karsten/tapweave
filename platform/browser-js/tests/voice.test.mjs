@@ -6,6 +6,7 @@ import { Audio_Clock } from '../build/clock.js';
 import { Audio_Service } from '../build/audio.js';
 import { create_engine, two_circle_map as map, voice_session } from './helpers.mjs';
 import { schema, writeRecord } from '../../../engine/abi/records.mjs';
+import { SESSION_INPUT_CAPACITY } from '../build/abi-records.js';
 
 test('voice acknowledgement leaves unread judgements pending', async () => {
   const engine = await create_engine();
@@ -105,4 +106,79 @@ test('voice reader validates every command family, reserved bytes, masks, spans 
   writeRecord(new DataView(malformed.buffer), 0, 44, { ...output.summary, commands_offset: 0 });
   assert.throws(() => output.bind(malformed), /voice frame/);
   assert.equal(output.valid, false);
+});
+
+const long_slider_map = new TextEncoder().encode(`osu file format v14
+[Difficulty]
+HPDrainRate:0
+SliderMultiplier:1.4
+[TimingPoints]
+0,500,4,1,1,100,1,0
+[HitObjects]
+256,192,1000,2,0,L|396:192,1100,140`);
+
+test('voice ring wraps across sustained tracking changes without lost commands or WASM growth', async () => {
+  const engine = await create_engine();
+  try {
+    const session = await voice_session(engine, long_slider_map, { input_capacity: SESSION_INPUT_CAPACITY, batch_capacity: 1 });
+    const capacity = engine.voice_reserve(session);
+    const output = new Gameplay_Output();
+    const voice = new Voice_Output();
+    const memory_bytes = engine.wasm.memory.buffer.byteLength;
+    let last_sequence = 0n;
+    for (let input_index = 0; input_index < 50_000; input_index++) {
+      const time_ms = 1000 + input_index * 10;
+      engine.submit_inputs(session, [{ sequence: BigInt(input_index + 1), raw_time_ms: time_ms,
+        effective_time_ms: time_ms, x: 256 + (1 - Math.abs((input_index * 10 / 500) % 2 - 1)) * 140,
+        y: input_index % 2 ? 1000 : 192, action_bits: 1 }]);
+      engine.advance_output(session, time_ms, output);
+      engine.voice_output(session, voice);
+      for (let command_index = 0; command_index < voice.summary.commands_count; command_index++) {
+        const command = voice.record_into(command_index, {});
+        assert.equal(command.sequence, ++last_sequence);
+        assert.ok(command.voice_id <= command.sequence);
+      }
+      engine.acknowledge(session, voice.summary.batch_token);
+      // An acknowledgement retry must not move the ring's release watermark.
+      if (input_index % 1000 === 0) engine.acknowledge(session, voice.summary.batch_token);
+    }
+    assert.ok(last_sequence > BigInt(capacity.required_commands));
+    engine.advance_output(session, 552000, output);
+    // The deliberately missed final repeats fail gameplay at the slider end.
+    assert.equal(output.summary.state, 4);
+    assert.equal(engine.wasm.memory.buffer.byteLength, memory_bytes);
+  } finally { engine.dispose(); }
+});
+
+test('oversized advance and replay seek preserve state and output tokens before retry', async () => {
+  const engine = await create_engine();
+  try {
+    const session = await voice_session(engine, long_slider_map, { input_capacity: SESSION_INPUT_CAPACITY, batch_capacity: 9000 });
+    const inputs = Array.from({ length: 9000 }, (_, input_index) => ({ sequence: BigInt(input_index + 1),
+      raw_time_ms: 1000 + input_index, effective_time_ms: 1000 + input_index, x: 256, y: 192, action_bits: 1 }));
+    engine.submit_inputs(session, inputs);
+    const before = engine.voice_output(session, new Voice_Output());
+    const token = before.summary.batch_token;
+    const memory_bytes = engine.wasm.memory.buffer.byteLength;
+    assert.throws(() => engine.advance_output(session, 10000, new Gameplay_Output()), /status 4/);
+    engine.acknowledge(session, token);
+    assert.equal(engine.snapshot(session, 0).summary.committed_ms, 0);
+    // The rejected advance retained every input. Smaller audio-clock intervals
+    // can commit the same queued records without restamping or resubmitting.
+    const output = new Gameplay_Output();
+    for (const time_ms of [5000, 10000, 552000]) {
+      engine.advance_output(session, time_ms, output);
+      engine.acknowledge(session, engine.voice_output(session, new Voice_Output()).summary.batch_token);
+    }
+    // The deliberately missed final repeats fail gameplay at the slider end.
+    assert.equal(output.summary.state, 4);
+    const recording = engine.export_replay(session).slice();
+    engine.reset_session(session, 0);
+    engine.load_replay(session, recording);
+    const replay_token = engine.voice_output(session, new Voice_Output()).summary.batch_token;
+    assert.throws(() => engine.seek_replay(session, 10000), /status 4/);
+    engine.acknowledge(session, replay_token);
+    assert.equal(engine.snapshot(session, 0).summary.committed_ms, 0);
+    assert.equal(engine.wasm.memory.buffer.byteLength, memory_bytes);
+  } finally { engine.dispose(); }
 });
