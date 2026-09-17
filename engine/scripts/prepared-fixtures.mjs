@@ -37,6 +37,9 @@ export function preparedFixtures(){
  }
  const sharedData=result.find(fixture=>fixture.id==='shared-map-data').text;
  const nodeObjects=result.find(fixture=>fixture.id==='node-samples').text.split('[HitObjects]\n')[1];
- result.push({id:'abi-record-fields',text:sharedData+'\n'+nodeObjects});
+ // Distinct [Metadata] values so the ABI-level check verifies every kind-54
+ // string span against the reference trace.
+ const metadataSection='[Metadata]\nTitle: ABI Record Fields\nArtist: Test Artist\nCreator: Test Creator\nVersion: Field Coverage\n';
+ result.push({id:'abi-record-fields',text:sharedData.replace('osu file format v14\n','osu file format v14\n'+metadataSection)+'\n'+nodeObjects});
  return result;
 }

@@ -5,7 +5,7 @@ import { zipSync, strToU8 } from 'fflate';
 // the product shell: selection, difficulty switching, typed errors,
 // diagnostics export and browser-executed engine round-trip.
 
-const beatmap = 'osu file format v14\n[General]\nAudioFilename: missing.wav\n[Difficulty]\nCircleSize:4\nApproachRate:9\n[HitObjects]\n256,192,1000,1,0';
+const beatmap = 'osu file format v14\n[General]\nAudioFilename: missing.wav\n[Metadata]\nTitle:Local Circuit\n[Difficulty]\nCircleSize:4\nApproachRate:9\n[HitObjects]\n256,192,1000,1,0';
 
 test('loads real engine, prepares local map and preserves it after failure', async ({ page }) => {
   const page_errors = [];
@@ -19,7 +19,7 @@ test('loads real engine, prepares local map and preserves it after failure', asy
   await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeDisabled();
   await page.getByLabel('Open local files', { exact: true }).setInputFiles({ name: 'bad.osu', mimeType: 'text/plain', buffer: Buffer.from('invalid') });
   await expect(page.getByRole('alert')).toContainText('status 5');
-  await expect(page.locator('#map-name')).toHaveText('local');
+  await expect(page.locator('#map-name')).toHaveText('Local Circuit');
   await expect(page.locator('#objects')).toHaveText('1');
   expect(page_errors).toEqual([]);
 });

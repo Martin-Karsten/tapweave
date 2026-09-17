@@ -158,6 +158,7 @@ The complete layout is generated from
 | 15 | Break start/end times |
 | 16 | Resolved control-point values and source ID |
 | 17 | Playback settings and owned audio filename |
+| 54 | Decoder-owned song-select metadata: title, artist, creator and difficulty version strings |
 
 Every record begins with the v2 `{type, version, byte_size}` header. Every embedded
 span is `{offset:u32,count:u32,stride:u32}` relative to the start of the returned
@@ -209,6 +210,22 @@ record. Old readers can skip the appended fields using `byte_size`; new readers
 require the extended descriptor and preparation capability version 2. Fields in
 kind 9, including `combo_offset`, keep their original offsets. Odin writers use
 generated field-offset constants from the same schema as C and TypeScript.
+
+A second append exposes decoder-owned song-select metadata: kind 8 grows from
+248 to 264 bytes with `metadata_offset`/`metadata_count`/`metadata_stride`
+(u32 at 248/252/256) and a named zero `reserved_260` tail so the record stays
+an eight-byte multiple; existing offsets are unchanged. The span addresses
+exactly one `prepared_metadata` record, kind 54/version 1/size 56, whose four
+`{offset,count,stride}` string triples mirror the kind-17 `audio_filename`
+pattern: `title` (8/12/16), `artist` (20/24/28), `creator` (32/36/40) and
+`version` (44/48/52). The values are the decoder's `[Metadata]` strings,
+including its pinned lazer defaults (`Unknown`/`Unknown`/`Unknown Creator`/
+`Normal`), which are ordinary values and display as-is as in lazer's own
+song select; an empty string is the only absent signal, and readers may
+fall back to filenames for it. Readers of the extended descriptor must
+accept the grown `byte_size`; readers that only consume the older fields can
+keep skipping appended bytes. The append is display data only: identity and
+replay behavior are unchanged because prepared identity hashes raw text.
 
 Descriptions remain owned by the map/session references. A final external map
 release invalidates the handle while existing sessions retain the backing data.

@@ -59,6 +59,7 @@ export const RECORD = Object.freeze({
   scene_batch: 51,
   sample_probe: 52,
   resume_policy: 53,
+  prepared_metadata: 54,
 } as const);
 
 // EngineStatus values returned by oe_* exports (docs/architecture/interface-v2.md).
@@ -108,6 +109,10 @@ export const RECORD_FIELD_TYPES = {
   50: [["primitive", "number"], ["layer", "number"], ["object_id", "number"], ["component_id", "number"], ["ordinal", "number"], ["flags", "number"], ["x", "number"], ["y", "number"], ["scale_x", "number"], ["scale_y", "number"], ["rotation", "number"], ["alpha", "number"], ["progress", "number"], ["colour", "number"], ["glyph", "number"], ["geometry_first", "number"], ["geometry_count", "number"], ["reserved", "bigint"], ["clip_start", "number"], ["clip_end", "number"]],
   51: [["layer", "number"], ["primitive", "number"], ["first_instance", "number"], ["instance_count", "number"], ["reserved", "bigint"]],
   52: [["probe_version", "number"], ["extension_count", "number"], ["extensions_offset", "number"], ["extensions_stride", "number"], ["flags", "number"], ["reserved", "number"], ["total_bytes", "bigint"]],
+  54: [["title_offset", "number"], ["title_count", "number"], ["title_stride", "number"],
+    ["artist_offset", "number"], ["artist_count", "number"], ["artist_stride", "number"],
+    ["creator_offset", "number"], ["creator_count", "number"], ["creator_stride", "number"],
+    ["version_offset", "number"], ["version_count", "number"], ["version_stride", "number"]],
 
   4: [['abi_major', 'number'], ['abi_minor', 'number'], ['foundation', 'number'], ['gameplay', 'number'],
     ['legacy_max', 'number'], ['lazer_version', 'number'], ['raw_bytes', 'bigint'], ['arena_bytes', 'bigint'],
@@ -124,7 +129,9 @@ export const RECORD_FIELD_TYPES = {
     ['difficulty_points_stride', 'number'], ['sample_points_offset', 'number'], ['sample_points_count', 'number'],
     ['sample_points_stride', 'number'], ['effect_points_offset', 'number'], ['effect_points_count', 'number'],
     ['effect_points_stride', 'number'], ['playback_offset', 'number'], ['playback_count', 'number'],
-    ['playback_stride', 'number'], ['format_version', 'number'], ['reserved_244', 'number']],
+    ['playback_stride', 'number'], ['format_version', 'number'], ['reserved_244', 'number'],
+    ['metadata_offset', 'number'], ['metadata_count', 'number'], ['metadata_stride', 'number'],
+    ['reserved_260', 'number']],
   14: [['preparation_version', 'number'], ['behavior_id', 'number'], ['numeric_mode', 'number'], ['reserved', 'number']],
   23: [['sequence', 'bigint'], ['raw_time_ms', 'number'], ['effective_time_ms', 'number'], ['x', 'number'],
     ['y', 'number'], ['action_bits', 'number'], ['source_focus', 'number'], ['flags', 'number'], ['reserved', 'number']],
@@ -207,6 +214,7 @@ export type Voice_Command_Record = Typed_Record<45>;
 export type Scene_Frame_Header = Typed_Record<47>;
 export type Scene_Frame_Header_Values = Partial<Scene_Frame_Header>;
 export type Sample_Probe_Record = Typed_Record<52>;
+export type Prepared_Metadata_Record = Typed_Record<54>;
 
 const RECORDS = new Map(schema.records.map(record => [record.kind, record]));
 

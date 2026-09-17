@@ -1,0 +1,48 @@
+{
+ "schema_version": 1,
+ "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+ "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+ "feature": "decoder-owned song-select metadata (prepared kind-8 append + kind 54)",
+ "upstream_search": {
+  "scope": [
+   "osu.Game/Beatmaps/Beatmap.cs (vendored, pinned commit): constructor defaults Artist/Title \"Unknown\", Author.Username \"Unknown Creator\", DifficultyName \"Normal\"",
+   "osu.Game/Beatmaps/Formats/LegacyBeatmapDecoder.cs (vendored, pinned commit): handleMetadata extracts Title/TitleUnicode/Artist/ArtistUnicode/Creator/Version/Tags/Source",
+   "osu.Game.Tests decoder test projects: NOT vendored in source-manifest.json and not executable locally (dotnet unavailable), so no upstream test port was executed for this increment"
+  ],
+  "prior_evidence": "M0 findings (m0.json) H01/H02 pinned-decoder observations already cover defaults/metadata/difficulty field extraction at the decode level; the upstream projection fields selected there include metadata values. This increment adds retention, ABI transport and display of those already-verified values; no new decoding behavior.",
+  "display_side": "lazer SongSelect/BeatmapTitleWedge display code is not vendored and has no upstream executable equivalent here; recorded as local product chrome under ADR-007, outside compatibility claims."
+ },
+ "local_mappings": [
+  {
+   "path": "engine/tests/preparation_test.odin",
+   "tests": [
+    "descriptor_metadata_round_trips_decoder_values",
+    "descriptor_metadata_defaults_for_stripped_maps_and_quota_transaction"
+   ],
+   "asserts": "decode -> prepare -> describe returns the four [Metadata] strings; stripped maps produce pinned lazer decoder defaults; sub-quota describe fails transactionally"
+  },
+  {
+   "path": "engine/scripts/prepared-abi-test.mjs",
+   "asserts": "WASM kind-8 metadata span addresses one kind-54 record whose four string spans equal the reference trace values; reserved_244/reserved_260 stay zero"
+  },
+  {
+   "path": "platform/browser-js/tests/engine.test.mjs",
+   "test": "descriptor exposes decoder-owned metadata strings",
+   "asserts": "prepare_map and describe_map return the expected strings; descriptor copies outlive map release; stripped maps expose decoder defaults"
+  },
+  {
+   "path": "platform/product-ui/tests/browser/select.spec.mjs",
+   "test": "the wedge shows decoder-owned metadata and falls back to filenames",
+   "asserts": "title/artist/creator/difficulty surface from descriptor metadata; stripped maps fall back to filename-derived strings with metadata lines absent"
+  }
+ ],
+ "acceptance": [],
+ "acceptance_note": "No new upstream acceptance scenario is closed by this increment; preparation acceptance remains the existing A08-A11 corpus. m1.json is preserved untouched as the historical record of the last pinned upstream execution, whose traces predate the metadata append; rerunning H03/H04 against the metadata-extended traces is pending a dotnet-capable environment, after which test-prepared --upstream regenerates the whole report.",
+ "presentation_policy": "The bridge reports the decoder's strings verbatim. Display policy lives in the shell: explicitly empty fields fall back to filename-derived strings, while the decoder's pinned lazer defaults are ordinary values and display as-is (lazer's own song select shows the same defaults).",
+ "oracle": "pinned-source-evidence-and-local-consistency",
+ "commands": [
+  "npm --prefix engine test",
+  "npm --prefix platform/browser-js run typecheck && npm --prefix platform/browser-js test && npm --prefix platform/browser-js run build",
+  "npm --prefix platform/product-ui run typecheck && npm --prefix platform/product-ui run test:gates"
+ ]
+}

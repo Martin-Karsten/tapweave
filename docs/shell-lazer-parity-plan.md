@@ -1,7 +1,9 @@
 # Shell lazer-parity plan (MVP round)
 
-Status: phase A implemented (replay watch from results + save download);
-phases B and C planned, not started. This document scopes the next product-shell
+Status: phases A and C implemented — A (replay watch from results + save
+download) and C (decoder-owned song select metadata; see the song-select
+decoder metadata section in `docs/status.md`); phase B planned, not started.
+This document scopes the next product-shell
 increment: three missing osu!lazer behaviors that the engine or browser
 platform already supports (or can expose with a narrow ABI append), written as
 implementable phases with steps. It complements `docs/mvp-player-experience.md`

@@ -88,9 +88,12 @@ export function testPreparedABI(wasm){
   if(field==='audio_filename')assert.equal(string(playback,field),value);
   else assert.equal(typeof value==='boolean'?!!playback[field]:playback[field],value,field);
  }
+ const metadataRecords=records(descriptor,'metadata',54);assert.equal(metadataRecords.length,1);
+ for(const [field,value] of Object.entries(reference.metadata))assert.equal(string(metadataRecords[0],field),value,field);
  for(const field of ['hp','cs','od','ar','slider_multiplier','tick_rate'])assert.equal(descriptor[field],reference.difficulty[field],field);
  assert.equal(descriptor.stack_leniency,reference.stack_leniency);
  assert.equal(descriptor.reserved_244,0);
+ assert.equal(descriptor.reserved_260,0);
  const schedule=records(descriptor,'schedule',13);assert.equal(schedule.length,reference.schedule.length);
  schedule.forEach((entry,index)=>{for(const key of ['time_ms','object_index','component_index'])assert.equal(entry[key],reference.schedule[index][key])});
  assert.throws(()=>readRecord(new DataView(wasm.memory.buffer,address,8),0,8));

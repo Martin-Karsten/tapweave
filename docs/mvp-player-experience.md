@@ -89,6 +89,19 @@ in-play tutorial overlays.
 
 ### Metadata
 
+Status: the ABI exposure and display core are implemented. Decoder-owned
+title, artist, creator and difficulty name travel through the prepared
+descriptor's kind-54 `prepared_metadata` record (kind-8 append documented in
+[interface-v2](architecture/interface-v2.md)); no independent JS metadata
+parsing exists. The generated layouts, validated UTF-8 relative spans,
+map-owned transactional output and browser-owned string copies are in place,
+and song select shows title/artist/creator/difficulty with filename fallback
+for explicitly empty fields, while the decoder's pinned lazer defaults
+display as ordinary values (as in lazer's own song select). Prepared identity and replay behavior are
+unchanged. Remaining from the original item: playable-duration display and
+the per-stat explanations in the wedge, and metadata caching across
+difficulty switches beyond the current active-difficulty read.
+
 Expose decoder-owned title, artist, creator and difficulty name through a narrow
 versioned read-only ABI query. Do not parse .osu metadata independently in JS.
 Use generated layouts and validated UTF-8 relative spans, map-owned bounded

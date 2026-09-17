@@ -281,3 +281,116 @@ descriptor_sample_flags_mark_upstream_loop_names :: proc(test: ^testing.T) {
 		testing.expect_value(test, flag, expected_flag)
 	}
 }
+
+read_description_u32 :: proc(description: []byte, field_offset: u64) -> u32 {
+	first_byte := int(field_offset)
+	return u32(description[first_byte]) | u32(description[first_byte + 1]) << 8 |
+		u32(description[first_byte + 2]) << 16 | u32(description[first_byte + 3]) << 24
+}
+
+read_description_string :: proc(description: []byte, record_offset, field_offset: u64) -> string {
+	text_offset := int(read_description_u32(description, record_offset + field_offset))
+	text_count := int(read_description_u32(description, record_offset + field_offset + 4))
+	return string(description[text_offset:text_offset + text_count])
+}
+
+@(test)
+descriptor_metadata_round_trips_decoder_values :: proc(test: ^testing.T) {
+	text :: "osu file format v14\n[General]\nAudioFilename: music.wav\n[Metadata]\nTitle:Song Select Parity\nArtist:Test Artist\nCreator:Test Creator\nVersion:Field Coverage\n[TimingPoints]\n0,500,4,1,2,70,1,0\n[HitObjects]\n256,192,1000,1,0\n"
+	decoded_map, decode_error := beatmap_decode.decode(text)
+	testing.expect_value(test, decode_error.status, core_types.Status.OK)
+	defer beatmap_decode.destroy(&decoded_map)
+	control_points, control_status := osu_prepare.resolve(&decoded_map)
+	testing.expect_value(test, control_status, core_types.Status.OK)
+	defer osu_prepare.destroy(&control_points)
+	prepared_map, prepare_error := osu_prepare.prepare_map(&decoded_map, &control_points)
+	testing.expect_value(test, prepare_error.status, core_types.Status.OK)
+	defer prepared.destroy_map(&prepared_map)
+	if prepare_error.status != .OK {
+		return
+	}
+	testing.expect_value(test, prepared_map.metadata.title, "Song Select Parity")
+	testing.expect_value(test, prepared_map.metadata.artist, "Test Artist")
+	testing.expect_value(test, prepared_map.metadata.creator, "Test Creator")
+	testing.expect_value(test, prepared_map.metadata.version, "Field Coverage")
+	testing.expect_value(
+		test,
+		prepared.describe(&prepared_map, core_types.DEFAULT_QUOTAS.arena_bytes),
+		core_types.Status.OK,
+	)
+	description := prepared_map.description.bytes
+	metadata_offset := u64(read_description_u32(description, prepared.ABI_PREPARED_DESCRIPTOR_METADATA_OFFSET_OFFSET))
+	metadata_count := read_description_u32(description, prepared.ABI_PREPARED_DESCRIPTOR_METADATA_COUNT_OFFSET)
+	metadata_stride := read_description_u32(description, prepared.ABI_PREPARED_DESCRIPTOR_METADATA_STRIDE_OFFSET)
+	testing.expect_value(test, metadata_count, u32(1))
+	testing.expect_value(test, metadata_stride, u32(prepared.ABI_PREPARED_METADATA_SIZE))
+	testing.expect_value(test, u32(description[metadata_offset]), u32(prepared.ABI_PREPARED_METADATA_KIND))
+	testing.expect_value(
+		test,
+		read_description_string(description, metadata_offset, prepared.ABI_PREPARED_METADATA_TITLE_OFFSET_OFFSET),
+		"Song Select Parity",
+	)
+	testing.expect_value(
+		test,
+		read_description_string(description, metadata_offset, prepared.ABI_PREPARED_METADATA_ARTIST_OFFSET_OFFSET),
+		"Test Artist",
+	)
+	testing.expect_value(
+		test,
+		read_description_string(description, metadata_offset, prepared.ABI_PREPARED_METADATA_CREATOR_OFFSET_OFFSET),
+		"Test Creator",
+	)
+	testing.expect_value(
+		test,
+		read_description_string(description, metadata_offset, prepared.ABI_PREPARED_METADATA_VERSION_OFFSET_OFFSET),
+		"Field Coverage",
+	)
+}
+
+@(test)
+descriptor_metadata_defaults_for_stripped_maps_and_quota_transaction :: proc(test: ^testing.T) {
+	stripped_text :: "osu file format v14\n[HitObjects]\n256,192,1000,1,0\n"
+	decoded_map, decode_error := beatmap_decode.decode(stripped_text)
+	testing.expect_value(test, decode_error.status, core_types.Status.OK)
+	defer beatmap_decode.destroy(&decoded_map)
+	control_points, control_status := osu_prepare.resolve(&decoded_map)
+	testing.expect_value(test, control_status, core_types.Status.OK)
+	defer osu_prepare.destroy(&control_points)
+	prepared_map, prepare_error := osu_prepare.prepare_map(&decoded_map, &control_points)
+	testing.expect_value(test, prepare_error.status, core_types.Status.OK)
+	defer prepared.destroy_map(&prepared_map)
+	if prepare_error.status != .OK {
+		return
+	}
+	// The decoder fills the pinned lazer defaults (Beatmap.cs constructor);
+	// preparation retains them like any other metadata values.
+	testing.expect_value(test, prepared_map.metadata.title, "Unknown")
+	testing.expect_value(test, prepared_map.metadata.artist, "Unknown")
+	testing.expect_value(test, prepared_map.metadata.creator, "Unknown Creator")
+	testing.expect_value(test, prepared_map.metadata.version, "Normal")
+	testing.expect_value(
+		test,
+		prepared.describe(&prepared_map, core_types.DEFAULT_QUOTAS.arena_bytes),
+		core_types.Status.OK,
+	)
+	description_size := u64(len(prepared_map.description.bytes))
+	// A description quota below the metadata-carrying size fails without
+	// publishing partial bytes; the exact size succeeds.
+	exact_map, exact_error := osu_prepare.prepare_map(&decoded_map, &control_points)
+	testing.expect_value(test, exact_error.status, core_types.Status.OK)
+	defer prepared.destroy_map(&exact_map)
+	testing.expect_value(
+		test,
+		prepared.describe(&exact_map, description_size - 1),
+		core_types.Status.QUOTA_EXCEEDED,
+	)
+	testing.expect(test, exact_map.description.bytes == nil)
+	testing.expect_value(test, prepared.describe(&exact_map, description_size), core_types.Status.OK)
+	description := exact_map.description.bytes
+	metadata_offset := u64(read_description_u32(description, prepared.ABI_PREPARED_DESCRIPTOR_METADATA_OFFSET_OFFSET))
+	testing.expect_value(
+		test,
+		read_description_string(description, metadata_offset, prepared.ABI_PREPARED_METADATA_VERSION_OFFSET_OFFSET),
+		"Normal",
+	)
+}

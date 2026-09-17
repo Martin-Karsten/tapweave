@@ -12,6 +12,7 @@
     "stack_leniency",
     "format_version",
     "playback",
+    "metadata",
     "breaks",
     "timing_points",
     "difficulty_points",
@@ -157,6 +158,30 @@
           "type": "boolean"
         },
         "audio_filename": {
+          "type": "string"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "title",
+        "artist",
+        "creator",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "artist": {
+          "type": "string"
+        },
+        "creator": {
+          "type": "string"
+        },
+        "version": {
           "type": "string"
         }
       }
