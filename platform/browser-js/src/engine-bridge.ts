@@ -781,6 +781,22 @@ export class Prepared_Description {
     }
   }
 
+  // Kind-15 break periods behind summary.breaks_offset/count/stride. The skip
+  // window policy consumes them; nothing else in the transport reads breaks.
+  *breaks(): Generator<{ start_ms: number; end_ms: number }> {
+    for (const break_record of this.records(this.summary, 'breaks', RECORD.prepared_break)) {
+      yield { start_ms: break_record.start_ms as number, end_ms: break_record.end_ms as number };
+    }
+  }
+
+  // Prepared objects are time-ordered, so the first record's time is the
+  // earliest gameplay boundary a skip can target.
+  first_object_ms(): number | null {
+    const span = this.array_span(this.summary, 'objects', record_size(RECORD.prepared_object));
+    if (span.count === 0) return null;
+    return readRecord(this.view, span.offset, RECORD.prepared_object).time_ms as number;
+  }
+
   *sample_candidates() {
     const samples = function* (descriptor: Prepared_Description, parent: Record<string, Record_Values>,
       field: string, object_id: number, component_id: number, loops_only = false) {

@@ -194,3 +194,32 @@ test('disposed playback cannot be revived by a pending gesture resume', async ()
     assert.equal(context.sources.length, 0);
   } finally { engine.dispose(); }
 });
+
+test('skip_forward re-anchors clock, music and session mapping in one synchronous jump', async () => {
+  const engine = await Engine_Bridge.create(wasm);
+  try {
+    const { session, samples, context } = await prepare(engine);
+    const playback = new Audio_Playback(engine, session, context, { samples, music_buffer: { duration: 30 } });
+    engine.submit_inputs(session, inputs);
+    await playback.start(0, () => 0);
+    context.currentTime = 11;
+    playback.pump();
+    assert.equal(playback.last_committed_ms, 1000);
+    const first_music = playback.music.source;
+    const engine_epoch = playback.clock.session_mapping.engine_epoch;
+    playback.skip_forward(2500);
+    assert.equal(playback.state, 'running');
+    assert.equal(playback.clock.anchor.beatmap_ms, 2500);
+    assert.equal(playback.clock.session_mapping.engine_epoch, engine_epoch);
+    assert.equal(playback.clock.session_mapping.browser_epoch, playback.clock.epoch);
+    assert.equal(first_music.disconnected, true);
+    const music_start = context.calls.filter(call => call[0] === 'start').at(-1);
+    assert.equal(music_start[2], 2.5);
+    context.currentTime = 11.1;
+    playback.pump();
+    assert.ok(Math.abs(playback.last_committed_ms - 2600) < 0.01);
+    assert.throws(() => playback.skip_forward(playback.last_committed_ms), { code: 'INVALID_ARGUMENT' });
+    playback.pause();
+    assert.throws(() => playback.skip_forward(4000), { code: 'INVALID_STATE' });
+  } finally { engine.dispose(); }
+});

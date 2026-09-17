@@ -1,9 +1,9 @@
 import { Resume_Gate, mapped_sources } from './resume-gate.js';
 import { Held_Input } from './held-input.js';
 import { DEFAULT_PLAYER_SETTINGS, gameplay_control_hint, gameplay_accessible_label, type Gameplay_Input_Settings } from './player-settings.js';
-import { Engine_Bridge, type Session_Output } from './engine-bridge.js';
+import { Engine_Bridge, type Prepared_Description, type Session_Output } from './engine-bridge.js';
 import { Selection_Controller, type Active_Selection } from './selection.js';
-import { Audio_Playback } from './audio-playback.js';
+import { Audio_Playback, SKIP_MINIMUM_ADVANCE_MS } from './audio-playback.js';
 import type { Audio_Clock } from './clock.js';
 import { Gameplay_Frame } from './gameplay-frame.js';
 import { Gameplay_Input } from './gameplay-input.js';
@@ -18,6 +18,7 @@ export interface Gameplay_View {
   readonly can_play: boolean;
   readonly can_resume: boolean;
   readonly can_retry: boolean;
+  readonly can_skip: boolean;
   readonly recovery: Readonly<Record<string, unknown>> | null;
   readonly in_attempt: boolean;
   readonly message: string;
@@ -34,6 +35,33 @@ export interface Gameplay_Options {
   on_frame?: () => void;
   input_settings?: () => Gameplay_Input_Settings;
   outputs?: { music?: AudioNode; effects?: AudioNode };
+}
+
+// Pinned-lazer MasterGameplayClockContainer.MINIMUM_SKIP_TIME parity: skip
+// lands this far before the next gameplay boundary.
+export const SKIP_LEAD_MS = 1000;
+
+interface Skip_Window {
+  start_ms: number;
+  end_ms: number;
+  target_ms: number;
+}
+
+// Skippable windows from the prepared descriptor: the lead-in up to one skip
+// lead before the first object, plus each break with room for a full lead.
+// Cached once per prepared map so the per-frame window probe stays read-only.
+function skip_windows_of(descriptor: Prepared_Description): Skip_Window[] {
+  const windows: Skip_Window[] = [];
+  const first_object_ms = descriptor.first_object_ms();
+  if (first_object_ms !== null && first_object_ms - SKIP_LEAD_MS > 0) {
+    windows.push({ start_ms: 0, end_ms: first_object_ms - SKIP_LEAD_MS, target_ms: first_object_ms - SKIP_LEAD_MS });
+  }
+  for (const map_break of descriptor.breaks()) {
+    if (map_break.end_ms - SKIP_LEAD_MS > map_break.start_ms) {
+      windows.push({ start_ms: map_break.start_ms, end_ms: map_break.end_ms - SKIP_LEAD_MS, target_ms: map_break.end_ms - SKIP_LEAD_MS });
+    }
+  }
+  return windows;
 }
 
 // Product lifecycle only. Engine records remain the authority for gameplay/results.
@@ -58,6 +86,8 @@ export class Gameplay_Controller {
   private terminal_draining = false;
   private graphics_lost = false;
   private restoration_timer: ReturnType<typeof setTimeout> | null = null;
+  private skip_windows: Skip_Window[] = [];
+  private skip_available = false;
   private readonly held_input: Held_Input;
   private readonly sample_audio: () => number;
   private readonly diagnostics: Diagnostics_Service | null;
@@ -118,7 +148,19 @@ export class Gameplay_Controller {
       can_play: this.state === 'ready' && !!this.playback && graphics_usable,
       can_resume: this.state === 'paused' && this.playback?.state === 'paused' && graphics_usable,
       can_retry: this.in_attempt && this.state !== 'starting' && this.state !== 'disposed' && graphics_usable,
+      can_skip: this.state === 'running' && this.playback?.state === 'running' &&
+        this.skip_target_at(this.playback.clock.beatmap_time(this.context.currentTime)) !== null,
       recovery: this.recovery_details, in_attempt: this.in_attempt, message: this.message, error: this.error, result: this.result });
+  }
+
+  // The skippable window at a beatmap time: the map lead-in before the first
+  // object, or a break period with enough remaining room. Returns the lazer
+  // skip target (next boundary minus the lead) or null outside every window.
+  private skip_target_at(time_ms: number): number | null {
+    for (const window of this.skip_windows) {
+      if (time_ms >= window.start_ms && time_ms < window.end_ms) return window.target_ms;
+    }
+    return null;
   }
 
   // Read-only diagnostic probe over the active playback clock (never drives
@@ -168,6 +210,8 @@ export class Gameplay_Controller {
     this.error = null;
     this.recovery_details = null;
     this.result = null;
+    this.skip_windows = [];
+    this.skip_available = false;
     const active = this.selection.active;
     this.message = 'Open a local beatmap to begin.';
     if (!active) return;
@@ -179,6 +223,7 @@ export class Gameplay_Controller {
       this.engine.scene_capabilities();
       this.session_handle = this.engine.create_session(active.map_handle);
       this.prepared_selection = active;
+      this.skip_windows = skip_windows_of(active.descriptor);
       this.diagnostics?.note_session_context(this.session_handle.toString(), null, null);
       this.diagnostics?.record_event('lifecycle', 'info', 'session_created',
         `Session prepared for ${active.filename}.`, { session_handle: this.session_handle.toString(),
@@ -225,6 +270,13 @@ export class Gameplay_Controller {
       this.renderer!.render(time_ms, { css_left: bounds.left, css_top: bounds.top,
         css_width: bounds.width, css_height: bounds.height,
         device_pixel_ratio: this.canvas.ownerDocument.defaultView!.devicePixelRatio }, output.summary.epoch);
+      // The skip affordance flips while running without lifecycle transitions;
+      // publish only on the flip so the steady frame path stays untouched.
+      const skip_available = this.state === 'running' && this.skip_target_at(time_ms) !== null;
+      if (skip_available !== this.skip_available) {
+        this.skip_available = skip_available;
+        this.publish();
+      }
       // Diagnostic UI refresh rides the existing frame driver; no scheduler is
       // added and the callback itself never touches gameplay state.
       this.options.on_frame?.();
@@ -368,6 +420,37 @@ export class Gameplay_Controller {
     } catch (error) { this.recover(error); }
   }
 
+  // Lazer SkipOverlay parity: skip while the session is in the map lead-in or
+  // a break, landing one skip lead before the next boundary. Outside a window
+  // this is a refusal, mirroring MasterGameplayClockContainer.Skip's guard.
+  skip() {
+    if (!this.view.can_skip) return;
+    const playback = this.playback!;
+    const current_ms = playback.clock.beatmap_time(this.context.currentTime);
+    const window_target_ms = this.skip_target_at(current_ms)!;
+    const target_ms = Math.max(window_target_ms, (playback.last_committed_ms ?? current_ms) + SKIP_MINIMUM_ADVANCE_MS);
+    this.frame!.stop();
+    try {
+      // Inputs received so far are submitted at their pre-skip receipt times.
+      // Anything still buffered is dropped, never replayed after the jump:
+      // the re-anchor closes the clock epoch, so a stale-stamped record would
+      // fail loudly in drain rather than judge against the new mapping.
+      this.frame!.drain();
+      this.frame!.input.records.length = 0;
+      this.frame!.input.focus_epoch++;
+      playback.skip_forward(target_ms);
+      this.diagnostics?.record_event('lifecycle', 'info', 'skip',
+        `Skipped to ${target_ms.toFixed(0)} ms before the next object.`,
+        { target_ms, from_ms: current_ms, session_handle: this.session_handle?.toString() });
+      this.frame!.start();
+    } catch (error) {
+      this.recover(error);
+      return;
+    }
+    this.skip_available = false;
+    this.publish();
+  }
+
   private terminal() {
     if (this.result || !this.session_handle) return;
     this.result = this.engine.result(this.session_handle);
@@ -441,6 +524,7 @@ export class Gameplay_Controller {
         'INVALID_STATE', 'Wait for graphics restoration before retrying.');
       this.engine.reset_session(this.session_handle);
       this.create_playback(true);
+      this.skip_available = false;
       this.state = 'ready';
     } catch {
       this.prepare();

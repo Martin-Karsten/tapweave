@@ -70,6 +70,13 @@ export const Play_Screen: Component = () => {
             Pause
           </button>
         </Show>
+        {/* Lazer SkipOverlay parity: outside the canvas so its pointer events
+            never enter the gameplay input surface. */}
+        <Show when={view().state === 'running' && view().can_skip}>
+          <button id="skip" type="button" onClick={() => player_session()?.skip()}>
+            Skip
+          </button>
+        </Show>
         <Show when={panel_visible()}>
           <Lifecycle_Panel
             view={view()}

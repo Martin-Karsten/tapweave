@@ -14,6 +14,10 @@ export interface Playback_Selection {
   samples: Loaded_Samples | null;
 }
 
+// A skip must move gameplay time at least this far past the committed time;
+// smaller or negative jumps are refused instead of clamped.
+export const SKIP_MINIMUM_ADVANCE_MS = 1;
+
 // Audio integration for an explicitly owned ready session. W06 supplies input
 // and the frame driver; W07 supplies the product lifecycle and aggregate Play gate.
 export class Audio_Playback {
@@ -184,6 +188,39 @@ export class Audio_Playback {
 
   get pending_sounds() {
     return this.audio.pending.length + this.audio.voices.size + this.audio.retiring_voices.size;
+  }
+
+  // Re-anchor the one audio clock at the skip target without pausing the
+  // engine: the caller stops the frame driver and drains buffered input first,
+  // and the next pump issues a single forward advance across the gap. The
+  // clock epoch bump closes the old mapping, so any input record still stamped
+  // with it fails loudly in drain instead of being replayed after the jump.
+  skip_forward(target_ms: number) {
+    require_condition(this.state === 'running', 'INVALID_STATE', 'Only running playback can skip forward.');
+    require_condition(Number.isFinite(target_ms) && this.last_committed_ms !== null &&
+      target_ms >= this.last_committed_ms + SKIP_MINIMUM_ADVANCE_MS,
+    'INVALID_ARGUMENT', 'Skip target must advance past committed gameplay time.');
+    try {
+      const audio_seconds = this.context.currentTime;
+      this.note('skip music cancel');
+      this.music.cancel();
+      this.note_clock('clock_anchor_skip', { audio_seconds, target_ms,
+        committed_ms: this.last_committed_ms, previous_epoch: this.clock.epoch });
+      this.clock.pause(audio_seconds);
+      this.clock.start(audio_seconds, target_ms);
+      this.note('oe_session_voice_output');
+      this.engine.voice_output(this.session_handle, this.voice_output);
+      const receipt_ms = performance.now();
+      this.clock.bind_session(this.session_handle, this.voice_output.summary.epoch, receipt_ms, audio_seconds);
+      this.diagnostics?.note_clock_rebinding({ session_handle: this.session_handle.toString(),
+        engine_epoch: Number(this.voice_output.summary.epoch), receipt_ms, audio_seconds,
+        anchor: { ...this.clock.anchor! } });
+      this.note('music start');
+      this.music.start();
+    } catch (error) {
+      this.recover(error);
+      throw error;
+    }
   }
 
   // Recovery-context observation for the lifecycle owner; sampled before any

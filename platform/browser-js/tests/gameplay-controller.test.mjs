@@ -521,3 +521,162 @@ test('suspended audio observed before statechange requests ordinary pause at the
     assert.equal(player.controller.view.state, 'running');
   } finally { player.controller.dispose(); }
 });
+
+// Skip-window coverage (shell-lazer-parity plan Phase B), porting the pinned
+// osu!lazer intent at 3c1c96f742e7aae2ff67a7361e058fe91ca3b955:
+// MasterGameplayClockContainer.MINIMUM_SKIP_TIME = 1000 and SkipOverlay's
+// expiry/no-window cases (TestSceneSkipOverlay TestSkipTimeZero,
+// TestSkipTimeEqualToSkip, TestClickOnlyActuatesOnce).
+const lead_in_map = `osu file format v14
+[Difficulty]
+HPDrainRate:0
+[TimingPoints]
+0,500
+[HitObjects]
+256,192,10000,1,0`;
+const equal_lead_map = lead_in_map.replace('10000', '1000');
+const break_map = `osu file format v14
+[Difficulty]
+HPDrainRate:0
+[TimingPoints]
+0,500
+[Events]
+2,1500,5000
+[HitObjects]
+256,192,1000,1,0
+256,192,6000,1,0`;
+
+// After a skip the audio clock is re-anchored, so beatmap time no longer maps
+// from audio zero. This driver advances the fixture relative to the running
+// anchor instead of assuming context.currentTime == beatmap_ms / 1000.
+function clock_relative_driver(player) {
+  let origin_audio_seconds = 0;
+  let origin_beatmap_ms = 0;
+  const audio_at = (time_ms) => origin_audio_seconds + (time_ms - origin_beatmap_ms) / 1000;
+  return {
+    advance_to(time_ms) {
+      player.context.currentTime = audio_at(time_ms);
+      const scheduled = [...player.callbacks.values()];
+      player.callbacks.clear();
+      for (const callback of scheduled) callback(player.context.currentTime * 1000);
+    },
+    key_at(time_ms, held) {
+      player.context.currentTime = audio_at(time_ms);
+      dispatch(player.window, held ? 'keydown' : 'keyup', { code: 'KeyZ', repeat: false });
+    },
+    note_skip() {
+      origin_audio_seconds = player.context.currentTime;
+      origin_beatmap_ms = player.controller.playback_clock.anchor.beatmap_ms;
+    },
+  };
+}
+
+test('lead-in skip jumps the engine in one advance, actuates once and reproduces the straight-run result', async () => {
+  let straight_result;
+  for (const use_skip of [false, true]) {
+    const player = await fixture({ map_text: lead_in_map });
+    const { controller, engine } = player;
+    const driver = clock_relative_driver(player);
+    try {
+      await controller.play();
+      const session = [...engine.session_handles][0];
+      assert.equal(controller.view.can_skip, true);
+      driver.advance_to(500);
+      // Stray input inside the skipped gap: same journal in both runs.
+      driver.key_at(600, true); driver.key_at(650, false);
+      if (use_skip) {
+        controller.skip();
+        driver.note_skip();
+        assert.equal(controller.view.can_skip, false);
+        assert.equal(controller.playback_clock.anchor.beatmap_ms, 9000);
+        controller.skip();
+        assert.equal(controller.playback_clock.anchor.beatmap_ms, 9000);
+      } else {
+        driver.advance_to(700);
+      }
+      driver.advance_to(9050);
+      assert.ok(engine.snapshot(session, 9050).summary.committed_ms >= 9000);
+      driver.key_at(10000, true); driver.key_at(10050, false);
+      driver.advance_to(10100); driver.advance_to(11000);
+      assert.equal(controller.view.state, 'terminal');
+      assert.equal(Number(controller.view.result.summary.state), 3);
+      if (straight_result === undefined) straight_result = controller.view.result.bytes;
+      else assert.deepEqual(controller.view.result.bytes, straight_result);
+    } finally { controller.dispose(); }
+  }
+});
+
+test('break skip appears inside the break, lands one lead before its end and preserves the result', async () => {
+  let straight_result;
+  for (const use_skip of [false, true]) {
+    const player = await fixture({ map_text: break_map });
+    const { controller, engine } = player;
+    const driver = clock_relative_driver(player);
+    try {
+      await controller.play();
+      const session = [...engine.session_handles][0];
+      assert.equal(controller.view.can_skip, false);
+      driver.key_at(1000, true); driver.key_at(1050, false); driver.advance_to(1100);
+      assert.equal(controller.view.can_skip, false);
+      driver.advance_to(1600);
+      assert.equal(controller.view.can_skip, true);
+      if (use_skip) {
+        controller.skip();
+        driver.note_skip();
+        assert.equal(controller.view.can_skip, false);
+        assert.equal(controller.playback_clock.anchor.beatmap_ms, 4000);
+      }
+      driver.advance_to(4100);
+      assert.ok(engine.snapshot(session, 4100).summary.committed_ms >= 4100);
+      driver.key_at(6000, true); driver.key_at(6050, false);
+      driver.advance_to(6100); driver.advance_to(7100);
+      assert.equal(controller.view.state, 'terminal');
+      if (straight_result === undefined) straight_result = controller.view.result.bytes;
+      else assert.deepEqual(controller.view.result.bytes, straight_result);
+    } finally { controller.dispose(); }
+  }
+});
+
+test('skip is refused outside skippable windows and never disturbs the clock', async () => {
+  for (const map_text of [equal_lead_map, lead_in_map]) {
+    const player = await fixture({ map_text });
+    const { controller, frame } = player;
+    try {
+      assert.equal(controller.view.can_skip, false);
+      await controller.play();
+      if (map_text === lead_in_map) {
+        assert.equal(controller.view.can_skip, true);
+        frame(9500);
+      }
+      assert.equal(controller.view.can_skip, false);
+      const anchor_before = controller.playback_clock.anchor.beatmap_ms;
+      const epoch_before = controller.playback_clock.epoch;
+      controller.skip();
+      assert.equal(controller.playback_clock.epoch, epoch_before);
+      assert.equal(controller.playback_clock.anchor.beatmap_ms, anchor_before);
+      controller.pause();
+      assert.equal(controller.view.can_skip, false);
+      controller.skip();
+      assert.equal(controller.playback_clock.anchor, null);
+    } finally { controller.dispose(); }
+  }
+});
+
+test('input stamped with the closed clock epoch fails loudly after a skip', async () => {
+  const player = await fixture({ map_text: lead_in_map });
+  const { controller, key, frame } = player;
+  try {
+    await controller.play();
+    const clock = controller.playback_clock;
+    const closed_epoch = clock.epoch;
+    frame(500);
+    controller.skip();
+    const running_epoch = clock.epoch;
+    assert.notEqual(running_epoch, closed_epoch);
+    clock.epoch = closed_epoch;
+    key(9100, true);
+    clock.epoch = running_epoch;
+    frame(9150);
+    assert.equal(controller.view.state, 'recovering');
+  } finally { controller.dispose(); }
+});

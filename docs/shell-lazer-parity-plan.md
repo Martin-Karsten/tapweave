@@ -1,6 +1,11 @@
 # Shell lazer-parity plan (MVP round)
 
-Status: planned, not started. This document scopes the next product-shell
+Status: phase B implemented (skip during lead-in and breaks) on the
+`shell-parity-phase-b` worktree branch, based on `7dccf6f` before the parallel
+uncommitted phase-A work in the main working tree; B's affordance is built to
+also render in watch mode once A merges (`can_skip` keys on lifecycle/audio
+state and descriptor windows only). Phases A and C are not started on the
+branch. This document scopes the next product-shell
 increment: three missing osu!lazer behaviors that the engine or browser
 platform already supports (or can expose with a narrow ABI append), written as
 implementable phases with steps. It complements `docs/mvp-player-experience.md`
