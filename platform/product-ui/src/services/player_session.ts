@@ -35,6 +35,8 @@ export const INITIAL_SHELL_STATE: Shell_State = Object.freeze({
     can_play: false,
     can_resume: false,
     can_retry: false,
+    can_watch_replay: false,
+    watching_replay: false,
     recovery: null,
     in_attempt: false,
     message: 'Starting engine…',
@@ -214,6 +216,9 @@ export class Player_Session_Service {
   async resume() { await this.gameplay.resume(); }
   async retry() { await this.gameplay.retry(); }
   back() { this.gameplay.back(); }
+  export_replay(): Uint8Array { return this.gameplay.export_replay(); }
+  async watch_replay(): Promise<void> { await this.gameplay.watch_replay(); }
+  stop_watch(): void { this.gameplay.stop_watch(); }
   async load_files(files: File[]) { await this.gameplay.load_files(files); }
   async select_map(filename: string) { await this.gameplay.select_map(filename); }
 

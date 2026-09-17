@@ -56,6 +56,7 @@ const App_Frame: Component<ParentProps> = (props) => {
           </p>
           <div class="footer-actions">
             <button type="button" disabled={shell_state().phase !== 'ready' ||
+              shell_state().gameplay.watching_replay ||
               !['ready', 'paused', 'terminal'].includes(shell_state().gameplay.state)}
               onClick={event => { event.currentTarget.focus(); open_settings_dialog(); }}>Settings</button>
           </div>

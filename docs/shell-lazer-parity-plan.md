@@ -1,6 +1,7 @@
 # Shell lazer-parity plan (MVP round)
 
-Status: planned, not started. This document scopes the next product-shell
+Status: phase A implemented (replay watch from results + save download);
+phases B and C planned, not started. This document scopes the next product-shell
 increment: three missing osu!lazer behaviors that the engine or browser
 platform already supports (or can expose with a narrow ABI append), written as
 implementable phases with steps. It complements `docs/mvp-player-experience.md`
@@ -17,7 +18,9 @@ until `docs/status.md` says so.
 
 Recommended execution order: **C → B → A**. C carries the only engine/ABI churn
 and its one-time trace fixture regeneration; A reuses B's skip affordance
-inside watch mode.
+inside watch mode. A landed first anyway (implementable standalone; its only
+B coupling is the future skip button, which B4 must also render in watch
+mode), so C's fixture regeneration and B remain open in that order.
 
 Explicitly out of scope for this round (per `docs/README.md`,
 `docs/roadmap.md`, ADR-002/004): mods, leaderboards/accounts/score submission,

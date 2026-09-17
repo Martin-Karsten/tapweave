@@ -83,6 +83,25 @@
         "TestPlaybackWithDeviceLoss",
         "TestPlaybackWithDeviceRestore"
       ]
+    },
+    {
+      "repository": "osu",
+      "path": "osu.Game.Tests/Visual/Gameplay/TestSceneAutoplay.cs",
+      "sha256": "aa8c77441338dadd377f7bc98045b174307ac101a6cac2589818d0472b736b42",
+      "methods": [
+        "AddCheckSteps",
+        "results displayed",
+        "score has no misses"
+      ]
+    },
+    {
+      "repository": "osu",
+      "path": "osu.Game.Tests/Visual/Gameplay/TestSceneReplayPlayer.cs",
+      "sha256": "fa5e90d13fdd9b32167055fad8b6ae2817de9e85dc19cb6b8dab2af54d082b39",
+      "methods": [
+        "TestDoesNotFailOnExit",
+        "TestReplayDoesNotFailUntilRunningOutOfFrames"
+      ]
     }
   ],
   "local_mappings": [
@@ -102,6 +121,12 @@
       "upstream": "DeviceLosingAudioTest.TestPlaybackWithDeviceLoss/TestPlaybackWithDeviceRestore",
       "local": "audio suspension and real GPU restoration pause together and require an explicit resume",
       "classification": "local-regression; Web Audio statechange is not the upstream native audio device lifecycle"
+    },
+    {
+      "upstream": "TestSceneAutoplay.AddCheckSteps (results displayed, score has no misses); TestSceneReplayPlayer.TestDoesNotFailOnExit",
+      "local": "watch replay reproduces the terminal result without input, exits to a fresh live session whose save/watch keep serving the retained recording, and recovers an interrupted watch startup (gameplay-controller.test.mjs); results save/watch replay spec re-verifies both actions after Escape and after natural completion with a hit-containing recording (replay.spec.mjs)",
+      "classification": "local-regression; intent port, not an exact test port",
+      "blocker": "The pinned Player adapter executes engine scenarios headlessly; the replay-driven DOM player (watch banner, results actions, TWREPLAY download) has no upstream executable equivalent. Exact ReplayPlayer UI ports (settings overlay, rate keys, seek keys) remain open and unclaimed."
     }
   ],
   "commands": [

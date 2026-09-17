@@ -816,3 +816,63 @@ server; the final run uses unchanged assertions and a separately managed server.
 These results close the known defect investigation only. Full upstream/audio
 acceptance, additional presentation coverage, human audible playtesting and
 release performance/resource certification remain open.
+
+## Replay watch and save (shell lazer-parity phase A)
+
+The results route now exposes the finished run's replay: **Save replay**
+downloads the engine-exported TWREPLAY v2 container as
+`{selection filename base}-{score}.twreplay`, and **Watch replay** re-enters
+the play route in a non-interactive watch mode (plan
+[shell-lazer-parity](shell-lazer-parity-plan.md) phase A; no engine, ABI or
+trace changes). The controller models the finished run as a retained
+`Completed_Run` — the owned result record plus the exported replay container
+captured while the producing session was still terminal — independent of the
+active session. Save and watch always serve that retained recording, so they
+keep working after the session behind a watch is reset, re-prepared or
+released. `watch_replay` resets the current session, rebinds samples on the
+READY session before `load_replay` switches it to replay mode, and restarts
+playback without attaching `Gameplay_Input`, so live canvas/keyboard input
+cannot reach the engine and judgement comes only from the replay frames.
+Live and watch starts share one playback-start lifecycle (generation,
+starting publication, graphics precondition) with the live-input attachment
+explicit in the live path only. `pause`/`play`/`resume` are refused while
+watching (automatic pause paths no-op so DOM listeners never throw; an audio
+interruption during watch fails loudly into recovery instead). `Retry`
+re-runs the watch from the retained recording; `stop_watch` — play-route
+Escape, or leaving the route whether the watch is still running, interrupted
+or already finished — releases the replay session, re-prepares a fresh live
+session for the same selection and restores the retained completed run, so
+natural completion normalizes back to the original results context with
+working actions and a live Retry. Back/new selections clear the retained
+run. The footer/settings entry refuses during watch, the watch banner
+(`#watch-banner`) replaces the pause affordance, and the results route
+reports replay-action failures through the visible `#replay-status` region
+instead of swallowing them. The future phase-B skip button must also remain
+functional in watch mode.
+
+Classification: local shell behavior with intent-level upstream mapping, not
+an upstream acceptance gate. The pinned search found no executable
+equivalent for a DOM replay player; the ported intent is
+`TestSceneAutoplay.AddCheckSteps` (a replay completes without user input and
+displays results with no misses) and `TestSceneReplayPlayer.TestDoesNotFailOnExit`
+(exiting never fails the run) at pinned commit `3c1c96f7`, recorded with file
+hashes in the [lifecycle finding index](../engine/reference/findings/m3-lifecycle.json).
+Legacy `.osr` export stays M5 and is not exposed.
+
+Validation: the full engine suite passes unchanged; browser typecheck, build
+and all 147 service tests pass, including controller-level regressions for
+run → export → watch (input refused, stray keys ignored) → byte-identical
+terminal result → watch retry → exit to a fresh playable live session whose
+save/watch keep serving the retained recording, and for an interrupted watch
+startup that recovers without losing the re-watchable completed run.
+Product gates pass. The Playwright replay spec (download filename, watch to
+terminal with zero injected input and an identical non-zero hit score,
+Escape back to retained results, both actions re-verified after Escape and
+after natural completion, and Retry-after-normalization verified as a live
+retry) and the existing lifecycle/player suites pass on Chromium; Firefox
+and WebKit runs were blocked by a Playwright CDN gateway failure
+(`GatewayExceptionResponse`/timeouts on cdn.playwright.dev), with Chromium
+provisioned from the public Chrome-for-Testing 153.0.8010.12 bucket into the
+Playwright cache as a workaround. The cross-browser matrix remains to be
+re-run when the CDN is reachable, as previously recorded for the WebKit
+gate interruption.

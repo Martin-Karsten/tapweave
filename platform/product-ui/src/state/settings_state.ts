@@ -34,6 +34,8 @@ export const player_settings = (): Player_Settings_Source | null => settings_sou
 export const open_settings_dialog = (): boolean => {
   const session = player_session();
   if (settings_source === null || session === null) return false;
+  // Watch playback is non-interactive and cannot pause for a modal.
+  if (session.view.watching_replay) return false;
   if ((session.view.state === 'running' || session.view.state === 'resuming')) session.pause('Settings opened.');
   if (!['ready', 'paused', 'terminal'].includes(session.view.state)) return false;
   close_debug_dialog();

@@ -521,3 +521,118 @@ test('suspended audio observed before statechange requests ordinary pause at the
     assert.equal(player.controller.view.state, 'running');
   } finally { player.controller.dispose(); }
 });
+
+// Controller-level replay flow over the engine round-trip (engine.test.mjs):
+// export after a live terminal run, refuse typed without a finished run,
+// watch the frames back without any live input to a byte-identical result,
+// retry the watch, and exit mid-watch back to the retained completed run on a
+// fresh live session whose save/watch actions keep working.
+test('watch replay reproduces the terminal result without input and exits to a fresh live session', async () => {
+  const player = await fixture();
+  try {
+    assert.throws(() => player.controller.export_replay(), { code: 'INVALID_STATE' });
+    await assert.rejects(() => player.controller.watch_replay(), { code: 'INVALID_STATE' });
+    assert.throws(() => player.controller.stop_watch(), { code: 'INVALID_STATE' });
+    await player.controller.play();
+    for (const [time_ms, held] of [[1000, true], [1100, false], [2000, true], [2100, false]]) player.key(time_ms, held);
+    player.frame(5000);
+    assert.equal(player.controller.view.state, 'terminal');
+    const live_result_bytes = player.controller.view.result.bytes.slice();
+    const live_session = [...player.engine.session_handles][0];
+    const first_export = player.controller.export_replay();
+    assert.ok(first_export.length > 224);
+    await player.controller.watch_replay();
+    const watch_view = player.controller.view;
+    assert.equal(watch_view.watching_replay, true);
+    assert.equal(watch_view.state, 'running');
+    // The completed run stays retained while its replay plays.
+    assert.deepEqual(watch_view.result.bytes, live_result_bytes);
+    assert.equal(watch_view.can_play, false);
+    assert.equal(watch_view.can_resume, false);
+    // Watch playback is non-interactive: pause/play/resume cannot act.
+    player.controller.pause();
+    await player.controller.play();
+    await player.controller.resume();
+    assert.equal(player.controller.view.state, 'running');
+    assert.equal(player.controller.view.watching_replay, true);
+    // Stray keys during the watch never reach the engine (no input surface).
+    dispatch(player.window, 'keydown', { code: 'KeyZ', repeat: false });
+    dispatch(player.window, 'keyup', { code: 'KeyZ' });
+    for (let frame_time = 6000; frame_time <= 10000; frame_time += 1000) player.frame(frame_time);
+    assert.equal(player.controller.view.state, 'terminal');
+    assert.deepEqual(player.controller.view.result.bytes, live_result_bytes);
+    // Natural watch completion keeps serving the retained recording.
+    assert.deepEqual(player.controller.export_replay(), first_export);
+    // Retry from the watch re-runs the retained bytes to the same result.
+    await player.controller.retry();
+    assert.equal(player.controller.view.watching_replay, true);
+    assert.equal(player.controller.view.state, 'running');
+    player.frame(16000);
+    assert.equal(player.controller.view.state, 'terminal');
+    assert.deepEqual(player.controller.view.result.bytes, live_result_bytes);
+    // Escape-analog: stop mid-watch restores the retained completed run on a
+    // fresh live session that can be played again after Back.
+    await player.controller.retry();
+    player.frame(17000);
+    assert.equal(player.controller.view.state, 'running');
+    player.controller.stop_watch();
+    const restored_view = player.controller.view;
+    assert.equal(restored_view.watching_replay, false);
+    assert.equal(restored_view.state, 'terminal');
+    assert.deepEqual(restored_view.result.bytes, live_result_bytes);
+    assert.equal(restored_view.can_watch_replay, true);
+    assert.notEqual([...player.engine.session_handles][0], live_session);
+    assert.equal(player.engine.session_handles.size, 1);
+    // The restored context serves Save and Watch from the retained recording
+    // even though the active session is a fresh READY one.
+    assert.deepEqual(player.controller.export_replay(), first_export);
+    await player.controller.watch_replay();
+    assert.equal(player.controller.view.watching_replay, true);
+    assert.equal(player.controller.view.state, 'running');
+    for (let frame_time = 18000; frame_time <= 22000; frame_time += 1000) player.frame(frame_time);
+    assert.equal(player.controller.view.state, 'terminal');
+    assert.deepEqual(player.controller.view.result.bytes, live_result_bytes);
+    player.controller.stop_watch();
+    assert.equal(player.controller.view.state, 'terminal');
+    assert.deepEqual(player.controller.view.result.bytes, live_result_bytes);
+    player.controller.back();
+    assert.equal(player.controller.view.state, 'ready');
+    assert.equal(player.controller.view.result, null);
+    await player.controller.play();
+    assert.equal(player.controller.view.state, 'running');
+  } finally { player.controller.dispose(); }
+});
+
+// A watch whose playback start fails recovers without losing the completed
+// run: Retry re-runs the retained bytes, and stop_watch still returns to the
+// original results context.
+test('interrupted watch startup recovers and keeps the completed run re-watchable', async () => {
+  const player = await fixture();
+  try {
+    await player.controller.play();
+    player.key(1000, true);
+    player.frame(1010);
+    player.frame(5000);
+    assert.equal(player.controller.view.state, 'terminal');
+    const live_result_bytes = player.controller.view.result.bytes.slice();
+    const original_resume = player.context.resume;
+    player.context.resume = async () => { throw new Error('Audio permission denied'); };
+    await player.controller.watch_replay();
+    const interrupted_view = player.controller.view;
+    assert.equal(interrupted_view.state, 'recovering');
+    assert.equal(interrupted_view.watching_replay, true);
+    assert.match(interrupted_view.message, /Audio permission denied/);
+    assert.deepEqual(interrupted_view.result.bytes, live_result_bytes);
+    player.context.resume = original_resume;
+    await player.controller.retry();
+    assert.equal(player.controller.view.watching_replay, true);
+    assert.equal(player.controller.view.state, 'running');
+    for (let frame_time = 6000; frame_time <= 11000; frame_time += 1000) player.frame(frame_time);
+    assert.equal(player.controller.view.state, 'terminal');
+    assert.deepEqual(player.controller.view.result.bytes, live_result_bytes);
+    player.controller.stop_watch();
+    assert.equal(player.controller.view.state, 'terminal');
+    assert.deepEqual(player.controller.view.result.bytes, live_result_bytes);
+    assert.equal(player.controller.view.can_watch_replay, true);
+  } finally { player.controller.dispose(); }
+});

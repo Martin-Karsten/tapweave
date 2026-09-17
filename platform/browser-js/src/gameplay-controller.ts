@@ -18,6 +18,8 @@ export interface Gameplay_View {
   readonly can_play: boolean;
   readonly can_resume: boolean;
   readonly can_retry: boolean;
+  readonly can_watch_replay: boolean;
+  readonly watching_replay: boolean;
   readonly recovery: Readonly<Record<string, unknown>> | null;
   readonly in_attempt: boolean;
   readonly message: string;
@@ -36,13 +38,23 @@ export interface Gameplay_Options {
   outputs?: { music?: AudioNode; effects?: AudioNode };
 }
 
+// A finished run, retained independently of the active session: the owned
+// result record plus the exported TWREPLAY container captured while the
+// producing session was still terminal. Save and watch always serve this
+// record, so they keep working after the session is reset, re-prepared or
+// released.
+export interface Completed_Run {
+  readonly result: Session_Output;
+  readonly replay_bytes: Uint8Array;
+}
+
 // Product lifecycle only. Engine records remain the authority for gameplay/results.
 export class Gameplay_Controller {
   private state: Gameplay_State = 'ready';
   private message = 'Open a local beatmap to begin.';
   private error: unknown = null;
   private recovery_details: Readonly<Record<string, unknown>> | null = null;
-  private result: Session_Output | null = null;
+  private completed_run: Completed_Run | null = null;
   private generation = 0;
   private listeners = new AbortController();
   private prepared_selection: Active_Selection | null = null;
@@ -57,6 +69,7 @@ export class Gameplay_Controller {
   private in_attempt = false;
   private terminal_draining = false;
   private graphics_lost = false;
+  private watching_replay = false;
   private restoration_timer: ReturnType<typeof setTimeout> | null = null;
   private readonly held_input: Held_Input;
   private readonly sample_audio: () => number;
@@ -114,11 +127,16 @@ export class Gameplay_Controller {
 
   get view(): Gameplay_View {
     const graphics_usable = !!this.renderer?.ready && !this.graphics_lost;
+    const live_session = !this.watching_replay;
     return Object.freeze({ state: this.state,
-      can_play: this.state === 'ready' && !!this.playback && graphics_usable,
-      can_resume: this.state === 'paused' && this.playback?.state === 'paused' && graphics_usable,
+      can_play: live_session && this.state === 'ready' && !!this.playback && graphics_usable,
+      can_resume: live_session && this.state === 'paused' && this.playback?.state === 'paused' && graphics_usable,
       can_retry: this.in_attempt && this.state !== 'starting' && this.state !== 'disposed' && graphics_usable,
-      recovery: this.recovery_details, in_attempt: this.in_attempt, message: this.message, error: this.error, result: this.result });
+      can_watch_replay: live_session && this.state === 'terminal' && this.completed_run !== null &&
+        this.session_handle !== null && graphics_usable,
+      watching_replay: this.watching_replay,
+      recovery: this.recovery_details, in_attempt: this.in_attempt, message: this.message, error: this.error,
+      result: this.completed_run?.result ?? null });
   }
 
   // Read-only diagnostic probe over the active playback clock (never drives
@@ -167,7 +185,7 @@ export class Gameplay_Controller {
     this.state = 'ready';
     this.error = null;
     this.recovery_details = null;
-    this.result = null;
+    this.completed_run = null;
     const active = this.selection.active;
     this.message = 'Open a local beatmap to begin.';
     if (!active) return;
@@ -232,7 +250,15 @@ export class Gameplay_Controller {
       { diagnostics: this.diagnostics,
         frame_metrics: () => ({ instances: this.renderer?.gpu.metrics.instances ?? 0,
           batches: this.renderer?.gpu.metrics.commands ?? 0, gpu_ms: this.renderer?.gpu.metrics.gpu_ms ?? null }) });
-    this.frame.on_pause = reason => this.pause(reason);
+    this.frame.on_pause = reason => {
+      if (this.watching_replay) {
+        // Watch playback cannot pause; an audio interruption fails loudly so
+        // the replay can be restarted through Retry or left through stop_watch.
+        this.recover(new Browser_Error('INVALID_STATE', `${reason} Retry to restart the replay.`));
+        return;
+      }
+      this.pause(reason);
+    };
     this.frame.on_error = error => this.recover(error);
     this.frame.on_terminal = () => this.terminal();
     this.frame.on_terminal_frame = () => this.drain_terminal();
@@ -284,6 +310,26 @@ export class Gameplay_Controller {
     } catch (error) { this.recover(error); }
   }
 
+  // Shared start core for live and watch playback: one generation, one
+  // starting publication, the awaited playback start and the graphics
+  // precondition. Failures recover once; a superseded start (Back, dispose,
+  // retry) resolves false without touching state.
+  async #await_playback_start(before_pump?: () => void, starting_message = 'Starting audio…'): Promise<boolean> {
+    const generation = ++this.generation;
+    this.state = 'starting';
+    this.message = starting_message;
+    this.publish();
+    try {
+      await this.playback!.start(0, before_pump);
+      if (generation !== this.generation) return false;
+      require_condition(this.renderer?.ready && !this.graphics_lost, 'INVALID_STATE', 'Graphics are not ready.');
+      return true;
+    } catch (error) {
+      if (generation === this.generation) this.recover(error);
+      return false;
+    }
+  }
+
   private async start(resuming = false, resume_flags = 0, resume_source?: string) {
     const resume_sources = new Set(this.held_input.gameplay_sources);
     const input_settings = this.options.input_settings?.() ?? DEFAULT_PLAYER_SETTINGS;
@@ -292,46 +338,43 @@ export class Gameplay_Controller {
     for (const [source, action] of retained_sources) {
       if (this.paused_sources.get(source) !== action) retained_sources.delete(source);
     }
-    const generation = ++this.generation;
     const playback = this.playback!;
-    this.state = 'starting';
-    this.message = 'Starting audio…';
-    this.publish();
+    if (!await this.#await_playback_start(resuming ? () => {
+      const audio_seconds = playback.clock.anchor!.audio_seconds;
+      // PassThroughInputManager first synchronises releases, then forwards
+      // the actual resume event. Unrelated keys pressed while paused do not
+      // become new gameplay presses merely because input is re-enabled.
+      this.frame!.input.reconcile(retained_sources, audio_seconds, playback.clock.epoch, resume_flags, resume_position);
+      if (resume_source) {
+        const action = mapped_sources(resume_sources, input_settings).get(resume_source);
+        if (action) retained_sources.set(resume_source, action);
+      }
+      this.frame!.input.reconcile(retained_sources, audio_seconds, playback.clock.epoch);
+      const physical_sources = this.held_input.gameplay_sources;
+      for (const source of retained_sources.keys()) if (!physical_sources.has(source)) retained_sources.delete(source);
+      this.frame!.input.reconcile(retained_sources, audio_seconds, playback.clock.epoch, 0, this.physical_position());
+      this.frame!.drain();
+    } : undefined)) return;
     try {
-      await playback.start(0, () => {
-        if (!resuming) return;
-        const audio_seconds = playback.clock.anchor!.audio_seconds;
-        // PassThroughInputManager first synchronises releases, then forwards
-        // the actual resume event. Unrelated keys pressed while paused do not
-        // become new gameplay presses merely because input is re-enabled.
-        this.frame!.input.reconcile(retained_sources, audio_seconds, playback.clock.epoch, resume_flags, resume_position);
-        if (resume_source) {
-          const action = mapped_sources(resume_sources, input_settings).get(resume_source);
-          if (action) retained_sources.set(resume_source, action);
-        }
-        this.frame!.input.reconcile(retained_sources, audio_seconds, playback.clock.epoch);
-        const physical_sources = this.held_input.gameplay_sources;
-        for (const source of retained_sources.keys()) if (!physical_sources.has(source)) retained_sources.delete(source);
-        this.frame!.input.reconcile(retained_sources, audio_seconds, playback.clock.epoch, 0, this.physical_position());
-        this.frame!.drain();
-      });
-      if (generation !== this.generation) return;
-      require_condition(this.renderer?.ready && !this.graphics_lost, 'INVALID_STATE', 'Graphics are not ready.');
       this.state = 'running';
       this.message = gameplay_control_hint(input_settings);
       this.canvas.setAttribute?.('aria-label', gameplay_accessible_label(input_settings));
+      // Live runs attach the gameplay input surface; watch playback never does.
       this.input = new Gameplay_Input(this.canvas, this.frame!, this.sample_audio, reason => this.pause(reason), false,
         input_settings, resuming ? new Set([...this.held_input.sources].filter(source => !retained_sources.has(source))) : this.held_input.sources);
       if (resuming) this.input.cursor_flags = this.paused_cursor_flags;
       this.frame!.start();
       this.publish();
     } catch (error) {
-      if (generation === this.generation) this.recover(error);
+      this.recover(error);
     }
   }
 
   pause(reason = 'Paused.') {
     if (this.state === 'disposed') return;
+    // Watch playback is non-interactive and cannot pause; its exits are
+    // completion, Retry and stop_watch. Terminal sound draining still applies.
+    if (this.watching_replay && this.state !== 'terminal') return;
     if (this.state === 'resuming') {
       this.resume_gate?.dispose();
       this.resume_gate = null;
@@ -369,17 +412,26 @@ export class Gameplay_Controller {
   }
 
   private terminal() {
-    if (this.result || !this.session_handle) return;
-    this.result = this.engine.result(this.session_handle);
+    if (!this.session_handle || this.state === 'terminal' || this.state === 'disposed') return;
+    if (!this.watching_replay && this.completed_run) return;
     this.input?.dispose();
     this.input = null;
     this.frame!.terminal = true;
+    if (!this.watching_replay) {
+      // Capture the finished run while the producing session is still
+      // terminal; every later reset, re-prepare or release keeps serving
+      // this retained record. A watch completion reuses the retained run:
+      // resimulation reproduces it byte-for-byte (asserted in tests).
+      this.completed_run = { result: this.engine.result(this.session_handle),
+        replay_bytes: this.engine.export_replay(this.session_handle) };
+    }
+    const result = this.completed_run!.result;
     this.state = 'terminal';
-    this.message = this.result.summary.state === SESSION_STATE.PASSED ? 'Passed' : 'Failed';
+    this.message = result.summary.state === SESSION_STATE.PASSED ? 'Passed' : 'Failed';
     this.diagnostics?.note_lifecycle(`Run complete: ${this.message}.`,
-      { state: Number(this.result.summary.state), score: this.result.summary.score.toString(),
-        accuracy: Number(this.result.summary.accuracy), highest_combo: Number(this.result.summary.highest_combo) });
-    this.terminal_draining = this.result.summary.state === SESSION_STATE.PASSED && this.context.state === 'running';
+      { state: Number(result.summary.state), score: result.summary.score.toString(),
+        accuracy: Number(result.summary.accuracy), highest_combo: Number(result.summary.highest_combo) });
+    this.terminal_draining = result.summary.state === SESSION_STATE.PASSED && this.context.state === 'running';
     if (!this.terminal_draining || !this.playback!.pending_sounds) this.finish_terminal();
     this.publish();
   }
@@ -431,9 +483,13 @@ export class Gameplay_Controller {
 
   async retry() {
     if (!this.view.can_retry) return;
+    if (this.watching_replay && this.completed_run) {
+      await this.#begin_watch(this.completed_run.replay_bytes);
+      return;
+    }
     this.generation++;
     this.stop_owners();
-    this.result = null;
+    this.completed_run = null;
     this.error = null;
     this.recovery_details = null;
     try {
@@ -456,6 +512,80 @@ export class Gameplay_Controller {
   back() {
     if (this.state === 'disposed') return;
     this.prepare();
+    this.publish();
+  }
+
+  // Terminal-only replay export serving the retained completed run. The bytes
+  // are a self-contained TWREPLAY v2 container; a private copy is returned so
+  // callers cannot mutate the retained recording.
+  export_replay(): Uint8Array {
+    require_condition(this.completed_run !== null, 'INVALID_STATE', 'Replay export requires a finished run.');
+    return this.completed_run.replay_bytes.slice();
+  }
+
+  // Watch the retained completed run: its exported frames are reset into the
+  // current session and replayed without any live input attached.
+  async watch_replay() {
+    require_condition(this.state === 'terminal' && this.completed_run !== null && !this.watching_replay,
+      'INVALID_STATE', 'Watch requires a finished run.');
+    await this.#begin_watch(this.completed_run.replay_bytes);
+  }
+
+  async #begin_watch(replay_bytes: Uint8Array) {
+    this.generation++;
+    this.stop_owners();
+    this.error = null;
+    this.recovery_details = null;
+    this.watching_replay = true;
+    try {
+      require_condition(this.session_handle && this.renderer?.ready && !this.graphics_lost,
+        'INVALID_STATE', 'Wait for graphics restoration before watching.');
+      this.engine.reset_session(this.session_handle);
+      // Playback construction rebinds samples on the reset READY session;
+      // load_replay then switches to replay mode, which rejects live input
+      // and further sample binding.
+      this.create_playback(true);
+      this.engine.load_replay(this.session_handle, replay_bytes);
+      this.state = 'ready';
+      this.in_attempt = true;
+      this.publish();
+    } catch (error) {
+      this.recover(error);
+      return;
+    }
+    await this.#start_watch();
+  }
+
+  // Spectator start: shares the live start lifecycle but never attaches the
+  // gameplay input surface, so judgement comes only from the replay frames.
+  async #start_watch() {
+    if (!await this.#await_playback_start(undefined, 'Starting replay…')) return;
+    try {
+      this.state = 'running';
+      this.message = 'Watching replay.';
+      this.canvas.setAttribute?.('aria-label', 'Replay playback. Press Escape to exit.');
+      this.frame!.start();
+      this.publish();
+    } catch (error) {
+      this.recover(error);
+    }
+  }
+
+  // Exit watch mode from any watch state (running, finished or interrupted):
+  // the replay session is released, a fresh live session is prepared for the
+  // same selection, and the retained completed run is restored so the shell
+  // returns to the original results context with working replay actions.
+  stop_watch() {
+    require_condition(this.watching_replay, 'INVALID_STATE', 'No replay is being watched.');
+    const retained_run = this.completed_run;
+    this.watching_replay = false;
+    this.prepare();
+    if (retained_run && !this.error) {
+      this.completed_run = retained_run;
+      this.in_attempt = true;
+      this.state = 'terminal';
+      this.message = retained_run.result.summary.state === SESSION_STATE.PASSED ? 'Passed' : 'Failed';
+    }
     this.publish();
   }
 
@@ -499,6 +629,10 @@ export class Gameplay_Controller {
     this.prepared_selection = null;
     this.in_attempt = false;
     this.graphics_lost = false;
+    // Releasing the attempt also abandons any watch session and the retained
+    // completed run: Back and new selections return to a clean live lifecycle.
+    this.watching_replay = false;
+    this.completed_run = null;
   }
 
   dispose() {

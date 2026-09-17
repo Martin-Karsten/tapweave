@@ -37,13 +37,17 @@ export interface Debug_Session_Options {
   schedule?: (callback: () => void, delay_ms: number) => void;
 }
 
-export function download_text(filename: string, text: string) {
-  const object_url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+export function download_file(filename: string, data: BlobPart, mime_type: string) {
+  const object_url = URL.createObjectURL(new Blob([data], { type: mime_type }));
   const link = document.createElement('a');
   link.href = object_url;
   link.download = filename;
   link.click();
   setTimeout(() => URL.revokeObjectURL(object_url), 1000);
+}
+
+export function download_text(filename: string, text: string) {
+  download_file(filename, text, 'application/json');
 }
 
 export async function copy_text(text: string, fallback_control: HTMLElement | null, status: (message: string) => void) {

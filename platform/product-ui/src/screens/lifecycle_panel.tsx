@@ -29,6 +29,10 @@ interface Lifecycle_Panel_Props {
   on_resume: () => void;
   on_retry: () => void;
   on_back: () => void;
+  // Terminal-only result actions; the results screen supplies them, transient
+  // play-route overlays do not.
+  on_watch_replay?: () => void;
+  on_save_replay?: () => void;
 }
 
 // Shared pause/recovery/results overlay. Keeps the vanilla player's focus
@@ -113,6 +117,14 @@ export const Lifecycle_Panel: Component<Lifecycle_Panel_Props> = (props) => {
           </For>
         </Show>
       </dl>
+      <Show when={props.view.state === 'terminal' && props.view.result && props.on_watch_replay && props.on_save_replay}>
+        <button id="watch-replay" type="button" disabled={!props.view.can_watch_replay} onClick={props.on_watch_replay}>
+          Watch replay
+        </button>
+        <button id="save-replay" type="button" onClick={props.on_save_replay}>
+          Save replay
+        </button>
+      </Show>
       <button id="resume" type="button" hidden={props.view.state !== 'paused'} disabled={!props.view.can_resume} onClick={props.on_resume}>
         Resume
       </button>

@@ -7,6 +7,7 @@ import type { Shell_State } from '../src/services/player_session.js';
 const shell_module = vi.hoisted(() => {
   const gameplay_view = Object.freeze({
     state: 'ready', can_play: false, can_resume: false, can_retry: false,
+    can_watch_replay: false, watching_replay: false,
     recovery: null, in_attempt: false, message: 'Starting engine…', error: null, result: null,
   });
   const booting_state: Shell_State = Object.freeze({
