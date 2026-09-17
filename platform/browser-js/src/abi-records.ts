@@ -66,6 +66,12 @@ export const RECORD = Object.freeze({
 // This transport branches on OK and OUTPUT_REQUIRED only; every other status is an error.
 export const ENGINE_STATUS = Object.freeze({ OK: 0, OUTPUT_REQUIRED: 8 } as const);
 
+// Decoder fault codes carried by the kind-7 error record, mirroring
+// Error_Code in engine/core_types/types.odin (explicitly numbered from zero).
+export const DECODE_ERROR_CODE = Object.freeze({ NONE: 0, HEADER: 1, FORMAT_VERSION: 2, UTF8: 3, NUMBER: 4,
+  SECTION: 5, FIELD_COUNT: 6, MODE: 7, OBJECT_TYPE: 8, RAW_BYTES: 9, LINES: 10, OBJECTS: 11,
+  TIMING_POINTS: 12, ARENA_BYTES: 13, DURATION: 14, PATH: 15, HANDLE: 16, QUOTAS: 17, PREPARATION_WORK: 18 } as const);
+
 // Session lifecycle states on the gameplay, presentation, draw and result headers
 // (docs/architecture/interface-v2.md: READY=0, RUNNING=1, PAUSED=2, PASSED=3, FAILED=4).
 export const SESSION_STATE = Object.freeze({ READY: 0, RUNNING: 1, PAUSED: 2, PASSED: 3, FAILED: 4 } as const);

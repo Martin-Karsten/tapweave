@@ -114,7 +114,16 @@ export class Selection_Controller {
         return;
       }
       require_condition(bytes !== null, 'MISSING_MAP', 'Selected beatmap is missing.');
-      candidate.prepared_map = this.engine.prepare_map(bytes);
+      try {
+        candidate.prepared_map = this.engine.prepare_map(bytes);
+      } catch (error) {
+        // Engine rejections keep the attempted difficulty name so surfaces can
+        // explain which map refused to load (for example non-standard rulesets).
+        if (error instanceof Browser_Error) {
+          error.details = { ...error.details, filename };
+        }
+        throw error;
+      }
       const audio_filename = candidate.prepared_map.descriptor.audio_filename;
       const map_directory = filename.includes('/') ? filename.slice(0, filename.lastIndexOf('/') + 1) : '';
       const audio_path = audio_filename ? normalize_asset_path(map_directory + audio_filename) : null;

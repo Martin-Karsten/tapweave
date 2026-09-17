@@ -191,3 +191,17 @@ test('the wedge shows CS, AR, OD, HP and object stats from the descriptor', asyn
   await expect(page.locator('#map-detail')).toContainText('Main music is missing');
   await expect(page.locator('#play-gate')).toBeVisible();
 });
+
+test('non-standard ruleset rejections name the map and keep the technical detail', async ({ page }) => {
+  await page.goto('/select');
+  await expect(page.getByRole('status')).toContainText('Engine ready');
+  const catch_map = beatmap().replace('AudioFilename: music.wav', 'AudioFilename: music.wav\nMode: 2');
+  await page.getByLabel('Open local files', { exact: true }).setInputFiles({ name: 'catch.osu', mimeType: 'text/plain', buffer: Buffer.from(catch_map) });
+  await expect(page.getByRole('alert')).toContainText('"catch.osu" is a taiko, catch or mania difficulty');
+  await expect(page.getByRole('alert')).toContainText('Only osu!standard difficulties are supported');
+  await expect(page.locator('#error-detail')).toContainText('UNSUPPORTED');
+  // The previous valid selection (if any) stays playable after the refusal.
+  await page.getByLabel('Open local files', { exact: true }).setInputFiles({ name: 'standard.osu', mimeType: 'text/plain', buffer: Buffer.from(beatmap()) });
+  await expect(page.getByRole('status')).toContainText('successfully');
+  await expect(page.locator('#error')).toBeHidden();
+});

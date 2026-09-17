@@ -3,6 +3,8 @@ import { useNavigate } from '@solidjs/router';
 import { Virtual_List } from '../components/virtual_list';
 import { debug_dialog_open, open_debug_dialog } from '../state/debug_state';
 import { player_session, shell_state } from '../state/session_state';
+import { DECODE_ERROR_CODE } from '@browser/abi-records.js';
+import type { Browser_Error } from '@browser/errors.js';
 import type { Active_Selection } from '@browser/selection.js';
 
 const map_display_name = (filename: string): string =>
@@ -132,9 +134,23 @@ export const Select_Screen: Component = () => {
     return `${count} ${count === 1 ? 'difficulty' : 'difficulties'}`;
   };
 
-  const selection_error_message = (): string => {
-    const error = selection().error;
-    return error ? error.message : '';
+  // Actionable copy for engine refusals the product can explain; the raw
+  // engine message stays visible as the technical line underneath.
+  const selection_error_text = (error: Browser_Error): { primary: string; technical: string | null } => {
+    const filename = typeof error.details.filename === 'string' ? error.details.filename : null;
+    const map_text = filename ? `"${filename}"` : 'The selected difficulty';
+    if (error.details.status_name === 'UNSUPPORTED') {
+      if (error.details.code === DECODE_ERROR_CODE.MODE) {
+        return { primary: `${map_text} is a taiko, catch or mania difficulty. Only osu!standard difficulties are supported.`,
+          technical: error.message };
+      }
+      if (error.details.code === DECODE_ERROR_CODE.FORMAT_VERSION) {
+        return { primary: `${map_text} uses a beatmap format version this build does not support.`,
+          technical: error.message };
+      }
+      return { primary: `${map_text} uses a beatmap feature this build does not support.`, technical: error.message };
+    }
+    return { primary: error.message, technical: null };
   };
 
   const open_files = (event: Event) => {
@@ -259,9 +275,19 @@ export const Select_Screen: Component = () => {
         <p id="status" role="status" aria-live="polite">
           {selection_status()}
         </p>
-        <p id="error" role="alert" hidden={!selection().error}>
-          {selection_error_message()}
-        </p>
+        <Show when={selection().error} keyed>
+          {(error) => {
+            const error_text = selection_error_text(error);
+            return (
+              <div id="error" role="alert">
+                <p id="error-message">{error_text.primary}</p>
+                <Show when={error_text.technical}>
+                  {(technical) => <p id="error-detail" class="error-detail">{technical()}</p>}
+                </Show>
+              </div>
+            );
+          }}
+        </Show>
       </section>
       <section class="select-wedge" aria-label="Beatmap details">
         <div class="wedge-shear-edge">

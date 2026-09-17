@@ -204,3 +204,25 @@ test('concurrent difficulty candidates share one in-flight decode in the retaine
     engine.dispose();
   }
 });
+
+// Engine preparation rejections retain the attempted difficulty name so the
+// shell can name the map that refused to load (non-standard rulesets etc.).
+test('unsupported ruleset rejection carries the attempted filename in its details', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  const controller = new Selection_Controller(engine);
+  try {
+    await controller.load_files([new File([valid_map.replace('AudioFilename: music.wav', 'AudioFilename: music.wav\nMode: 2')], 'catch.osu')]);
+    assert.equal(controller.active, null);
+    assert.equal(controller.error.code, 'ENGINE_3');
+    assert.equal(controller.error.details.status_name, 'UNSUPPORTED');
+    assert.equal(controller.error.details.code, 7);
+    assert.equal(controller.error.details.filename, 'catch.osu');
+    // A later valid load clears the annotated failure.
+    await controller.load_files([new File([valid_map], 'standard.osu')]);
+    assert.equal(controller.error, null);
+    assert.equal(controller.active.filename, 'standard.osu');
+  } finally {
+    controller.dispose();
+    engine.dispose();
+  }
+});
