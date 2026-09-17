@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "acceptance": [],
+  "complete": false,
+  "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "feature": "Skip affordance during the map lead-in and breaks (shell lazer-parity phase B)",
+  "upstream_sources": [
+    {
+      "path": "osu.Game/Screens/Play/SkipOverlay.cs",
+      "sha256": "c0ca4212e86767455a5c9038716adfbf79ed6e35f2e6dda06452bc449b39697b",
+      "role": "Overlay visibility window (progress > 0 while currentTime < startTime - MINIMUM_SKIP_TIME) and expiry when no skippable window exists"
+    },
+    {
+      "path": "osu.Game/Screens/Play/MasterGameplayClockContainer.cs",
+      "sha256": "5414de098f0bf29052035adc99a3ac1e5bcacfd078a1d2349f526714f9f340cb",
+      "role": "MINIMUM_SKIP_TIME = 1000; Skip() guard (no-op past the window) and skipTarget = GameplayStartTime - MINIMUM_SKIP_TIME"
+    },
+    {
+      "path": "osu.Game.Tests/Visual/Gameplay/TestSceneSkipOverlay.cs",
+      "sha256": "8bc47b5167dd0441c1455bad28a103a2f3f6f9f24ef7170cfd49840796d1397b",
+      "role": "Ported test intent: TestSkipTimeZero/TestSkipTimeEqualToSkip (no window -> affordance never appears), TestClickOnlyActuatesOnce (single actuation, retired after the jump)"
+    }
+  ],
+  "oracle": "local-intent-port",
+  "local_sources": [
+    {
+      "path": "../platform/browser-js/src/gameplay-controller.ts",
+      "sha256": "b1b1aa0e00e51624b75f845e5747d18bb846749967d8acff51a9da9f9dc73d52"
+    },
+    {
+      "path": "../platform/browser-js/src/audio-playback.ts",
+      "sha256": "556755456df66811a19f909870d15ef48d2d1dd8d5d836d22b8e094cfe9cc859"
+    },
+    {
+      "path": "../platform/browser-js/src/engine-bridge.ts",
+      "sha256": "575b2a5babbf00f2f954cc0a2562a402d484ed0363fc1975cd31ab046e5216eb"
+    },
+    {
+      "path": "../platform/browser-js/tests/gameplay-controller.test.mjs",
+      "sha256": "75fb2c25216350aa7f09508fbaa2d3c1e073275c9f5dcd34224678ef644024c7"
+    },
+    {
+      "path": "../platform/browser-js/tests/audio-playback.test.mjs",
+      "sha256": "780c9bbe9328ba40ff60d03d97269ced7b758ea1fc96b716f1168cb80bf65206"
+    },
+    {
+      "path": "../platform/product-ui/src/screens/play_screen.tsx",
+      "sha256": "7e77e15445839072517436192bc1e4a410965f09a4d462c7416a720bd206072a"
+    },
+    {
+      "path": "../platform/product-ui/src/services/player_session.ts",
+      "sha256": "850d48f650e03e446e7b35b6ed411a2733e6a7caed307b669bcb8d7e04f9ca6a"
+    },
+    {
+      "path": "../platform/product-ui/tests/browser/skip.spec.mjs",
+      "sha256": "0c65c6474752dbea381876df1bfc542a54dd48fec6c8a27654fe1a7b84a35876"
+    }
+  ],
+  "ported_assertions": {
+    "no_window_never_appears": "TestSceneSkipOverlay.TestSkipTimeZero/TestSkipTimeEqualToSkip -> product-ui skip.spec 'no skip affordance when the first object time equals the skip lead' and controller guard test 'skip is refused outside skippable windows'",
+    "single_actuation": "TestSceneSkipOverlay.TestClickOnlyActuatesOnce -> repeated skip() after a jump is a refusal; node tests assert the anchor and committed time move exactly once",
+    "skip_target": "MasterGameplayClockContainer.Skip skipTarget = GameplayStartTime - MINIMUM_SKIP_TIME -> SKIP_LEAD_MS = 1000; target = next boundary - lead (lead-in: first object; break: break end), clamped to >= committed + 1 ms"
+  },
+  "classifications": {
+    "divergence": "The affordance is a DOM button outside the canvas input surface (lazer overlays the playfield); ours additionally offers skip during beatmap breaks (lazer's intro SkipOverlay does not), targeting one lead before the break end; skip is a clock re-anchor, not lazer's GameplayClockContainer.Seek",
+    "input_policy": "Inputs received before the skip are submitted at their pre-skip receipt times; residual records stamped with the closed clock epoch are dropped and fail loudly if replayed - an explicit policy, not a hidden clamp",
+    "not_executed_upstream": "No pinned upstream test executes against this implementation (display-side behavior; the SkipOverlay scene is a visual test). The pinned sources above were read at the manifest commit and their assertions ported locally, so this is intent-level evidence, not upstream acceptance",
+    "remaining": "Upstream acceptance for the skip window remains open pending a reference-host adapter comparable to the pause suite; no acceptance IDs are attached"
+  },
+  "reproduce": "npm --prefix platform/browser-js test && npm --prefix platform/product-ui run test:browser -- tests/browser/skip.spec.mjs"
+}

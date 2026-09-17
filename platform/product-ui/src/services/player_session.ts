@@ -35,6 +35,7 @@ export const INITIAL_SHELL_STATE: Shell_State = Object.freeze({
     can_play: false,
     can_resume: false,
     can_retry: false,
+    can_skip: false,
     can_watch_replay: false,
     watching_replay: false,
     recovery: null,
@@ -213,6 +214,7 @@ export class Player_Session_Service {
   async play() { await this.gameplay.play(); }
   quarantine_input(source: string) { this.gameplay.quarantine_input(source); }
   pause(reason?: string) { this.gameplay.pause(reason); }
+  skip() { this.gameplay.skip(); }
   async resume() { await this.gameplay.resume(); }
   async retry() { await this.gameplay.retry(); }
   back() { this.gameplay.back(); }

@@ -565,6 +565,18 @@ button:disabled {
   right: 12px;
 }
 
+/* Lazer skip position: floating bottom-right of the playfield. */
+#skip {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 5;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
 .lifecycle-panel {
   position: absolute;
   inset: 0;

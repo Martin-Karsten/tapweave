@@ -952,3 +952,65 @@ search and local regressions. A 65,000-move controller run reaches terminal and
 watches its retained replay; native and WASM long-slider runs exercise 50,000
 held-action tracking changes and ring wraparound. No upstream acceptance row or
 release-browser certification is closed by these local resource checks.
+## Skip during lead-in and breaks (shell lazer-parity phase B)
+
+A lazer-style
+Skip affordance (`#skip`, floating bottom-right, outside the canvas input
+surface) is available while a live session sits in the map lead-in or a beatmap
+break (plan [shell-lazer-parity](shell-lazer-parity-plan.md) phase B; no
+engine, ABI or trace changes). The affordance also renders during phase-A
+replay watch mode: `can_skip` keys on lifecycle/audio state and descriptor
+windows only, and a watch has no live input to drain or drop. The skip windows
+come from the prepared
+descriptor: `Prepared_Description.breaks()` walks the kind-15 records behind
+`summary.breaks_offset/count/stride` and `first_object_ms()` reads the first
+time-ordered object; the controller caches the windows per prepared map so the
+per-frame probe stays read-only. The window is open while
+`0 ≤ t < first_object_ms − 1000` (pinned-lazer
+`MasterGameplayClockContainer.MINIMUM_SKIP_TIME`) or inside a break with more
+than one skip lead remaining; the target is the next boundary minus the lead,
+clamped to at least `committed + 1 ms`.
+
+`skip()` is a user-command path, not a frame-path feature: it stops the frame
+driver, drains buffered input at the pre-skip receipt times, drops residual
+records (closed-epoch stamps fail loudly in drain rather than replaying — an
+explicit policy recorded in the finding, not a hidden clamp), then
+`Audio_Playback.skip_forward` re-anchors the one audio clock at the target
+(`clock.pause` + `clock.start` at the same audio instant), rebinds the session
+mapping and restarts the music transport at the target media offset. The next
+pump issues a single forward `advance_output` across the gap; health cannot
+drain across it because engine no-drain intervals already bracket breaks and
+the lead-in. `Gameplay_View.can_skip` is computed live and the frame render
+callback publishes only on window transitions, so the steady frame path is
+untouched. Outside windows `skip()` is a refusal (view gate), mirroring
+lazer's `Skip()` guard.
+
+Classification: local browser/shell behavior with intent-level upstream
+mapping, not an upstream acceptance gate. The pinned sources at `3c1c96f7`
+(`SkipOverlay.cs`, `MasterGameplayClockContainer.cs`,
+`osu.Game.Tests/Visual/Gameplay/TestSceneSkipOverlay.cs`) were fetched and
+hashed into the [skip finding index](../engine/reference/findings/skip-window.json);
+the ported assertions are the no-window cases (`TestSkipTimeZero`/
+`TestSkipTimeEqualToSkip`), single actuation (`TestClickOnlyActuatesOnce`) and
+the `MINIMUM_SKIP_TIME` skip target. Recorded divergences: ours is a DOM
+button (lazer overlays the playfield) and ours also skips during breaks
+(lazer's intro overlay does not), targeting one lead before the break end.
+
+Validation: browser typecheck, build and the full service-test suite pass,
+including new controller regressions (lead-in skip and break skip each
+reproduce the straight-run result bytes byte-for-byte across the jump with a
+stray input inside the gap, skip actuates exactly once, refusal outside
+windows never disturbs the clock, and a closed-epoch input record after a skip
+fails loudly into recovery) and an `Audio_Playback` regression (re-anchor
+keeps the engine epoch, restarts music at the target offset and refuses
+non-advancing or paused skips). The new product Playwright skip spec (lead-in
+appears/jumps/retires, break appears mid-map, no-window map never shows it)
+and the existing suites pass on system Chrome via the `chrome` channel; the
+Playwright CDN remained unreachable for pinned browser binaries (recorded
+above for phase A), and one pre-existing load-dependent HUD flake
+(`debug.spec.mjs` "HUD is non-interactive") reproduces identically on the
+unmodified main tree and is unrelated. Skip during phase-A watch mode was
+additionally verified against a merged tree: the watch reaches terminal with
+a byte-identical result after skipping the replay lead-in, and `stop_watch`
+restores the retained result. Upstream skip acceptance remains open pending a
+reference-host adapter.
