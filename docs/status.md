@@ -252,6 +252,16 @@ asserts command policy at emit time. The browser admission path still allocates
 bounded staging/executor storage (reserved, not per-hit-object), and its
 immediate late policy is provisional pending H11. The prepared_sample flags field (bit 0) publishes loop classification so
 the browser never re-derives it from sample names.
+Miss results intentionally emit no object samples: the pinned upstream
+`DrawableHitObject` plays an object's samples only on `ArmedState.Hit`, so upstream
+misses are silent at the object level. The audible lazer "miss sound" is instead the
+skin-provided `Gameplay/combobreak` sample played by
+`osu.Game/Screens/Play/ComboEffects.cs` when the combo rolls back to zero with a
+previous combo above 20 or on the first break of a run (`AlwaysPlayFirstComboBreak`,
+default true), while not rewinding and with sample playback enabled. Tapweave does not
+yet emit or bind a combo-break sample: kind-28 bindings are per-object, so delivery
+needs a global/skin sample slot in the ABI plus a synthesized browser fallback. That
+channel stays open with skin support; no upstream acceptance is claimed for it.
 
 Simulation exposes component and semantic cursor/feedback history independently
 of acknowledgement. Per-object sample ranges avoid scanning unrelated objects'
