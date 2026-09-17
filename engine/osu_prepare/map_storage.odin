@@ -100,6 +100,12 @@ prepare_shared_records :: proc(
 		special_style = decoded.general.special_style,
 		audio_filename = map_string(builder, decoded.metadata.audio),
 	}
+	prepared_map.metadata = {
+		title = map_string(builder, decoded.metadata.title),
+		artist = map_string(builder, decoded.metadata.artist),
+		creator = map_string(builder, decoded.metadata.creator),
+		version = map_string(builder, decoded.metadata.version),
+	}
 	prepared_map.breaks = map_take(builder, prepared.Break, u64(len(decoded.breaks)))
 	if builder.fill && builder.error.status == .OK {
 		for map_break, break_index in decoded.breaks {

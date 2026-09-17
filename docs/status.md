@@ -51,8 +51,12 @@ Map flag `2` now constructs an immutable prepared map containing:
 
 Preparation version 2 additionally owns and exposes breaks, resolved control
 points and playback settings. The binary descriptor appends those records without
-moving existing fields. Identity uses an explicit canonical binary writer and the
-`prepared-v2` profile, with a fixed golden; it no longer depends on reflected JSON.
+moving existing fields. A later append retains decoder-owned `[Metadata]`
+strings (title, artist, creator, difficulty version) on the prepared map and
+exposes them through one kind-54 `prepared_metadata` record behind a kind-8
+span (248 → 264 bytes with a named zero tail). Identity uses an explicit
+canonical binary writer and the `prepared-v2` profile, with a fixed golden; it
+no longer depends on reflected JSON.
 Integer overflow and whitespace regressions, complete ABI scalar checks, and
 standalone prepared-data lifetime/work-budget tests accompany the review fixes.
 
@@ -766,6 +770,57 @@ A21/A23/A24 remain open as complete rows: cooldown, pause-menu sound loops, the
 full inactive-player/resource matrix, H11 and physical-device certification are
 not implied by these bounded input tests. The finding index retains pinned
 revisions, source/test hashes, classifications and the upstream observation digest.
+
+## Song-select decoder metadata (Plan 1 parity round, phase C)
+
+Song select now shows decoder-owned `[Metadata]` values instead of
+filename-derived strings, completing the metadata item of the
+[Plan 1 handoff](mvp-player-experience.md) as scoped by the
+[shell lazer-parity plan](shell-lazer-parity-plan.md). Preparation retains the
+decoder's title/artist/creator/version strings on the prepared map and
+publishes them through an append-only ABI extension: kind 8 grows 248 → 264
+bytes with a `metadata` span (plus a named zero tail to keep eight-byte
+alignment), addressing exactly one new kind-54 `prepared_metadata` record
+whose four offset/count/stride string triples mirror the kind-17
+`audio_filename` pattern. See
+[interface-v2](architecture/interface-v2.md) for the versioning stance:
+readers of the extended descriptor must accept the grown `byte_size`, and the
+append is display data only — prepared identity still hashes raw text, so
+`raw_digest`/`prepared_digest` semantics are unchanged while
+`description_digest` values legitimately moved with the descriptor bytes.
+
+The browser bridge copies the four validated UTF-8 strings onto its owned
+`Prepared_Description`, so `Active_Selection` needed no plumbing. The select
+wedge shows title, artist, "mapped by" creator and the difficulty version
+(only the prepared active difficulty's row uses version metadata; other rows
+keep filename labels, and the difficulty filter searches those same displayed
+labels). Explicitly empty metadata fields count as absent and fall back to
+the previous filename-derived strings; the decoder's pinned lazer defaults
+("Unknown", "Unknown", "Unknown Creator", "Normal" — lazer `Beatmap.cs`
+constructor) are ordinary values and display as-is, as in lazer's own song
+select, so deliberate values like a `Version:Normal` difficulty name are
+never mistaken for missing metadata. ADR-007 records this as a
+resolved-with-fallback divergence.
+
+Local evidence: the full engine suite passes with regenerated native/WASM
+preparation traces (schema v2 traces now carry a required `metadata` object)
+and the ABI-level fixture check compares every kind-54 string against the
+reference trace; the `abi-record-fields` fixture gained a `[Metadata]`
+section. `engine/reference/findings/m1.json` is preserved untouched as the
+historical record of the last pinned upstream execution; rerunning H03/H04
+against the metadata-extended traces is pending a dotnet-capable
+environment.
+Browser service tests, typecheck/build, product unit tests and the Playwright
+select specs (real metadata, empty-field fallback and label-based filtering)
+pass. Playwright ran on Chromium and Firefox with both full matrices green;
+the diagnostics input fixture has a pre-existing, order-dependent Firefox
+0.5 px coordinate flake that reproduces without this change. WebKit could
+not run because the pinned WebKit build was unavailable from the Playwright
+CDN during validation — re-run the browser matrix once the CDN serves it
+again. Upstream intent is
+covered by the pinned lazer decoder's metadata defaults and field extraction;
+display-side has no upstream executable equivalent (search recorded in the
+findings), so no upstream acceptance scenario is closed by this increment.
 
 ## Known gameplay MVP defects
 

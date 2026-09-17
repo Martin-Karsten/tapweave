@@ -756,12 +756,25 @@ export class Session_Output {
   }
 }
 
+// Decoder-owned song-select strings copied out of the kind-54 record's
+// validated UTF-8 spans. Values are the decoder's verbatim [Metadata] output:
+// maps without the section carry the pinned lazer defaults ("Unknown" and
+// friends), and explicitly empty values survive; treating those as absent is
+// shell display policy, not bridge behavior.
+export interface Prepared_Description_Metadata {
+  title: string;
+  artist: string;
+  creator: string;
+  version: string;
+}
+
 export class Prepared_Description {
   bytes: Uint8Array;
   view: DataView;
   summary: Prepared_Descriptor_Record;
   playback: Record<string, Record_Values>;
   audio_filename: string;
+  metadata: Prepared_Description_Metadata;
 
   constructor(bytes: Uint8Array) {
     this.bytes = bytes;
@@ -772,6 +785,15 @@ export class Prepared_Description {
     require_condition(playback_span.count === 1, 'INVALID_SPAN', 'Expected one playback record.');
     this.playback = readRecord(this.view, playback_span.offset, RECORD.prepared_playback);
     this.audio_filename = this.text(this.playback, 'audio_filename');
+    const metadata_span = this.array_span(this.summary, 'metadata', record_size(RECORD.prepared_metadata));
+    require_condition(metadata_span.count === 1, 'INVALID_SPAN', 'Expected one metadata record.');
+    const metadata = read_record(this.view, metadata_span.offset, RECORD.prepared_metadata);
+    this.metadata = {
+      title: this.text(metadata, 'title'),
+      artist: this.text(metadata, 'artist'),
+      creator: this.text(metadata, 'creator'),
+      version: this.text(metadata, 'version'),
+    };
   }
 
   *records(parent: Record<string, Record_Values>, field_name: string, kind: number) {

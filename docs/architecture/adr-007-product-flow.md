@@ -68,10 +68,11 @@ results` as structure-reference chrome in `platform/product-ui`:
 - Import works through the file input and by dropping files onto the screen;
   both feed the existing transactional `load_files` path. The difficulty
   filter is a plain substring match over the loaded set's filenames.
-- The wedge shows filename-derived title, music status, object count and
-  CS/AR/OD/HP from the prepared descriptor (ABI record 8), plus the play gate
-  message. OD and HP were already in the descriptor; displaying them is a UI
-  change only.
+- The wedge shows decoder-owned title, artist, creator and difficulty name
+  from the prepared descriptor's kind-54 metadata record (filename fallback
+  only for explicitly empty fields), music status, object count and
+  CS/AR/OD/HP from the descriptor summary (ABI record 8), plus the play gate
+  message.
 - Established a11y/test anchors are preserved (`#files`, `#status`,
   `#error`, `#objects`, `#circle-size`, `#approach-rate`, `#play-gate`,
   `#debug-open`, `data-virtual-list="difficulties"`, `data-map-filename`),
@@ -92,11 +93,16 @@ toward upstream acceptance scenarios.
    excluded by the rect-capture rule for the play route.
 3. **Single-set session.** The carousel holds only the imported set. There is
    no beatmap database, grouping, sorting, collections or star-rating filter;
-   the FilterControl-position bar filters the active set's difficulties, the
-   set title is filename-derived (common-prefix fallback to the active
-   difficulty), and the set panel is sheared for wedge-language consistency
-   although pinned carousel panels are not. Decoder-owned metadata arrives
-   with the Plan 1 ABI query and supersedes the filename-derived strings.
+   the FilterControl-position bar filters the active set's difficulties, and
+   the set panel is sheared for wedge-language consistency although pinned
+   carousel panels are not. The former filename-derived divergence is
+   resolved with fallback: title, artist, creator and difficulty name come
+   from the decoder-owned kind-54 metadata record of the prepared active
+   difficulty, while unprepared rows keep filename labels and the difficulty
+   filter searches those displayed labels. Only explicitly empty fields
+   count as absent and fall back to filename-derived strings; the decoder's
+   pinned lazer defaults ("Unknown" and friends) are ordinary values and
+   display as-is, as in lazer's own song select.
 4. **HTML-shell substitutions.** The screen title ("Song select") exists
    where pinned `SongSelect` has no header title; drag-and-drop import and
    the in-document footer are browser idioms standing in for lazer's global

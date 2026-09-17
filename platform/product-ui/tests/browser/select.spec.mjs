@@ -19,6 +19,40 @@ HPDrainRate:7
 [HitObjects]
 256,192,1000,1,0${extra_objects > 0 ? '\n128,192,1200,1,0' : ''}`;
 
+const beatmap_with_metadata = () =>
+  `osu file format v14
+[General]
+AudioFilename: music.wav
+[Metadata]
+Title:Song Select Parity
+Artist:Test Artist
+Creator:Test Creator
+Version:Field Coverage
+[Difficulty]
+CircleSize:4
+ApproachRate:9
+OverallDifficulty:8
+HPDrainRate:7
+[HitObjects]
+256,192,1000,1,0`;
+
+const beatmap_with_empty_metadata = () =>
+  `osu file format v14
+[General]
+AudioFilename: music.wav
+[Metadata]
+Title:
+Artist:
+Creator:
+Version:
+[Difficulty]
+CircleSize:4
+ApproachRate:9
+OverallDifficulty:8
+HPDrainRate:7
+[HitObjects]
+256,192,1000,1,0`;
+
 async function wait_ready(page) {
   await page.goto('/select');
   await expect(page.locator('#status')).toContainText('Engine ready');
@@ -83,8 +117,62 @@ test('dropping files onto the screen imports them', async ({ page, browserName }
   }, beatmap());
   await expect(page.locator('.select-screen')).toHaveAttribute('data-drop-active', 'false');
   await expect(page.getByRole('status')).toHaveText('Beatmap prepared successfully.');
-  await expect(page.locator('#map-name')).toHaveText('dropped');
+  // The dropped map has no [Metadata]; the decoder default title displays.
+  await expect(page.locator('#map-name')).toHaveText('Unknown');
   await expect(page.locator('#objects')).toHaveText('1');
+});
+
+test('the wedge shows decoder-owned metadata and falls back only for empty fields', async ({ page }) => {
+  await wait_ready(page);
+  await page.getByLabel('Open local files', { exact: true }).setInputFiles({
+    name: 'meta.osu',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(beatmap_with_metadata()),
+  });
+  await expect(page.getByRole('status')).toHaveText('Beatmap prepared successfully.');
+  await expect(page.locator('#map-name')).toHaveText('Song Select Parity');
+  await expect(page.locator('#map-artist')).toHaveText('Test Artist');
+  await expect(page.locator('#map-creator')).toHaveText('mapped by Test Creator');
+  await expect(page.locator('#map-difficulty')).toHaveText('Field Coverage');
+  await expect(page.locator('.set-title')).toHaveText('Song Select Parity');
+  const active_row = page.locator('[data-virtual-list="difficulties"] [data-map-filename="meta.osu"]');
+  await expect(active_row).toHaveText('Field Coverage');
+  // The filter searches the displayed labels, not only filenames.
+  await page.getByLabel('Filter difficulties').fill('field coverage');
+  await expect(active_row).toBeVisible();
+  await page.getByLabel('Filter difficulties').fill('');
+
+  // A stripped beatmap decodes to the pinned lazer defaults, which are
+  // ordinary values (a deliberate Version:Normal or Title:Unknown must not
+  // be mistaken for missing metadata) and display like lazer's song select.
+  await page.getByLabel('Open local files', { exact: true }).setInputFiles({
+    name: 'stripped.osu',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(beatmap()),
+  });
+  await expect(page.getByRole('status')).toHaveText('Beatmap prepared successfully.');
+  await expect(page.locator('#map-name')).toHaveText('Unknown');
+  await expect(page.locator('#map-artist')).toHaveText('Unknown');
+  await expect(page.locator('#map-creator')).toHaveText('mapped by Unknown Creator');
+  await expect(page.locator('#map-difficulty')).toHaveText('Normal');
+  await expect(page.locator('.set-title')).toHaveText('Unknown');
+  await expect(page.locator('[data-virtual-list="difficulties"] [data-map-filename="stripped.osu"]'))
+    .toHaveText('Normal');
+
+  // Explicitly empty fields count as absent: filename-derived strings return.
+  await page.getByLabel('Open local files', { exact: true }).setInputFiles({
+    name: 'hollow.osu',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(beatmap_with_empty_metadata()),
+  });
+  await expect(page.getByRole('status')).toHaveText('Beatmap prepared successfully.');
+  await expect(page.locator('#map-name')).toHaveText('hollow');
+  await expect(page.locator('#map-artist')).toHaveCount(0);
+  await expect(page.locator('#map-creator')).toHaveCount(0);
+  await expect(page.locator('#map-difficulty')).toHaveCount(0);
+  await expect(page.locator('.set-title')).toHaveText('hollow');
+  await expect(page.locator('[data-virtual-list="difficulties"] [data-map-filename="hollow.osu"]'))
+    .toHaveText('hollow');
 });
 
 test('the wedge shows CS, AR, OD, HP and object stats from the descriptor', async ({ page }) => {

@@ -509,6 +509,22 @@ write_playback :: proc(builder: ^Binary_Builder, playback: ^Playback) {
 	)
 }
 
+write_metadata :: proc(builder: ^Binary_Builder, metadata: ^Metadata) {
+	record_offset := reserve(builder, 1, ABI_PREPARED_METADATA_SIZE)
+	write_span(
+		builder,
+		ABI_PREPARED_DESCRIPTOR_METADATA_OFFSET_OFFSET,
+		record_offset,
+		1,
+		ABI_PREPARED_METADATA_SIZE,
+	)
+	write_header(builder, record_offset, ABI_PREPARED_METADATA_KIND, ABI_PREPARED_METADATA_SIZE)
+	write_string(builder, record_offset + ABI_PREPARED_METADATA_TITLE_OFFSET_OFFSET, metadata.title)
+	write_string(builder, record_offset + ABI_PREPARED_METADATA_ARTIST_OFFSET_OFFSET, metadata.artist)
+	write_string(builder, record_offset + ABI_PREPARED_METADATA_CREATOR_OFFSET_OFFSET, metadata.creator)
+	write_string(builder, record_offset + ABI_PREPARED_METADATA_VERSION_OFFSET_OFFSET, metadata.version)
+}
+
 write_description :: proc(builder: ^Binary_Builder, prepared_map: ^Map) {
 	reserve(builder, 1, ABI_PREPARED_DESCRIPTOR_SIZE)
 	write_header(builder, 0, ABI_PREPARED_DESCRIPTOR_KIND, ABI_PREPARED_DESCRIPTOR_SIZE)
@@ -600,6 +616,7 @@ write_description :: proc(builder: ^Binary_Builder, prepared_map: ^Map) {
 		prepared_map.effect_points,
 	)
 	write_playback(builder, &prepared_map.playback)
+	write_metadata(builder, &prepared_map.metadata)
 	write_number(builder, ABI_PREPARED_DESCRIPTOR_FORMAT_VERSION_OFFSET, u64(prepared_map.format_version), 4)
 	write_number(
 		builder,

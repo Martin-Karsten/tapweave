@@ -205,7 +205,7 @@ export const schema = {
     {
       "name": "prepared_descriptor",
       "kind": 8,
-      "size": 248,
+      "size": 264,
       "fields": {
         "behavior_id": [
           8,
@@ -381,6 +381,22 @@ export const schema = {
         ],
         "reserved_244": [
           244,
+          "u32"
+        ],
+        "metadata_offset": [
+          248,
+          "u32"
+        ],
+        "metadata_count": [
+          252,
+          "u32"
+        ],
+        "metadata_stride": [
+          256,
+          "u32"
+        ],
+        "reserved_260": [
+          260,
           "u32"
         ]
       }
@@ -2829,6 +2845,62 @@ export const schema = {
         ],
         "right_input_flags": [
           44,
+          "u32"
+        ]
+      }
+    },
+    {
+      "name": "prepared_metadata",
+      "kind": 54,
+      "version": 1,
+      "size": 56,
+      "fields": {
+        "title_offset": [
+          8,
+          "u32"
+        ],
+        "title_count": [
+          12,
+          "u32"
+        ],
+        "title_stride": [
+          16,
+          "u32"
+        ],
+        "artist_offset": [
+          20,
+          "u32"
+        ],
+        "artist_count": [
+          24,
+          "u32"
+        ],
+        "artist_stride": [
+          28,
+          "u32"
+        ],
+        "creator_offset": [
+          32,
+          "u32"
+        ],
+        "creator_count": [
+          36,
+          "u32"
+        ],
+        "creator_stride": [
+          40,
+          "u32"
+        ],
+        "version_offset": [
+          44,
+          "u32"
+        ],
+        "version_count": [
+          48,
+          "u32"
+        ],
+        "version_stride": [
+          52,
           "u32"
         ]
       }

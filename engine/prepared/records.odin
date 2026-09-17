@@ -102,9 +102,17 @@ Playback :: struct {
 	audio_filename: string,
 }
 
+// Decoder-owned song-select strings from the [Metadata] section. Like
+// Playback.audio_filename, the strings are arena-owned copies that outlive the
+// decoded map; identity digests hash raw text and never observe them.
+Metadata :: struct {
+	title, artist, creator, version: string,
+}
+
 Map :: struct {
 	format_version: u32,
 	playback: Playback,
+	metadata: Metadata,
 	breaks: []Break,
 	timing_points, difficulty_points, sample_points, effect_points: []Control_Point,
 	difficulty: Difficulty,

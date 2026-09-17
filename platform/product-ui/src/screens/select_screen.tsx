@@ -3,13 +3,28 @@ import { useNavigate } from '@solidjs/router';
 import { Virtual_List } from '../components/virtual_list';
 import { debug_dialog_open, open_debug_dialog } from '../state/debug_state';
 import { player_session, shell_state } from '../state/session_state';
+import type { Active_Selection } from '@browser/selection.js';
 
 const map_display_name = (filename: string): string =>
   filename.split('/').at(-1)?.replace(/\.osu$/i, '') ?? filename;
 
+// Decoder-owned song-select metadata, with filename fallback for explicitly
+// empty fields. The decoder fills the pinned lazer defaults ("Unknown" /
+// "Unknown" / "Unknown Creator" / "Normal"; lazer Beatmap.cs constructor at
+// the pinned commit) for maps without a [Metadata] section, and those are
+// legitimate values a beatmap can also set deliberately — they display like
+// any other string, matching lazer's own song select. Only an empty value
+// counts as absent.
+type Metadata_Field = 'title' | 'artist' | 'creator' | 'version';
+
+const metadata_value = (selection: Active_Selection, field: Metadata_Field): string | null => {
+  const value = selection.descriptor.metadata[field];
+  return value !== '' ? value : null;
+};
+
 // Filename-derived stand-in for the lazer set panel title: the shared prefix
 // of the loaded scope's difficulty filenames, falling back to the active
-// difficulty until decoder-owned metadata arrives with the Plan 1 ABI query.
+// difficulty when decoder-owned title metadata is absent.
 const set_display_title = (filenames: readonly string[], active_filename: string): string => {
   let shared_prefix = map_display_name(filenames[0] ?? active_filename);
   for (const filename of filenames.slice(1)) {
@@ -51,19 +66,66 @@ export const Select_Screen: Component = () => {
     const current = active();
     return current ? current.source.list_maps() : [];
   };
+
+  // Only the active difficulty is prepared; its row can show decoder-owned
+  // version metadata while unprepared rows keep their filename labels. This
+  // helper is the single label representation: the carousel rows and the
+  // difficulty filter below both render and search through it.
+  const difficulty_row_label = (filename: string): string => {
+    const current = active();
+    if (current && filename === current.filename) {
+      const version = metadata_value(current, 'version');
+      if (version !== null) return version;
+    }
+    return map_display_name(filename);
+  };
+
+  // The filter matches the displayed labels (version metadata for the active
+  // row, filename bases otherwise), so searching what is shown finds the row.
   const visible_difficulty_rows = (): readonly string[] => {
     const query = difficulty_filter().trim().toLowerCase();
     if (!query) return difficulty_rows();
     return difficulty_rows().filter((filename) =>
-      filename.toLowerCase().includes(query) || map_display_name(filename).toLowerCase().includes(query));
+      filename.toLowerCase().includes(query) || difficulty_row_label(filename).toLowerCase().includes(query));
   };
 
   const map_name = (): string => {
     const current = active();
+    if (current) {
+      const title = metadata_value(current, 'title');
+      if (title !== null) return title;
+    }
     return current ? map_display_name(current.filename) : 'Ready when you are.';
   };
 
-  const set_title = (): string => set_display_title(difficulty_rows(), active()?.filename ?? '');
+  const map_artist = (): string | null => {
+    const current = active();
+    return current ? metadata_value(current, 'artist') : null;
+  };
+
+  const map_creator = (): string | null => {
+    const current = active();
+    const creator = current ? metadata_value(current, 'creator') : null;
+    return creator !== null ? `mapped by ${creator}` : null;
+  };
+
+  const map_difficulty = (): string | null => {
+    const current = active();
+    if (!current) {
+      return null;
+    }
+    const version = metadata_value(current, 'version');
+    return version !== null && version !== map_display_name(current.filename) ? version : null;
+  };
+
+  const set_title = (): string => {
+    const current = active();
+    if (current) {
+      const title = metadata_value(current, 'title');
+      if (title !== null) return title;
+    }
+    return set_display_title(difficulty_rows(), active()?.filename ?? '');
+  };
 
   const difficulty_count_text = (): string => {
     const count = difficulty_rows().length;
@@ -186,7 +248,7 @@ export const Select_Screen: Component = () => {
               list_name="difficulties"
               aria_label="Difficulty"
               disabled={selection_locked()}
-              render_row={(filename) => <span data-map-filename={filename}>{map_display_name(filename)}</span>}
+              render_row={(filename) => <span data-map-filename={filename}>{difficulty_row_label(filename)}</span>}
               on_activate={choose_difficulty}
             />
           </div>
@@ -207,6 +269,15 @@ export const Select_Screen: Component = () => {
         </div>
         <div class="wedge-content">
           <h2 id="map-name">{map_name()}</h2>
+          <Show when={map_artist()} keyed>
+            {(artist) => <p id="map-artist" class="map-metadata">{artist}</p>}
+          </Show>
+          <Show when={map_creator()} keyed>
+            {(creator) => <p id="map-creator" class="map-metadata">{creator}</p>}
+          </Show>
+          <Show when={map_difficulty()} keyed>
+            {(difficulty) => <p id="map-difficulty" class="map-metadata">{difficulty}</p>}
+          </Show>
           <Show when={active()} keyed>
             {(selection) => (
               <>

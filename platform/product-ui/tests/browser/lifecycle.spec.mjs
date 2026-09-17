@@ -18,6 +18,8 @@ function music_wav(seconds = 8) {
 const mixed = `osu file format v14
 [General]
 AudioFilename: music.wav
+[Metadata]
+Title: Mixed Journey
 [Difficulty]
 HPDrainRate:0
 [TimingPoints]
@@ -104,7 +106,7 @@ test('mixed failure results, repeated Back and failed replacement remain usable'
   await page.locator('#back').click();
   await page.locator('#files').setInputFiles({ name: 'invalid.osu', mimeType: 'text/plain', buffer: Buffer.from('invalid') });
   await expect(page.locator('#error')).toBeVisible();
-  await expect(page.locator('#map-name')).toHaveText('mixed');
+  await expect(page.locator('#map-name')).toHaveText('Mixed Journey');
   await expect(page.locator('#start')).toBeEnabled();
   for (let attempt_index = 0; attempt_index < 3; attempt_index++) {
     await page.locator('#start').click();

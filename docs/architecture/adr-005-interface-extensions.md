@@ -159,3 +159,24 @@ The `prepared_sample` record's former reserved u32 at offset 68 is now `flags`:
 bit 0 marks upstream sustained-loop samples (slider slide/whistle, spinner
 spin), so loop classification crosses the ABI once instead of being re-derived
 from names on the browser side. Remaining bits stay zero.
+
+## Prepared metadata display extension
+
+Kind 8 grows append-only a second time, 248 → 264 bytes, with a `metadata`
+span (`metadata_offset`/`metadata_count`/`metadata_stride` at 248/252/256) and
+a named zero `reserved_260` tail keeping the eight-byte record alignment; the
+span addresses exactly one new kind 54/version 1 `prepared_metadata` record
+whose four string triples carry the decoder's `[Metadata]` title, artist,
+creator and difficulty version. The strings are display data: prepared
+identity still hashes raw text, so no digest semantics change, while
+`description_digest` values legitimately move with the descriptor bytes.
+Readers of the extended descriptor must accept the grown `byte_size`, exactly
+as the earlier preparation-v2 append specified; readers that only consume
+older fields can keep skipping appended bytes. No new export, capability bit
+or preparation version is introduced — the existing `oe_map_describe` span
+carries the extension, and the browser's owned descriptor copy needs no
+re-fetch. The upstream evidence base is the pinned lazer decoder's metadata
+extraction already covered by the M0 H01/H02 observations; display-side
+policy (falling back to filenames only for explicitly empty fields, while
+the decoder's pinned lazer defaults display as ordinary values) is product
+chrome recorded in ADR-007, outside compatibility claims.

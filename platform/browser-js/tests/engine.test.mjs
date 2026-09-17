@@ -6,6 +6,9 @@ import { schema, readRecord, writeRecord, checkedSpan } from '../../../engine/ab
 
 const wasm_bytes = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));
 const map_bytes = new TextEncoder().encode('osu file format v14\n[General]\nAudioFilename: music.wav\n[HitObjects]\n256,192,1000,1,0');
+const metadata_map_bytes = new TextEncoder().encode('osu file format v14\n[General]\nAudioFilename: music.wav\n' +
+  '[Metadata]\nTitle:Song Select Parity\nArtist:Test Artist\nCreator:Test Creator\nVersion:Field Coverage\n' +
+  '[HitObjects]\n256,192,1000,1,0');
 
 test('generated ABI writes validate transactionally and preserve exact u64 values', () => {
   const view = new DataView(new ArrayBuffer(128));
@@ -42,6 +45,27 @@ test('production transport advertises preparation only and contains no trace exp
     assert.equal(engine.map_handles.size, 0);
   } finally {
     engine.dispose();
+    engine.dispose();
+  }
+});
+
+test('descriptor exposes decoder-owned metadata strings', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  try {
+    const prepared = engine.prepare_map(metadata_map_bytes);
+    assert.deepEqual(prepared.descriptor.metadata,
+      { title: 'Song Select Parity', artist: 'Test Artist', creator: 'Test Creator', version: 'Field Coverage' });
+    assert.deepEqual(engine.describe_map(prepared.map_handle).metadata, prepared.descriptor.metadata);
+    // Stripped maps carry the pinned lazer decoder defaults as plain strings.
+    const stripped = engine.prepare_map(map_bytes);
+    assert.deepEqual(stripped.descriptor.metadata,
+      { title: 'Unknown', artist: 'Unknown', creator: 'Unknown Creator', version: 'Normal' });
+    engine.release_map(prepared.map_handle);
+    engine.release_map(stripped.map_handle);
+    // The descriptor copy outlives map release.
+    assert.deepEqual(prepared.descriptor.metadata,
+      { title: 'Song Select Parity', artist: 'Test Artist', creator: 'Test Creator', version: 'Field Coverage' });
+  } finally {
     engine.dispose();
   }
 });
