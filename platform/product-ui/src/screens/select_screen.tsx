@@ -264,6 +264,7 @@ export const Select_Screen: Component = () => {
               list_name="difficulties"
               aria_label="Difficulty"
               disabled={selection_locked()}
+              fill_height
               render_row={(filename) => <span data-map-filename={filename}>{difficulty_row_label(filename)}</span>}
               on_activate={choose_difficulty}
             />
@@ -272,22 +273,26 @@ export const Select_Screen: Component = () => {
             <p class="filter-empty">No difficulty matches this filter.</p>
           </Show>
         </Show>
-        <p id="status" role="status" aria-live="polite">
-          {selection_status()}
-        </p>
-        <Show when={selection().error} keyed>
-          {(error) => {
-            const error_text = selection_error_text(error);
-            return (
-              <div id="error" role="alert">
-                <p id="error-message">{error_text.primary}</p>
-                <Show when={error_text.technical}>
-                  {(technical) => <p id="error-detail" class="error-detail">{technical()}</p>}
-                </Show>
-              </div>
-            );
-          }}
-        </Show>
+        {/* The status/error strip: the carousel's bottom grid row, pinned
+            under the bounded difficulty list. */}
+        <div class="select-status-strip">
+          <p id="status" role="status" aria-live="polite">
+            {selection_status()}
+          </p>
+          <Show when={selection().error} keyed>
+            {(error) => {
+              const error_text = selection_error_text(error);
+              return (
+                <div id="error" role="alert">
+                  <p id="error-message">{error_text.primary}</p>
+                  <Show when={error_text.technical}>
+                    {(technical) => <p id="error-detail" class="error-detail">{technical()}</p>}
+                  </Show>
+                </div>
+              );
+            }}
+          </Show>
+        </div>
       </section>
       <section class="select-wedge" aria-label="Beatmap details">
         <div class="wedge-shear-edge">

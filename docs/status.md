@@ -673,12 +673,58 @@ dropped onto the screen; both feed the unchanged transactional `load_files`
 path, and the established a11y/test anchors and Play gating/focus behavior
 are preserved.
 
+A follow-up increment rebuilt that song select as a full-viewport screen in
+the same bar grammar: the FilterControl bar and a full-width
+`--footer-bar-height` ScreenFooter bar run edge-to-edge (the top bar's chrome
+sheared with counter-sheared contents, like the wedge/footer buttons), and
+the bounded middle track stretches the virtualized difficulty list to the
+leftover height with the status/error strip pinned beneath it —
+`Virtual_List` grew the opt-in `fill_height` mode for this while diagnostics
+keeps the fixed window, and narrow viewports keep the stacked
+document-scrolling fallback with the fixed list height. The wedge carries a
+larger upright title over smaller metadata. Two defects surfaced and were
+fixed in the same pass: the top and footer bars now shrink to their grid
+track (`min-width: 0`) instead of pushing the stacked narrow layout past the
+phone frame, and a stray counter-shear on the upright wedge body (left over
+from before the panel chrome went upright) that clipped the title and
+metadata at the panel's left edge was removed. Local evidence: `test:gates`
+green and the full Playwright suite passes on Chromium and Firefox; WebKit
+could not run locally this time (the documented CDN download failure).
+No engine, ABI, or service behavior changed and every song-select anchor is
+preserved, so upstream acceptance status is unchanged.
+
+The results route is a dedicated screen rather than the shared lifecycle
+panel, following the pinned lazer `ResultsScreen` structure
+(`osu.Game/Screens/Ranking/ResultsScreen.cs`, `SoloResultsScreen.cs` at
+`3c1c96f7`): a scrollable centered presentation — beatmap title/version line
+(decoder metadata with the song-select filename-fallback rules), a rank
+emblem ring, prominent score, accuracy/max-combo summary and the hit
+statistics as a multi-column `#result-stats` grid — over a bottom bar
+centering the Retry / Watch replay / Save replay / Back row with
+`#replay-status` beneath. Shared result formatting moved into
+`src/screens/result_display.ts` (the `result_items` list plus rank and
+beatmap-label helpers); the lifecycle panel keeps only the play route's
+pause/recovery/transient-terminal overlay. Every established anchor
+(`#lifecycle-title` reading Passed/Failed, `#lifecycle-message`,
+`#result-stats` with Score first, `#retry`, `#watch-replay`, `#save-replay`,
+`#back`, `.results-screen`) is preserved, so the Playwright suite passes
+unmodified; the rank palette is per-rank product tokens (documented in
+ADR-007 divergence 5), not lazer's colours, and the pinned screen's
+statistic-toggle choreography, leaderboard fetch, blur and applause are
+deliberately absent. Both Passed and Failed results render, and the
+"No result available" fallback panel is retained. Local evidence: `test:gates`
+green (including css-lint over the new tokens and stylesheet) and the
+unmodified Playwright suite passes on Chromium and Firefox; WebKit could not
+run locally (the same CDN download failure as the song-select pass above).
+
 Classification is honest and narrow: this is structure-reference chrome, not
 upstream acceptance. The structural citations (SongSelect.cs, FilterControl.cs,
-BeatmapTitleWedge.cs, PanelBeatmapSet.cs, ScreenFooter.cs, MainMenu.cs at
+BeatmapTitleWedge.cs, PanelBeatmapSet.cs, ScreenFooter.cs, MainMenu.cs,
+ResultsScreen.cs, SoloResultsScreen.cs at
 pinned commit `3c1c96f7`) and the documented MVP divergences — purple
 palette, enter-only transitions, single-set session with filename-derived
-titles, and the HTML-shell substitutions — are recorded in
+titles, the HTML-shell substitutions, and the results rank palette — are
+recorded in
 [ADR-007](architecture/adr-007-product-flow.md). Visual similarity to lazer is
 explicitly not compatibility evidence, and menu/song-select styling stays
 outside the compatibility claims. Local evidence only: `test:gates`,

@@ -1,7 +1,7 @@
 # ADR-007: Product flow chrome
 
 Status: accepted and implemented for the shell chrome (intro, menu, song
-select). Local browser evidence only: this decision records structure
+select, results). Local browser evidence only: this decision records structure
 references and deliberate MVP divergences, not upstream acceptance.
 
 ## Context
@@ -48,6 +48,15 @@ copied.
   sheared with `OsuGame.SHEAR` around `CORNER_RADIUS = 10`.
 - `osu.Game/Screens/Menu/MainMenu.cs` — centered pulsing logo with the live
   action column beside it (already cited by the menu increment).
+- `osu.Game/Screens/Ranking/ResultsScreen.cs` — a two-row grid: a scrollable
+  content region layering the centered score presentation
+  (`ScorePanelList`/`StatisticsPanel`) over an auto-sized bottom bar
+  (`Anchor.BottomLeft`, relative-width) that centers a horizontal row of
+  `Width = 300` action buttons — watch replay first, then retry, then
+  collection/favourite; the bar fades in on enter. `BACKGROUND_BLUR = 10`.
+- `osu.Game/Screens/Ranking/SoloResultsScreen.cs` — adds no layout of its
+  own: a solo run is presented as the single score through the base screen
+  (its own logic is online leaderboard fetching, out of scope here).
 
 ## Decision
 
@@ -59,12 +68,19 @@ results` as structure-reference chrome in `platform/product-ui`:
   difficulty text filter, and the import control), the set panel plus
   virtualized difficulty rows as the carousel region, a
   BeatmapTitleWedge-position sheared info panel, and a ScreenFooter-position
-  action bar (Back, Play, Debug).
+  action bar (Back, Play, Debug). The bars run edge-to-edge: the filter bar
+  carries the sheared chrome with counter-sheared contents, the footer is
+  the full-width `--footer-bar-height` strip with Back left and actions
+  right, and the bounded middle track stretches the difficulty list to the
+  leftover height with the status/error strip pinned beneath it (the
+  virtual list's opt-in fill mode; narrow viewports keep the stacked
+  fallback with document scrolling and the fixed list window).
 - The shear/radius language reuses the tokens from the prior theme increment
   (`--wedge-shear`, `--panel-radius`, `--footer-bar-height` in
   `src/styles/tokens.css`). Sheared boxes use top-left transform origins and the
   wedge leans through a band clipped inside its masked, rounded box, so the
-  lean never extends the scrollable area on narrow viewports.
+  lean never extends the scrollable area on narrow viewports; the wedge body
+  content under that band is upright.
 - Import works through the file input and by dropping files onto the screen;
   both feed the existing transactional `load_files` path. The difficulty
   filter is a plain substring match over the loaded set's filenames.
@@ -77,6 +93,24 @@ results` as structure-reference chrome in `platform/product-ui`:
   `#error`, `#objects`, `#circle-size`, `#approach-rate`, `#play-gate`,
   `#debug-open`, `data-virtual-list="difficulties"`, `data-map-filename`),
   and the Play gating/focus behavior is unchanged.
+- The results screen arranges the pinned `ResultsScreen` regions as a
+  two-region layout: a scrollable centered presentation (beatmap
+  title/version line with the song-select metadata rules, rank emblem,
+  prominent score, accuracy/max-combo summary, and the hit statistics as a
+  multi-column `#result-stats` grid) above a bottom bar centering the Retry /
+  Watch replay / Save replay / Back row, with `#replay-status` beneath it.
+  The presentation is one static panel: there is no score-panel list,
+  detached-panel choreography, statistics toggle, leaderboard fetch
+  (`SoloResultsScreen`'s only addition), background blur or applause.
+  Shared result formatting lives in `src/screens/result_display.ts`
+  (`result_items` moved out of the lifecycle panel, rank and beatmap-label
+  helpers); the lifecycle panel keeps only the play route's
+  pause/recovery/transient-terminal overlay.
+- Established results anchors are preserved (`#lifecycle-title` still reads
+  Passed/Failed, `#lifecycle-message`, `#result-stats` with Score as the
+  first entry, `#retry`, `#watch-replay`, `#save-replay`, `#back`,
+  `.results-screen`, `#replay-status`), so the browser parity suite passes
+  unmodified, and the "No result available" fallback panel is retained.
 
 ## Documented MVP divergences
 
@@ -107,6 +141,13 @@ toward upstream acceptance scenarios.
    where pinned `SongSelect` has no header title; drag-and-drop import and
    the in-document footer are browser idioms standing in for lazer's global
    import flow and footer overlay.
+5. **Results rank palette.** The rank emblem ring/letter uses per-rank
+   product tokens in `src/styles/tokens.css` (X/S gold, A green, B blue,
+   C purple, D red, F grey) — product styling, not lazer's rank colours or
+   its accuracy-circle animation. The pinned screen's statistic-toggle
+   choreography, leaderboards and collection/favourite buttons are absent
+   (single local play), and the DOM `#lifecycle-title`/`#lifecycle-message`
+   anchors stand in for lazer's chrome.
 
 ## Consequences
 

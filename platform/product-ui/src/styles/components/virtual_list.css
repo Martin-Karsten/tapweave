@@ -1,11 +1,20 @@
-/* Virtualized list (B2 gate): the container is a fixed-height scroll window;
-   the spacer and row offsets stay inline because they are per-frame
-   virtualizer values. */
+/* Virtualized list (B2 gate): the container is the scroll window; the spacer
+   and row offsets stay inline because they are per-frame virtualizer values.
+   Height comes from one of two modes: the fixed default window, or fill mode
+   stretching a bounded parent track (the virtualizer observes resizes). */
 
 .virtual-list {
-  height: 320px;
   overflow-y: auto;
   position: relative;
+}
+
+.virtual-list-default-height {
+  height: 320px;
+}
+
+.virtual-list-fill-height {
+  height: 100%;
+  min-height: 0;
 }
 
 .virtual-list-spacer {

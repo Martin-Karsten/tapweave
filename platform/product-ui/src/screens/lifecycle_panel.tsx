@@ -1,9 +1,8 @@
 import { For, Show, createSignal, type Component } from 'solid-js';
-import { HIT_RESULT_NAMES, RANK_NAMES } from '@browser/abi-records.js';
 import type { Gameplay_View } from '@browser/gameplay-controller.js';
-import type { Session_Output } from '@browser/engine-bridge.js';
 import { debug_session, open_debug_dialog } from '../state/debug_state';
 import { copy_text, download_text } from '../services/debug_session';
+import { result_items } from './result_display';
 
 const lifecycle_title = (view: Gameplay_View): string => {
   if (view.state === 'terminal') return view.message;
@@ -12,30 +11,15 @@ const lifecycle_title = (view: Gameplay_View): string => {
   return 'Paused';
 };
 
-const result_items = (result: Session_Output): [string, string][] => {
-  const summary = result.summary;
-  const items: [string, string][] = [['Score', String(summary.score)], ['Accuracy', `${(Number(summary.accuracy) * 100).toFixed(2)}%`],
-    ['Rank', RANK_NAMES[Number(summary.rank)] ?? String(summary.rank)], ['Max combo', String(summary.highest_combo)]];
-  for (const count of result.result_counts()) {
-    if (Number(count.actual) || Number(count.maximum)) {
-      items.push([HIT_RESULT_NAMES[Number(count.result)] ?? `Result ${count.result}`, String(count.actual)]);
-    }
-  }
-  return items;
-};
-
 interface Lifecycle_Panel_Props {
   view: Gameplay_View;
   on_resume: () => void;
   on_retry: () => void;
   on_back: () => void;
-  // Terminal-only result actions; the results screen supplies them, transient
-  // play-route overlays do not.
-  on_watch_replay?: () => void;
-  on_save_replay?: () => void;
 }
 
-// Shared pause/recovery/results overlay. Keeps the vanilla player's focus
+// Pause/recovery/transient-terminal overlay for the play route (the results
+// route renders its own dedicated screen). Keeps the vanilla player's focus
 // semantics: Tab cycles the enabled buttons (and the recovery report) inside
 // the panel. Recovery views auto-build a copyable failure report once.
 export const Lifecycle_Panel: Component<Lifecycle_Panel_Props> = (props) => {
@@ -117,14 +101,6 @@ export const Lifecycle_Panel: Component<Lifecycle_Panel_Props> = (props) => {
           </For>
         </Show>
       </dl>
-      <Show when={props.view.state === 'terminal' && props.view.result && props.on_watch_replay && props.on_save_replay}>
-        <button id="watch-replay" type="button" disabled={!props.view.can_watch_replay} onClick={props.on_watch_replay}>
-          Watch replay
-        </button>
-        <button id="save-replay" type="button" onClick={props.on_save_replay}>
-          Save replay
-        </button>
-      </Show>
       <button id="resume" type="button" hidden={props.view.state !== 'paused'} disabled={!props.view.can_resume} onClick={props.on_resume}>
         Resume
       </button>

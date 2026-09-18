@@ -1,8 +1,9 @@
-/* Lazer SongSelect structure (structure reference only): a FilterControl
-   bar on top, the sheared BeatmapTitleWedge left, the set-panel carousel
-   right and a ScreenFooter action bar below. The middle row is bounded
-   (minmax(0, 1fr)) with the panes scrolling internally, so the footer track
-   pins to the frame bottom and no pane can spill into another track. */
+/* Lazer SongSelect structure (structure reference only): a full-width
+   FilterControl bar on top, the sheared BeatmapTitleWedge left, the set-panel
+   carousel right with a bounded difficulty list, and a full-width
+   ScreenFooter-height action bar below. The middle row is bounded
+   (minmax(0, 1fr)) with the panes scrolling internally, so the bars pin to
+   the frame edges and no pane can spill into another track. */
 
 .select-screen {
   grid-template-columns: minmax(280px, 2fr) minmax(320px, 3fr);
@@ -12,7 +13,9 @@
     "wedge carousel"
     "footer footer";
   gap: var(--space-8) var(--space-10);
-  padding: var(--space-8) var(--space-10);
+  /* Vertical padding stays zero so the top and bottom bars run edge-to-edge;
+     the middle row keeps the horizontal inset. */
+  padding: 0 var(--space-10);
   overflow: hidden;
 }
 
@@ -22,15 +25,28 @@
   border-radius: var(--frame-radius);
 }
 
+/* FilterControl bar: edge-to-edge chrome sheared with the same language as
+   the wedge/footer buttons, with counter-sheared contents. The lean's
+   bottom-left corner bleeds off-frame (clipped by the screen overflow) and
+   the transform never affects layout. min-width: 0 lets the bar shrink to
+   its track on narrow viewports instead of forcing its content minimum
+   (the wrapped label/filter lines) past the frame. */
 .select-topbar {
   grid-area: topbar;
   display: flex;
   align-items: center;
   gap: var(--space-6);
-  border: 1px solid var(--color-border);
-  border-radius: var(--panel-radius);
+  min-width: 0;
+  margin: 0 calc(-1 * var(--space-10));
+  border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
-  padding: var(--space-5) var(--space-7);
+  padding: var(--space-5) var(--space-10);
+  transform: skewX(var(--wedge-shear));
+  transform-origin: top left;
+}
+
+.select-topbar > * {
+  transform: skewX(var(--wedge-unshear));
 }
 
 .select-title {
@@ -51,14 +67,16 @@
   font: inherit;
 }
 
+/* Carousel rows: set panel, difficulty heading, difficulty list, status/error
+   strip. The list row is bounded and the virtual list fills it, so the strip
+   pins to the carousel bottom and the list owns its scrolling. */
 .select-carousel {
   grid-area: carousel;
   display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: var(--space-6);
-  align-content: start;
   min-width: 0;
   min-height: 0;
-  overflow-y: auto;
 }
 
 .carousel-empty,
@@ -106,7 +124,10 @@
   color: var(--color-text-muted);
 }
 
+/* The frame around the fill-mode virtual list; min-height keeps the grid
+   item from contributing a content minimum to the bounded row. */
 .difficulty-list {
+  min-height: 0;
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--control-radius);
   background: var(--color-surface);
@@ -115,6 +136,16 @@
 .difficulty-list [data-selected='true'] {
   background: var(--color-surface-selected);
   color: var(--color-text-bright);
+}
+
+/* The carousel's bottom strip: engine status plus the refusal details. */
+.select-status-strip {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.select-status-strip p {
+  margin: 0;
 }
 
 /* Stretched into the bounded middle row, scrolling its own overflow; the
@@ -149,11 +180,16 @@
 
 .wedge-content {
   padding: var(--space-9) var(--space-10);
-  transform: skewX(var(--wedge-unshear));
 }
 
+/* Lazer-ish wedge proportions: a large bright title over smaller muted
+   metadata and the separated statistics block. */
 .wedge-content h2 {
-  margin-top: 0;
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-title-wedge);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text-bright);
   overflow-wrap: anywhere;
 }
 
@@ -161,24 +197,33 @@
    BeatmapTitleWedge shows artist below the title). */
 .map-metadata {
   margin: var(--space-1) 0 0;
+  font-size: var(--font-size-note);
   color: var(--color-text-muted);
   overflow-wrap: anywhere;
 }
 
-/* The song-select action bar owns the small-print styling the slim app
-   footer used to provide through the bare footer element rule. */
+.wedge-content dl {
+  margin: var(--space-8) 0 0;
+}
+
+/* The full-width ScreenFooter bar: Back bottom-left, the demoted shortcuts
+   small print shrinking between the sides, sheared actions bottom-right.
+   min-width: 0 lets the bar shrink to its track; the truncating shortcuts
+   note absorbs the difference. */
 .select-footer {
   grid-area: footer;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-5) var(--space-8);
+  min-width: 0;
+  margin: 0 calc(-1 * var(--space-10));
+  min-height: var(--footer-bar-height);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  padding: 0 var(--space-10);
   color: var(--color-text-faint);
   font-size: var(--font-size-note);
-  border-top: 1px solid var(--color-border);
-  padding-top: var(--space-6);
-  min-height: var(--footer-bar-height);
 }
 
 .select-footer-buttons {
@@ -199,8 +244,15 @@
   transform: skewX(var(--wedge-unshear));
 }
 
+/* Demoted small print: fills the space between the sides and truncates
+   instead of wrapping the bar. */
 .footer-shortcuts {
   margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-size: var(--font-size-eyebrow);
   color: var(--color-text-faint);
 }
@@ -235,8 +287,15 @@
   }
 
   .select-carousel {
+    grid-template-rows: none;
     min-height: auto;
     overflow-y: visible;
+  }
+
+  /* While the screen scrolls as a document the fill-mode list has no
+     bounded track to stretch into, so it carries the fixed window height. */
+  .select-carousel .virtual-list {
+    height: 320px;
   }
 
   .select-topbar {

@@ -7,6 +7,9 @@ interface Virtual_List_Props<Row> {
   list_name: string;
   aria_label: string;
   disabled?: boolean;
+  // Stretch the scroll window to a bounded parent track instead of the fixed
+  // default height; the virtualizer observes the element either way.
+  fill_height?: boolean;
   render_row: (row: Row, row_index: number) => JSX.Element;
   on_activate: (row_index: number) => void;
 }
@@ -72,6 +75,10 @@ export function Virtual_List<Row>(props: Virtual_List_Props<Row>): JSX.Element {
         scroll_element = element;
       }}
       class="virtual-list"
+      classList={{
+        'virtual-list-default-height': !props.fill_height,
+        'virtual-list-fill-height': props.fill_height === true,
+      }}
       data-virtual-list={props.list_name}
       aria-label={props.aria_label}
       tabindex={props.disabled ? -1 : 0}

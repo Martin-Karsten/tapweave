@@ -55,6 +55,17 @@
   --settings-backdrop: rgb(0 0 0 / 70%);
   --settings-focus: #95d7ff;
 
+  /* Results rank palette: product styling for the results screen's rank
+     emblem (X/S gold, A green, B blue, C purple, D red, F grey), not lazer's
+     rank colours. */
+  --rank-x: #ffd35c;
+  --rank-s: #ffd35c;
+  --rank-a: #7ede80;
+  --rank-b: #66a3ff;
+  --rank-c: #b07ce8;
+  --rank-d: #ff8a8a;
+  --rank-f: #8f8fae;
+
   /* Lazer-structure primitives. */
   --wedge-shear: -11.31deg; /* OsuGame.SHEAR (0.2, 0): x' = x - 0.2y (y down) equals CSS skewX(-atan(0.2)). */
   --wedge-unshear: 11.31deg; /* Counter-shear keeping wedge content upright (-OsuGame.SHEAR). */
@@ -105,7 +116,10 @@
   --font-size-skip: 0.875rem; /* Was 14px. */
   --font-size-title: 1.05rem;
   --font-size-title-set: 1.1rem;
+  --font-size-title-wedge: 1.75rem; /* BeatmapTitleWedge-position map title. */
   --font-size-wordmark: 1.9rem;
+  --font-size-result-rank: 3rem; /* Results emblem letter. */
+  --font-size-result-score: 2.1rem; /* Results prominent score. */
 
   /* Elevation. */
   --z-floating: 5; /* Overlays inside the playfield: #skip, #debug-hud, floating controls. */
