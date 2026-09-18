@@ -1,0 +1,117 @@
+/* Design tokens: the single home for every color, radius, z-index, duration,
+   font size and spacing step used by the shell. scripts/gates/css_lint.mjs
+   fails the gate suite on raw values outside this file, with a small
+   allowlist for justified one-offs. */
+
+/* Lazer-structure primitives below are structure reference only, pinned lazer
+   3c1c96f7 (MainMenu.cs, SongSelect.cs, FilterControl.cs, ScreenFooter.cs).
+   No upstream code or assets are copied. */
+
+:root {
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, sans-serif;
+
+  /* Core palette (extracted verbatim). */
+  --color-background: #14141f;
+  --color-background-deep: #0d0d16;
+  --color-overlay: rgb(13 13 22 / 88%);
+  --color-surface: #191926;
+  --color-surface-selected: #23233a;
+  --color-text: #e8e8f0;
+  --color-text-bright: #ffffff;
+  --color-text-muted: #9a9ab8;
+  --color-text-dim: #93a1bd;
+  --color-text-faint: #7a7a99;
+  --color-link: #9db3ff;
+  --color-accent: #5b8cff;
+  --color-accent-contrast: #0d0d16;
+  --color-danger: #ff8a8a;
+  --color-button-bg: #20203330;
+  --color-border: #2e2e44;
+  --color-border-strong: #3a3a58;
+  --color-border-subtle: #23233a;
+
+  /* Debug suite palette. */
+  --debug-hud-bg: #0b1020d9;
+  --debug-backdrop: #06070cd0;
+  --debug-surface: #10141f;
+  --debug-log-bg: #0a0e18;
+  --debug-border: #58627a;
+  --debug-border-subtle: #3c465e;
+  --debug-tab-bg: #1a2133;
+  --debug-tab-active-bg: #273350;
+  --debug-text: #aab4ca;
+  --debug-text-strong: #c7cfdc;
+  --debug-text-detail: #8b98b5;
+  --debug-error: #ffb6a6;
+  --debug-warning: #ffd9a6;
+  --debug-probe-reactive: #5b8cff; /* Frame probe: reactive-binding box. */
+  --debug-probe-baseline: #8c5bff; /* Frame probe: direct-DOM baseline box. */
+
+  /* Settings dialog palette. */
+  --settings-surface: #171c29;
+  --settings-text: #f1f4fb;
+  --settings-border: #798298;
+  --settings-backdrop: rgb(0 0 0 / 70%);
+  --settings-focus: #95d7ff;
+
+  /* Lazer-structure primitives. */
+  --wedge-shear: -11.31deg; /* OsuGame.SHEAR (0.2, 0): x' = x - 0.2y (y down) equals CSS skewX(-atan(0.2)). */
+  --wedge-unshear: 11.31deg; /* Counter-shear keeping wedge content upright (-OsuGame.SHEAR). */
+  --panel-radius: 10px; /* FilterControl/BeatmapTitleWedge corner_radius. */
+  --control-radius: 8px;
+  --frame-radius: 14px;
+  --footer-bar-height: 50px; /* ScreenFooter.HEIGHT. */
+  --duration-fade-in: 300ms; /* MainMenu.FADE_IN_DURATION. */
+  --duration-fade-out: 400ms; /* MainMenu.FADE_OUT_DURATION. */
+  --duration-enter: 600ms; /* SongSelect.ENTER_DURATION. */
+
+  /* Shell animation durations. */
+  --duration-intro-spin: 0.9s;
+  --duration-logo-pulse: 1.8s;
+
+  /* Spacing scale: --space-N is N * 2px. Raw px spacing outside this file
+     fails the css-lint gate; 1px hairlines and one-off layout lengths
+     (element sizes, max-widths) stay literal where they are used. */
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 8px;
+  --space-5: 10px;
+  --space-6: 12px;
+  --space-7: 14px;
+  --space-8: 16px;
+  --space-9: 18px;
+  --space-10: 20px;
+  --space-11: 22px;
+  --space-12: 24px;
+  --space-13: 26px;
+  --space-14: 28px;
+  --space-15: 30px;
+  --space-16: 32px;
+
+  /* Strokes thicker than the 1px hairlines. */
+  --stroke-width-thick: 3px; /* Intro spinner ring, settings focus outline. */
+
+  /* Type scale. Chrome screens use rem so text follows the user's root font
+     size; debug-suite sizes were px and are converted at the same computed
+     size (1rem = 16px). */
+  --font-size-eyebrow: 0.72rem;
+  --font-size-note: 0.8rem;
+  --font-size-hud-xs: 0.625rem; /* Was 10px. */
+  --font-size-hud-sm: 0.6875rem; /* Was 11px. */
+  --font-size-hud-md: 0.75rem; /* Was 12px. */
+  --font-size-hud-lg: 0.8125rem; /* Was 13px. */
+  --font-size-skip: 0.875rem; /* Was 14px. */
+  --font-size-title: 1.05rem;
+  --font-size-title-set: 1.1rem;
+  --font-size-wordmark: 1.9rem;
+
+  /* Elevation. */
+  --z-floating: 5; /* Overlays inside the playfield: #skip, #debug-hud, floating controls. */
+  --z-dialog: 40; /* #debug-dialog; native <dialog> elements use the top layer instead. */
+
+  /* Narrow-viewport breakpoint. Custom properties cannot be read inside
+     @media conditions, so the 760px value is repeated at each @media rule;
+     css-lint fails on any other breakpoint. */
+}

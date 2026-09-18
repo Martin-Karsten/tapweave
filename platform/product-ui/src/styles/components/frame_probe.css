@@ -1,0 +1,16 @@
+/* Frame probe boxes (B3 gate fixture): the reactive box and the direct-DOM
+   baseline box animate through inline transforms; only their static dressing
+   lives here. */
+
+.probe-box {
+  width: 40px;
+  height: 40px;
+}
+
+.probe-box[data-probe-box='reactive'] {
+  background: var(--debug-probe-reactive);
+}
+
+.probe-box[data-probe-box='baseline'] {
+  background: var(--debug-probe-baseline);
+}

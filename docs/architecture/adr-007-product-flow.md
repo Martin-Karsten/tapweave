@@ -62,7 +62,7 @@ results` as structure-reference chrome in `platform/product-ui`:
   action bar (Back, Play, Debug).
 - The shear/radius language reuses the tokens from the prior theme increment
   (`--wedge-shear`, `--panel-radius`, `--footer-bar-height` in
-  `src/style.css`). Sheared boxes use top-left transform origins and the
+  `src/styles/tokens.css`). Sheared boxes use top-left transform origins and the
   wedge leans through a band clipped inside its masked, rounded box, so the
   lean never extends the scrollable area on narrow viewports.
 - Import works through the file input and by dropping files onto the screen;

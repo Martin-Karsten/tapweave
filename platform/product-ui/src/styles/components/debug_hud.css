@@ -1,0 +1,58 @@
+/* Debug suite: re-homed player diagnostics panel, live HUD and recovery report. */
+
+.debug-entry {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  margin-top: var(--space-6);
+}
+
+.debug-entry button,
+#debug-open-lifecycle,
+.floating-controls button {
+  padding: var(--space-4) var(--space-7);
+  font-size: var(--font-size-hud-lg);
+}
+
+.floating-controls {
+  position: absolute;
+  top: var(--space-6);
+  right: var(--space-6);
+  z-index: var(--z-floating);
+  opacity: 0.8;
+  display: flex;
+  gap: var(--space-3);
+}
+
+#debug-hud {
+  position: absolute;
+  top: var(--space-6);
+  left: var(--space-6);
+  z-index: var(--z-floating);
+  pointer-events: none;
+  user-select: none;
+  background: var(--debug-hud-bg);
+  border: 1px solid var(--debug-border);
+  border-radius: var(--panel-radius);
+  padding: var(--space-5) var(--space-7);
+  max-width: 340px;
+}
+
+#debug-hud dl {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: var(--space-1) var(--space-7);
+  margin: 0;
+}
+
+#debug-hud dt {
+  font-size: var(--font-size-hud-xs);
+  color: var(--color-text-dim);
+  align-self: center;
+}
+
+#debug-hud dd {
+  font-size: var(--font-size-hud-sm);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}

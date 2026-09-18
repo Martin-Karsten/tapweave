@@ -66,6 +66,11 @@ await mkdir(gates_root, { recursive: true });
 await run('npm', ['run', 'prepare-assets']);
 await run('npm', ['run', 'typecheck']);
 
+// Styling conventions: tokens.css is the only home for raw colors, z-index
+// values, px font sizes and the spacing scale; see scripts/gates/css_lint.mjs.
+await run('node', ['scripts/gates/css_lint.mjs']);
+console.log('gate css-lint passed');
+
 // The expected-errors project deliberately re-includes src/expected_errors
 // (its `exclude: []` quirk) so tsgo must fail with the recorded diagnostic
 // codes; their absence would mean the checker or fixtures drifted.

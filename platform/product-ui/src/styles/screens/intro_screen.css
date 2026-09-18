@@ -1,0 +1,63 @@
+/* Intro: centered brand, boot status and the start action. */
+
+.intro-screen {
+  place-content: center;
+  /* safe keeps centered content reachable (start-aligned) when a short
+     viewport forces the screen to scroll. */
+  align-content: safe center;
+  justify-items: center;
+  text-align: center;
+  padding: 0 var(--space-10);
+  overflow-y: auto;
+}
+
+.intro-screen .brand-mark {
+  width: 56px;
+  height: 56px;
+}
+
+.intro-spinner {
+  width: 26px; /* css-lint: spinner ring element size, not spacing. */
+  height: 26px; /* css-lint: spinner ring element size, not spacing. */
+  border-radius: 50%;
+  border: var(--stroke-width-thick) solid var(--color-border);
+  border-top-color: var(--color-accent);
+  animation: intro-spin var(--duration-intro-spin) linear infinite;
+}
+
+@keyframes intro-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.intro-status {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.intro-hint {
+  margin: 0;
+  font-size: var(--font-size-note);
+  color: var(--color-text-faint);
+}
+
+.intro-error {
+  margin: 0;
+  color: var(--color-danger);
+  max-width: 34rem;
+  overflow-wrap: anywhere;
+}
+
+.intro-actions {
+  display: flex;
+  gap: var(--space-6);
+  justify-content: center;
+}
+
+/* 0.78rem snapped to --font-size-note (0.8rem) during the token pass. */
+.intro-disclaimer {
+  margin: 0;
+  font-size: var(--font-size-note);
+  color: var(--color-text-faint);
+}

@@ -1,0 +1,7 @@
+/* Post-attempt summary screen; shares the fixed-frame chrome layout with
+   diagnostics (the dev page keeps document-like scrolling inside its box). */
+
+.results-screen {
+  padding: var(--space-8) var(--space-10);
+  overflow-y: auto;
+}

@@ -71,29 +71,25 @@ export function Virtual_List<Row>(props: Virtual_List_Props<Row>): JSX.Element {
       ref={(element) => {
         scroll_element = element;
       }}
+      class="virtual-list"
       data-virtual-list={props.list_name}
       aria-label={props.aria_label}
       tabindex={props.disabled ? -1 : 0}
       onKeyDown={handle_keydown}
-      style={{ height: '320px', 'overflow-y': 'auto', position: 'relative' }}
     >
-      <div style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}>
+      <div class="virtual-list-spacer" style={{ height: `${virtualizer.getTotalSize()}px` }}>
         <For each={virtualizer.getVirtualItems()}>
           {(virtual_row) => (
             <div
+              class="virtual-list-row"
               role="option"
               aria-selected={selected_index() === virtual_row.index}
               data-index={virtual_row.index}
               data-selected={selected_index() === virtual_row.index}
               style={{
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                width: '100%',
                 height: `${virtual_row.size}px`,
                 transform: `translateY(${virtual_row.start}px)`,
                 'line-height': `${props.row_height}px`,
-                'border-bottom': '1px solid var(--color-border)',
                 cursor: props.disabled ? 'default' : 'pointer',
               }}
               onClick={() => activate(virtual_row.index)}

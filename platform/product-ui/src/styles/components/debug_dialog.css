@@ -1,0 +1,230 @@
+/* Debug dialog: tabbed re-homed player diagnostics, live log, import and
+   recovery report. */
+
+#debug-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-dialog);
+  background: var(--debug-backdrop);
+  display: grid;
+  place-items: center;
+  padding: var(--space-10);
+}
+
+.debug-frame {
+  max-width: 880px;
+  width: 100%;
+  max-height: 88vh;
+  overflow: auto;
+  background: var(--debug-surface);
+  border: 1px solid var(--debug-border);
+  border-radius: var(--frame-radius);
+  padding: var(--space-10) var(--space-12);
+}
+
+.debug-frame h2 {
+  margin: 0 0 var(--space-5);
+}
+
+.debug-frame h3 {
+  font-size: var(--font-size-hud-lg);
+  color: var(--debug-text);
+  margin: var(--space-7) 0 var(--space-3);
+}
+
+.debug-frame [role='tablist'] {
+  display: flex;
+  gap: var(--space-2);
+  margin: var(--space-4) 0;
+  flex-wrap: wrap;
+}
+
+.debug-frame [role='tab'] {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--font-size-hud-lg);
+  border-radius: var(--control-radius) var(--control-radius) 0 0;
+  background: var(--debug-tab-bg);
+  border: 1px solid var(--debug-border-subtle);
+  border-bottom: 0;
+}
+
+.debug-frame [role='tab'][aria-selected='true'] {
+  background: var(--debug-tab-active-bg);
+  color: var(--color-text-bright);
+}
+
+.debug-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.debug-toolbar button,
+#debug-stored button {
+  padding: 7px 12px; /* css-lint: compact toolbar control padding. */
+  font-size: var(--font-size-hud-md);
+}
+
+.debug-toggle {
+  font-size: var(--font-size-hud-md);
+  color: var(--debug-text-strong);
+  display: inline-flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.debug-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  align-items: center;
+  font-size: var(--font-size-hud-md);
+  color: var(--debug-text-strong);
+}
+
+.debug-filters input[type='search'] {
+  min-width: 160px;
+}
+
+.debug-categories {
+  border: 0;
+  margin: var(--space-3) 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-7);
+}
+
+.debug-categories legend {
+  display: none;
+}
+
+.debug-categories label {
+  font-size: var(--font-size-hud-md);
+  color: var(--debug-text-strong);
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.debug-log {
+  max-height: 300px;
+  overflow: auto;
+  font: var(--font-size-hud-sm) ui-monospace, monospace;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.debug-event {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.debug-event .debug-detail {
+  display: block;
+  color: var(--debug-text-detail);
+}
+
+.debug-error {
+  color: var(--debug-error);
+}
+
+.debug-warning {
+  color: var(--debug-warning);
+}
+
+#panel-timing dl,
+#panel-audio dl,
+#panel-resources dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 16px; /* css-lint: tight dl row rhythm inside debug panels. */
+  margin: var(--space-4) 0;
+}
+
+#panel-timing dt,
+#panel-audio dt,
+#panel-resources dt {
+  font-size: var(--font-size-hud-md);
+  color: var(--color-text-dim);
+}
+
+#panel-timing dd,
+#panel-audio dd,
+#panel-resources dd {
+  margin: 0;
+  font-size: var(--font-size-hud-md);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+#debug-frames,
+#debug-inputs,
+#debug-audio-events,
+#debug-imported {
+  max-height: 240px;
+  overflow: auto;
+  font: var(--font-size-hud-sm) ui-monospace, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--debug-log-bg);
+  border: 1px solid var(--debug-border-subtle);
+  border-radius: var(--control-radius);
+  padding: var(--space-5);
+}
+
+#debug-stored {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-3) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+#debug-stored li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: center;
+  font-size: var(--font-size-hud-md);
+  color: var(--debug-text-strong);
+}
+
+#debug-import-status {
+  font-size: var(--font-size-hud-md);
+  color: var(--color-text-dim);
+  min-height: 1em;
+}
+
+#recovery-diagnostics {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: center;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+#recovery-diagnostics label {
+  font-size: var(--font-size-hud-md);
+  color: var(--color-text-muted);
+}
+
+#recovery-report {
+  display: block;
+  width: 100%;
+  padding: var(--space-6);
+  color: var(--color-text);
+  background: var(--color-background-deep);
+  border: 1px solid var(--color-border-strong);
+  font: var(--font-size-hud-md) ui-monospace, monospace;
+  resize: vertical;
+}
+
+#copy-status {
+  font-size: var(--font-size-hud-md);
+  color: var(--color-text-dim);
+}

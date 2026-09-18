@@ -1,0 +1,234 @@
+/* Shared foundation: reset, frame, screens, wordmark, generic controls and
+   the chrome footer. Feature-specific rules live beside their screens and
+   components; the import order in index.css preserves the cascade. */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+/* Lazer screens are edge-to-edge: the frame is a full-viewport column on
+   every route, chrome routes fill it with fixed bars and internal scrolling,
+   and each screen owns its own inset. The 100vh line stands in where dvh is
+   unsupported (same fallback pattern as the play screen). */
+.app-frame {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Gameplay fills the browser content area (ADR-006 shell, rendering plan):
+   the frame is full-viewport on every route now, and the immersive class
+   keeps the play route marked as chrome-free — no frame footer, no screen
+   inset — so the canvas can size to the window; the engine's bounds fit
+   handles aspect and letterboxing inside the surface it is given. */
+.app-frame.immersive {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: var(--color-link);
+}
+
+.brand-dot {
+  color: var(--color-accent);
+}
+
+.eyebrow {
+  font-size: var(--font-size-eyebrow);
+  letter-spacing: 0.14em;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-2);
+}
+
+/* Fixed-height frame: the screen fills the space left by the chrome bars and
+   clips its own overflow. min-height: 0 lets the flex item shrink below its
+   content so the scrollable screens stay inside the viewport. */
+.screen {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  gap: var(--space-10);
+  align-content: start;
+}
+
+/* Enter transition for chrome screens only. The gameplay route is excluded:
+   a transform on an ancestor of the engine-owned canvas perturbs the rect
+   capture behind cursor/resume-gate geometry. */
+.screen:not(.play-screen) {
+  animation: screen-enter var(--duration-fade-in) ease-out;
+}
+
+@keyframes screen-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-4));
+  }
+}
+
+/* Shared wordmark pieces (intro and main menu). */
+.brand-mark {
+  display: block;
+  color: var(--color-text-bright);
+}
+
+.wordmark-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: var(--font-size-wordmark);
+  letter-spacing: 0.01em;
+  color: var(--color-text);
+}
+
+.panel {
+  border: 1px solid var(--color-border);
+  border-radius: var(--panel-radius);
+  padding: var(--space-10);
+  background: var(--color-surface);
+}
+
+.panel h2 {
+  margin-top: 0;
+}
+
+.file-control {
+  display: inline-block;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--control-radius);
+  padding: var(--space-4) var(--space-7);
+  cursor: pointer;
+}
+
+#status,
+#play-gate,
+.gate {
+  color: var(--color-text-muted);
+}
+
+#error {
+  color: var(--color-danger);
+}
+
+#error p {
+  margin: 0;
+}
+
+#error .error-detail {
+  color: var(--color-text-muted);
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+dl {
+  display: grid;
+  gap: var(--space-3);
+}
+
+dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+dl dt {
+  color: var(--color-text-muted);
+}
+
+dl dd {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--control-radius);
+  padding: var(--space-4) var(--space-8);
+  background: var(--color-button-bg);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+#start {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+  font-weight: 700;
+}
+
+pre {
+  max-height: 340px;
+  overflow: auto;
+  background: var(--color-background-deep);
+  border: 1px solid var(--color-border);
+  border-radius: var(--control-radius);
+  padding: var(--space-6);
+  font-size: var(--font-size-note);
+}
+
+/* Slim edge-to-edge app footer: one fixed-height row with the small print
+   truncated and Settings pinned right. It is scoped to .app-footer because
+   the song-select footer is a footer element too. */
+.app-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-height: var(--footer-bar-height);
+  padding: 0 var(--space-10);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-faint);
+  font-size: var(--font-size-note);
+}
+
+.footer-note {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.footer-note > span + span::before {
+  content: '·';
+  margin: 0 var(--space-4);
+}
+
+.footer-baseline {
+  font-size: var(--font-size-eyebrow);
+}
+
+.footer-actions {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.footer-actions button {
+  font-size: var(--font-size-note);
+  padding: var(--space-3) var(--space-7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

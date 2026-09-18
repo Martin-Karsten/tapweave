@@ -1,0 +1,58 @@
+/* Shared settings modal; native modality contains focus and inerts the page. */
+
+.settings-dialog {
+  width: min(36rem, calc(100vw - var(--space-16)));
+  max-height: calc(100vh - var(--space-16));
+  overflow: auto;
+  border: 1px solid var(--settings-border);
+  border-radius: 12px; /* css-lint: one-off settings chrome radius. */
+  padding: var(--space-12);
+  background: var(--settings-surface);
+  color: var(--settings-text);
+}
+
+.settings-dialog::backdrop {
+  background: var(--settings-backdrop);
+}
+
+.settings-dialog fieldset {
+  border: 1px solid var(--settings-border);
+  border-radius: 6px; /* css-lint: inset fieldset radius. */
+  margin: var(--space-8) 0;
+  padding: var(--space-8);
+}
+
+.settings-volume {
+  display: grid;
+  grid-template-columns: 5rem 1fr 7rem;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--space-6) 0;
+}
+
+.settings-volume input {
+  min-width: 0;
+  width: 100%;
+}
+
+.settings-dialog button {
+  margin: var(--space-2);
+}
+
+.settings-mouse {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+
+.settings-dialog :focus-visible {
+  outline: var(--stroke-width-thick) solid var(--settings-focus);
+  outline-offset: 3px; /* css-lint: focus ring offset. */
+}

@@ -65,15 +65,17 @@ export const Frame_Probe: Component = () => {
   return (
     <div data-frame-probe="solid">
       <div
+        class="probe-box"
         data-probe-box="reactive"
-        style={{ width: '40px', height: '40px', background: '#5b8cff', transform: transform_text() }}
+        style={{ transform: transform_text() }}
       />
       <div
         ref={(element) => {
           baseline_element = element;
         }}
+        class="probe-box"
         data-probe-box="baseline"
-        style={{ width: '40px', height: '40px', background: '#8c5bff', transform: 'translateX(0px)' }}
+        style={{ transform: 'translateX(0px)' }}
       />
       <p data-frame-count={frame_count()}>frames: {frame_count()}</p>
       <button type="button" onClick={start_probe} data-probe-action="start">

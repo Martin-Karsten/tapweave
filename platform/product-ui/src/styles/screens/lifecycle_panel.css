@@ -1,0 +1,20 @@
+/* Attempt lifecycle overlay on the play route: pause, results, resume. */
+
+.lifecycle-panel {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: var(--space-5);
+  text-align: center;
+  background: var(--color-overlay);
+}
+
+.lifecycle-panel #result-stats {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.lifecycle-panel button {
+  margin: 0 var(--space-2);
+}

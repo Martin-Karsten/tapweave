@@ -1,0 +1,21 @@
+/* Virtualized list (B2 gate): the container is a fixed-height scroll window;
+   the spacer and row offsets stay inline because they are per-frame
+   virtualizer values. */
+
+.virtual-list {
+  height: 320px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.virtual-list-spacer {
+  position: relative;
+}
+
+.virtual-list-row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border-bottom: 1px solid var(--color-border);
+}

@@ -1,6 +1,6 @@
 import { render } from 'solid-js/web';
 import { App } from './app';
-import './style.css';
+import './styles/index.css';
 
 const root_element = document.getElementById('root');
 if (root_element === null) {

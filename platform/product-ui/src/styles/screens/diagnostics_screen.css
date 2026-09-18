@@ -1,0 +1,7 @@
+/* Developer diagnostics screen: gate probes, frame probe and the debug
+   suite entry point. */
+
+.diagnostics-screen {
+  padding: 0 var(--space-10) var(--space-16);
+  overflow-y: auto;
+}

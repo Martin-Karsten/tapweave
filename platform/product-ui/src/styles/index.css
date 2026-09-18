@@ -1,0 +1,17 @@
+/* Shell stylesheet entry: one @import per feature file, listed in cascade
+   order (base before screens so .play-screen overrides .screen's display).
+   scripts/gates/css_lint.mjs checks every file below src/styles/. */
+@import './tokens.css';
+@import './base.css';
+@import './screens/intro_screen.css';
+@import './screens/main_menu_screen.css';
+@import './screens/select_screen.css';
+@import './screens/play_screen.css';
+@import './screens/lifecycle_panel.css';
+@import './screens/results_screen.css';
+@import './screens/diagnostics_screen.css';
+@import './components/frame_probe.css';
+@import './components/virtual_list.css';
+@import './components/debug_hud.css';
+@import './components/debug_dialog.css';
+@import './components/settings_dialog.css';
