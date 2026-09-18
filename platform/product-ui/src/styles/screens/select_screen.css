@@ -1,16 +1,19 @@
 /* Lazer SongSelect structure (structure reference only): a FilterControl
    bar on top, the sheared BeatmapTitleWedge left, the set-panel carousel
-   right and a ScreenFooter action bar below. */
+   right and a ScreenFooter action bar below. The middle row is bounded
+   (minmax(0, 1fr)) with the panes scrolling internally, so the footer track
+   pins to the frame bottom and no pane can spill into another track. */
 
 .select-screen {
   grid-template-columns: minmax(280px, 2fr) minmax(320px, 3fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
     "topbar topbar"
     "wedge carousel"
     "footer footer";
   gap: var(--space-8) var(--space-10);
   padding: var(--space-8) var(--space-10);
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .select-screen.drop-target {
@@ -54,6 +57,8 @@
   gap: var(--space-6);
   align-content: start;
   min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .carousel-empty,
@@ -112,10 +117,12 @@
   color: var(--color-text-bright);
 }
 
+/* Stretched into the bounded middle row, scrolling its own overflow; the
+   horizontal clip also contains the sheared edge bleed below. */
 .select-wedge {
   grid-area: wedge;
-  align-self: start;
-  overflow: hidden;
+  min-height: 0;
+  overflow: hidden auto;
   border: 1px solid var(--color-border);
   border-radius: var(--panel-radius);
   background: var(--color-surface);
@@ -206,6 +213,30 @@
       "wedge"
       "carousel"
       "footer";
+    /* Narrow keeps content-sized rows and scrolls the whole screen; the
+       desktop row/overflow contract does not fit stacked phones. */
+    grid-template-rows: none;
+    overflow-y: auto;
+  }
+
+  /* A grid item whose automatic minimum resolves to zero — non-visible
+     overflow (hidden) or an explicit min-height: 0 — contributes only its
+     border box to an auto row. The desktop bounded panes set both, so the
+     content-height wedge sat on top of the carousel and intercepted clicks
+     on the difficulty rows (the narrow-viewport player.spec failure,
+     measured as a 2px row under a 560px item). Narrow uses content-sized
+     rows again: restore the automatic minimums, and overflow: clip keeps
+     the shear-edge bleed clipped without suppressing track sizing; engines
+     without it keep the desktop clip and the pre-fix behavior, never a
+     worse one. */
+  .select-wedge {
+    min-height: auto;
+    overflow: clip;
+  }
+
+  .select-carousel {
+    min-height: auto;
+    overflow-y: visible;
   }
 
   .select-topbar {
