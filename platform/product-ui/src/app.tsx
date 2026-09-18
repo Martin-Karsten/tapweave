@@ -18,8 +18,9 @@ const App_Frame: Component<ParentProps> = (props) => {
   // re-reads it once the engine capabilities exist to quote in the footer.
   const ready_player_session = () =>
     shell_state().phase === 'ready' ? player_session() : null;
-  // Gameplay fills the whole content area: the frame's width constraint and
-  // padding are dropped so the canvas can size to the window.
+  // The play route owns the whole window: the immersive class keeps it marked
+  // as chrome-free while every route shares the full-viewport frame, and the
+  // frame footer below is route-guarded off it (and the intro) as before.
   const immersive_route = () => location.pathname === '/play';
 
   onMount(() => {
@@ -39,7 +40,7 @@ const App_Frame: Component<ParentProps> = (props) => {
           footer (with the relocated Settings entry point) stays hidden there;
           the gameplay route hides it too so play owns the full window. */}
       <Show when={location.pathname !== '/' && !immersive_route()}>
-        <footer>
+        <footer class="app-footer">
           <p class="footer-note">
             <span>Independent rhythm game. Not affiliated with osu! or ppy.</span>
             <span>Unmodded lazer osu!standard target.</span>

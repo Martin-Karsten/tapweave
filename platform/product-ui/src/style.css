@@ -70,19 +70,23 @@ body {
   line-height: 1.5;
 }
 
+/* Lazer screens are edge-to-edge: the frame is a full-viewport column on
+   every route, chrome routes fill it with fixed bars and internal scrolling,
+   and each screen owns its own inset. The 100vh line stands in where dvh is
+   unsupported (same fallback pattern as the play screen). */
 .app-frame {
-  max-width: 1060px;
-  margin: 0 auto;
-  padding: 0 20px 32px;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
 }
 
 /* Gameplay fills the browser content area (ADR-006 shell, rendering plan):
-   the chrome width constraint and padding are dropped on the play route so
-   the canvas can size to the window; the engine's bounds fit handles aspect
-   and letterboxing inside the surface it is given. */
+   the frame is full-viewport on every route now, and the immersive class
+   keeps the play route marked as chrome-free — no frame footer, no screen
+   inset — so the canvas can size to the window; the engine's bounds fit
+   handles aspect and letterboxing inside the surface it is given. */
 .app-frame.immersive {
   max-width: none;
   margin: 0;
@@ -104,8 +108,12 @@ a {
   margin: 0 0 4px;
 }
 
+/* Fixed-height frame: the screen fills the space left by the chrome bars and
+   clips its own overflow. min-height: 0 lets the flex item shrink below its
+   content so the scrollable screens stay inside the viewport. */
 .screen {
   flex: 1;
+  min-height: 0;
   display: grid;
   gap: 20px;
   align-content: start;
@@ -141,8 +149,13 @@ a {
 
 .intro-screen {
   place-content: center;
+  /* safe keeps centered content reachable (start-aligned) when a short
+     viewport forces the screen to scroll. */
+  align-content: safe center;
   justify-items: center;
   text-align: center;
+  padding: 0 20px;
+  overflow-y: auto;
 }
 
 .intro-screen .brand-mark {
@@ -199,7 +212,9 @@ a {
    anchors the screen center while the live action column hugs the left. */
 .menu-screen {
   grid-template-columns: minmax(140px, 1fr) auto minmax(140px, 1fr);
-  align-content: center;
+  align-content: safe center;
+  padding: 0 20px;
+  overflow-y: auto;
 }
 
 .menu-logo {
@@ -263,6 +278,8 @@ a {
     "wedge carousel"
     "footer footer";
   gap: 16px 20px;
+  padding: 16px 20px;
+  overflow-y: auto;
 }
 
 .select-screen.drop-target {
@@ -405,12 +422,17 @@ a {
   overflow-wrap: anywhere;
 }
 
+/* The song-select action bar owns the small-print styling the slim app
+   footer used to provide through the bare footer element rule. */
 .select-footer {
   grid-area: footer;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 10px 16px;
+  color: var(--color-text-faint);
+  font-size: 0.8rem;
   border-top: 1px solid var(--color-border);
   padding-top: 12px;
   min-height: var(--footer-bar-height);
@@ -547,9 +569,9 @@ button:disabled {
 }
 
 /* The gameplay route owns the whole window: no chrome padding, no gaps, the
-   player host sized by the content area instead of a 4:3 panel. No percentage
-   heights: the frame's height is min-height only, so percentages below a
-   flex-grown screen would resolve against an indefinite containing block. */
+   player host sized by the content area instead of a 4:3 panel. The screen
+   still fixes its own viewport height (same 100vh -> 100dvh fallback as the
+   frame) so its flex children resolve percentages against a definite block. */
 .play-screen {
   display: flex;
   flex-direction: column;
@@ -640,28 +662,48 @@ pre {
   font-size: 0.8rem;
 }
 
-footer {
+/* Results and diagnostics fill the fixed frame like the other chrome
+   screens; the dev page keeps document-like scrolling inside its own box. */
+.results-screen {
+  padding: 16px 20px;
+  overflow-y: auto;
+}
+
+.diagnostics-screen {
+  padding: 0 20px 32px;
+  overflow-y: auto;
+}
+
+/* Slim edge-to-edge app footer: one fixed-height row with the small print
+   truncated and Settings pinned right. It is scoped to .app-footer because
+   the song-select footer is a footer element too. */
+.app-footer {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px 16px;
+  gap: 16px;
+  min-height: var(--footer-bar-height);
+  padding: 0 20px;
+  border-top: 1px solid var(--color-border);
   color: var(--color-text-faint);
   font-size: 0.8rem;
-  padding-top: 16px;
 }
 
 .footer-note {
   margin: 0;
-  max-width: 640px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.footer-note > span + span::before {
+  content: '·';
+  margin: 0 8px;
 }
 
 .footer-baseline {
   font-size: 0.72rem;
-}
-
-footer span {
-  display: block;
 }
 
 .footer-actions {
