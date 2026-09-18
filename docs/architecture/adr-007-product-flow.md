@@ -119,7 +119,9 @@ similarity to lazer is not upstream acceptance, and nothing here counts
 toward upstream acceptance scenarios.
 
 1. **Purple palette.** The shell keeps its dark purple product palette
-   instead of lazer's `OverlayColourProvider` blues and pinks.
+   instead of lazer's `OverlayColourProvider` blues and pinks. The menu and
+   intro screens carry a static full-bleed radial gradient composed from that
+   palette; lazer's animated triangle backdrop is deliberately absent.
 2. **Enter-only transitions.** Route changes play a CSS enter animation; the
    shell does not reproduce lazer's symmetrical enter/exit choreography
    (`SongSelect.ENTER_DURATION` both ways, filter/wedge sliding out to
@@ -140,7 +142,12 @@ toward upstream acceptance scenarios.
 4. **HTML-shell substitutions.** The screen title ("Song select") exists
    where pinned `SongSelect` has no header title; drag-and-drop import and
    the in-document footer are browser idioms standing in for lazer's global
-   import flow and footer overlay.
+   import flow and footer overlay. The frame itself is a full-viewport
+   column on every route — chrome screens fill it between fixed bars with
+   internal scrolling, and the play route is the chrome-free immersive
+   exception — and the frame's slim app footer (the fixed-height strip
+   carrying the disclaimer, engine baseline and Settings) is product chrome
+   with no pinned equivalent.
 5. **Results rank palette.** The rank emblem ring/letter uses per-rank
    product tokens in `src/styles/tokens.css` (X/S gold, A green, B blue,
    C purple, D red, F grey) — product styling, not lazer's rank colours or
@@ -171,5 +178,10 @@ toward upstream acceptance scenarios.
   settings, debug flows) keeps passing on every installed browser engine,
   and `tests/browser/select.spec.mjs` covers the new chrome: back navigation
   to the menu, the set panel and difficulty filter, drag-and-drop import,
-  and the CS/AR/OD/HP wedge stats.
+  and the CS/AR/OD/HP wedge stats. The full-viewport layout is pinned by
+  local bounding-box/DOM assertions: the carousel column fills the frame
+  between the bars (`select.spec.mjs`), the results rank emblem shows the
+  engine's rank letter with its token class (`lifecycle.spec.mjs`), and the
+  slim footer bar stays present on menu/select/results (`menu.spec.mjs`).
+  These are product-chrome checks, not upstream acceptance.
 - Upstream acceptance for song-select behavior remains open and unclaimed.

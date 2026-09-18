@@ -67,6 +67,30 @@ test('top bar and footer Back both return to the menu', async ({ page }) => {
   await expect(page).toHaveURL(/\/menu$/);
 });
 
+// Full-viewport chrome frame (bounding-box comparison like the play-route
+// fullscreen assertions): the screen spans the width and all height the slim
+// app footer leaves, and the bounded carousel column stretches down to the
+// select footer bar so the difficulty list owns the leftover height instead
+// of a fixed window.
+test('the carousel column fills the full-viewport frame between the bars', async ({ page }) => {
+  await wait_ready(page);
+  await page.waitForFunction(() =>
+    document.querySelector('.select-screen')?.getAnimations().length === 0);
+  const viewport = page.viewportSize();
+  const screen_box = await page.locator('.select-screen').boundingBox();
+  const app_footer_box = await page.locator('.app-footer').boundingBox();
+  expect(Math.abs(screen_box.y)).toBeLessThanOrEqual(1);
+  expect(Math.abs(screen_box.width - viewport.width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(screen_box.height + app_footer_box.height - viewport.height)).toBeLessThanOrEqual(1);
+
+  const carousel_box = await page.locator('.select-carousel').boundingBox();
+  const footer_box = await page.locator('.select-footer').boundingBox();
+  const row_gap = await page.evaluate(
+    () => parseFloat(getComputedStyle(document.querySelector('.select-screen')).rowGap));
+  expect(footer_box.y - (carousel_box.y + carousel_box.height)).toBeCloseTo(row_gap, 1);
+  expect(Math.abs(footer_box.y + footer_box.height - (screen_box.y + screen_box.height))).toBeLessThanOrEqual(1);
+});
+
 test('the set panel counts difficulties and the filter narrows rows', async ({ page }) => {
   await wait_ready(page);
   const archive = zipSync({ 'Easy.osu': strToU8(beatmap()), 'Hard.osu': strToU8(beatmap(1)) });

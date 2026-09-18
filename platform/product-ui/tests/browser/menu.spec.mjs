@@ -65,6 +65,15 @@ test('the footer carries the disclaimer and the engine baseline small print', as
   await expect(page.locator('[data-footer-baseline]')).toHaveText(/lazer \d+/, { timeout: 20_000 });
 });
 
+// The slim footer bar is the frame chrome shared by every non-immersive
+// route; only the intro (own disclaimer) and the play route hide it.
+test('the slim footer bar stays present on menu, select and results', async ({ page }) => {
+  for (const route of ['/menu', '/select', '/results']) {
+    await page.goto(route);
+    await expect(page.locator('footer.app-footer')).toBeVisible();
+  }
+});
+
 test('P stays inert while the settings dialog is open', async ({ page }) => {
   await page.goto('/menu');
   const settings_button = page.locator('footer').getByRole('button', { name: 'Settings' });

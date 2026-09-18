@@ -5,6 +5,7 @@
   grid-template-columns: minmax(140px, 1fr) auto minmax(140px, 1fr);
   align-content: safe center;
   padding: 0 var(--space-10);
+  background: var(--screen-backdrop);
   overflow-y: auto;
 }
 
@@ -39,8 +40,34 @@
   justify-self: start;
   display: grid;
   gap: var(--space-6);
-  min-width: 180px;
+  min-width: 240px;
   text-align: left;
+}
+
+/* Lazer-scaled action presence: large type over generous padding, with clear
+   hover and focus-visible feedback. The grid, roving order, ids and the
+   logo/wordmark anchors are unchanged; the transitions collapse under the
+   reduced-motion override like every other animation. */
+.menu-buttons button {
+  font-size: var(--font-size-menu-action);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: var(--space-10) var(--space-14);
+  transition:
+    background-color var(--duration-fade-in) ease-out,
+    border-color var(--duration-fade-in) ease-out,
+    color var(--duration-fade-in) ease-out;
+}
+
+.menu-buttons button:hover {
+  border-color: var(--color-accent);
+  background: var(--color-surface-selected);
+  color: var(--color-text-bright);
+}
+
+.menu-buttons button:focus-visible {
+  outline: var(--stroke-width-thick) solid var(--color-accent);
+  outline-offset: 3px; /* css-lint: focus ring offset, settings-dialog convention. */
 }
 
 @media (max-width: 760px) {

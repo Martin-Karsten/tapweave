@@ -69,6 +69,11 @@ test('shell plays mixed maps, pauses with keyboard, resumes, retries and shows a
   await expect(page.locator('#lifecycle-title')).toHaveText('Passed', { timeout: 12000 });
   await expect(page.locator('#result-stats')).toContainText('Accuracy');
   expect(await page.locator('#result-stats').textContent()).not.toContain('undefined');
+  // The retried run receives no input, so every object misses: accuracy 0
+  // lands below every rank cut-off (engine rank_for) but HPDrain 0 keeps the
+  // run passed, and F is reserved for failed runs — the emblem shows D.
+  await expect(page.locator('.rank-emblem')).toHaveText('D');
+  await expect(page.locator('.rank-emblem')).toContainClass('rank-d');
   await page.locator('.results-screen').screenshot({ path: test_info.outputPath('results.png') });
   await page.locator('#back').click();
   await expect(page.locator('#start')).toBeEnabled();
@@ -103,6 +108,10 @@ test('mixed failure results, repeated Back and failed replacement remain usable'
   await load(page, mixed.replace('HPDrainRate:0', 'HPDrainRate:10'));
   await page.locator('#start').click();
   await expect(page.locator('#lifecycle-title')).toHaveText('Failed', { timeout: 12000 });
+  // A drained run fails outright: the engine forces rank F on failure, so the
+  // emblem carries the failed-rank token class.
+  await expect(page.locator('.rank-emblem')).toHaveText('F');
+  await expect(page.locator('.rank-emblem')).toContainClass('rank-f');
   await page.locator('#back').click();
   await page.locator('#files').setInputFiles({ name: 'invalid.osu', mimeType: 'text/plain', buffer: Buffer.from('invalid') });
   await expect(page.locator('#error')).toBeVisible();

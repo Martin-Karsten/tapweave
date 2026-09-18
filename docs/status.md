@@ -717,17 +717,35 @@ green (including css-lint over the new tokens and stylesheet) and the
 unmodified Playwright suite passes on Chromium and Firefox; WebKit could not
 run locally (the same CDN download failure as the song-select pass above).
 
+A closing polish pass scaled the menu action column up to lazer-like presence
+through CSS only — larger type (`--font-size-menu-action`) over generous
+padding with clear hover and focus-visible feedback, plus a static full-bleed
+radial-gradient backdrop (`--screen-backdrop`, composed from the palette
+tokens) behind the menu and intro screens. The menu grid, roving keyboard
+navigation, the P shortcut, the `#menu-play`/`#menu-diagnostics` anchors and
+`.menu-logo .brand-mark` are unchanged, so no spec selector moved. The
+full-viewport layout itself is now pinned by local assertions: the select
+carousel column fills the frame between the bars (bounding-box comparison in
+the style of the play-route fullscreen assertions), the results rank emblem
+shows the engine's expected rank letter with its token class for both a
+passed all-miss run (D) and a drained failure (F), and the slim app footer is
+asserted present on menu/select/results. This is product chrome with local
+browser evidence only: `test:gates` green and the Playwright suite passing on
+Chromium and Firefox; WebKit could not run locally this time either (the
+documented CDN download failure).
+
 Classification is honest and narrow: this is structure-reference chrome, not
 upstream acceptance. The structural citations (SongSelect.cs, FilterControl.cs,
 BeatmapTitleWedge.cs, PanelBeatmapSet.cs, ScreenFooter.cs, MainMenu.cs,
 ResultsScreen.cs, SoloResultsScreen.cs at
 pinned commit `3c1c96f7`) and the documented MVP divergences — purple
 palette, enter-only transitions, single-set session with filename-derived
-titles, the HTML-shell substitutions, and the results rank palette — are
+titles, the HTML-shell substitutions (including the full-viewport chrome
+frame and slim footer bar), and the results rank palette — are
 recorded in
 [ADR-007](architecture/adr-007-product-flow.md). Visual similarity to lazer is
-explicitly not compatibility evidence, and menu/song-select styling stays
-outside the compatibility claims. Local evidence only: `test:gates`,
+explicitly not compatibility evidence, and menu/song-select/results styling
+stays outside the compatibility claims. Local evidence only: `test:gates`,
 Vitest, and the Playwright suite including `tests/browser/select.spec.mjs`
 (back navigation, set panel + difficulty filter, drag-and-drop import, wedge
 stats) pass on Chromium, Firefox and WebKit against the production WASM; the

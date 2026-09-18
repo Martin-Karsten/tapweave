@@ -31,6 +31,11 @@
   --color-border-strong: #3a3a58;
   --color-border-subtle: #23233a;
 
+  /* Full-bleed menu/intro backdrop: a soft radial lift behind the centered
+     brand, composed from the palette tokens above. It is static CSS, nothing
+     animates it, so the reduced-motion override has nothing to cover. */
+  --screen-backdrop: radial-gradient(120% 85% at 50% 8%, var(--color-surface) 0%, var(--color-background) 55%);
+
   /* Debug suite palette. */
   --debug-hud-bg: #0b1020d9;
   --debug-backdrop: #06070cd0;
@@ -118,6 +123,7 @@
   --font-size-title-set: 1.1rem;
   --font-size-title-wedge: 1.75rem; /* BeatmapTitleWedge-position map title. */
   --font-size-wordmark: 1.9rem;
+  --font-size-menu-action: 1.3rem; /* Scaled menu action column. */
   --font-size-result-rank: 3rem; /* Results emblem letter. */
   --font-size-result-score: 2.1rem; /* Results prominent score. */
 
