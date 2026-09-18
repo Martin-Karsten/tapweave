@@ -29,11 +29,12 @@ read_viewport_transform :: proc(viewport_address: uintptr) -> (presentation.Play
 	return transform, viewport, .OK
 }
 
-// Session-aware viewport reader: fits the session's cached complete visual
-// bounds instead of the normal 512x384 rectangle. Every gameplay consumer
-// (drawing, uniforms and pointer conversion) shares this one helper so the
-// forward origin and the inverse coefficients cannot disagree.
-read_bounds_transform :: proc(attachment: ^Scene_Attachment, viewport_address: uintptr) -> (presentation.Playfield_Transform, presentation.Viewport, core_types.Status) {
+// Session framing viewport reader: the pinned lazer playfield framing
+// (0.8-adjusted proportional fit, centred, map-independent). Every gameplay
+// consumer (drawing, uniforms and pointer conversion) shares this one helper
+// so the forward origin and the inverse coefficients cannot disagree. The
+// transform depends on the viewport only, never on the map or its attachment.
+read_session_transform :: proc(viewport_address: uintptr) -> (presentation.Playfield_Transform, presentation.Viewport, core_types.Status) {
 	status := abi_record(viewport_address, ABI_VIEWPORT_KIND, ABI_VIEWPORT_SIZE)
 	if status != .OK {
 		return {}, {}, status
@@ -46,7 +47,7 @@ read_bounds_transform :: proc(attachment: ^Scene_Attachment, viewport_address: u
 		css_height = get_f64(input_bytes, ABI_VIEWPORT_CSS_HEIGHT_OFFSET),
 		device_pixel_ratio = get_f64(input_bytes, ABI_VIEWPORT_DEVICE_PIXEL_RATIO_OFFSET),
 	}
-	transform, valid := presentation.make_bounds_transform(viewport, attachment.visual_bounds)
+	transform, valid := presentation.make_adjusted_playfield_transform(viewport)
 	if !valid {
 		return {}, {}, .INVALID_ARGUMENT
 	}
@@ -90,20 +91,18 @@ oe_playfield_transform :: proc "c" (engine: core_types.Handle, viewport_address,
 	return abi_status(.OK)
 }
 
-// Session-aware transform over the validated session's cached visual bounds.
-// The session's scene attachment must exist; its absence is the established
-// INVALID_STATE. Allocation-free; output publishes only after full validation.
+// Session gameplay transform over the pinned lazer playfield framing. The
+// framing is map-independent, so unlike drawing it requires no scene
+// attachment; only the session handle validation chain applies. Allocation-
+// free; output publishes only after full validation.
 @(export)
 oe_session_playfield_transform :: proc "c" (engine, session_handle: core_types.Handle, viewport_address, span_output: uintptr) -> u32 {
 	context = runtime.default_context()
-	session, status := gameplay_output_get(engine, session_handle, span_output)
+	_, status := gameplay_output_get(engine, session_handle, span_output)
 	if status != .OK {
 		return abi_status(status)
 	}
-	if len(session.map_storage.scene_attachment.bytes) == 0 {
-		return abi_status(.INVALID_STATE)
-	}
-	transform, _, transform_status := read_bounds_transform(&session.map_storage.scene_attachment, viewport_address)
+	transform, _, transform_status := read_session_transform(viewport_address)
 	if transform_status != .OK {
 		return abi_status(transform_status)
 	}

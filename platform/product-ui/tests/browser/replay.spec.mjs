@@ -129,7 +129,24 @@ test('Escape exits a watch and both replay actions keep working afterwards', asy
   // Watch re-enters the replay from the retained recording.
   await page.locator('#watch-replay').click();
   await expect(page.locator('#watch-banner')).toBeVisible();
+  // Fullscreen during the running watch: the browser's exit-Escape must not
+  // also exit the watch (exit-first engines deliver the keydown after the
+  // exit event, so the grace window owns it). Headless automation may leave
+  // the element fullscreened — the watch must survive the press in both.
+  await page.locator('#fullscreen-toggle').click();
+  await expect(page.locator('#fullscreen-toggle')).toHaveText('Exit fullscreen');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#watch-banner')).toBeVisible();
+  await expect(page).toHaveURL(/\/play$/);
+  if (await page.evaluate(() => document.fullscreenElement !== null)) {
+    await page.locator('#fullscreen-toggle').click();
+  }
+  await expect(page.locator('#fullscreen-toggle')).toHaveText('Fullscreen');
+  expect(await page.evaluate(() => document.fullscreenElement)).toBe(null);
+  // The watch runs to completion; one windowed Escape then leaves the
+  // original results context exactly as before.
   await expect(page.locator('#lifecycle-title')).toHaveText('Passed', { timeout: 20000 });
+  await page.waitForTimeout(500);
   await page.keyboard.press('Escape');
   await expect(page).toHaveURL(/\/results$/);
   expect(await score_text(page)).toBe(live_score);

@@ -161,7 +161,7 @@ oe_session_scene_draw :: proc "c" (engine, session_handle: core_types.Handle, ti
 	if len(session.scene_storage.output) == 0 || len(session.map_storage.scene_attachment.bytes) == 0 {
 		return abi_status(.INVALID_STATE)
 	}
-	transform, viewport, transform_status := read_bounds_transform(&session.map_storage.scene_attachment, viewport_address)
+	transform, viewport, transform_status := read_session_transform(viewport_address)
 	if transform_status != .OK {
 		return abi_status(transform_status)
 	}

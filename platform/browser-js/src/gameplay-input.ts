@@ -1,5 +1,6 @@
 import { DEFAULT_PLAYER_SETTINGS, type Gameplay_Input_Settings } from './player-settings.js';
 import { ACTION } from './input.js';
+import { fullscreen_owns_escape, install_fullscreen_escape_guard } from './fullscreen.js';
 import { require_condition } from './errors.js';
 import type { Gameplay_Frame } from './gameplay-frame.js';
 
@@ -29,6 +30,7 @@ export class Gameplay_Input {
     const options = { signal: this.listeners.signal };
     const document = canvas.ownerDocument;
     const window = document.defaultView!;
+    install_fullscreen_escape_guard(document);
     const guarded = <Event_Type extends Event>(handler: (event: Event_Type) => void) => (event: Event) => {
       if (frame.playback.state !== 'running' || frame.terminal) return;
       try { handler(event as Event_Type); } catch (error) { frame.fail(error); }
@@ -40,9 +42,10 @@ export class Gameplay_Input {
       if (event.repeat) return;
       if (event.code === 'Escape') {
         // Browser fullscreen owns the first Escape: exiting fullscreen must
-        // not also dispatch the application Escape action. No timeout is
-        // involved, so a later Escape still reaches this handler.
-        if (document.fullscreenElement) return;
+        // not also dispatch the application pause, whichever order the engine
+        // delivers the exit event and the keydown in. No timeout is involved,
+        // so a later windowed Escape still pauses.
+        if (fullscreen_owns_escape()) return;
         this.pause();
         return;
       }

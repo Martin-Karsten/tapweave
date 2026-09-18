@@ -981,6 +981,16 @@ per-frame probe stays read-only. The window is open while
 than one skip lead remaining; the target is the next boundary minus the lead,
 clamped to at least `committed + 1 ms`.
 
+Space actuates the same affordance: the play screen's window keydown handler
+mirrors lazer's `InputKey.Space → GlobalAction.SkipCutscene` binding, whose
+overlay handler clicks the very button (repeats ignored). The key runs under
+the button's exact visibility gate in live play and watch mode alike, ignores
+repeats and modifiers, yields while a shell dialog is open, and yields to a
+Space configured as a gameplay hit key (the configured binding wins; lazer
+never binds Space as a hit key). No engine, ABI or transport change is
+involved — the key calls the same `Player_Session_Service.skip()` command as
+the click.
+
 `skip()` is a user-command path, not a frame-path feature: it stops the frame
 driver, drains buffered input at the pre-skip receipt times, drops residual
 records (closed-epoch stamps fail loudly in drain rather than replaying — an
@@ -998,13 +1008,18 @@ lazer's `Skip()` guard.
 Classification: local browser/shell behavior with intent-level upstream
 mapping, not an upstream acceptance gate. The pinned sources at `3c1c96f7`
 (`SkipOverlay.cs`, `MasterGameplayClockContainer.cs`,
+`GlobalActionContainer.cs`,
 `osu.Game.Tests/Visual/Gameplay/TestSceneSkipOverlay.cs`) were fetched and
 hashed into the [skip finding index](../engine/reference/findings/skip-window.json);
 the ported assertions are the no-window cases (`TestSkipTimeZero`/
 `TestSkipTimeEqualToSkip`), single actuation (`TestClickOnlyActuatesOnce`) and
-the `MINIMUM_SKIP_TIME` skip target. Recorded divergences: ours is a DOM
+the `MINIMUM_SKIP_TIME` skip target. The scene's actuation tests are
+click-only, so the Space path reuses the single-actuation intent through the
+binding plus the overlay's `IKeyBindingHandler` (repeat-guarded, clicks the
+same button). Recorded divergences: ours is a DOM
 button (lazer overlays the playfield) and ours also skips during breaks
-(lazer's intro overlay does not), targeting one lead before the break end.
+(lazer's intro overlay does not), targeting one lead before the break end; a
+Space configured as a hit key keeps its gameplay binding.
 
 Validation: browser typecheck, build and the full service-test suite pass,
 including new controller regressions (lead-in skip and break skip each
@@ -1022,15 +1037,25 @@ above for phase A), and one pre-existing load-dependent HUD flake
 unmodified main tree and is unrelated. Skip during phase-A watch mode was
 additionally verified against a merged tree: the watch reaches terminal with
 a byte-identical result after skipping the replay lead-in, and `stop_watch`
-restores the retained result. Upstream skip acceptance remains open pending a
+restores the retained result. Space-key validation: shell typecheck, build,
+vitest suite and the full browser suite pass (chromium and firefox projects;
+the webkit project still lacks pinned browser binaries, as recorded above),
+with the skip spec extended so the key actuates the lead-in and break windows
+like the button, does nothing when no window is open, and yields to a Space
+bound as a hit key. Upstream skip acceptance remains open pending a
 reference-host adapter.
 
 ## Complete-map visual fit and fullscreen gameplay
 
+> **Superseded (fitting only):** the complete-map bounds fit below was
+> replaced by pinned lazer playfield framing — see the final section. The
+> window-sized shell layout, fullscreen controls, HUD anchoring, framebuffer
+> ceilings and resize behaviour introduced here all remain in force.
+
 Gameplay now fills the browser content area and fits every map's complete
 visual extent at one stable, uniform scale, instead of clipping to a bordered
 4:3 panel over the logical 512×384 rectangle (ADR-003
-[complete-map visual fit](../architecture/adr-003-rendering.md#complete-map-visual-fit),
+[playfield framing](../architecture/adr-003-rendering.md#pinned-lazer-playfield-framing),
 ADR-006 [play route layout](../architecture/adr-006-product-shell.md#play-route-layout)).
 
 Engine side: `presentation.visual_bounds` derives one `Visual_Bounds` per map
@@ -1090,3 +1115,63 @@ traces, all gameplay fixtures); browser typecheck/tests/build pass; the
 product gates (HMR/B1/B2/B3) pass. WebKit Playwright binaries were again
 uninstallable locally (CDN gateway failure) — WebKit browser-suite coverage
 for this change is CI-side, consistent with the recorded ADR-006 caveat.
+
+## Pinned lazer playfield framing
+
+Gameplay framing now reproduces the pinned lazer playfield composition
+([finding](../engine/reference/findings/playfield-framing.json)) instead of
+fitting each map's maximum visual extent: `make_adjusted_playfield_transform`
+applies one uniform scale `0.8 × min(viewport_width/512,
+viewport_height/384)` — `OsuPlayfieldAdjustmentContainer`'s composed size
+adjustment at osu `3c1c96f7` (centred 0.8 relative size → 4:3 FillMode.Fit
+child → content scale ChildSize.X/512; the 1024×768 upstream game size
+reproduces the source comment's osu-stable ratio 1.6 exactly) — and centres
+the logical 512×384 playfield: at 1920×1080 it measures exactly 1152×864 CSS
+pixels. Object positions, sizes and distances share that scale; different
+maps at the same viewport produce identical transforms because circle size,
+slider extremes and animation extents cannot enter the calculation. Content
+beyond the logical playfield renders into the surrounding canvas unclipped —
+`OsuPlayfield` overrides `UpdateSubTreeMasking()` to false, so upstream does
+not crop either; the earlier complete-map section's claim that lazer crops
+oversized content was wrong and is corrected in the rendering ADR. The
+`AlignWithStoryboard` downward shift is an upstream positional adjustment
+intentionally not implemented.
+
+`oe_session_playfield_transform` keeps its record contract (kind 29 in,
+kind 30 out, same output slot) and its validation chain (owner, stale
+handles, exact mailbox addresses, positive dimensions, finite coefficients,
+allocation-free, publish-after-validate, prior bytes preserved on rejection)
+but no longer requires a scene attachment — the framing is viewport-only and
+succeeds before any renderer publishes scene resources. Drawing, pointer
+receipt conversion and pause/resume targeting all consume it unchanged.
+`engine/presentation/visual_bounds.odin` and the attachment's cached bounds
+were removed together with the fit-only restrictions; scene-resource creation
+keeps its transactional finiteness validation of prepared geometry and every
+quota. The viewport-anchored HUD, full-canvas background, window-sized shell
+layout, fullscreen button/lifecycle, framebuffer ceilings and resize repaint
+behaviour from the previous section are unchanged, as are gameplay
+coordinates, judgement, timing, scores and replay data. The fullscreen-exit
+Escape is owned by the browser across engine delivery orders: a shared guard
+(`platform/browser-js/src/fullscreen.ts`) treats an Escape as browser-owned
+while the document is fullscreen or within a 400 ms grace window after a
+fullscreen exit (some engines exit and fire `fullscreenchange` before
+delivering the keydown); the pause, resume-gate, watch-exit and modal-close
+Escape consumers all consult it, and browser/product regressions cover both
+delivery orders.
+
+Classification: presentation-only framing parity with pinned-source evidence
+and a blocked executable probe — the local machine has no dotnet SDK, so the
+.NET reference host cannot measure the container composition here; upstream
+acceptance stays open until an H-series adapter does (recorded in the
+finding). Local regression evidence: presentation tests pin the four
+reference viewports (4:3/16:9/ultrawide/portrait, centring, proportional
+sides, 1152×864 at 1920×1080, round trips, DPR independence, f32 NDC
+containment of the playfield rectangle); scene tests pin map independence
+(extreme vs plain maps, before and after attachment publication),
+allocation-free queries, rejection semantics and the preserved geometry
+validation; the browser engine regression pins the same contract over real
+WASM including the 1152×864 measurement and off-rectangle addressability.
+`npm --prefix engine test` passes (byte-identical native/WASM traces, all
+gameplay fixtures), browser typecheck/tests/build pass (159/159), and the
+product shell suites and gates were re-run after the engine rebuild.
+WebKit Playwright coverage remains CI-side (blocked CDN install).

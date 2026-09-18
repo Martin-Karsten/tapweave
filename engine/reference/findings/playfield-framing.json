@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "acceptance": [],
+  "complete": false,
+  "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "feature": "Pinned lazer playfield framing for the session viewport transform (supersedes complete-map visual bounds fitting)",
+  "upstream_sources": [
+    {
+      "path": "osu.Game.Rulesets.Osu/UI/OsuPlayfieldAdjustmentContainer.cs",
+      "sha256": "d1884f41079b23a5058ba0b7223d497f915fdd235da2b77f8a6370ad41012fa6",
+      "role": "playfield_size_adjust = 0.8 relative size, Anchor/Origin Centre, 4:3 FillMode.Fit child, ScalingContainer content scale = ChildSize.X / 512; source comment derives the osu-stable magic ratio 1.6 at the 1024x768 game size. AlignWithStoryboard downward shift is the positional adjustment this framing does not implement."
+    },
+    {
+      "path": "osu.Game.Rulesets.Osu/UI/OsuPlayfield.cs",
+      "sha256": "9f198d257fce31ac6f9391fada40a83ac5970828507075a8d9d16c28ae75d7c0",
+      "role": "BASE_SIZE = (512, 384); UpdateSubTreeMasking() => false (\"everything is always on screen\") — upstream does not clip content to the logical playfield, correcting the earlier local claim that lazer crops oversized content."
+    },
+    {
+      "path": "osu.Game/Rulesets/UI/PlayfieldAdjustmentContainer.cs",
+      "sha256": "f7794478deb96edcb58e566062e300c1a3659a760c00c5c90569b9cc3948249d",
+      "role": "Base container contributes RelativeSizeAxes = Both only; no additional scaling in the composition."
+    }
+  ],
+  "oracle": "pinned-source-derivation",
+  "local_sources": [
+    {
+      "path": "../engine/presentation/viewport.odin",
+      "sha256": "c2cff68a9e8d45c492465ca44b217873137a8bf0f68907f20839c702329d741e"
+    },
+    {
+      "path": "../engine/runtime/presentation.odin",
+      "sha256": "b312ded05e7a02deebf9d65696d1e02f7f262f26387122ea6dad4f4c24c9fde2"
+    },
+    {
+      "path": "../engine/runtime/scene_draw.odin",
+      "sha256": "92f403e537f50284f36eadd944a836550a3289c20e94b6262c5babf2f824bd27"
+    },
+    {
+      "path": "../engine/runtime/scene_resources.odin",
+      "sha256": "8a837462e218d6eee4012756c9f2f7de02bcac17b8b0af228acd105990df9e14"
+    },
+    {
+      "path": "../engine/tests/presentation_test.odin",
+      "sha256": "752b9d7fa7cf57efcb3cdea0589b35f9949974a3b4b26e61037fcb4153218c76"
+    },
+    {
+      "path": "../engine/tests/scene_test.odin",
+      "sha256": "fd9e52e32820881d75122225ac659e42eb61849e3e7da0d79302a1f2014a0683"
+    },
+    {
+      "path": "../platform/browser-js/tests/engine.test.mjs",
+      "sha256": "7a6122dcd420ed209630c2c8b0525079311fb7250a85e0cdd805c151cd492a3e"
+    }
+  ],
+  "composition": {
+    "formula": "scale_css = 0.8 * min(viewport_width / 512, viewport_height / 384), logical playfield centred in the viewport",
+    "derivation": "OsuPlayfieldAdjustmentContainer centres itself (Anchor/Origin Centre), takes Size = 0.8 of the parent, its FillMode.Fit child with FillAspectRatio 4/3 letterboxes to width 0.8 * min(W, 4H/3), and ScalingContainer scales content by that width / 512. Over parent (W, H) this composes to 0.8 * min(W/512, H/384) applied uniformly to positions, sizes and distances, centred.",
+    "cross_check": "At the upstream 1024x768 game size the formula yields exactly 1.6, the osu-stable magic ratio quoted in the pinned source comment."
+  },
+  "reference_measurements_css": {
+    "1024x768_4_3": { "scale": 1.6, "client_left": 102.4, "client_top": 76.8, "playfield": [819.2, 614.4] },
+    "1920x1080_16_9": { "scale": 2.25, "client_left": 384, "client_top": 108, "playfield": [1152, 864] },
+    "3440x1440_ultrawide": { "scale": 3.0, "client_left": 952, "client_top": 144, "playfield": [1536, 1152] },
+    "390x844_portrait": { "scale": 0.609375, "client_left": 39, "client_top": 305, "playfield": [312, 234] }
+  },
+  "ported_assertions": {
+    "engine/tests/presentation_test.odin": [
+      "adjusted_playfield_framing_matches_pinned_upstream_reference_viewports: the four reference viewports above, centring, proportional sides and the exact 1152x864 playfield at 1920x1080",
+      "adjusted_framing_is_map_independent_by_construction: repeated queries identical; framing scale equals PLAYFIELD_SIZE_ADJUST * sessionless fit scale",
+      "adjusted_framing_round_trips_and_ignores_dpr: forward/inverse round trips incl. off-rectangle points, DPR-independent CSS coefficients, f32 NDC containment of the playfield rectangle",
+      "adjusted_framing_rejects_invalid_viewports: zero/negative/non-finite dimensions and DPR"
+    ],
+    "engine/tests/scene_test.odin": [
+      "session_transform_uses_map_independent_framing_and_validates: identical transform across extreme/plain maps before and after scene attachment publication, attachment-free success, allocation-free query, DPR independence, invalid viewport preserves prior bytes, wrong output span and stale handle rejection, preserved transactional geometry validation (non-finite prepared geometry rejects scene-resource creation)",
+      "scene_draw_frame_transform_uses_pinned_framing: frame header equals the adjusted transform across draw times; an object at (560, 420) maps beyond the framed playfield edges while remaining on-canvas (unclipped)"
+    ],
+    "platform/browser-js/tests/engine.test.mjs": [
+      "session viewport transform uses pinned map-independent framing: 1920x1080 -> scale 2.25, playfield 1152x864 centred; extreme/plain maps identical; scale = 0.8 * sessionless fit; off-rectangle object addressable outside the framed playfield; attachment publication and DPR change nothing; invalid viewport preserves bytes; stale handle rejects"
+    ]
+  },
+  "blocked_validation": [
+    "Executable pinned .NET reference probe of OsuPlayfieldAdjustmentContainer composition at the four reference viewports: the local machine has no dotnet SDK, so engine/reference-host cannot run here. Upstream acceptance stays open until an H-series adapter measures the container layout in a clean pinned checkout; the derivation above and the source-comment 1.6 cross-check are pinned-source evidence only.",
+    "WebKit Playwright coverage for the browser suites remains CI-side (CDN binary install blocked locally, recorded in ADR-006)."
+  ],
+  "supersedes": "Complete-map visual bounds fitting (engine/presentation/visual_bounds.odin, removed): that policy let maximum-size approach circles shrink the whole map and mischaracterised lazer as cropping oversized content."
+}

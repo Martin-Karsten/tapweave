@@ -84,8 +84,8 @@ test('physical source restoration preserves aggregation and excludes modifier ch
 test('cursor gate ignores off-target and repeated/duplicate-source actions, and cleans up', () => {
   const nodes = new Set();
   const window = new EventTarget();
-  const document = { defaultView: window, body: { append: node => nodes.add(node) },
-    createElement: () => { const node = { style: {}, setAttribute() {}, remove() { nodes.delete(node); } }; return node; } };
+  const document = Object.assign(new EventTarget(), { defaultView: window, body: { append: node => nodes.add(node) },
+    createElement: () => { const node = { style: {}, setAttribute() {}, remove() { nodes.delete(node); } }; return node; } });
   const canvas = Object.assign(new EventTarget(), { ownerDocument: document, focus() {}, getBoundingClientRect: () => ({ top: 0 }) });
   const accepted = [];
   let cancelled = 0;
@@ -113,4 +113,42 @@ test('cursor gate ignores off-target and repeated/duplicate-source actions, and 
   assert.equal(nodes.size, 0);
   dispatch(window, 'keydown', { code: 'Escape' });
   assert.equal(cancelled, 1);
+});
+
+// The browser's fullscreen-exit Escape must not also cancel the gate,
+// whichever order the engine delivers the exit event and the keydown in.
+test('cursor gate leaves the fullscreen-exit Escape to the browser across delivery orders', () => {
+  const nodes = new Set();
+  const window = new EventTarget();
+  const document = Object.assign(new EventTarget(), { defaultView: window, body: { append: node => nodes.add(node) },
+    createElement: () => { const node = { style: {}, setAttribute() {}, remove() { nodes.delete(node); } }; return node; } });
+  const canvas = Object.assign(new EventTarget(), { ownerDocument: document, focus() {}, getBoundingClientRect: () => ({ top: 0 }) });
+  let cancelled = 0;
+  const gate = new Resume_Gate(canvas, DEFAULT_PLAYER_SETTINGS, 100, 100, 14, 0, 0, new Set(),
+    () => {}, () => cancelled++);
+  const dispatch_keydown = () => {
+    const event = new Event('keydown', { cancelable: true });
+    Object.assign(event, { code: 'Escape' });
+    Object.defineProperty(event, 'target', { value: canvas });
+    window.dispatchEvent(event);
+  };
+  // Still fullscreen: the browser owns the Escape outright.
+  document.fullscreenElement = canvas;
+  dispatch_keydown();
+  assert.equal(cancelled, 0);
+  // Exit-first engines deliver the keydown after the exit event; the grace
+  // window still owns it.
+  document.fullscreenElement = null;
+  document.dispatchEvent(new Event('fullscreenchange'));
+  dispatch_keydown();
+  assert.equal(cancelled, 0);
+  // Past the grace window the windowed Escape cancels the gate again.
+  const original_now = performance.now.bind(performance);
+  const exit_now = original_now();
+  document.dispatchEvent(new Event('fullscreenchange'));
+  performance.now = () => exit_now + 10_000;
+  dispatch_keydown();
+  assert.equal(cancelled, 1);
+  performance.now = original_now;
+  gate.dispose();
 });

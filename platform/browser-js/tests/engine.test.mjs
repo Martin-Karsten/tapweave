@@ -187,40 +187,57 @@ test('production viewport transform handles placement, aspect ratio, DPR and rej
   }
 });
 
-test('session viewport transform fits complete map bounds and validates attachment, handles and viewport', async () => {
+test('session viewport transform uses pinned map-independent framing and validates handles and viewport', async () => {
   const engine = await Engine_Bridge.create(wasm_bytes);
   try {
-    // Objects beyond the normal rectangle force a wider fit than 512x384.
-    const map_text = 'osu file format v14\n[HitObjects]\n-60,-40,1000,1,0\n560,420,2000,1,0';
-    const prepared = engine.prepare_map(new TextEncoder().encode(map_text));
+    // One map with geometry far beyond the normal rectangle, one plain map:
+    // the pinned lazer framing is viewport-only, so both must produce the
+    // identical transform before any scene attachment exists.
+    const extreme_map = engine.prepare_map(new TextEncoder().encode(
+      'osu file format v14\n[HitObjects]\n-60,-40,1000,1,0\n560,420,2000,1,0\n100,100,4000,2,0,L|700:520,1,900'));
+    const plain_map = engine.prepare_map(new TextEncoder().encode(
+      'osu file format v14\n[HitObjects]\n256,192,1000,1,0'));
     const viewport = { css_left: 13.5, css_top: 29.25, css_width: 1280, css_height: 720, device_pixel_ratio: 1 };
-    const session = engine.create_session(prepared.map_handle);
-    // Without the scene attachment the session fit fails loudly instead of
-    // silently falling back to the sessionless 512x384 rectangle.
-    assert.throws(() => engine.session_playfield_transform(session, viewport), { code: 'ENGINE_2' });
-    engine.scene_resources(prepared.map_handle);
-    const transform = engine.session_playfield_transform(session, viewport);
-    // Every object extreme lands inside the viewport through the forward fit.
-    for (const [x, y] of [[-60, -40], [560, 420], [0, 0], [512, 384]]) {
-      const client_x = transform.client_left + x * transform.scale;
-      const client_y = transform.client_top + y * transform.scale;
-      assert.ok(client_x >= viewport.css_left && client_x <= viewport.css_left + viewport.css_width,
-        `x=${x} maps to ${client_x}`);
-      assert.ok(client_y >= viewport.css_top && client_y <= viewport.css_top + viewport.css_height,
-        `y=${y} maps to ${client_y}`);
-    }
-    assert.ok(transform.scale < engine.playfield_transform(viewport).scale);
+    const extreme_session = engine.create_session(extreme_map.map_handle);
+    const plain_session = engine.create_session(plain_map.map_handle);
+    const transform = engine.session_playfield_transform(extreme_session, viewport);
+    // 1920x1080 reference measurement: the default logical playfield frames
+    // at exactly 1152x864 CSS pixels (0.8 * min(1920/512, 1080/384) = 2.25).
+    const hd = engine.session_playfield_transform(plain_session,
+      { css_left: 0, css_top: 0, css_width: 1920, css_height: 1080, device_pixel_ratio: 1 });
+    assert.equal(hd.scale, 2.25);
+    assert.equal(512 * hd.scale, 1152);
+    assert.equal(384 * hd.scale, 864);
+    assert.equal(hd.client_left, (1920 - 1152) / 2);
+    assert.equal(hd.client_top, (1080 - 864) / 2);
+    // Map independence: different geometry, identical transform.
+    assert.deepEqual(engine.session_playfield_transform(plain_session, viewport), transform);
+    // The session framing is the sessionless fit composed with the pinned
+    // 0.8 playfield size adjustment.
+    assert.equal(transform.scale, 0.8 * engine.playfield_transform(viewport).scale);
+    assert.equal(transform.scale, 1.5);
+    assert.equal(transform.client_left, 13.5 + (1280 - 512 * 1.5) / 2);
+    assert.equal(transform.client_top, 29.25 + (720 - 384 * 1.5) / 2);
+    // Objects beyond the logical rectangle map outside the framed playfield
+    // rectangle but stay addressable on the canvas (no 512x384 clipping).
+    const playfield_right = transform.client_left + 512 * transform.scale;
+    const off_right = transform.client_left + 560 * transform.scale;
+    assert.ok(off_right > playfield_right && off_right <= viewport.css_left + viewport.css_width);
+    // Publishing the scene attachment changes nothing.
+    engine.scene_resources(extreme_map.map_handle);
+    assert.deepEqual(engine.session_playfield_transform(extreme_session, viewport), transform);
     // DPR never enters the CSS-space conversion.
-    assert.deepEqual(engine.session_playfield_transform(session, { ...viewport, device_pixel_ratio: 4 }), transform);
+    assert.deepEqual(engine.session_playfield_transform(extreme_session, { ...viewport, device_pixel_ratio: 4 }), transform);
     // Invalid viewports reject and preserve the previously published bytes.
     const previous_span = engine.read_span();
     const previous_bytes = engine.copy_output();
-    assert.throws(() => engine.session_playfield_transform(session, { ...viewport, css_width: 0 }), { code: 'ENGINE_1' });
+    assert.throws(() => engine.session_playfield_transform(extreme_session, { ...viewport, css_width: 0 }), { code: 'ENGINE_1' });
     assert.deepEqual(engine.read_span(), previous_span);
     assert.deepEqual(engine.copy_output(), previous_bytes);
     // Released sessions are stale handles, never a silent success.
-    engine.release_session(session);
-    assert.throws(() => engine.session_playfield_transform(session, viewport), { code: 'ENGINE_9' });
+    engine.release_session(extreme_session);
+    engine.release_session(plain_session);
+    assert.throws(() => engine.session_playfield_transform(extreme_session, viewport), { code: 'ENGINE_9' });
   } finally {
     engine.dispose();
   }

@@ -1,5 +1,6 @@
 import { player_session } from '../state/session_state.js';
 import { For, Show, createEffect, createSignal, onCleanup, onMount, type Component } from 'solid-js';
+import { fullscreen_owns_escape, install_fullscreen_escape_guard } from '@browser/fullscreen.js';
 import { hit_key_label, supported_hit_key } from '@browser/player-settings.js';
 import { close_settings_dialog, player_settings, settings_dialog_open, settings_snapshot } from '../state/settings_state.js';
 
@@ -33,6 +34,7 @@ export const Settings_Dialog: Component = () => {
 
   onMount(() => {
     const listeners = new AbortController();
+    install_fullscreen_escape_guard(document);
     window.addEventListener('keydown', event => {
       if (!settings_dialog_open()) return;
       player_session()?.quarantine_input(event.code);
@@ -42,6 +44,8 @@ export const Settings_Dialog: Component = () => {
       if (event.code === 'Escape') {
         event.preventDefault();
         if (event.repeat) return;
+        // The browser's fullscreen-exit Escape must not also close the modal.
+        if (fullscreen_owns_escape()) return;
         if (capturing()) cancel_capture();
         else close_settings_dialog();
         return;
@@ -87,7 +91,7 @@ export const Settings_Dialog: Component = () => {
   });
 
   return <dialog ref={dialog} class="settings-dialog" aria-labelledby="settings-title"
-    onCancel={event => { event.preventDefault(); if (capturing()) cancel_capture(); else close_settings_dialog(); }}>
+    onCancel={event => { event.preventDefault(); if (fullscreen_owns_escape()) return; if (capturing()) cancel_capture(); else close_settings_dialog(); }}>
     <h2 id="settings-title">Settings</h2>
     <fieldset>
       <legend>Audio</legend>

@@ -223,97 +223,119 @@ write_viewport_record :: proc(left, top, width, height, ratio: f64) {
 	engine_runtime.put_f64(bytes, engine_runtime.ABI_VIEWPORT_DEVICE_PIXEL_RATIO_OFFSET, ratio)
 }
 
-// Scene resources publish the complete visual bounds computed during
-// preparation; every session sharing the attachment reuses them, and the
-// session transform export fits those bounds with full handle validation.
+// The session transform carries the pinned lazer playfield framing: it is
+// map-independent (identical across maps with wildly different geometry),
+// requires no scene attachment, and keeps the full handle/viewport validation
+// chain with allocation-free publication.
 @(test)
-scene_attachment_bounds_and_session_transform_are_validated_and_shared :: proc(test: ^testing.T) {
+session_transform_uses_map_independent_framing_and_validates :: proc(test: ^testing.T) {
 	testing.expect_value(test, engine_runtime.abi_start(), core_types.Status.OK)
 	// ABI exports always resolve against the shared instance.
 	instance := &engine_runtime.abi_instance
 	owner, _ := engine_runtime.engine_create(instance)
 	defer engine_runtime.engine_release(instance, owner)
-	map_text := "osu file format v14\n[HitObjects]\n-60,-40,1000,1,0\n560,420,2000,1,0\n100,100,4000,2,0,L|700:520,1,900"
-	map_handle, map_error := engine_runtime.map_prepare(instance, owner, map_text, true)
-	testing.expect_value(test, map_error.status, core_types.Status.OK)
-	if map_error.status != .OK {
+	extreme_map_text := "osu file format v14\n[HitObjects]\n-60,-40,1000,1,0\n560,420,2000,1,0\n100,100,4000,2,0,L|700:520,1,900"
+	plain_map_text := "osu file format v14\n[HitObjects]\n256,192,1000,1,0"
+	extreme_map, extreme_error := engine_runtime.map_prepare(instance, owner, extreme_map_text, true)
+	testing.expect_value(test, extreme_error.status, core_types.Status.OK)
+	if extreme_error.status != .OK {
 		return
 	}
-	testing.expect_value(test, engine_runtime.scene_resource_create(instance, owner, map_handle), core_types.Status.OK)
-	map_resource, _ := engine_runtime.map_get(instance, owner, map_handle)
-	attachment_bytes := map_resource.scene_attachment.bytes
-	expected_bounds, bounds_valid := presentation.compute_visual_bounds(map_resource.prepared_map.objects)
-	testing.expect(test, bounds_valid)
-	testing.expect_value(test, map_resource.scene_attachment.visual_bounds, expected_bounds)
-	// Published bounds survive repeat creation: the attachment is reused.
-	testing.expect_value(test, engine_runtime.scene_resource_create(instance, owner, map_handle), core_types.Status.OK)
-	testing.expect(test, raw_data(map_resource.scene_attachment.bytes) == raw_data(attachment_bytes))
-
-	session_handle, session_created := engine_runtime.session_create(instance, owner, map_handle, 262144, 0, true, 8)
-	testing.expect_value(test, session_created, core_types.Status.OK)
-	if session_created != .OK {
+	plain_map, plain_error := engine_runtime.map_prepare(instance, owner, plain_map_text, true)
+	testing.expect_value(test, plain_error.status, core_types.Status.OK)
+	if plain_error.status != .OK {
 		return
 	}
-	defer testing.expect_value(test, engine_runtime.session_release(instance, owner, session_handle), core_types.Status.OK)
+	extreme_session, extreme_created := engine_runtime.session_create(instance, owner, extreme_map, 262144, 0, true, 8)
+	testing.expect_value(test, extreme_created, core_types.Status.OK)
+	if extreme_created != .OK {
+		return
+	}
+	defer testing.expect_value(test, engine_runtime.session_release(instance, owner, extreme_session), core_types.Status.OK)
+	plain_session, plain_created := engine_runtime.session_create(instance, owner, plain_map, 262144, 0, true, 8)
+	testing.expect_value(test, plain_created, core_types.Status.OK)
+	if plain_created != .OK {
+		return
+	}
+	defer testing.expect_value(test, engine_runtime.session_release(instance, owner, plain_session), core_types.Status.OK)
 	mailbox := engine_runtime.oe_abi_control()
 	output_span := mailbox + engine_runtime.ABI_OUTPUT_OFFSET
 	write_viewport_record(13.5, 29.25, 1280, 720, 1)
+	// No scene attachment exists yet; the framing is viewport-only, so the
+	// query still succeeds before any renderer creates scene resources.
+	testing.expect_value(test,
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, extreme_session, mailbox, output_span)),
+		core_types.Status.OK)
+	expected_transform, framing_valid := presentation.make_adjusted_playfield_transform({13.5, 29.25, 1280, 720, 1})
+	testing.expect(test, framing_valid)
+	testing.expect_value(test, read_transform_output(), expected_transform)
 	// Steady-state transform queries allocate nothing.
 	previous_allocator := context.allocator
 	context.allocator = mem.panic_allocator()
 	testing.expect_value(test,
-		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, session_handle, mailbox, output_span)),
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, extreme_session, mailbox, output_span)),
 		core_types.Status.OK)
-	expected_fit, fit_valid := presentation.make_bounds_transform({13.5, 29.25, 1280, 720, 1}, expected_bounds)
-	testing.expect(test, fit_valid)
-	testing.expect_value(test, read_transform_output(), expected_fit)
 	context.allocator = previous_allocator
-	// A second session of the same map shares the cached bounds.
-	second_session, second_created := engine_runtime.session_create(instance, owner, map_handle, 262144, 0, true, 8)
-	testing.expect_value(test, second_created, core_types.Status.OK)
-	defer testing.expect_value(test, engine_runtime.session_release(instance, owner, second_session), core_types.Status.OK)
+	// A map with completely different geometry, approach sizes and outlying
+	// sliders produces the identical transform at the same viewport.
 	testing.expect_value(test,
-		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, second_session, mailbox, output_span)),
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, plain_session, mailbox, output_span)),
 		core_types.Status.OK)
-	testing.expect_value(test, read_transform_output(), expected_fit)
+	testing.expect_value(test, read_transform_output(), expected_transform)
+	// Publishing the scene attachment changes nothing: the framing never
+	// consults map contents.
+	testing.expect_value(test, engine_runtime.scene_resource_create(instance, owner, extreme_map), core_types.Status.OK)
+	testing.expect_value(test,
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, extreme_session, mailbox, output_span)),
+		core_types.Status.OK)
+	testing.expect_value(test, read_transform_output(), expected_transform)
 	// DPR never changes the CSS transform.
 	write_viewport_record(13.5, 29.25, 1280, 720, 3)
 	testing.expect_value(test,
-		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, session_handle, mailbox, output_span)),
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, extreme_session, mailbox, output_span)),
 		core_types.Status.OK)
-	testing.expect_value(test, read_transform_output(), expected_fit)
+	testing.expect_value(test, read_transform_output(), expected_transform)
 	// Invalid viewport: rejection preserves the previous published bytes.
 	write_viewport_record(0, 0, 0, 720, 1)
 	testing.expect_value(test,
-		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, session_handle, mailbox, output_span)),
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, extreme_session, mailbox, output_span)),
 		core_types.Status.INVALID_ARGUMENT)
-	testing.expect_value(test, read_transform_output(), expected_fit)
+	testing.expect_value(test, read_transform_output(), expected_transform)
 	// Wrong output span address.
 	write_viewport_record(0, 0, 1280, 720, 1)
 	testing.expect_value(test,
-		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, session_handle, mailbox, mailbox + engine_runtime.ABI_ERROR_OFFSET)),
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, extreme_session, mailbox, mailbox + engine_runtime.ABI_ERROR_OFFSET)),
 		core_types.Status.INVALID_ARGUMENT)
 	// Stale session handle.
-	released_session, released_created := engine_runtime.session_create(instance, owner, map_handle, 262144, 0, true, 8)
+	released_session, released_created := engine_runtime.session_create(instance, owner, plain_map, 262144, 0, true, 8)
 	testing.expect_value(test, released_created, core_types.Status.OK)
 	testing.expect_value(test, engine_runtime.session_release(instance, owner, released_session), core_types.Status.OK)
 	testing.expect(test, engine_runtime.oe_session_playfield_transform(owner, released_session, mailbox, output_span) != 0)
-	// A session whose map never published scene resources has no attachment.
-	bare_map, bare_error := engine_runtime.map_prepare(instance, owner, map_text, true)
-	testing.expect_value(test, bare_error.status, core_types.Status.OK)
-	bare_session, bare_created := engine_runtime.session_create(instance, owner, bare_map, 262144, 0, true, 8)
-	testing.expect_value(test, bare_created, core_types.Status.OK)
-	defer testing.expect_value(test, engine_runtime.session_release(instance, owner, bare_session), core_types.Status.OK)
+	// Preserved transactional geometry validation: non-finite prepared
+	// geometry fails scene-resource creation without publishing an attachment.
+	corrupt_map, corrupt_error := engine_runtime.map_prepare(instance, owner, plain_map_text, true)
+	testing.expect_value(test, corrupt_error.status, core_types.Status.OK)
+	corrupt_resource, _ := engine_runtime.map_get(instance, owner, corrupt_map)
+	corrupt_resource.prepared_map.objects[0].position[0] = math.nan_f64()
+	testing.expect_value(test, engine_runtime.scene_resource_create(instance, owner, corrupt_map), core_types.Status.INVALID_ARGUMENT)
+	corrupt_session, corrupt_created := engine_runtime.session_create(instance, owner, corrupt_map, 262144, 0, true, 8)
+	testing.expect_value(test, corrupt_created, core_types.Status.OK)
+	defer testing.expect_value(test, engine_runtime.session_release(instance, owner, corrupt_session), core_types.Status.OK)
+	// The framing itself still answers for the corrupted map's session; the
+	// last viewport write above was the zero-placement probe, so restore the
+	// offset viewport before comparing against expected_transform.
+	write_viewport_record(13.5, 29.25, 1280, 720, 1)
 	testing.expect_value(test,
-		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, bare_session, mailbox, output_span)),
-		core_types.Status.INVALID_STATE)
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, corrupt_session, mailbox, output_span)),
+		core_types.Status.OK)
+	testing.expect_value(test, read_transform_output(), expected_transform)
 }
 
-// The scene draw consumes the same cached bounds: its frame transform equals
-// the fitted transform for the attachment and remains stable across time, and
-// emitted map geometry lands inside the viewport.
+// The scene draw consumes the same framing: its frame transform equals the
+// pinned adjusted transform for the viewport and stays stable across times,
+// and off-rectangle objects draw beyond the logical playfield unclipped.
 @(test)
-scene_draw_frame_transform_fits_the_attachment_bounds :: proc(test: ^testing.T) {
+scene_draw_frame_transform_uses_pinned_framing :: proc(test: ^testing.T) {
 	testing.expect_value(test, engine_runtime.abi_start(), core_types.Status.OK)
 	instance := &engine_runtime.abi_instance
 	owner, _ := engine_runtime.engine_create(instance)
@@ -343,9 +365,8 @@ scene_draw_frame_transform_fits_the_attachment_bounds :: proc(test: ^testing.T) 
 		core_types.Status(engine_runtime.oe_session_scene_reserve(owner, session_handle, mailbox, mailbox + engine_runtime.ABI_OUTPUT_OFFSET)),
 		core_types.Status.OK)
 	write_viewport_record(0, 0, 1280, 720, 1)
-	map_resource, _ := engine_runtime.map_get(instance, owner, map_handle)
-	expected_fit, fit_valid := presentation.make_bounds_transform({0, 0, 1280, 720, 1}, map_resource.scene_attachment.visual_bounds)
-	testing.expect(test, fit_valid)
+	expected_transform, framing_valid := presentation.make_adjusted_playfield_transform({0, 0, 1280, 720, 1})
+	testing.expect(test, framing_valid)
 	draw_times := [3]f64{500, 1500, 2500}
 	for draw_time_ms in draw_times {
 		testing.expect_value(test,
@@ -357,18 +378,18 @@ scene_draw_frame_transform_fits_the_attachment_bounds :: proc(test: ^testing.T) 
 		frame_left := engine_runtime.get_f64(frame_bytes, engine_runtime.ABI_SCENE_FRAME_CLIENT_LEFT_OFFSET)
 		frame_top := engine_runtime.get_f64(frame_bytes, engine_runtime.ABI_SCENE_FRAME_CLIENT_TOP_OFFSET)
 		instance_count := engine_runtime.get_u32(frame_bytes, engine_runtime.ABI_SCENE_FRAME_INSTANCES_COUNT_OFFSET)
-		testing.expect_value(test, frame_scale, expected_fit.scale)
-		testing.expect_value(test, frame_left, expected_fit.client_left)
-		testing.expect_value(test, frame_top, expected_fit.client_top)
-		// Every emitted map and HUD instance lands inside the visible viewport
-		// after the forward transform; the background (layer 0) overshoots it.
-		for instance in session.scene_storage.instances[:instance_count] {
-			if instance.layer == 0 {
-				continue
-			}
-			client_x, client_y := presentation.to_client(expected_fit, instance.x, instance.y)
-			testing.expect(test, client_x >= -1 && client_x <= 1281)
-			testing.expect(test, client_y >= -1 && client_y <= 721)
-		}
+		testing.expect_value(test, frame_scale, expected_transform.scale)
+		testing.expect_value(test, frame_left, expected_transform.client_left)
+		testing.expect_value(test, frame_top, expected_transform.client_top)
+		testing.expect(test, instance_count > 0)
 	}
+	// Objects placed beyond the logical rectangle render outside it, not
+	// clipped: (560, 420) lands past the framed playfield's right and bottom
+	// edges while remaining representable on the canvas.
+	off_right_x, off_bottom_y := presentation.to_client(expected_transform, 560, 420)
+	playfield_right := expected_transform.client_left + presentation.PLAYFIELD_WIDTH * expected_transform.scale
+	playfield_bottom := expected_transform.client_top + presentation.PLAYFIELD_HEIGHT * expected_transform.scale
+	testing.expect(test, off_right_x > playfield_right)
+	testing.expect(test, off_bottom_y > playfield_bottom)
+	testing.expect(test, off_right_x <= 1280 && off_bottom_y <= 720)
 }

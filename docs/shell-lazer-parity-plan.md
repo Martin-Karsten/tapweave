@@ -270,6 +270,13 @@ New method mirroring the pause/resume mechanics *without* pausing the engine:
    captured as gameplay input.
 3. Pause/resume interplay: hide the button on pause; after resume the view
    recomputes `can_skip` from the current time.
+4. Space keybind (post-phase-B addition, matching lazer's
+   `InputKey.Space → GlobalAction.SkipCutscene` binding whose overlay handler
+   clicks the same button): the screen's window keydown handler actuates the
+   affordance with Space under the button's exact visibility gate, in live
+   play and watch mode alike. Guards: repeats and modifiers ignored, open
+   shell dialogs own the keyboard, and a Space configured as a gameplay hit
+   key keeps its gameplay binding.
 
 ### B5 — Tests and evidence
 

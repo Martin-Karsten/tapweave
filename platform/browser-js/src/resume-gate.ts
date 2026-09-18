@@ -1,4 +1,5 @@
 import { ACTION } from './input.js';
+import { fullscreen_owns_escape, install_fullscreen_escape_guard } from './fullscreen.js';
 import type { Gameplay_Input_Settings } from './player-settings.js';
 
 export function mapped_sources(sources: ReadonlySet<string>, settings: Gameplay_Input_Settings): Map<string, number> {
@@ -27,6 +28,7 @@ export class Resume_Gate {
     pointer_x: number, pointer_y: number, held_sources: ReadonlySet<string>, accept: (action: number, source: string) => void, cancel: () => void) {
     const document = canvas.ownerDocument;
     const window = document.defaultView!;
+    install_fullscreen_escape_guard(document);
     this.pointer_x = pointer_x;
     this.pointer_y = pointer_y;
     this.target = document.createElement('div');
@@ -64,8 +66,9 @@ export class Resume_Gate {
       if (event.code === 'Escape') {
         event.preventDefault();
         // Browser fullscreen owns the first Escape; gate cancellation waits
-        // for the windowed Escape.
-        if (document.fullscreenElement) return;
+        // for the windowed Escape, in whichever order the engine delivers
+        // the exit event and the keydown.
+        if (fullscreen_owns_escape()) return;
         cancel();
         return;
       }

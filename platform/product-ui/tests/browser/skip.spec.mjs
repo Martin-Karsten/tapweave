@@ -7,7 +7,10 @@ import { test, expect } from '@playwright/test';
 // appears when no window exists (TestSkipTimeZero/TestSkipTimeEqualToSkip).
 // Divergence: ours is a DOM button outside the canvas input surface; lazer
 // overlays the playfield, and lazer offers no break-time skip (ours does,
-// targeting one lead before the break ends).
+// targeting one lead before the break ends). The key actuates the same
+// affordance as lazer's InputKey.Space -> GlobalAction.SkipCutscene binding
+// (whose handler clicks the overlay button): repeats and modifiers ignored,
+// and a Space bound as a hit key keeps its gameplay binding.
 
 function music_wav(seconds = 14) {
   const samples = 8000 * seconds;
@@ -102,5 +105,72 @@ test('no skip affordance when the first object time equals the skip lead', async
   await expect(page.locator('#skip')).toBeHidden();
   await expect(page.locator('#lifecycle-title')).toHaveText('Passed', { timeout: 10000 });
   await expect(page.locator('#skip')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('space actuates the lead-in skip like the button', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await load(page, lead_in_map);
+  await page.locator('#start').click();
+  await expect(page.locator('#pause')).toBeVisible();
+  await expect(page.locator('#skip')).toBeVisible();
+  await expect.poll(() => committed_ms(page), { timeout: 3000 }).toBeLessThan(7000);
+  await page.keyboard.press('Space');
+  await expect(page.locator('#skip')).toBeHidden();
+  expect(await anchor_ms(page)).toBeGreaterThanOrEqual(7000);
+  await expect.poll(() => committed_ms(page), { timeout: 3000 }).toBeGreaterThanOrEqual(7000);
+  await expect(page.locator('#lifecycle-title')).toHaveText('Passed', { timeout: 20000 });
+  await expect(page.locator('#skip')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('space actuates the break skip like the button', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await load(page, break_map);
+  await page.locator('#start').click();
+  await expect(page.locator('#pause')).toBeVisible();
+  await expect(page.locator('#skip')).toBeHidden();
+  await expect(page.locator('#skip')).toBeVisible({ timeout: 6000 });
+  await page.keyboard.press('Space');
+  await expect(page.locator('#skip')).toBeHidden();
+  expect(await anchor_ms(page)).toBeGreaterThanOrEqual(6000);
+  await expect(page.locator('#lifecycle-title')).toHaveText('Passed', { timeout: 20000 });
+  expect(errors).toEqual([]);
+});
+
+test('space does nothing when no skip window exists', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await load(page, equal_lead_map);
+  await page.locator('#start').click();
+  await expect(page.locator('#pause')).toBeVisible();
+  await expect(page.locator('#skip')).toBeHidden();
+  await page.keyboard.press('Space');
+  await expect(page.locator('#skip')).toBeHidden();
+  await expect(page.locator('#lifecycle-title')).toHaveText('Passed', { timeout: 10000 });
+  await expect(page.locator('#skip')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('space bound as a hit key plays instead of skipping', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.addInitScript(() => {
+    localStorage.setItem('tapweave.player-settings.v1', JSON.stringify({
+      version: 1, music_volume: 70, effects_volume: 80,
+      left_key: 'Space', right_key: 'KeyX', mouse_buttons_enabled: true,
+    }));
+  });
+  await load(page, lead_in_map);
+  await page.locator('#start').click();
+  await expect(page.locator('#pause')).toBeVisible();
+  await expect(page.locator('#skip')).toBeVisible();
+  await expect.poll(() => committed_ms(page), { timeout: 3000 }).toBeLessThan(7000);
+  await page.keyboard.press('Space');
+  await expect(page.locator('#skip')).toBeVisible();
+  await page.waitForTimeout(400);
+  expect(await anchor_ms(page)).toBeLessThan(7000);
   expect(errors).toEqual([]);
 });

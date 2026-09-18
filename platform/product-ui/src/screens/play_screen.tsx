@@ -1,5 +1,6 @@
 import { Show, createEffect, createSignal, onCleanup, onMount, type Component } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
+import { fullscreen_owns_escape, install_fullscreen_escape_guard } from '@browser/fullscreen.js';
 import { Lifecycle_Panel } from './lifecycle_panel';
 import { Debug_Hud } from '../components/debug_hud';
 import { debug_dialog_open, debug_hud_visible, open_debug_dialog, toggle_debug_hud } from '../state/debug_state';
@@ -44,18 +45,34 @@ export const Play_Screen: Component = () => {
     navigate('/results');
   };
 
-  const watch_keydown = (event: KeyboardEvent) => {
+  const play_keydown = (event: KeyboardEvent) => {
     // Dialog Escapes belong to the modal (both also listen on window, so
-    // stopPropagation cannot order them); a second Escape exits the watch.
-    if (event.key === 'Escape' && !debug_dialog_open() && !settings_dialog_open()) exit_watch();
+    // stopPropagation cannot order them); the browser's fullscreen-exit
+    // Escape belongs to the browser in whichever order the engine delivers
+    // the exit and the keydown. A second, windowed Escape exits the watch.
+    if (event.key === 'Escape' && !fullscreen_owns_escape() && !debug_dialog_open() && !settings_dialog_open()) exit_watch();
+    if (event.code !== 'Space') return;
+    // The key actuates the #skip affordance under its exact visibility gate,
+    // mirroring lazer's InputKey.Space -> GlobalAction.SkipCutscene binding
+    // (whose handler clicks the same overlay button). A Space bound as a hit
+    // key keeps its gameplay binding; repeats and modifiers are ignored like
+    // lazer's IKeyBindingHandler, and open dialogs own the keyboard.
+    if (event.repeat || event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) return;
+    if (debug_dialog_open() || settings_dialog_open()) return;
+    const settings = player_session()?.settings.snapshot.settings;
+    if (!settings || settings.left_key === 'Space' || settings.right_key === 'Space') return;
+    if (view().state !== 'running' || !view().can_skip) return;
+    event.preventDefault();
+    player_session()?.skip();
   };
 
   onMount(() => {
     player_session()?.attach_host(host_element!);
+    install_fullscreen_escape_guard(document);
     set_fullscreen_available(document.fullscreenEnabled);
     sync_fullscreen();
     document.addEventListener('fullscreenchange', sync_fullscreen);
-    window.addEventListener('keydown', watch_keydown);
+    window.addEventListener('keydown', play_keydown);
   });
 
   // Leaving the play route pauses a live attempt so gameplay cannot continue
@@ -66,7 +83,7 @@ export const Play_Screen: Component = () => {
   // fullscreen on its own; no explicit exit is needed here.
   onCleanup(() => {
     document.removeEventListener('fullscreenchange', sync_fullscreen);
-    window.removeEventListener('keydown', watch_keydown);
+    window.removeEventListener('keydown', play_keydown);
     const session = player_session();
     if (!session) return;
     if (session.view.watching_replay) {

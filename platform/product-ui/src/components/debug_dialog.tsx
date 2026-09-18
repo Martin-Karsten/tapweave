@@ -1,8 +1,9 @@
-import { For, Show, createEffect, createSignal, type Component } from 'solid-js';
+import { For, Show, createEffect, createSignal, onMount, type Component } from 'solid-js';
 import { DEBUG_EVENT_CATEGORIES, type Debug_Event_Category, type Debug_Event_Slot,
   type Debug_Severity } from '@browser/diagnostics.js';
 import { parse_debug_report, render_debug_report_text } from '@browser/debug-report.js';
 import type { Stored_Report_Summary } from '@browser/debug-store.js';
+import { fullscreen_owns_escape, install_fullscreen_escape_guard } from '@browser/fullscreen.js';
 import { close_debug_dialog, debug_dialog_open, debug_session, debug_view_version } from '../state/debug_state';
 import { copy_text, download_text } from '../services/debug_session';
 
@@ -50,6 +51,8 @@ export const Debug_Dialog: Component = () => {
   let close_button: HTMLButtonElement | null = null;
   let import_file_input: HTMLInputElement | null = null;
   let dialog_element: HTMLElement | null = null;
+
+  onMount(() => install_fullscreen_escape_guard(document));
 
   const refresh_stored_reports = async () => {
     const session = service();
@@ -249,6 +252,8 @@ export const Debug_Dialog: Component = () => {
   const trap_keys = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       event.stopPropagation();
+      // The browser's fullscreen-exit Escape must not also close the modal.
+      if (fullscreen_owns_escape()) return;
       close_debug_dialog();
       return;
     }

@@ -242,48 +242,50 @@ staging and complete batch coverage — the earlier mirrored policy checks in
 of every dropped rule. Kind 47 remains append-only within ABI major 2; see
 [interface v2](interface-v2.md#mixed-scene-transport).
 
-## Complete-map visual fit
+## Pinned lazer playfield framing
 
-Presentation policy now fits every map's complete visual extent instead of
-clipping to the 512×384 rectangle. `presentation.visual_bounds` derives one
-`Visual_Bounds` from final prepared geometry — stacked positions, 4× approach
-rings, 1.5× hit growth, slider polylines expanded by the 2.4× tracking-ring
-half-thickness, tick/repeat/tail feedback glyphs, follow points and the
-conservatively rotated spinner glyphs — always starting from the normal
-rectangle, validating finiteness and magnitude, and allocating nothing. Shared
-named constants (approach, hit-growth, tracking-ring, feedback and spinner
-extents) keep the bounds and the drawing code from drifting apart. The bounds
-are computed transactionally before any allocation and stored immutably with
-the scene attachment, so all sessions of a map share one fit across retry,
-replay and restore. Background, HUD, cursor and trail are excluded: they are
-viewport-anchored, not map-space content.
+Session gameplay framing reproduces the pinned lazer playfield composition
+(osu `3c1c96f7`, [finding](../reference/findings/playfield-framing.json)):
+`OsuPlayfieldAdjustmentContainer` centres itself, takes `Size = 0.8` relative
+to the parent, fits a 4:3 child (`FillMode.Fit`, aspect 4/3) and scales
+content by `ChildSize.X / 512`. Composed over a viewport of width W and
+height H, `presentation.make_adjusted_playfield_transform` applies one uniform
+scale `0.8 × min(W/512, H/384)` — at the upstream 1024×768 game size this is
+exactly the source comment's osu-stable "magic ratio" 1.6 — and centres the
+logical 512×384 playfield; at 1920×1080 the default logical playfield frames
+at exactly 1152×864 CSS pixels. Positions, sizes and distances share that one
+scale, and the transform is independent of map contents, circle size, slider
+extremes and animation extents. The `AlignWithStoryboard` downward shift is
+an upstream positional adjustment intentionally not implemented here
+(storyboards are out of scope).
 
-`presentation.make_bounds_transform` fits those bounds into any viewport at
-one uniform scale, centred in an 8 CSS-px margin-inset rectangle (reduced
-proportionally on tiny surfaces), with forward and inverse coefficients from a
-single calculation. The session-scoped export
-`oe_session_playfield_transform` serves this fit to gameplay consumers — scene
-draw uniforms, pointer receipt conversion and resume targeting — so rendering
-and input mapping can never disagree; the sessionless `oe_playfield_transform`
-keeps its exact previous behaviour for diagnostics. Scene drawing anchors the
-background rectangle over the complete canvas (inverse-fitted viewport
-rectangle with a small overshoot) and places the HUD from viewport edges
-through the fitted transform with a viewport-based scale; glyphs, values,
-colours and ordering are unchanged. Judgement, timing, scores and replay
-coordinates are untouched: this is an explicit presentation divergence from
-lazer, which crops oversized content to the playfield, and no upstream
-acceptance is implied.
+`oe_session_playfield_transform` serves this framing to every gameplay
+consumer — scene draw uniforms, pointer receipt conversion and resume
+targeting — so rendering and input mapping can never disagree; the
+sessionless `oe_playfield_transform` keeps its exact previous behaviour for
+diagnostics. The framing is viewport-only and needs no scene attachment.
+Content beyond the logical playfield renders into the surrounding canvas
+unclipped: `OsuPlayfield` overrides `UpdateSubTreeMasking()` to false
+("everything is always on screen"), so upstream does not crop oversized
+content to the playfield either — an earlier local claim to the contrary was
+wrong. Extreme geometry or effects may therefore reach the physical screen
+boundary; they never shrink the map. The viewport-anchored HUD, full-canvas
+background, fullscreen controls, framebuffer ceilings and resize repaint
+behaviour are unchanged. The browser's fullscreen-exit Escape never
+dispatches the application action: a shared guard (`@browser/fullscreen.js`)
+treats an Escape as browser-owned while the document is fullscreen or within
+a short grace window after a fullscreen exit, covering engines that exit
+(and fire `fullscreenchange`) before delivering the Escape keydown; every
+Escape consumer (pause, resume-gate cancel, watch exit, modal close)
+consults it.
 
-Browser-side, `framebuffer_size` is the single backing-buffer calculation
-shared by admission checks and canvas allocation; oversized physical surfaces
-reduce resolution uniformly over the 16,384-axis and 16,777,216-pixel ceilings
-while the CSS rectangle — and therefore input mapping — stays unchanged, which
-makes the oversized-viewport admission rejection a defensive check rather than
-an expected failure. Resize and fullscreen transitions repaint paused,
-resume-targeting, ready and terminal states at their frozen beatmap time
-without advancing; running states repaint every frame, a temporarily
-zero-sized surface renders nothing while the session is preserved, and the
-browser's fullscreen-exit Escape never dispatches the application pause.
+This framing supersedes complete-map visual bounds fitting, whose
+maximum-extent fit let large approach circles shrink the whole map. The
+bounds module was removed; scene-resource creation keeps its transactional
+finiteness validation of prepared geometry and every quota. Gameplay
+coordinates, judgement, timing, scores and replay data are untouched. The
+executable .NET reference probe of the container composition is recorded as
+blocked in the finding (no local dotnet SDK); upstream acceptance stays open.
 
 ## W07 controller ownership
 

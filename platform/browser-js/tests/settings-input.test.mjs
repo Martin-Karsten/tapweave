@@ -24,7 +24,7 @@ function fixture(settings = DEFAULT_PLAYER_SETTINGS, held = new Set()) {
   const key = (code, pressed = true, fields = {}) => dispatch(window, pressed ? 'keydown' : 'keyup', { code, repeat: false, ...fields });
   const pointer = (type, fields = {}) => dispatch(type === 'pointerdown' ? canvas : window, type,
     { pointerType: 'mouse', pointerId: 1, button: 0, buttons: 0, clientX: 200, clientY: 100, ...fields });
-  return { window, canvas, frame, input, key, pointer, pauses: () => pauses };
+  return { window, document, canvas, frame, input, key, pointer, pauses: () => pauses };
 }
 
 test('custom physical keys preserve aggregation, repeated-key suppression and equal audio stamps', () => {
@@ -73,6 +73,32 @@ test('disabled mouse hits retain aiming; focus and pointer cancellation still pa
   player.input.dispose();
   player.key('KeyX');
   assert.equal(player.frame.input.held_sources.size, 0);
+});
+
+// The browser's fullscreen-exit Escape must not also pause the run, whichever
+// order the engine delivers the exit event and the keydown in: some engines
+// exit fullscreen (and fire fullscreenchange) before the keydown arrives.
+test('fullscreen exit owns the first Escape across engine delivery orders', () => {
+  const player = fixture();
+  // Still fullscreen: the browser owns the Escape outright.
+  player.document.fullscreenElement = player.canvas;
+  player.key('Escape');
+  assert.equal(player.pauses(), 0);
+  // Exit-first engines deliver the keydown after the exit event; the grace
+  // window still owns it.
+  player.document.fullscreenElement = null;
+  dispatch(player.document, 'fullscreenchange');
+  player.key('Escape');
+  assert.equal(player.pauses(), 0);
+  // Past the grace window the windowed Escape pauses again.
+  const original_now = performance.now.bind(performance);
+  const exit_now = original_now();
+  dispatch(player.document, 'fullscreenchange');
+  performance.now = () => exit_now + 10_000;
+  player.key('Escape');
+  assert.equal(player.pauses(), 1);
+  performance.now = original_now;
+  player.input.dispose();
 });
 
 test('page physical tracking clears unobservable keys on blur and disposes all observers', () => {

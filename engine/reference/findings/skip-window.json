@@ -4,12 +4,17 @@
   "complete": false,
   "source_commit": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
   "framework_commit": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
-  "feature": "Skip affordance during the map lead-in and breaks (shell lazer-parity phase B)",
+  "feature": "Skip affordance during the map lead-in and breaks, actuated by the button or the Space key (shell lazer-parity phase B)",
   "upstream_sources": [
     {
       "path": "osu.Game/Screens/Play/SkipOverlay.cs",
       "sha256": "c0ca4212e86767455a5c9038716adfbf79ed6e35f2e6dda06452bc449b39697b",
-      "role": "Overlay visibility window (progress > 0 while currentTime < startTime - MINIMUM_SKIP_TIME) and expiry when no skippable window exists"
+      "role": "Overlay visibility window (progress > 0 while currentTime < startTime - MINIMUM_SKIP_TIME) and expiry when no skippable window exists; IKeyBindingHandler<GlobalAction> actuates the same button for the skip keybind, ignoring repeats (OnPressed returns on e.Repeat, then button.TriggerClick())"
+    },
+    {
+      "path": "osu.Game/Input/Bindings/GlobalActionContainer.cs",
+      "sha256": "322856d3039086d7e6aaf28a9c094115d925d5aa86b1cce52c40864f73a46a43",
+      "role": "inGameKeyBindings binds InputKey.Space -> GlobalAction.SkipCutscene (plus ExtraMouseButton2, not ported)"
     },
     {
       "path": "osu.Game/Screens/Play/MasterGameplayClockContainer.cs",
@@ -19,7 +24,7 @@
     {
       "path": "osu.Game.Tests/Visual/Gameplay/TestSceneSkipOverlay.cs",
       "sha256": "8bc47b5167dd0441c1455bad28a103a2f3f6f9f24ef7170cfd49840796d1397b",
-      "role": "Ported test intent: TestSkipTimeZero/TestSkipTimeEqualToSkip (no window -> affordance never appears), TestClickOnlyActuatesOnce (single actuation, retired after the jump)"
+      "role": "Ported test intent: TestSkipTimeZero/TestSkipTimeEqualToSkip (no window -> affordance never appears), TestClickOnlyActuatesOnce (single actuation, retired after the jump); the scene's actuation tests are click-only, with no key-actuation case"
     }
   ],
   "oracle": "local-intent-port",
@@ -46,7 +51,7 @@
     },
     {
       "path": "../platform/product-ui/src/screens/play_screen.tsx",
-      "sha256": "7e77e15445839072517436192bc1e4a410965f09a4d462c7416a720bd206072a"
+      "sha256": "2e25111ff27eb1187a9056f987fcc649a23fb65ac1b41000aca12646d1bf60e0"
     },
     {
       "path": "../platform/product-ui/src/services/player_session.ts",
@@ -54,16 +59,17 @@
     },
     {
       "path": "../platform/product-ui/tests/browser/skip.spec.mjs",
-      "sha256": "0c65c6474752dbea381876df1bfc542a54dd48fec6c8a27654fe1a7b84a35876"
+      "sha256": "9a97b320f94c12894e5c63d0739b576b67f1e07a4c87daddf7f886d3f8183f4c"
     }
   ],
   "ported_assertions": {
     "no_window_never_appears": "TestSceneSkipOverlay.TestSkipTimeZero/TestSkipTimeEqualToSkip -> product-ui skip.spec 'no skip affordance when the first object time equals the skip lead' and controller guard test 'skip is refused outside skippable windows'",
     "single_actuation": "TestSceneSkipOverlay.TestClickOnlyActuatesOnce -> repeated skip() after a jump is a refusal; node tests assert the anchor and committed time move exactly once",
-    "skip_target": "MasterGameplayClockContainer.Skip skipTarget = GameplayStartTime - MINIMUM_SKIP_TIME -> SKIP_LEAD_MS = 1000; target = next boundary - lead (lead-in: first object; break: break end), clamped to >= committed + 1 ms"
+    "skip_target": "MasterGameplayClockContainer.Skip skipTarget = GameplayStartTime - MINIMUM_SKIP_TIME -> SKIP_LEAD_MS = 1000; target = next boundary - lead (lead-in: first object; break: break end), clamped to >= committed + 1 ms",
+    "key_actuation": "SkipOverlay IKeyBindingHandler + GlobalActionContainer InputKey.Space -> SkipCutscene (the key handler clicks the same overlay button, repeats ignored) -> the play screen Space branch actuates the #skip affordance under its exact visibility gate, ignoring repeats and modifiers; a Space configured as a hit key keeps its gameplay binding (divergence: lazer's osu!standard never binds Space as a hit key)"
   },
   "classifications": {
-    "divergence": "The affordance is a DOM button outside the canvas input surface (lazer overlays the playfield); ours additionally offers skip during beatmap breaks (lazer's intro SkipOverlay does not), targeting one lead before the break end; skip is a clock re-anchor, not lazer's GameplayClockContainer.Seek",
+    "divergence": "The affordance is a DOM button outside the canvas input surface (lazer overlays the playfield); ours additionally offers skip during beatmap breaks (lazer's intro SkipOverlay does not), targeting one lead before the break end; skip is a clock re-anchor, not lazer's GameplayClockContainer.Seek; Space actuation matches lazer (the key actuates the same affordance), but a Space configured as a hit key keeps its gameplay binding",
     "input_policy": "Inputs received before the skip are submitted at their pre-skip receipt times; residual records stamped with the closed clock epoch are dropped and fail loudly if replayed - an explicit policy, not a hidden clamp",
     "not_executed_upstream": "No pinned upstream test executes against this implementation (display-side behavior; the SkipOverlay scene is a visual test). The pinned sources above were read at the manifest commit and their assertions ported locally, so this is intent-level evidence, not upstream acceptance",
     "remaining": "Upstream acceptance for the skip window remains open pending a reference-host adapter comparable to the pause suite; no acceptance IDs are attached"

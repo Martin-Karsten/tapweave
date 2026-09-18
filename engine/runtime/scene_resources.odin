@@ -3,6 +3,7 @@ package engine_runtime
 import "base:runtime"
 import "core:mem"
 import core_types "../core_types"
+import prepared "../prepared"
 import presentation "../presentation"
 import render_webgl "../render_webgl"
 import simulation "../simulation"
@@ -11,9 +12,29 @@ Scene_Attachment :: struct {
 	arena: core_types.Arena,
 	bytes: []byte,
 	ranges: []presentation.Geometry_Range,
-	// Complete-map visual bounds cached with the immutable attachment and
-	// reused by every session sharing it, across retry, replay and restore.
-	visual_bounds: presentation.Visual_Bounds,
+}
+
+// Prepared geometry must be fully finite before any attachment allocation;
+// invalid input fails without disturbing the previous attachment. This is a
+// transactional allocation guard, not a camera or fitting policy: the
+// playfield framing is map-independent.
+prepared_geometry_valid :: proc(objects: []prepared.Object) -> bool {
+	for &object in objects {
+		if !core_types.finite(object.position[0]) || !core_types.finite(object.position[1]) ||
+		   !core_types.finite(object.stack_offset[0]) || !core_types.finite(object.stack_offset[1]) ||
+		   !core_types.finite(object.radius) || object.radius < 0 ||
+		   !core_types.finite(object.scale) || object.scale < 0 {
+			return false
+		}
+		if object.kind == .SLIDER {
+			for vertex in object.vertices {
+				if !core_types.finite(vertex[0]) || !core_types.finite(vertex[1]) {
+					return false
+				}
+			}
+		}
+	}
+	return true
 }
 
 scene_resource_create :: proc(instance: ^Instance, engine, map_handle: core_types.Handle) -> core_types.Status {
@@ -27,10 +48,7 @@ scene_resource_create :: proc(instance: ^Instance, engine, map_handle: core_type
 	if len(map_resource.scene_attachment.bytes) > 0 {
 		return .OK
 	}
-	// Compute and validate the complete visual bounds before any allocation;
-	// invalid map geometry fails without disturbing the previous attachment.
-	visual_bounds, bounds_valid := presentation.compute_visual_bounds(map_resource.prepared_map.objects)
-	if !bounds_valid {
+	if !prepared_geometry_valid(map_resource.prepared_map.objects) {
 		return .INVALID_ARGUMENT
 	}
 	builder := render_webgl.Mesh_Builder{valid = true}
@@ -70,7 +88,6 @@ scene_resource_create :: proc(instance: ^Instance, engine, map_handle: core_type
 		return .QUOTA_EXCEEDED
 	}
 	candidate: Scene_Attachment
-	candidate.visual_bounds = visual_bounds
 	candidate.arena, status = core_types.arena_create(candidate_bytes, instance.allocator)
 	if status != .OK {
 		return status

@@ -199,6 +199,10 @@ test('play fills the window, toggles fullscreen and keeps Escape-exit unpauseed'
   }
   await expect(page.locator('#fullscreen-toggle')).toHaveText('Fullscreen');
   expect(await page.evaluate(() => document.fullscreenElement)).toBe(null);
+  // Engines that exited on the first Escape are inside the exit grace
+  // window, where Escape still belongs to the browser; wait it out before
+  // the windowed pause press.
+  await page.waitForTimeout(500);
   // A windowed Escape is the application pause again.
   await page.keyboard.press('Escape');
   await expect(page.locator('#lifecycle-title')).toHaveText('Paused');
