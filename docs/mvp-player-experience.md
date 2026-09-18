@@ -144,6 +144,25 @@ focus restoration and stage announcements are required; no frame-level announcem
 
 ### Original demo
 
+Status: implemented. `platform/product-ui/scripts/generate_demo.mjs` generates
+the beatmap and its music deterministically (authored object layout; additive
+sine synthesis with a seeded noise generator — no downloaded or sampled
+material) and packages `tapweave-demo.osz` through `prepare-assets` into the
+ignored `public/demo/` output; `scripts/demo/` tracks provenance,
+redistribution terms and the sha256 manifest that asset preparation and the
+vitest suite verify. The map meets the spec above (75 s music, 100 BPM, 4.8 s
+before the first object, CS4/AR4/OD3/HP2, 16 spacious circles, 12 linear
+sliders, one 10.8 s spinner). "Try the demo" is offered from the song-select
+top bar and the empty-carousel state; it fetches the same-origin archive with
+`cache: 'reload'` and loads it through the transactional `load_files`
+pipeline, so a failed fetch or a replacement import never loses a valid
+selection (the status strip carries the retry affordance). Play stays an
+explicit press after loading, keeping the audio-start gesture with the user.
+Automated coverage: generator structure/determinism unit tests and the
+Playwright demo spec (first-visit journey, failed-fetch retry, loose-import
+replacement) on the installed browser engines; human beginner readability and
+audible playtesting remain separately reported.
+
 One approximately 75-second original demo: 100 BPM, >=4 seconds before first
 object, CS4/AR4/OD3/HP2, spacious circles followed by simple sliders and one
 generous spinner. No dense streams, difficult overlaps, hidden no-fail or custom

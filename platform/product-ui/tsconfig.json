@@ -5,6 +5,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "types": [],
+    "resolveJsonModule": true,
     "strict": true,
     "verbatimModuleSyntax": true,
     "noFallthroughCasesInSwitch": true,

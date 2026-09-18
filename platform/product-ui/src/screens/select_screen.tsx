@@ -2,6 +2,7 @@ import { For, Show, createEffect, createSignal, type Component } from 'solid-js'
 import { useNavigate } from '@solidjs/router';
 import { Virtual_List } from '../components/virtual_list';
 import { debug_dialog_open, open_debug_dialog } from '../state/debug_state';
+import { demo_error_message, demo_request_state, request_demo } from '../state/demo_state';
 import { player_session, shell_state } from '../state/session_state';
 import { DECODE_ERROR_CODE } from '@browser/abi-records.js';
 import type { Browser_Error } from '@browser/errors.js';
@@ -178,6 +179,16 @@ export const Select_Screen: Component = () => {
     navigate('/menu');
   };
 
+  // The demo button shares the import gate (no selection changes while an
+  // attempt runs) and shows its own in-flight label while the archive loads.
+  const demo_button_disabled = () =>
+    selection_locked() || demo_request_state() === 'loading';
+  const demo_button_label = () =>
+    demo_request_state() === 'loading' ? 'Loading demo…' : 'Try the demo';
+  const start_demo = () => {
+    void request_demo();
+  };
+
   const drag_carries_files = (event: DragEvent): boolean =>
     (event.dataTransfer?.types ?? []).includes('Files');
 
@@ -231,6 +242,9 @@ export const Select_Screen: Component = () => {
           <span aria-hidden="true">←</span>
         </button>
         <h1 class="select-title">Song select</h1>
+        <button id="try-demo" type="button" class="demo-button" disabled={demo_button_disabled()} onClick={start_demo}>
+          {demo_button_label()}
+        </button>
         <input
           id="difficulty-filter"
           class="difficulty-filter"
@@ -248,7 +262,17 @@ export const Select_Screen: Component = () => {
       <section class="select-carousel" aria-label="Beatmap set">
         <Show
           when={difficulty_rows().length > 0}
-          fallback={<p class="carousel-empty">Load an .osz archive, or drop files onto this screen. An .osu file belongs with its music.</p>}
+          fallback={
+            <div class="carousel-empty">
+              <p class="carousel-empty-lead">First time here? Try the demo — a beginner beatmap with original music.</p>
+              <button id="try-demo-empty" type="button" class="demo-button" disabled={demo_button_disabled()} onClick={start_demo}>
+                {demo_button_label()}
+              </button>
+              <p class="carousel-empty-hint">
+                Or load an .osz archive, or drop files onto this screen. An .osu file belongs with its music.
+              </p>
+            </div>
+          }
         >
           <div class="set-panel">
             <div class="set-panel-content">
@@ -274,11 +298,26 @@ export const Select_Screen: Component = () => {
           </Show>
         </Show>
         {/* The status/error strip: the carousel's bottom grid row, pinned
-            under the bounded difficulty list. */}
+            under the bounded difficulty list. Demo fetch feedback lives here
+            too: a transient loading line, or the retry affordance whose
+            failure never touched the standing selection. */}
         <div class="select-status-strip">
           <p id="status" role="status" aria-live="polite">
             {selection_status()}
           </p>
+          <Show when={demo_request_state() === 'loading'}>
+            <p id="demo-status" role="status">Fetching the demo beatmap…</p>
+          </Show>
+          <Show when={demo_request_state() === 'failed'} keyed>
+            <div id="demo-error" role="alert">
+              <p id="demo-error-message">
+                {demo_error_message() ?? 'Demo download failed.'} Your current selection is unchanged.
+              </p>
+              <button id="demo-retry" type="button" onClick={start_demo}>
+                Retry
+              </button>
+            </div>
+          </Show>
           <Show when={selection().error} keyed>
             {(error) => {
               const error_text = selection_error_text(error);

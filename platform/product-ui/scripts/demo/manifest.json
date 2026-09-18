@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "outputs": [
+    {
+      "path": "tapweave-demo.osu",
+      "sha256": "f53a721526e977a0697323683753c4ec792533bc8a537a6c56cdc3ad815a244a",
+      "bytes": 1069
+    },
+    {
+      "path": "tapweave-demo.wav",
+      "sha256": "331e1abc4d5b92d2e9ab494abcaddaddd0ce2f78aa4c2d83790614aea7aee98d",
+      "bytes": 3307544
+    },
+    {
+      "path": "tapweave-demo.osz",
+      "sha256": "146fb39214b5ef285b6ddad48162b01a9bdb8e9f7e74cf12fa4ed510489e69e3",
+      "bytes": 3070782
+    }
+  ]
+}

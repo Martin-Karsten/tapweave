@@ -6,6 +6,7 @@
 @import './screens/intro_screen.css';
 @import './screens/main_menu_screen.css';
 @import './screens/select_screen.css';
+@import './screens/select_demo.css';
 @import './screens/play_screen.css';
 @import './screens/lifecycle_panel.css';
 @import './screens/results_screen.css';

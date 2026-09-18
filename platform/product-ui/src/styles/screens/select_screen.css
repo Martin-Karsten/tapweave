@@ -79,7 +79,6 @@
   min-height: 0;
 }
 
-.carousel-empty,
 .filter-empty {
   margin: 0;
   color: var(--color-text-muted);

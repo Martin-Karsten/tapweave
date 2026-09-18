@@ -1239,3 +1239,42 @@ WASM including the 1152×864 measurement and off-rectangle addressability.
 gameplay fixtures), browser typecheck/tests/build pass (159/159), and the
 product shell suites and gates were re-run after the engine rebuild.
 WebKit Playwright coverage remains CI-side (blocked CDN install).
+
+## Original demo beatmap (MVP Plan 1)
+
+The shell now offers the original demo required by
+[mvp-player-experience.md](mvp-player-experience.md): "Try the demo" lives in
+the song-select top bar and the empty-carousel state, fetches the same-origin
+`tapweave-demo.osz` with `cache: 'reload'`, and loads it through the
+transactional `load_files` archive pipeline exactly like a user import — a
+failed fetch never reaches the engine and keeps the standing selection, the
+status strip carries the retry affordance, and Play stays an explicit press
+so the audio-start gesture belongs to the user. Demo loads are replaceable by
+later imports.
+
+The archive is generated, never committed:
+`platform/product-ui/scripts/generate_demo.mjs` renders the beatmap (75 s
+music, 100 BPM, 4.8 s lead before the first object, CS4/AR4/OD3/HP2, 16
+spacious circles, 12 linear sliders, one 10.8 s spinner, 32 objects) and
+synthesizes the music from sine oscillators plus a seeded noise generator —
+no downloaded songs, samples or art. `prepare-assets` regenerates the archive
+into the ignored `public/demo/` and verifies it against the tracked
+`scripts/demo/manifest.json` (sha256 + byte length), so nondeterminism or an
+unrecorded intentional change fails asset preparation; provenance and
+redistribution terms live in `scripts/demo/README.md`. The ZIP carries a
+pinned mtime and the generator is deterministic, verified twice over by the
+manifest check and the unit suite.
+
+Local evidence: the native decoder accepts the generated map (decode-native
+status OK with the expected objects/timing/metadata);
+`tests/demo_generator.test.ts` pins the map structure, spacing, WAV envelope,
+archive contents and byte-for-byte determinism against the manifest; the
+Playwright demo spec covers the first-visit journey (load, play, pause, back),
+the failed-fetch retry with a standing selection, and loose-import
+replacement. Shell typecheck, build, vitest and the demo spec pass on
+chromium and firefox.
+
+Classification: local product feature with no upstream counterpart — lazer
+ships no demo flow, so there is no pinned upstream test to port or acceptance
+ID to claim. Human beginner readability and audible playtesting of the demo
+remain open, as the MVP plan's validation section records.

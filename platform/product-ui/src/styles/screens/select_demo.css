@@ -1,0 +1,50 @@
+/* Demo-import feature of the song select screen (MVP player experience,
+   "Try the demo"): the accent control in the top bar and the empty-carousel
+   call to action, plus the fetch status/retry feedback in the status strip.
+   Split from select_screen.css for the css-lint file-size cap; import order
+   keeps it after the owning screen file. */
+
+/* The demo entry is a primary action: same accent treatment as Play. */
+.demo-button {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Empty carousel: the beginner call to action first, the import explanation
+   below it. */
+.carousel-empty {
+  display: grid;
+  gap: var(--space-5);
+  justify-items: start;
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.carousel-empty-lead,
+.carousel-empty-hint {
+  margin: 0;
+  max-width: 40rem;
+}
+
+.carousel-empty-hint {
+  font-size: var(--font-size-note);
+  color: var(--color-text-faint);
+}
+
+/* Fetch feedback shares the status strip's conventions; the retry affordance
+   sits under the refusal text. */
+#demo-status {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+#demo-error {
+  color: var(--color-danger);
+}
+
+#demo-error p {
+  margin: 0 0 var(--space-2);
+}
