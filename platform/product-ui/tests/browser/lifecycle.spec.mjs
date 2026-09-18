@@ -154,3 +154,53 @@ test('interruption renders a copyable report and selects it when clipboard acces
   await page.locator('#download-recovery').click();
   expect((await download_pending).suggestedFilename()).toMatch(/^tapweave-report-/);
 });
+
+// Window-sized gameplay (fullscreen plan): the play route drops the chrome
+// frame and footer so the canvas fills the content area, the Fullscreen
+// button toggles the player element in the top layer, and the browser's
+// Escape-exit-fullscreen never dispatches the application pause.
+test('play fills the window, toggles fullscreen and keeps Escape-exit unpauseed', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await load(page);
+  await page.locator('#start').click();
+  await expect(page.locator('#pause')).toBeVisible();
+
+  // The gameplay route owns the full window: no frame footer, canvas at
+  // content-area size instead of the retired bordered 4:3 panel.
+  await expect(page.locator('footer')).toHaveCount(0);
+  const viewport = page.viewportSize();
+  const playfield = await page.locator('#playfield').boundingBox();
+  expect(Math.abs(playfield.width - viewport.width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(playfield.height - viewport.height)).toBeLessThanOrEqual(1);
+
+  // The button fullscreens the player wrapper (overlays stay reachable) and
+  // reflects the live document state.
+  await page.locator('#fullscreen-toggle').click();
+  await expect(page.locator('#fullscreen-toggle')).toHaveText('Exit fullscreen');
+  expect(await page.evaluate(() => document.fullscreenElement?.id)).toBe('player');
+  // The canvas fills the fullscreened player exactly (the top-layer element
+  // sizes to the screen, which can exceed the automation viewport).
+  const fullscreen_player = await page.locator('#player').boundingBox();
+  const fullscreen_box = await page.locator('#playfield').boundingBox();
+  expect(Math.abs(fullscreen_box.width - fullscreen_player.width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(fullscreen_box.height - fullscreen_player.height)).toBeLessThanOrEqual(1);
+  expect(fullscreen_box.width).toBeGreaterThanOrEqual(viewport.width - 1);
+  expect(fullscreen_box.height).toBeGreaterThanOrEqual(viewport.height - 1);
+
+  // The browser owns the first Escape while fullscreen: gameplay never sees
+  // it as a pause. Headed engines exit fullscreen on it; headless automation
+  // leaves the element fullscreened — the attempt must stay running in both.
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#pause')).toBeVisible();
+  await expect(page.locator('#lifecycle-title')).toHaveCount(0);
+  if (await page.evaluate(() => document.fullscreenElement !== null)) {
+    await page.locator('#fullscreen-toggle').click();
+  }
+  await expect(page.locator('#fullscreen-toggle')).toHaveText('Fullscreen');
+  expect(await page.evaluate(() => document.fullscreenElement)).toBe(null);
+  // A windowed Escape is the application pause again.
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#lifecycle-title')).toHaveText('Paused');
+  expect(errors).toEqual([]);
+});

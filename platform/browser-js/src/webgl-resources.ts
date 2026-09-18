@@ -21,6 +21,23 @@ const MAX_VIEWPORT_PIXELS = 16777216;
 // Ring of GPU timing queries so no frame stalls on a previous result.
 const GPU_QUERY_COUNT = 4;
 
+// The single backing-buffer size calculation: admission checks and the actual
+// canvas allocation both call this, so they can never disagree. Oversized
+// physical dimensions reduce backing resolution uniformly while the CSS
+// rectangle — and therefore input mapping — stays unchanged.
+export function framebuffer_size(viewport: Viewport_Values): { width: number; height: number } {
+  const physical_width = Math.max(1, Math.round(viewport.css_width * viewport.device_pixel_ratio));
+  const physical_height = Math.max(1, Math.round(viewport.css_height * viewport.device_pixel_ratio));
+  if (physical_width <= MAX_VIEWPORT_DIMENSION && physical_height <= MAX_VIEWPORT_DIMENSION &&
+      physical_width * physical_height <= MAX_VIEWPORT_PIXELS) {
+    return { width: physical_width, height: physical_height };
+  }
+  const reduction = Math.min(MAX_VIEWPORT_DIMENSION / physical_width, MAX_VIEWPORT_DIMENSION / physical_height,
+    Math.sqrt(MAX_VIEWPORT_PIXELS / (physical_width * physical_height)));
+  return { width: Math.max(1, Math.floor(physical_width * reduction)),
+    height: Math.max(1, Math.floor(physical_height * reduction)) };
+}
+
 // Conservative resource-only admission limits, not measured gameplay defaults.
 // Replacement can retain one published set and one candidate (twice these limits).
 export const RESOURCE_LIMITS = Object.freeze({ bytes: 4 * 1024 * 1024,
@@ -383,10 +400,9 @@ export class WebGL_Resources {
       Number.isFinite(viewport.css_height) && viewport.css_height > 0 &&
       Number.isFinite(viewport.device_pixel_ratio) && viewport.device_pixel_ratio > 0,
       'INVALID_DRAW', 'Invalid viewport.');
-    const pixel_width = Math.round(viewport.css_width * viewport.device_pixel_ratio);
-    const pixel_height = Math.round(viewport.css_height * viewport.device_pixel_ratio);
-    require_condition(pixel_width > 0 && pixel_height > 0 && pixel_width <= MAX_VIEWPORT_DIMENSION &&
-      pixel_height <= MAX_VIEWPORT_DIMENSION && pixel_width * pixel_height <= MAX_VIEWPORT_PIXELS,
+    const pixels = framebuffer_size(viewport);
+    require_condition(pixels.width > 0 && pixels.height > 0 && pixels.width <= MAX_VIEWPORT_DIMENSION &&
+      pixels.height <= MAX_VIEWPORT_DIMENSION && pixels.width * pixels.height <= MAX_VIEWPORT_PIXELS,
       'QUOTA_EXCEEDED', 'Canvas dimensions exceed admission.');
     // The engine publishes f32-exact NDC uniforms with the frame; the executor
     // uploads them without re-deriving presentation math.
@@ -484,11 +500,11 @@ export class WebGL_Resources {
   // Fixed per-frame raster state plus the engine's f32-exact NDC uniforms.
   #configure_render_state(viewport: Viewport_Values, summary: Scene_Output['summary']) {
     const context = this.#gl;
-    const pixel_width = Math.round(viewport.css_width * viewport.device_pixel_ratio);
-    const pixel_height = Math.round(viewport.css_height * viewport.device_pixel_ratio);
-    if (this.#canvas.width !== pixel_width) this.#canvas.width = pixel_width;
-    if (this.#canvas.height !== pixel_height) this.#canvas.height = pixel_height;
-    context.viewport(0, 0, pixel_width, pixel_height);
+    // Same centralized calculation the admission check used.
+    const pixels = framebuffer_size(viewport);
+    if (this.#canvas.width !== pixels.width) this.#canvas.width = pixels.width;
+    if (this.#canvas.height !== pixels.height) this.#canvas.height = pixels.height;
+    context.viewport(0, 0, pixels.width, pixels.height);
     context.disable(context.DEPTH_TEST);
     context.disable(context.CULL_FACE);
     context.disable(context.SCISSOR_TEST);

@@ -414,6 +414,19 @@ export class Engine_Bridge {
     return readRecord(this.view(), this.read_span().address, RECORD.playfield_transform);
   }
 
+  // Session-aware transform over the session's cached complete visual bounds.
+  // The mailbox result must be copied immediately; never retain the returned
+  // record across a potentially growing WASM call.
+  session_playfield_transform(session_handle: bigint, viewport: Viewport_Values) {
+    require_condition(typeof this.wasm.oe_session_playfield_transform === 'function', 'UNSUPPORTED',
+      'The session-aware playfield transform export is unavailable in this engine build.');
+    this.note_operation('oe_session_playfield_transform');
+    this.write_creation(RECORD.viewport, viewport);
+    this.check_status(this.wasm.oe_session_playfield_transform(this.engine_handle, session_handle,
+      this.mailbox_address, this.result_address), false);
+    return readRecord(this.view(), this.read_span().address, RECORD.playfield_transform);
+  }
+
   copy_output() {
     const span = this.read_span();
     return new Uint8Array(this.wasm.memory.buffer, span.address, span.count).slice();

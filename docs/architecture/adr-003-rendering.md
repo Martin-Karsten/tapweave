@@ -242,6 +242,49 @@ staging and complete batch coverage — the earlier mirrored policy checks in
 of every dropped rule. Kind 47 remains append-only within ABI major 2; see
 [interface v2](interface-v2.md#mixed-scene-transport).
 
+## Complete-map visual fit
+
+Presentation policy now fits every map's complete visual extent instead of
+clipping to the 512×384 rectangle. `presentation.visual_bounds` derives one
+`Visual_Bounds` from final prepared geometry — stacked positions, 4× approach
+rings, 1.5× hit growth, slider polylines expanded by the 2.4× tracking-ring
+half-thickness, tick/repeat/tail feedback glyphs, follow points and the
+conservatively rotated spinner glyphs — always starting from the normal
+rectangle, validating finiteness and magnitude, and allocating nothing. Shared
+named constants (approach, hit-growth, tracking-ring, feedback and spinner
+extents) keep the bounds and the drawing code from drifting apart. The bounds
+are computed transactionally before any allocation and stored immutably with
+the scene attachment, so all sessions of a map share one fit across retry,
+replay and restore. Background, HUD, cursor and trail are excluded: they are
+viewport-anchored, not map-space content.
+
+`presentation.make_bounds_transform` fits those bounds into any viewport at
+one uniform scale, centred in an 8 CSS-px margin-inset rectangle (reduced
+proportionally on tiny surfaces), with forward and inverse coefficients from a
+single calculation. The session-scoped export
+`oe_session_playfield_transform` serves this fit to gameplay consumers — scene
+draw uniforms, pointer receipt conversion and resume targeting — so rendering
+and input mapping can never disagree; the sessionless `oe_playfield_transform`
+keeps its exact previous behaviour for diagnostics. Scene drawing anchors the
+background rectangle over the complete canvas (inverse-fitted viewport
+rectangle with a small overshoot) and places the HUD from viewport edges
+through the fitted transform with a viewport-based scale; glyphs, values,
+colours and ordering are unchanged. Judgement, timing, scores and replay
+coordinates are untouched: this is an explicit presentation divergence from
+lazer, which crops oversized content to the playfield, and no upstream
+acceptance is implied.
+
+Browser-side, `framebuffer_size` is the single backing-buffer calculation
+shared by admission checks and canvas allocation; oversized physical surfaces
+reduce resolution uniformly over the 16,384-axis and 16,777,216-pixel ceilings
+while the CSS rectangle — and therefore input mapping — stays unchanged, which
+makes the oversized-viewport admission rejection a defensive check rather than
+an expected failure. Resize and fullscreen transitions repaint paused,
+resume-targeting, ready and terminal states at their frozen beatmap time
+without advancing; running states repaint every frame, a temporarily
+zero-sized surface renders nothing while the session is preserved, and the
+browser's fullscreen-exit Escape never dispatches the application pause.
+
 ## W07 controller ownership
 
 The validation controller now composes `Renderer` with the sole gameplay frame

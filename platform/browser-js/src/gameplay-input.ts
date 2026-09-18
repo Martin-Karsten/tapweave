@@ -38,7 +38,14 @@ export class Gameplay_Input {
       if (!action && event.code !== 'Escape') return;
       event.preventDefault();
       if (event.repeat) return;
-      if (event.code === 'Escape') { this.pause(); return; }
+      if (event.code === 'Escape') {
+        // Browser fullscreen owns the first Escape: exiting fullscreen must
+        // not also dispatch the application Escape action. No timeout is
+        // involved, so a later Escape still reaches this handler.
+        if (document.fullscreenElement) return;
+        this.pause();
+        return;
+      }
       if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey || this.suppressed_sources.has(event.code)) return;
       frame.input.receive({ source_id: event.code, action, held: true, ...this.stamp() });
     }), options);
@@ -108,9 +115,12 @@ export class Gameplay_Input {
     this.cursor_flags = event.pointerType === 'mouse' ? 1 |
       (event.clientX >= bounds.left && event.clientX <= bounds.right &&
         event.clientY >= bounds.top && event.clientY <= bounds.bottom ? 2 : 0) : 0;
-    const transform = this.frame.playback.engine.playfield_transform({ css_left: bounds.left, css_top: bounds.top,
-      css_width: bounds.width, css_height: bounds.height,
-      device_pixel_ratio: this.canvas.ownerDocument.defaultView!.devicePixelRatio });
+    // Receipt-time conversion through the session's cached visual bounds: the
+    // canvas rectangle is read now, never the last rendered frame's transform.
+    const transform = this.frame.playback.engine.session_playfield_transform(
+      this.frame.playback.session_handle, { css_left: bounds.left, css_top: bounds.top,
+        css_width: bounds.width, css_height: bounds.height,
+        device_pixel_ratio: this.canvas.ownerDocument.defaultView!.devicePixelRatio });
     this.frame.input.receive({ source_id: event.pointerType === 'touch' ? 'touch' : `mouse:${event.button}`,
       action: held === undefined ? 0 : event.pointerType === 'touch' || event.button === 0 ? ACTION.LEFT : ACTION.RIGHT,
       held: held ?? false, ...stamp, client_x: event.clientX, client_y: event.clientY,

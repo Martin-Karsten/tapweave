@@ -57,6 +57,9 @@ async function fixture({ map_text = mixed_map, renderer_failure = false, music =
     cancel_frame: identifier => callbacks.delete(identifier),
     create_renderer(engine, session, map, canvas, epoch, lost) {
       if (renderer_failure) throw new Error('GPU preparation failed');
+      // The real Renderer constructor publishes the map's scene attachment;
+      // the session-aware input transform and scene draws depend on it.
+      engine.scene_resources(map);
       const renderer = { ready: true, restores: 0, lost,
         render() {}, restore() { this.restores++; this.ready = true; }, dispose() { this.ready = false; } };
       renderers.push(renderer); return renderer;

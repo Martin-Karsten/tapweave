@@ -101,6 +101,7 @@ export class Gameplay_Controller {
   private restoration_timer: ReturnType<typeof setTimeout> | null = null;
   private skip_windows: Skip_Window[] = [];
   private skip_available = false;
+  private last_epoch = 0;
   private readonly held_input: Held_Input;
   private readonly sample_audio: () => number;
   private readonly diagnostics: Diagnostics_Service | null;
@@ -152,6 +153,11 @@ export class Gameplay_Controller {
       else this.dispose();
     }, { signal });
     window.addEventListener('pageshow', () => this.publish(), { signal });
+    // Viewport refresh without gameplay advancement: paused, resume-targeting
+    // and ready states repaint at their frozen beatmap time. Fullscreen
+    // transitions ride the same path; running states repaint every frame.
+    window.addEventListener('resize', () => this.refresh_viewport(), { signal });
+    document.addEventListener('fullscreenchange', () => this.refresh_viewport(), { signal });
     this.selection_changed();
   }
 
@@ -248,6 +254,7 @@ export class Gameplay_Controller {
           map_handle: active.map_handle.toString() });
       this.create_playback();
       const epoch = Number(this.engine.snapshot(this.session_handle, 0).summary.epoch);
+      this.last_epoch = epoch;
       this.renderer = (this.options.create_renderer ?? ((...arguments_) => new Renderer(...arguments_)))(
         this.engine, this.session_handle, active.map_handle, this.canvas, epoch, () => {
           this.graphics_lost = true;
@@ -269,10 +276,13 @@ export class Gameplay_Controller {
   #require_complete_protocols() {
     const simulation = this.engine.simulation_capabilities;
     const output = this.engine.output_capabilities;
+    // A stale WASM asset without the session transform must fail visibly
+    // instead of silently converting input with the sessionless fit.
     require_condition(simulation.simulation_version === 1 && simulation.rules_version === 2 &&
       simulation.flags === 1 && simulation.max_inputs >= SESSION_INPUT_CAPACITY &&
       output.compact_version === 1 && output.flags === 0 && output.reserved === 0 &&
-      this.engine.transport_capabilities.voice_command_mask === ALL_VOICE_COMMAND_FAMILIES,
+      this.engine.transport_capabilities.voice_command_mask === ALL_VOICE_COMMAND_FAMILIES &&
+      typeof this.engine.wasm.oe_session_playfield_transform === 'function',
     'UNSUPPORTED', 'Complete gameplay, scene and audio protocols are required.');
   }
 
@@ -284,10 +294,13 @@ export class Gameplay_Controller {
   private create_playback(reuse_voice_storage = false) {
     this.playback = new Audio_Playback(this.engine, this.session_handle!, this.context, this.prepared_selection!, {}, reuse_voice_storage, this.diagnostics, this.options.outputs);
     this.frame = new Gameplay_Frame(this.playback, (time_ms, output) => {
+      // A temporarily zero-sized surface renders nothing but the session is
+      // preserved: advance/output handling above stays untouched.
       const bounds = this.canvas.getBoundingClientRect();
-      this.renderer!.render(time_ms, { css_left: bounds.left, css_top: bounds.top,
-        css_width: bounds.width, css_height: bounds.height,
-        device_pixel_ratio: this.canvas.ownerDocument.defaultView!.devicePixelRatio }, output.summary.epoch);
+      if (bounds.width >= 1 && bounds.height >= 1) {
+        this.renderer!.render(time_ms, this.viewport_values(bounds), output.summary.epoch);
+        this.last_epoch = Number(output.summary.epoch);
+      }
       // The skip affordance flips while running without lifecycle transitions;
       // publish only on the flip so the steady frame path stays untouched.
       const skip_available = this.state === 'running' && this.skip_target_at(time_ms) !== null;
@@ -316,6 +329,31 @@ export class Gameplay_Controller {
     this.frame.on_terminal_frame = () => this.drain_terminal();
   }
 
+  // The measured CSS rectangle is the only geometry authority; the DPR rides
+  // along for backing-buffer sizing and never enters input conversion.
+  private viewport_values(bounds: DOMRect) {
+    return { css_left: bounds.left, css_top: bounds.top,
+      css_width: bounds.width, css_height: bounds.height,
+      device_pixel_ratio: this.canvas.ownerDocument.defaultView!.devicePixelRatio };
+  }
+
+  // Repaint paused, resume-targeting, ready and terminal states after a
+  // viewport change (resize, fullscreen, display change) without advancing.
+  // Running states repaint every frame and need no repaint here.
+  private refresh_viewport() {
+    if (!this.renderer?.ready || this.graphics_lost || this.state === 'disposed') return;
+    if (this.state === 'running' || this.state === 'starting') return;
+    const bounds = this.canvas.getBoundingClientRect();
+    if (bounds.width < 1 || bounds.height < 1) return;
+    try {
+      const time_ms = this.playback ? this.playback.clock.beatmap_time(this.context.currentTime) : 0;
+      this.renderer.render(time_ms, this.viewport_values(bounds), this.last_epoch);
+    } catch {
+      // A failed repaint is non-destructive; the next start or frame recovers
+      // through the ordinary paths. Paused gameplay state is never advanced.
+    }
+  }
+
   async play() {
     if (!this.view.can_play) return;
     this.in_attempt = true;
@@ -327,8 +365,8 @@ export class Gameplay_Controller {
     const { pointer_x, pointer_y } = this.held_input;
     if (!Number.isFinite(pointer_x) || !Number.isFinite(pointer_y)) return;
     const bounds = this.canvas.getBoundingClientRect();
-    const transform = this.engine.playfield_transform({ css_left: bounds.left, css_top: bounds.top,
-      css_width: bounds.width, css_height: bounds.height,
+    const transform = this.engine.session_playfield_transform(this.session_handle!, { css_left: bounds.left,
+      css_top: bounds.top, css_width: bounds.width, css_height: bounds.height,
       device_pixel_ratio: this.canvas.ownerDocument.defaultView!.devicePixelRatio });
     return { x: Number(transform.inverse_a) * pointer_x + Number(transform.inverse_c) * pointer_y + Number(transform.inverse_e),
       y: Number(transform.inverse_b) * pointer_x + Number(transform.inverse_d) * pointer_y + Number(transform.inverse_f) };
@@ -344,8 +382,8 @@ export class Gameplay_Controller {
       const policy = this.engine.resume_policy(this.session_handle!, this.paused_cursor_flags);
       if (!Number(policy.required)) { await this.start(true); return; }
       const bounds = this.canvas.getBoundingClientRect();
-      const transform = this.engine.playfield_transform({ css_left: bounds.left, css_top: bounds.top,
-        css_width: bounds.width, css_height: bounds.height,
+      const transform = this.engine.session_playfield_transform(this.session_handle!, { css_left: bounds.left,
+        css_top: bounds.top, css_width: bounds.width, css_height: bounds.height,
         device_pixel_ratio: this.canvas.ownerDocument.defaultView!.devicePixelRatio });
       const target_x = Number(transform.client_left) + Number(transform.scale) * Number(policy.x);
       const target_y = Number(transform.client_top) + Number(transform.scale) * Number(policy.y);
@@ -579,6 +617,7 @@ export class Gameplay_Controller {
       require_condition(this.session_handle && this.renderer?.ready && !this.graphics_lost,
         'INVALID_STATE', 'Wait for graphics restoration before retrying.');
       this.engine.reset_session(this.session_handle);
+      this.last_epoch = Number(this.engine.snapshot(this.session_handle, 0).summary.epoch);
       this.create_playback(true);
       this.skip_available = false;
       this.state = 'ready';
@@ -625,6 +664,7 @@ export class Gameplay_Controller {
       require_condition(this.session_handle && this.renderer?.ready && !this.graphics_lost,
         'INVALID_STATE', 'Wait for graphics restoration before watching.');
       this.engine.reset_session(this.session_handle);
+      this.last_epoch = Number(this.engine.snapshot(this.session_handle, 0).summary.epoch);
       // Playback construction rebinds samples on the reset READY session;
       // load_replay then switches to replay mode, which rejects live input
       // and further sample binding.

@@ -45,11 +45,11 @@ make_playfield_transform :: proc(viewport: Viewport) -> (Playfield_Transform, bo
 	}, true
 }
 
-to_client :: proc(transform: ^Playfield_Transform, x, y: f64) -> (f64, f64) {
+to_client :: proc(transform: Playfield_Transform, x, y: f64) -> (f64, f64) {
 	return transform.client_left + x * transform.scale, transform.client_top + y * transform.scale
 }
 
-to_playfield :: proc(transform: ^Playfield_Transform, client_x, client_y: f64) -> (f64, f64) {
+to_playfield :: proc(transform: Playfield_Transform, client_x, client_y: f64) -> (f64, f64) {
 	return client_x * transform.inverse[0] + transform.inverse[4],
 	       client_y * transform.inverse[3] + transform.inverse[5]
 }

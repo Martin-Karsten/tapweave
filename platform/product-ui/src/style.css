@@ -79,6 +79,16 @@ body {
   min-height: 100vh;
 }
 
+/* Gameplay fills the browser content area (ADR-006 shell, rendering plan):
+   the chrome width constraint and padding are dropped on the play route so
+   the canvas can size to the window; the engine's bounds fit handles aspect
+   and letterboxing inside the surface it is given. */
+.app-frame.immersive {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 a {
   color: var(--color-link);
 }
@@ -536,17 +546,41 @@ button:disabled {
   font-weight: 700;
 }
 
+/* The gameplay route owns the whole window: no chrome padding, no gaps, the
+   player host sized by the content area instead of a 4:3 panel. No percentage
+   heights: the frame's height is min-height only, so percentages below a
+   flex-grown screen would resolve against an indefinite containing block. */
+.play-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* The no-attempt fallback keeps readable margins inside the full-bleed route. */
+.play-screen > .panel {
+  margin: 24px;
+  max-width: 480px;
+}
+
 .player {
   position: relative;
+  flex: 1;
+  min-height: 0;
 }
 
 .playfield-host {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  border: 1px solid var(--color-border);
-  border-radius: var(--panel-radius);
+  position: absolute;
+  inset: 0;
   overflow: hidden;
+  background: var(--color-background-deep);
+}
+
+/* The fullscreened player is placed in the top layer at screen size; the
+   in-canvas fit recenters while the floating controls stay reachable. */
+.player:fullscreen {
+  width: 100%;
+  height: 100%;
   background: var(--color-background-deep);
 }
 
@@ -585,7 +619,6 @@ button:disabled {
   gap: 10px;
   text-align: center;
   background: var(--color-overlay);
-  border-radius: var(--panel-radius);
 }
 
 .lifecycle-panel #result-stats {

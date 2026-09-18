@@ -187,6 +187,45 @@ test('production viewport transform handles placement, aspect ratio, DPR and rej
   }
 });
 
+test('session viewport transform fits complete map bounds and validates attachment, handles and viewport', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  try {
+    // Objects beyond the normal rectangle force a wider fit than 512x384.
+    const map_text = 'osu file format v14\n[HitObjects]\n-60,-40,1000,1,0\n560,420,2000,1,0';
+    const prepared = engine.prepare_map(new TextEncoder().encode(map_text));
+    const viewport = { css_left: 13.5, css_top: 29.25, css_width: 1280, css_height: 720, device_pixel_ratio: 1 };
+    const session = engine.create_session(prepared.map_handle);
+    // Without the scene attachment the session fit fails loudly instead of
+    // silently falling back to the sessionless 512x384 rectangle.
+    assert.throws(() => engine.session_playfield_transform(session, viewport), { code: 'ENGINE_2' });
+    engine.scene_resources(prepared.map_handle);
+    const transform = engine.session_playfield_transform(session, viewport);
+    // Every object extreme lands inside the viewport through the forward fit.
+    for (const [x, y] of [[-60, -40], [560, 420], [0, 0], [512, 384]]) {
+      const client_x = transform.client_left + x * transform.scale;
+      const client_y = transform.client_top + y * transform.scale;
+      assert.ok(client_x >= viewport.css_left && client_x <= viewport.css_left + viewport.css_width,
+        `x=${x} maps to ${client_x}`);
+      assert.ok(client_y >= viewport.css_top && client_y <= viewport.css_top + viewport.css_height,
+        `y=${y} maps to ${client_y}`);
+    }
+    assert.ok(transform.scale < engine.playfield_transform(viewport).scale);
+    // DPR never enters the CSS-space conversion.
+    assert.deepEqual(engine.session_playfield_transform(session, { ...viewport, device_pixel_ratio: 4 }), transform);
+    // Invalid viewports reject and preserve the previously published bytes.
+    const previous_span = engine.read_span();
+    const previous_bytes = engine.copy_output();
+    assert.throws(() => engine.session_playfield_transform(session, { ...viewport, css_width: 0 }), { code: 'ENGINE_1' });
+    assert.deepEqual(engine.read_span(), previous_span);
+    assert.deepEqual(engine.copy_output(), previous_bytes);
+    // Released sessions are stale handles, never a silent success.
+    engine.release_session(session);
+    assert.throws(() => engine.session_playfield_transform(session, viewport), { code: 'ENGINE_9' });
+  } finally {
+    engine.dispose();
+  }
+});
+
 test('session output validates relative bounds, overlap and every nested record', async () => {
   const engine = await Engine_Bridge.create(wasm_bytes);
   try {

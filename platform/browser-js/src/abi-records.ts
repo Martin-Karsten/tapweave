@@ -282,6 +282,8 @@ export interface Odin_Exports {
   oe_map_render_resources(engine_handle: bigint, map_handle: bigint, result_address: number): number;
   oe_map_release(engine_handle: bigint, map_handle: bigint): number;
   oe_playfield_transform(engine_handle: bigint, mailbox_address: number, result_address: number): number;
+  oe_session_playfield_transform(engine_handle: bigint, session_handle: bigint, mailbox_address: number,
+    result_address: number): number;
   oe_session_create(engine_handle: bigint, map_handle: bigint, mailbox_address: number,
     result_address: number, error_address: number): number;
   oe_session_inputs_from_reserved(engine_handle: bigint, session_handle: bigint, token: bigint,

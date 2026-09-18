@@ -17,7 +17,7 @@ function fixture(settings = DEFAULT_PLAYER_SETTINGS, held = new Set()) {
     getBoundingClientRect: () => ({ left: 0, top: 0, width: 512, height: 384 }), setPointerCapture() {} });
   let pauses = 0;
   const frame = { input: new Input_Buffer(), terminal: false,
-    playback: { state: 'running', clock: { epoch: 7 }, engine: { playfield_transform: () => ({
+    playback: { state: 'running', clock: { epoch: 7 }, session_handle: 5n, engine: { session_playfield_transform: () => ({
       inverse_a: 1, inverse_b: 0, inverse_c: 0, inverse_d: 1, inverse_e: 0, inverse_f: 0 }) } },
     fail(error) { throw error; } };
   const input = new Gameplay_Input(canvas, frame, () => 12.345, () => { pauses++; }, true, settings, held);

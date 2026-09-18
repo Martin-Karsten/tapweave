@@ -12,7 +12,7 @@ function fixture(capacity = 8) {
   clock.bind_session(1n, 2, 100, 1);
   const playback = { clock, session_handle: 1n, state: 'running', context: { currentTime: 1.02 },
     engine: { reserve_input() {}, submit_inputs(handle, records) { calls.push(['input', structuredClone(records)]); },
-      playfield_transform() { return { inverse_a: 0.5, inverse_b: 0, inverse_c: 0, inverse_d: 0.5, inverse_e: -10, inverse_f: -20 }; } },
+      session_playfield_transform() { return { inverse_a: 0.5, inverse_b: 0, inverse_c: 0, inverse_d: 0.5, inverse_e: -10, inverse_f: -20 }; } },
     pump(time) { calls.push(['pump', time]); return { summary: { state: 1 } }; },
     pause() { calls.push(['pause']); this.state = 'paused'; clock.pause(this.context.currentTime); },
     recover(error) { this.state = 'recovering'; this.error = error; } };

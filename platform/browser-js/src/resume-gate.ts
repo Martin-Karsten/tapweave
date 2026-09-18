@@ -61,7 +61,14 @@ export class Resume_Gate {
       if (!(event.buttons & 2)) active_sources.delete('mouse:2');
     }, options);
     window.addEventListener('keydown', event => {
-      if (event.code === 'Escape') { event.preventDefault(); cancel(); return; }
+      if (event.code === 'Escape') {
+        event.preventDefault();
+        // Browser fullscreen owns the first Escape; gate cancellation waits
+        // for the windowed Escape.
+        if (document.fullscreenElement) return;
+        cancel();
+        return;
+      }
       if (event.repeat || event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) return;
       if (event.target !== canvas) return;
       const action = mapped_sources(new Set([event.code]), settings).get(event.code);

@@ -194,3 +194,181 @@ scene_policy_validation_rejects_invalid_emissions :: proc(test: ^testing.T) {
 	}
 	expect_invalid(test, coverage_broken_between_path_and_cap[:], 12)
 }
+
+// Deserialize the shared kind-30 transform scratch output.
+read_transform_output :: proc() -> presentation.Playfield_Transform {
+	bytes := engine_runtime.abi_storage.bytes[engine_runtime.ABI_TRANSFORM_OUTPUT_OFFSET:engine_runtime.ABI_TRANSFORM_OUTPUT_OFFSET + engine_runtime.ABI_PLAYFIELD_TRANSFORM_SIZE]
+	return {
+		scale = engine_runtime.get_f64(bytes, engine_runtime.ABI_PLAYFIELD_TRANSFORM_SCALE_OFFSET),
+		client_left = engine_runtime.get_f64(bytes, engine_runtime.ABI_PLAYFIELD_TRANSFORM_CLIENT_LEFT_OFFSET),
+		client_top = engine_runtime.get_f64(bytes, engine_runtime.ABI_PLAYFIELD_TRANSFORM_CLIENT_TOP_OFFSET),
+		inverse = {
+			engine_runtime.get_f64(bytes, engine_runtime.ABI_PLAYFIELD_TRANSFORM_INVERSE_A_OFFSET),
+			engine_runtime.get_f64(bytes, engine_runtime.ABI_PLAYFIELD_TRANSFORM_INVERSE_B_OFFSET),
+			engine_runtime.get_f64(bytes, engine_runtime.ABI_PLAYFIELD_TRANSFORM_INVERSE_C_OFFSET),
+			engine_runtime.get_f64(bytes, engine_runtime.ABI_PLAYFIELD_TRANSFORM_INVERSE_D_OFFSET),
+			engine_runtime.get_f64(bytes, engine_runtime.ABI_PLAYFIELD_TRANSFORM_INVERSE_E_OFFSET),
+			engine_runtime.get_f64(bytes, engine_runtime.ABI_PLAYFIELD_TRANSFORM_INVERSE_F_OFFSET),
+		},
+	}
+}
+
+write_viewport_record :: proc(left, top, width, height, ratio: f64) {
+	bytes := engine_runtime.abi_storage.bytes[:engine_runtime.ABI_VIEWPORT_SIZE]
+	engine_runtime.put_header(bytes, engine_runtime.ABI_VIEWPORT_KIND, engine_runtime.ABI_VIEWPORT_SIZE)
+	engine_runtime.put_f64(bytes, engine_runtime.ABI_VIEWPORT_CSS_LEFT_OFFSET, left)
+	engine_runtime.put_f64(bytes, engine_runtime.ABI_VIEWPORT_CSS_TOP_OFFSET, top)
+	engine_runtime.put_f64(bytes, engine_runtime.ABI_VIEWPORT_CSS_WIDTH_OFFSET, width)
+	engine_runtime.put_f64(bytes, engine_runtime.ABI_VIEWPORT_CSS_HEIGHT_OFFSET, height)
+	engine_runtime.put_f64(bytes, engine_runtime.ABI_VIEWPORT_DEVICE_PIXEL_RATIO_OFFSET, ratio)
+}
+
+// Scene resources publish the complete visual bounds computed during
+// preparation; every session sharing the attachment reuses them, and the
+// session transform export fits those bounds with full handle validation.
+@(test)
+scene_attachment_bounds_and_session_transform_are_validated_and_shared :: proc(test: ^testing.T) {
+	testing.expect_value(test, engine_runtime.abi_start(), core_types.Status.OK)
+	// ABI exports always resolve against the shared instance.
+	instance := &engine_runtime.abi_instance
+	owner, _ := engine_runtime.engine_create(instance)
+	defer engine_runtime.engine_release(instance, owner)
+	map_text := "osu file format v14\n[HitObjects]\n-60,-40,1000,1,0\n560,420,2000,1,0\n100,100,4000,2,0,L|700:520,1,900"
+	map_handle, map_error := engine_runtime.map_prepare(instance, owner, map_text, true)
+	testing.expect_value(test, map_error.status, core_types.Status.OK)
+	if map_error.status != .OK {
+		return
+	}
+	testing.expect_value(test, engine_runtime.scene_resource_create(instance, owner, map_handle), core_types.Status.OK)
+	map_resource, _ := engine_runtime.map_get(instance, owner, map_handle)
+	attachment_bytes := map_resource.scene_attachment.bytes
+	expected_bounds, bounds_valid := presentation.compute_visual_bounds(map_resource.prepared_map.objects)
+	testing.expect(test, bounds_valid)
+	testing.expect_value(test, map_resource.scene_attachment.visual_bounds, expected_bounds)
+	// Published bounds survive repeat creation: the attachment is reused.
+	testing.expect_value(test, engine_runtime.scene_resource_create(instance, owner, map_handle), core_types.Status.OK)
+	testing.expect(test, raw_data(map_resource.scene_attachment.bytes) == raw_data(attachment_bytes))
+
+	session_handle, session_created := engine_runtime.session_create(instance, owner, map_handle, 262144, 0, true, 8)
+	testing.expect_value(test, session_created, core_types.Status.OK)
+	if session_created != .OK {
+		return
+	}
+	defer testing.expect_value(test, engine_runtime.session_release(instance, owner, session_handle), core_types.Status.OK)
+	mailbox := engine_runtime.oe_abi_control()
+	output_span := mailbox + engine_runtime.ABI_OUTPUT_OFFSET
+	write_viewport_record(13.5, 29.25, 1280, 720, 1)
+	// Steady-state transform queries allocate nothing.
+	previous_allocator := context.allocator
+	context.allocator = mem.panic_allocator()
+	testing.expect_value(test,
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, session_handle, mailbox, output_span)),
+		core_types.Status.OK)
+	expected_fit, fit_valid := presentation.make_bounds_transform({13.5, 29.25, 1280, 720, 1}, expected_bounds)
+	testing.expect(test, fit_valid)
+	testing.expect_value(test, read_transform_output(), expected_fit)
+	context.allocator = previous_allocator
+	// A second session of the same map shares the cached bounds.
+	second_session, second_created := engine_runtime.session_create(instance, owner, map_handle, 262144, 0, true, 8)
+	testing.expect_value(test, second_created, core_types.Status.OK)
+	defer testing.expect_value(test, engine_runtime.session_release(instance, owner, second_session), core_types.Status.OK)
+	testing.expect_value(test,
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, second_session, mailbox, output_span)),
+		core_types.Status.OK)
+	testing.expect_value(test, read_transform_output(), expected_fit)
+	// DPR never changes the CSS transform.
+	write_viewport_record(13.5, 29.25, 1280, 720, 3)
+	testing.expect_value(test,
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, session_handle, mailbox, output_span)),
+		core_types.Status.OK)
+	testing.expect_value(test, read_transform_output(), expected_fit)
+	// Invalid viewport: rejection preserves the previous published bytes.
+	write_viewport_record(0, 0, 0, 720, 1)
+	testing.expect_value(test,
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, session_handle, mailbox, output_span)),
+		core_types.Status.INVALID_ARGUMENT)
+	testing.expect_value(test, read_transform_output(), expected_fit)
+	// Wrong output span address.
+	write_viewport_record(0, 0, 1280, 720, 1)
+	testing.expect_value(test,
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, session_handle, mailbox, mailbox + engine_runtime.ABI_ERROR_OFFSET)),
+		core_types.Status.INVALID_ARGUMENT)
+	// Stale session handle.
+	released_session, released_created := engine_runtime.session_create(instance, owner, map_handle, 262144, 0, true, 8)
+	testing.expect_value(test, released_created, core_types.Status.OK)
+	testing.expect_value(test, engine_runtime.session_release(instance, owner, released_session), core_types.Status.OK)
+	testing.expect(test, engine_runtime.oe_session_playfield_transform(owner, released_session, mailbox, output_span) != 0)
+	// A session whose map never published scene resources has no attachment.
+	bare_map, bare_error := engine_runtime.map_prepare(instance, owner, map_text, true)
+	testing.expect_value(test, bare_error.status, core_types.Status.OK)
+	bare_session, bare_created := engine_runtime.session_create(instance, owner, bare_map, 262144, 0, true, 8)
+	testing.expect_value(test, bare_created, core_types.Status.OK)
+	defer testing.expect_value(test, engine_runtime.session_release(instance, owner, bare_session), core_types.Status.OK)
+	testing.expect_value(test,
+		core_types.Status(engine_runtime.oe_session_playfield_transform(owner, bare_session, mailbox, output_span)),
+		core_types.Status.INVALID_STATE)
+}
+
+// The scene draw consumes the same cached bounds: its frame transform equals
+// the fitted transform for the attachment and remains stable across time, and
+// emitted map geometry lands inside the viewport.
+@(test)
+scene_draw_frame_transform_fits_the_attachment_bounds :: proc(test: ^testing.T) {
+	testing.expect_value(test, engine_runtime.abi_start(), core_types.Status.OK)
+	instance := &engine_runtime.abi_instance
+	owner, _ := engine_runtime.engine_create(instance)
+	defer engine_runtime.engine_release(instance, owner)
+	map_text := "osu file format v14\n[HitObjects]\n-60,-40,1000,1,0\n560,420,2000,1,0"
+	map_handle, map_error := engine_runtime.map_prepare(instance, owner, map_text, true)
+	testing.expect_value(test, map_error.status, core_types.Status.OK)
+	if map_error.status != .OK {
+		return
+	}
+	testing.expect_value(test, engine_runtime.scene_resource_create(instance, owner, map_handle), core_types.Status.OK)
+	session_handle, session_created := engine_runtime.session_create(instance, owner, map_handle, 262144, 0, true, 8)
+	testing.expect_value(test, session_created, core_types.Status.OK)
+	if session_created != .OK {
+		return
+	}
+	defer testing.expect_value(test, engine_runtime.session_release(instance, owner, session_handle), core_types.Status.OK)
+	reserve := engine_runtime.abi_storage.bytes[:engine_runtime.ABI_SCENE_RESERVE_SIZE]
+	for &reserve_byte in reserve {
+		reserve_byte = 0
+	}
+	engine_runtime.put_header(reserve, engine_runtime.ABI_SCENE_RESERVE_KIND, engine_runtime.ABI_SCENE_RESERVE_SIZE)
+	engine_runtime.put_u32(reserve, engine_runtime.ABI_SCENE_RESERVE_INSTANCE_CAPACITY_OFFSET, 4096)
+	engine_runtime.put_u64(reserve, engine_runtime.ABI_SCENE_RESERVE_ARENA_BYTES_OFFSET, 4 * 1024 * 1024)
+	mailbox := engine_runtime.oe_abi_control()
+	testing.expect_value(test,
+		core_types.Status(engine_runtime.oe_session_scene_reserve(owner, session_handle, mailbox, mailbox + engine_runtime.ABI_OUTPUT_OFFSET)),
+		core_types.Status.OK)
+	write_viewport_record(0, 0, 1280, 720, 1)
+	map_resource, _ := engine_runtime.map_get(instance, owner, map_handle)
+	expected_fit, fit_valid := presentation.make_bounds_transform({0, 0, 1280, 720, 1}, map_resource.scene_attachment.visual_bounds)
+	testing.expect(test, fit_valid)
+	draw_times := [3]f64{500, 1500, 2500}
+	for draw_time_ms in draw_times {
+		testing.expect_value(test,
+			core_types.Status(engine_runtime.oe_session_scene_draw(owner, session_handle, draw_time_ms, mailbox, mailbox + engine_runtime.ABI_OUTPUT_OFFSET)),
+			core_types.Status.OK)
+		session, _ := engine_runtime.session_get(instance, owner, session_handle)
+		frame_bytes := session.scene_storage.output
+		frame_scale := engine_runtime.get_f64(frame_bytes, engine_runtime.ABI_SCENE_FRAME_SCALE_OFFSET)
+		frame_left := engine_runtime.get_f64(frame_bytes, engine_runtime.ABI_SCENE_FRAME_CLIENT_LEFT_OFFSET)
+		frame_top := engine_runtime.get_f64(frame_bytes, engine_runtime.ABI_SCENE_FRAME_CLIENT_TOP_OFFSET)
+		instance_count := engine_runtime.get_u32(frame_bytes, engine_runtime.ABI_SCENE_FRAME_INSTANCES_COUNT_OFFSET)
+		testing.expect_value(test, frame_scale, expected_fit.scale)
+		testing.expect_value(test, frame_left, expected_fit.client_left)
+		testing.expect_value(test, frame_top, expected_fit.client_top)
+		// Every emitted map and HUD instance lands inside the visible viewport
+		// after the forward transform; the background (layer 0) overshoots it.
+		for instance in session.scene_storage.instances[:instance_count] {
+			if instance.layer == 0 {
+				continue
+			}
+			client_x, client_y := presentation.to_client(expected_fit, instance.x, instance.y)
+			testing.expect(test, client_x >= -1 && client_x <= 1281)
+			testing.expect(test, client_y >= -1 && client_y <= 721)
+		}
+	}
+}

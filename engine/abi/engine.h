@@ -1440,6 +1440,7 @@ uint32_t oe_simulation_capabilities(oe_handle, oe_byte_span*);
 uint32_t oe_session_acknowledge(oe_handle, oe_handle, uint64_t token);
 uint32_t oe_session_presentation(oe_handle, oe_handle, double time_ms, uintptr_t output);
 uint32_t oe_playfield_transform(oe_handle, uintptr_t viewport, uintptr_t output);
+uint32_t oe_session_playfield_transform(oe_handle, oe_handle, uintptr_t viewport, uintptr_t output);
 uint32_t oe_session_bind_sample(oe_handle, oe_handle, uintptr_t binding);
 uint32_t oe_session_replay_load(oe_handle, oe_handle, uint64_t token, uint32_t byte_count);
 uint32_t oe_session_replay_export(oe_handle, oe_handle, uintptr_t output);

@@ -18,6 +18,9 @@ const App_Frame: Component<ParentProps> = (props) => {
   // re-reads it once the engine capabilities exist to quote in the footer.
   const ready_player_session = () =>
     shell_state().phase === 'ready' ? player_session() : null;
+  // Gameplay fills the whole content area: the frame's width constraint and
+  // padding are dropped so the canvas can size to the window.
+  const immersive_route = () => location.pathname === '/play';
 
   onMount(() => {
     void boot_player_session().then(() => {
@@ -28,13 +31,14 @@ const App_Frame: Component<ParentProps> = (props) => {
   });
 
   return (
-    <div class="app-frame">
+    <div class="app-frame" classList={{ immersive: immersive_route() }}>
       {props.children}
       <Debug_Dialog />
       <Settings_Dialog />
       {/* The intro screen carries its own prominent disclaimer, so the frame
-          footer (with the relocated Settings entry point) stays hidden there. */}
-      <Show when={location.pathname !== '/'}>
+          footer (with the relocated Settings entry point) stays hidden there;
+          the gameplay route hides it too so play owns the full window. */}
+      <Show when={location.pathname !== '/' && !immersive_route()}>
         <footer>
           <p class="footer-note">
             <span>Independent rhythm game. Not affiliated with osu! or ppy.</span>

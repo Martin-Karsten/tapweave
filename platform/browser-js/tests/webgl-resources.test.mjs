@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { schema } from '../../../engine/abi/records.mjs';
 import { Engine_Bridge, Scene_Output } from '../build/engine-bridge.js';
-import { WebGL_Resources, RESOURCE_LIMITS } from '../build/webgl-resources.js';
+import { WebGL_Resources, RESOURCE_LIMITS, framebuffer_size } from '../build/webgl-resources.js';
 
 const wasm_bytes = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));
 
@@ -52,6 +52,26 @@ async function with_resources(run) {
 
 test('WebGL2 unavailable is explicit', () => {
   assert.throws(() => new WebGL_Resources({ getContext: () => null }), { code: 'CAP_RENDER_UNAVAILABLE' });
+});
+
+// Oversized physical surfaces reduce backing resolution uniformly over the
+// dimension and pixel ceilings while the CSS rectangle stays the input
+// authority: pointer mapping and admission share this one calculation.
+test('framebuffer size reduces oversized surfaces uniformly and keeps normal surfaces exact', () => {
+  assert.deepEqual(framebuffer_size({ css_left: 0, css_top: 0, css_width: 640, css_height: 480, device_pixel_ratio: 2 }),
+    { width: 1280, height: 960 });
+  // A single dimension past the ceiling shrinks both axes by the same factor:
+  // the under-ceiling height reduces together with the violating width.
+  const wide = framebuffer_size({ css_left: 0, css_top: 0, css_width: 16385, css_height: 1000, device_pixel_ratio: 1 });
+  assert.ok(wide.width <= 16384 && wide.height < 1000);
+  assert.ok(Math.abs(wide.width / wide.height - 16385 / 1000) < 0.05);
+  // The pixel-area ceiling dominates on tall combined dimensions.
+  const area = framebuffer_size({ css_left: 0, css_top: 0, css_width: 8192, css_height: 8192, device_pixel_ratio: 2 });
+  assert.ok(area.width < 16384 && area.height < 16384 && area.width * area.height <= 16777216);
+  assert.ok(Math.abs(area.width / area.height - 1) < 0.01);
+  // Subpixel CSS rectangles still allocate a valid backing buffer.
+  assert.deepEqual(framebuffer_size({ css_left: 0, css_top: 0, css_width: 0.4, css_height: 0.2, device_pixel_ratio: 1 }),
+    { width: 1, height: 1 });
 });
 
 test('publication reuses uploads, owns recovery bytes and rejects stale generations/disposal', async () => {

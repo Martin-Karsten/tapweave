@@ -1,9 +1,9 @@
-import { Show, createEffect, onCleanup, onMount, type Component } from 'solid-js';
+import { Show, createEffect, createSignal, onCleanup, onMount, type Component } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { Lifecycle_Panel } from './lifecycle_panel';
 import { Debug_Hud } from '../components/debug_hud';
 import { debug_dialog_open, debug_hud_visible, open_debug_dialog, toggle_debug_hud } from '../state/debug_state';
-import { settings_dialog_open } from '../state/settings_state';
+import { open_settings_dialog, settings_dialog_open } from '../state/settings_state';
 import { player_session, shell_state } from '../state/session_state';
 
 // Gameplay route: a host element only (ADR-006). The canvas, RAF pump and
@@ -13,9 +13,26 @@ import { player_session, shell_state } from '../state/session_state';
 export const Play_Screen: Component = () => {
   const navigate = useNavigate();
   let host_element: HTMLDivElement | null = null;
+  let player_element: HTMLDivElement | null = null;
   let previous_state = '';
+  const [fullscreen_active, set_fullscreen_active] = createSignal(false);
+  const [fullscreen_available, set_fullscreen_available] = createSignal(false);
 
   const watching = () => shell_state().gameplay.watching_replay;
+
+  // The fullscreened element is the player wrapper, not the bare canvas host:
+  // the floating controls, pause/skip affordances and lifecycle overlays stay
+  // reachable inside the top layer. The engine repaints on fullscreenchange
+  // (viewport refresh in the gameplay controller); nothing here advances play.
+  const toggle_fullscreen = () => {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen().catch(() => {});
+      return;
+    }
+    if (player_element) void player_element.requestFullscreen().catch(() => {});
+  };
+
+  const sync_fullscreen = () => set_fullscreen_active(document.fullscreenElement === player_element);
 
   // Any watch exit — Escape or leaving the route, mid-run or after natural
   // completion — normalizes back to the retained results context. The guard
@@ -35,14 +52,20 @@ export const Play_Screen: Component = () => {
 
   onMount(() => {
     player_session()?.attach_host(host_element!);
+    set_fullscreen_available(document.fullscreenEnabled);
+    sync_fullscreen();
+    document.addEventListener('fullscreenchange', sync_fullscreen);
     window.addEventListener('keydown', watch_keydown);
   });
 
   // Leaving the play route pauses a live attempt so gameplay cannot continue
   // unobserved; a watch — running, interrupted or already finished — is
   // normalized back to the original results context on a fresh live session,
-  // so watch/save/settings stay usable and Retry means a live retry.
+  // so watch/save/settings stay usable and Retry means a live retry. Leaving
+  // the route also drops the fullscreened player element, so the browser ends
+  // fullscreen on its own; no explicit exit is needed here.
   onCleanup(() => {
+    document.removeEventListener('fullscreenchange', sync_fullscreen);
     window.removeEventListener('keydown', watch_keydown);
     const session = player_session();
     if (!session) return;
@@ -74,7 +97,14 @@ export const Play_Screen: Component = () => {
 
   return (
     <main class="screen play-screen" aria-label="Gameplay">
-      <div id="player" class="player" hidden={!view().in_attempt}>
+      <div
+        id="player"
+        class="player"
+        hidden={!view().in_attempt}
+        ref={(element) => {
+          player_element = element;
+        }}
+      >
         <div
           ref={(element) => {
             host_element = element;
@@ -96,6 +126,31 @@ export const Play_Screen: Component = () => {
           <button id="hud-toggle" type="button" aria-pressed={debug_hud_visible()} onClick={toggle_debug_hud}>
             HUD
           </button>
+          {/* The frame footer (with its Settings entry) stays hidden on the
+              gameplay route, so idle and paused attempts reach the same dialog
+              here; running attempts never see it, mirroring the footer. */}
+          <Show when={!watching() && ['ready', 'paused'].includes(view().state)}>
+            <button
+              id="settings-open-play"
+              type="button"
+              onClick={(event) => {
+                event.currentTarget.focus();
+                open_settings_dialog();
+              }}
+            >
+              Settings
+            </button>
+          </Show>
+          <Show when={fullscreen_available()}>
+            <button
+              id="fullscreen-toggle"
+              type="button"
+              aria-pressed={fullscreen_active()}
+              onClick={toggle_fullscreen}
+            >
+              {fullscreen_active() ? 'Exit fullscreen' : 'Fullscreen'}
+            </button>
+          </Show>
         </div>
         <Show when={debug_hud_visible()}>
           <Debug_Hud />

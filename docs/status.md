@@ -1024,3 +1024,69 @@ additionally verified against a merged tree: the watch reaches terminal with
 a byte-identical result after skipping the replay lead-in, and `stop_watch`
 restores the retained result. Upstream skip acceptance remains open pending a
 reference-host adapter.
+
+## Complete-map visual fit and fullscreen gameplay
+
+Gameplay now fills the browser content area and fits every map's complete
+visual extent at one stable, uniform scale, instead of clipping to a bordered
+4:3 panel over the logical 512×384 rectangle (ADR-003
+[complete-map visual fit](../architecture/adr-003-rendering.md#complete-map-visual-fit),
+ADR-006 [play route layout](../architecture/adr-006-product-shell.md#play-route-layout)).
+
+Engine side: `presentation.visual_bounds` derives one `Visual_Bounds` per map
+from final prepared geometry (stacked positions, 4× approach rings, 1.5× hit
+growth, slider polylines expanded by the 2.4× tracking-ring half-thickness,
+tick/repeat/tail feedback glyphs, follow points, conservatively rotated spinner
+glyphs; shared named constants keep bounds and drawing from drifting). It
+always starts from the normal rectangle, validates finiteness/magnitude,
+allocates nothing, and is computed transactionally before any attachment
+allocation — invalid map geometry fails scene-resource creation with
+`INVALID_ARGUMENT` and preserves the previous attachment. The bounds are
+stored with the immutable `Scene_Attachment` and shared by every session of
+the map across retry, replay and restore. `make_bounds_transform` fits them
+centred into any viewport with an 8 CSS-px margin (proportionally reduced on
+tiny surfaces); forward and inverse coefficients come from one calculation.
+The new `oe_session_playfield_transform` (kind 29 in, kind 30 out, same output
+slot) serves that fit with the full owner/handle/mailbox validation chain,
+`INVALID_STATE` without a scene attachment, no allocation and
+publish-after-validate; the sessionless `oe_playfield_transform` is unchanged
+for diagnostics. Scene drawing covers the complete canvas with the background
+(inverse-fitted viewport rectangle with a small overshoot) and anchors the HUD
+to viewport edges through the fitted transform with a viewport-based scale;
+glyphs, values, colours and ordering are unchanged.
+
+Browser side: pointer receipt conversion, resume targeting and physical
+position all use the session transform — never the last rendered frame's — and
+the gameplay protocol check requires the new export so a stale WASM fails
+visibly. `framebuffer_size` is the single backing-buffer calculation shared by
+admission and allocation; oversized physical surfaces reduce resolution
+uniformly over the 16,384-axis/16,777,216-pixel ceilings while the CSS
+rectangle and input mapping stay unchanged. Resize and `fullscreenchange`
+repaint paused/resuming/ready/terminal states at their frozen beatmap time
+without advancing; a temporarily zero-sized surface renders nothing while the
+session is preserved; the browser's fullscreen-exit Escape is left to the
+browser in both input paths and the resume gate. The shell `/play` route drops
+the frame's width constraint and footer, hosts the canvas at content-area
+size, moves the footer's Settings entry into the floating controls (idle and
+paused attempts only) and adds a Fullscreen button that toggles the player
+wrapper in the top layer.
+
+Classification: presentation and shell behavior only — judgement, timing,
+scores and replay coordinates are byte-identical, and the fit is an explicit
+documented divergence from lazer (which crops oversized content to the
+playfield); no upstream acceptance is implied. Local regression evidence:
+6 new presentation tests (edge/corner/stack/path-extreme bounds, small-circle
+feedback extents, invalid-geometry rejection, fit centring/round-trips/DPR
+independence/f32 NDC containment across 640×480…ultrawide/portrait/tiny
+viewports) and 2 new scene tests (attachment bounds sharing and session
+transform validation incl. stale handles and prior-bytes preservation;
+draw-frame transform equality with in-viewport geometry), plus browser
+regressions (session transform attachment/handle/viewport failures,
+`framebuffer_size` uniform reduction, 65k allocation-free transform queries on
+the no-growth session path) and a product Playwright spec (window-sized canvas,
+footer hidden on `/play`, fullscreen toggle lifecycle, unpauseed fullscreen
+Escape). Full `npm --prefix engine test` passes (byte-identical native/WASM
+traces, all gameplay fixtures); browser typecheck/tests/build pass; the
+product gates (HMR/B1/B2/B3) pass. WebKit Playwright binaries were again
+uninstallable locally (CDN gateway failure) — WebKit browser-suite coverage
+for this change is CI-side, consistent with the recorded ADR-006 caveat.

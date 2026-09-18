@@ -206,32 +206,59 @@ follow_points :: proc(builder: ^Builder, previous, object: ^prepared.Object, tim
 	}
 }
 
-hud :: proc(builder: ^Builder, score: u64, accuracy, health: f64, combo: u32) {
-	number(builder, score, {16, 14}, 8, 60, 0, 0, 0, WHITE_COLOUR)
+// The fitted view one draw uses: bounds-fit transform plus the CSS viewport.
+// Background coverage and HUD placement derive from this single view so map
+// fitting, input conversion and overlays cannot disagree.
+Scene_View :: struct {
+	transform: Playfield_Transform,
+	viewport: Viewport,
+}
+
+hud :: proc(builder: ^Builder, score: u64, accuracy, health: f64, combo: u32, view: Scene_View) {
+	// Viewport-anchored HUD placement: positions convert through the fitted
+	// inverse transform, sizes use a viewport-based scale independent of map
+	// bounds. Glyphs, values, colours and ordering are unchanged.
+	hs := hud_scale(view.viewport)
+	unit := hs / view.transform.scale
+	left_x, top_y := to_playfield(view.transform, view.viewport.css_left + 12 * hs, view.viewport.css_top + 12 * hs)
+	right_x, _ := to_playfield(view.transform, view.viewport.css_left + view.viewport.css_width - 12 * hs, view.viewport.css_top)
+	_, bottom_y := to_playfield(view.transform, view.viewport.css_left, view.viewport.css_top + view.viewport.css_height - 26 * hs)
+	number(builder, score, {left_x, top_y}, 8 * unit, 60, 0, 0, 0, WHITE_COLOUR)
 	accuracy_hundredths := u64(clamp(accuracy, 0, 1) * 10000)
-	number(builder, accuracy_hundredths / 100, {422, 14}, 8, 60, 0, 1, 0, WHITE_COLOUR)
+	// Accuracy block keeps the original 422..485 right-anchored offsets,
+	// scaled by the HUD unit.
+	number(builder, accuracy_hundredths / 100, {right_x - 63 * unit, top_y}, 8 * unit, 60, 0, 1, 0, WHITE_COLOUR)
 	for digit_index in 0 ..< 2 {
 		digit := digit_index == 0 ? (accuracy_hundredths / 10) % 10 : accuracy_hundredths % 10
 		emit(builder, {primitive = .GLYPH, layer = 60, component_id = 1, ordinal = u32(4 + digit_index),
-			x = 454 + f64(digit_index) * 8, y = 14, scale_x = 8, scale_y = 8,
+			x = right_x - 31 * unit + f64(digit_index) * 8 * unit, y = top_y, scale_x = 8 * unit, scale_y = 8 * unit,
 			alpha = 1, colour = WHITE_COLOUR, glyph = 48 + u32(digit), geometry_count = 6})
 	}
-	emit(builder, {primitive = .GLYPH, layer = 60, component_id = 1, ordinal = 3, x = 446, y = 14,
-		scale_x = 8, scale_y = 8, alpha = 1, colour = WHITE_COLOUR, glyph = 46, geometry_count = 6})
-	emit(builder, {primitive = .GLYPH, layer = 60, component_id = 1, ordinal = 6, x = 477, y = 14,
-		scale_x = 8, scale_y = 8, alpha = 1, colour = WHITE_COLOUR, glyph = 37, geometry_count = 6})
-	number(builder, u64(combo), {16, 360}, 12, 60, 0, 2, 0, OBJECT_COLOUR)
+	emit(builder, {primitive = .GLYPH, layer = 60, component_id = 1, ordinal = 3, x = right_x - 39 * unit, y = top_y,
+		scale_x = 8 * unit, scale_y = 8 * unit, alpha = 1, colour = WHITE_COLOUR, glyph = 46, geometry_count = 6})
+	emit(builder, {primitive = .GLYPH, layer = 60, component_id = 1, ordinal = 6, x = right_x - 8 * unit, y = top_y,
+		scale_x = 8 * unit, scale_y = 8 * unit, alpha = 1, colour = WHITE_COLOUR, glyph = 37, geometry_count = 6})
+	number(builder, u64(combo), {left_x, bottom_y}, 12 * unit, 60, 0, 2, 0, OBJECT_COLOUR)
+	centre_x, centre_y := to_playfield(view.transform,
+		view.viewport.css_left + view.viewport.css_width / 2, view.viewport.css_top + 6 * hs)
 	emit(builder, {primitive = .RECTANGLE, layer = 60, object_id = 0, component_id = 3,
-		x = 256, y = 6, scale_x = 100, scale_y = 2, alpha = 0.3, colour = WHITE_COLOUR, geometry_count = 6})
+		x = centre_x, y = centre_y, scale_x = 100 * unit, scale_y = 2 * unit, alpha = 0.3, colour = WHITE_COLOUR, geometry_count = 6})
 	emit(builder, {primitive = .RECTANGLE, layer = 60, object_id = 0, component_id = 3, ordinal = 1,
-		x = 156 + clamp(health, 0, 1) * 100, y = 6, scale_x = clamp(health, 0, 1) * 100,
-		scale_y = 2, alpha = 1, colour = OBJECT_COLOUR, geometry_count = 6})
+		x = centre_x + (clamp(health, 0, 1) - 1) * 100 * unit,
+		y = centre_y, scale_x = clamp(health, 0, 1) * 100 * unit,
+		scale_y = 2 * unit, alpha = 1, colour = OBJECT_COLOUR, geometry_count = 6})
 }
 
 build_scene :: proc(builder: ^Builder, active: ^Active_Set, history: ^Semantic_History,
-	projection: simulation.Projection, ranges: []Geometry_Range, time_ms: f64) {
-	emit(builder, {primitive = .RECTANGLE, layer = 0, x = 256, y = 192, scale_x = 256, scale_y = 192,
-		alpha = 1, colour = 0xff191310, geometry_count = 6})
+	projection: simulation.Projection, ranges: []Geometry_Range, time_ms: f64, view: Scene_View) {
+	// Background covering the complete canvas: the inverse-fitted viewport
+	// rectangle with a small overshoot so f32 rounding cannot leave edges.
+	half_width := view.viewport.css_width / 2 / view.transform.scale + 2 / view.transform.scale
+	half_height := view.viewport.css_height / 2 / view.transform.scale + 2 / view.transform.scale
+	background_x, background_y := to_playfield(view.transform,
+		view.viewport.css_left + view.viewport.css_width / 2, view.viewport.css_top + view.viewport.css_height / 2)
+	emit(builder, {primitive = .RECTANGLE, layer = 0, x = background_x, y = background_y,
+		scale_x = half_width, scale_y = half_height, alpha = 1, colour = 0xff191310, geometry_count = 6})
 	for object_index in active.indices[:active.count] {
 		object := &projection.prepared_objects[object_index]
 		if object_index > 0 {

@@ -52,6 +52,23 @@ reads service state; it never enters the engine frame path.
   reactivity is restricted to lifecycle/state changes and explicitly refreshed
   diagnostics.
 
+### Play route layout
+
+Gameplay fills the browser content area instead of a bordered 4:3 panel. On
+`/play` the app frame drops its width constraint and padding (`immersive`
+variant), the frame footer is not rendered (its Settings entry point moves to
+the play screen's floating controls, available while idle or paused exactly as
+the footer offered it), and the player host sizes to the content area — the
+engine's complete-map fit handles aspect and letterboxing inside the surface it
+is given. The layout avoids percentage-height chains below the min-height-only
+frame; the player grows by flex and the host is absolutely positioned. A
+Fullscreen button toggles the Fullscreen API on the player wrapper (not the
+bare canvas host) so overlays stay reachable in the top layer; the browser's
+fullscreen-exit Escape is left to the browser by both gameplay input paths and
+the resume gate, and viewport changes repaint without advancing gameplay per
+[ADR-003](adr-003-rendering.md#complete-map-visual-fit). Leaving the route ends
+fullscreen implicitly because the element leaves the document.
+
 ### Pin policy
 
 - `platform/product-ui` is the one package allowed npm dependencies, and every

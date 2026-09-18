@@ -161,7 +161,7 @@ oe_session_scene_draw :: proc "c" (engine, session_handle: core_types.Handle, ti
 	if len(session.scene_storage.output) == 0 || len(session.map_storage.scene_attachment.bytes) == 0 {
 		return abi_status(.INVALID_STATE)
 	}
-	transform, viewport, transform_status := read_viewport_transform(viewport_address)
+	transform, viewport, transform_status := read_bounds_transform(&session.map_storage.scene_attachment, viewport_address)
 	if transform_status != .OK {
 		return abi_status(transform_status)
 	}
@@ -179,10 +179,11 @@ oe_session_scene_draw :: proc "c" (engine, session_handle: core_types.Handle, ti
 	// same pass yields both the required-count check and the instances.
 	builder := presentation.Builder{instances = session.scene_storage.instances}
 	presentation.refresh_history(&session.scene_storage.history, projection, time_ms, simulation_state.epoch)
+	scene_view := presentation.Scene_View{transform = transform, viewport = viewport}
 	presentation.build_scene(&builder, &session.scene_storage.active, &session.scene_storage.history, projection,
-		session.map_storage.scene_attachment.ranges, time_ms)
+		session.map_storage.scene_attachment.ranges, time_ms, scene_view)
 	scene_summary := simulation.score_summary(simulation_state, simulation_state.committed_ms)
-	presentation.hud(&builder, u64(scene_summary.score), scene_summary.accuracy, scene_summary.health, scene_summary.combo)
+	presentation.hud(&builder, u64(scene_summary.score), scene_summary.accuracy, scene_summary.health, scene_summary.combo, scene_view)
 	presentation.finish_scene(&builder)
 	if builder.count > len(session.scene_storage.instances) {
 		required_bytes, _ := scene_required_bytes(u64(builder.count), u64(len(session.simulation.journal)), u64(len(session.simulation.recording)), u64(len(session.simulation.objects)))

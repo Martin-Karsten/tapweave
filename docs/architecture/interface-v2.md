@@ -380,6 +380,31 @@ on the next transform call. Copy coefficients immediately; never retain a WASM
 view across potentially growing calls. Export discovery indicates coordinate
 support only; full presentation and gameplay capability remain unavailable.
 
+`oe_session_playfield_transform(engine, session, viewport_mailbox, output_mailbox)`
+consumes the same kind-29 viewport and returns the same kind-30 record through
+the same output slot, but fits the session map's cached complete visual bounds
+instead of the normal 512×384 rectangle. The bounds are computed from final
+prepared geometry (stacked positions, approach/hit-growth/tracking-ring extents,
+slider polylines with body thickness, feedback glyphs, follow points and the
+rotated spinner glyphs) and are stored immutably with the scene attachment, so
+every session of the same map shares one fit. One uniform scale centres the
+complete extent in the margin-inset viewport (8 CSS px, reduced proportionally
+on tiny surfaces); forward and inverse coefficients derive from that single
+calculation, and the normal rectangle is always the starting extent. The
+sessionless export keeps its exact previous behaviour for diagnostics.
+
+This variant requires the session's scene attachment (INVALID_STATE when the
+map never published scene resources), performs the same allocation-free
+validation chain (engine owner, session handle staleness, exact mailbox
+addresses, record version/size, positive dimensions, finite coefficients) and
+publishes only after success; rejection preserves the previous output
+bytes/span. Gameplay consumers — scene draw uniforms, pointer receipt
+conversion and resume targeting — must use this session transform so input
+mapping and rendering can never disagree. This is a deliberate presentation
+divergence from lazer, which crops oversized content to the playfield; no
+upstream acceptance is implied, and judgement, timing, scores and replay
+coordinates are unchanged.
+
 Remaining [render resources](adr-003-rendering.md#remaining-resource-protocol),
 [audio records](adr-004-audio.md#remaining-audio-protocol) and
 [clock mapping](adr-004-audio.md#receipt-time-conversion) are specified in their ADRs.
