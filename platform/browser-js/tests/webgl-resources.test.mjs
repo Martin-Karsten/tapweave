@@ -32,7 +32,18 @@ function fake_canvas() {
   }
   for (const operation of ['shaderSource', 'compileShader', 'attachShader', 'linkProgram', 'bindVertexArray',
     'bindBuffer', 'enableVertexAttribArray', 'vertexAttribPointer', 'activeTexture', 'bindTexture',
-    'texParameteri', 'texImage2D', 'useProgram']) context[operation] = () => {};
+    'texParameteri', 'texImage2D', 'generateMipmap', 'useProgram']) context[operation] = () => {};
+  context.texture_settings = [];
+  context.texParameteri = function(target, parameter, value) { this.texture_settings.push([parameter, value]); };
+  // Standard WebGL2 enums so texture-parameter assertions stay meaningful.
+  context.TEXTURE_2D = 5890;
+  context.TEXTURE_MIN_FILTER = 10241;
+  context.TEXTURE_MAG_FILTER = 10240;
+  context.TEXTURE_WRAP_S = 10242;
+  context.TEXTURE_WRAP_T = 10243;
+  context.LINEAR = 9729;
+  context.LINEAR_MIPMAP_LINEAR = 9987;
+  context.CLAMP_TO_EDGE = 33071;
   return { context, live, listeners, get allocations() { return allocation_count; },
     getContext: () => context,
     addEventListener: (name, callback) => listeners.set(name, callback),
@@ -79,6 +90,12 @@ test('publication reuses uploads, owns recovery bytes and rejects stale generati
     const canvas = fake_canvas();
     const gpu = new WebGL_Resources(canvas);
     gpu.publish(resources);
+    // The antialiased glyph atlas is bilinearly filtered with mipmaps.
+    assert.deepEqual(canvas.context.texture_settings, [
+      [canvas.context.TEXTURE_MIN_FILTER, canvas.context.LINEAR_MIPMAP_LINEAR],
+      [canvas.context.TEXTURE_MAG_FILTER, canvas.context.LINEAR],
+      [canvas.context.TEXTURE_WRAP_S, canvas.context.CLAMP_TO_EDGE],
+      [canvas.context.TEXTURE_WRAP_T, canvas.context.CLAMP_TO_EDGE]]);
     const allocated = canvas.allocations;
     for (let publication_index = 0; publication_index < 100; publication_index++) gpu.publish(resources);
     assert.equal(gpu.upload_count, 1);

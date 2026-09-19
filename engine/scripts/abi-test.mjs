@@ -23,7 +23,7 @@ export function testABI(wasm) {
  };
  const prepare=(e,input,flags=1)=>{header(2,32);u64(8,input.token);u32(20,input.count);u32(24,flags);return wasm.oe_map_prepare(e,base,out,error)};
  const session=(e,m,bytes)=>{header(3,32);u32(8,1);u64(16,bytes);assert.equal(wasm.oe_session_create(e,m,base,out,error),0);return result()};
- const native=JSON.parse(execFileSync(resolve(root,'artifacts/abi-native'),{encoding:'utf8'}));
+ const native=JSON.parse(execFileSync(resolve(root,'artifacts/abi-native'),{encoding:'utf8',maxBuffer:64*1024*1024}));
  assert.deepEqual(native.capabilities,[65540,64,2,0,1,0,14,128,8388608,0,134217728,0,1,0,202608042,3]);
  assert.deepEqual(native.statuses,[1,0,0,0,0,0,0,0,0,3,0,0,0,0,9]);
  const text='osu file format v14\n[TimingPoints]\n100,500\n[HitObjects]\n0,0,0,1,0';
@@ -50,6 +50,34 @@ export function testABI(wasm) {
  assert.equal(wasm.oe_map_retain(first,first),9);
  assert.equal(wasm.oe_map_describe(first,map,out),0);
  const desc=Number(result());assert.equal(view().getUint32(desc+16,true),1);
+ // The foundation summary carries the song-select append: difficulty inputs,
+ // display-only BPM/duration bounds and one kind-54 metadata record.
+ assert.equal(view().getUint16(desc,true),5);
+ assert.equal(view().getUint32(desc+4,true),128);
+ assert.equal(view().getFloat64(desc+32,true),5); // hp default
+ assert.equal(view().getFloat64(desc+40,true),5); // cs default
+ assert.equal(view().getFloat64(desc+48,true),5); // od default
+ assert.equal(view().getFloat64(desc+56,true),5); // ar default (falls back to od)
+ assert.equal(view().getFloat64(desc+64,true),1.4); // slider multiplier default
+ assert.equal(view().getFloat64(desc+72,true),1); // tick rate default
+ assert.equal(view().getFloat64(desc+80,true),120); // 60000/500 from the uninherited point
+ assert.equal(view().getFloat64(desc+88,true),120);
+ assert.equal(view().getFloat64(desc+96,true),0); // first object start
+ assert.equal(view().getFloat64(desc+104,true),0); // last object end
+ assert.equal(view().getUint32(desc+116,true),1); // metadata count
+ assert.equal(view().getUint32(desc+120,true),56); // metadata stride
+ const summary_metadata=desc+view().getUint32(desc+112,true);
+ assert.equal(view().getUint16(summary_metadata,true),54);
+ assert.equal(view().getUint32(summary_metadata+4,true),56);
+ const summary_string=(field_offset)=>{
+  const start=desc+view().getUint32(summary_metadata+field_offset,true);
+  const count=view().getUint32(summary_metadata+field_offset+4,true);
+  return new TextDecoder().decode(new Uint8Array(memory.buffer,start,count));
+ };
+ assert.equal(summary_string(8),'Unknown');
+ assert.equal(summary_string(20),'Unknown');
+ assert.equal(summary_string(32),'Unknown Creator');
+ assert.equal(summary_string(44),'Normal');
  // Failed replacement and failed reserve preserve the old map and inbox token.
  assert.equal(wasm.oe_buffer_reserve(first,1,0xffffffffffffffffn,out),4);
  assert.equal(prepare(first,input),0);assert.equal(wasm.oe_map_release(first,result()),0);

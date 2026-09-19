@@ -1,0 +1,111 @@
+/* Song-select details: difficulty rows, set heading, wedge timing chips and
+   the wedge stat bars. Values stay on the shared design tokens (css-lint). */
+
+/* Carousel row: star glyph, label, then duration/BPM meta pushed right; the
+   virtualizer owns the row box, this flexes the content inside it. */
+.difficulty-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 100%;
+  min-width: 0;
+  padding: 0 var(--space-5);
+}
+
+.difficulty-row-label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.difficulty-row-meta {
+  flex: none;
+  margin-left: auto;
+  color: var(--color-text-faint);
+  font-size: var(--font-size-note);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.difficulty-list [data-selected='true'] .difficulty-row-meta {
+  color: var(--color-text-muted);
+}
+
+/* Set panel heading: decoder-owned artist under the set title, stable across
+   difficulty switches through the summary cache. */
+.set-heading {
+  min-width: 0;
+}
+
+.set-artist {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-note);
+  overflow-wrap: anywhere;
+}
+
+/* Wedge: the artist is the second visual line after the title. */
+.map-artist {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text);
+  font-size: var(--font-size-skip);
+  overflow-wrap: anywhere;
+}
+
+/* Timing chips: playable duration, BPM range and object count. */
+.wedge-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: var(--space-8) 0 0;
+}
+
+.chip {
+  display: inline-block;
+  border: var(--stroke-width-panel) solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-background-deep);
+  color: var(--color-text);
+  padding: var(--space-2) var(--space-6);
+  font-size: var(--font-size-note);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Stat bars: label and value on one line, a token-coloured fill track under
+   both, filled to value/10. Explanations ride the row title attribute. */
+#stats .stat-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2) var(--space-6);
+  margin: 0;
+  padding: var(--space-3) 0;
+}
+
+.stat-row dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-note);
+}
+
+.stat-row dd {
+  margin: 0;
+  color: var(--color-text-bright);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-track {
+  grid-column: 1 / -1;
+  height: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-selected);
+  overflow: hidden;
+}
+
+.stat-fill {
+  height: 100%;
+  width: var(--stat-fill);
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-strong));
+}

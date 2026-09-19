@@ -67,7 +67,7 @@ test('circle draw reserve, overflow and readonly feedback have independent publi
     engine.draw(session, 1100, viewport, output);
     assert.equal(output.summary.score, 1000000n);
     assert.equal(output.instances.count, 1);
-    assert.equal(output.record_into(output.instances, 0, {}).primitive, 2);
+    assert.equal(output.record_into(output.instances, 0, {}).primitive, 6);
     assert.equal(output.summary.committed_ms, 1000);
     const feedback = copy_draw(output);
     engine.acknowledge(session, token);

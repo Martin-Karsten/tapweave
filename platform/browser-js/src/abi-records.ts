@@ -139,6 +139,11 @@ export const RECORD_FIELD_TYPES = {
   4: [['abi_major', 'number'], ['abi_minor', 'number'], ['foundation', 'number'], ['gameplay', 'number'],
     ['legacy_max', 'number'], ['lazer_version', 'number'], ['raw_bytes', 'bigint'], ['arena_bytes', 'bigint'],
     ['build_id', 'bigint'], ['behavior_id', 'number'], ['numeric_mode', 'number']],
+  5: [['format_version', 'number'], ['foundation', 'number'], ['objects', 'number'], ['raw_timing', 'number'],
+    ['live_arena_bytes', 'bigint'], ['hp', 'number'], ['cs', 'number'], ['od', 'number'], ['ar', 'number'],
+    ['slider_multiplier', 'number'], ['tick_rate', 'number'], ['bpm_min', 'number'], ['bpm_max', 'number'],
+    ['first_object_ms', 'number'], ['last_object_ms', 'number'], ['metadata_offset', 'number'],
+    ['metadata_count', 'number'], ['metadata_stride', 'number'], ['reserved_124', 'number']],
   8: [['behavior_id', 'number'], ['numeric_mode', 'number'], ['objects_offset', 'number'], ['objects_count', 'number'],
     ['objects_stride', 'number'], ['schedule_offset', 'number'], ['schedule_count', 'number'],
     ['schedule_stride', 'number'], ['raw_digest_0', 'bigint'], ['raw_digest_1', 'bigint'], ['raw_digest_2', 'bigint'],
@@ -216,6 +221,7 @@ export type Typed_Record<K extends Record_Kind> = {
 } & { [field: string]: Record_Values };
 
 export type Engine_Capabilities_Record = Typed_Record<4>;
+export type Map_Descriptor_Record = Typed_Record<5>;
 export type Prepared_Descriptor_Record = Typed_Record<8>;
 export type Preparation_Capabilities_Record = Typed_Record<14>;
 export type Input_Snapshot_Values = Partial<Typed_Record<23>>;

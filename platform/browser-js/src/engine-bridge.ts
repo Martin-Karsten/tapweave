@@ -4,7 +4,7 @@ import { Voice_Output } from './voice-output.js';
 export { Voice_Output } from './voice-output.js';
 import { read_record, record_size,
   type Draw_Output_Header, type Engine_Capabilities_Record, type Engine_Diagnostic, type Gameplay_Output_Header,
-  type Input_Snapshot_Values, type Odin_Exports, type Output_Capabilities_Record,
+  type Input_Snapshot_Values, type Map_Descriptor_Record, type Odin_Exports, type Output_Capabilities_Record,
   type Prepared_Descriptor_Record, type Preparation_Capabilities_Record, type Record_Kind, type Record_Values,
   type Result_Count_Record, type Sample_Binding_Values, type Sample_Probe_Record,
   type Simulation_Capabilities_Record, type Scene_Frame_Header, type Typed_Record,
@@ -24,8 +24,10 @@ const VIEWPORT_RECORD = schema.records.find(record => record.kind === RECORD.vie
 const VIEWPORT_FIELDS = Object.entries(VIEWPORT_RECORD.fields);
 
 // Creation-record flags (docs/architecture/interface-v2.md). Foundation engines
-// request flag 1; map and gameplay creation both require the preparation flag 2.
+// request flag 1; map preparation accepts the foundation flag 1 and the
+// gameplay creation requires the preparation flag 2.
 const ENGINE_CREATE_FLAG_FOUNDATION = 1;
+const MAP_PREPARE_FLAG_FOUNDATION = 1;
 const MAP_PREPARE_FLAG_PREPARATION = 2;
 const GAMEPLAY_CREATE_FLAG_PREPARED_MAP = 2;
 // Voice reservation requires the authoritative-journal flag (interface-v2.md).
@@ -227,6 +229,31 @@ export class Engine_Bridge {
     this.map_handles.add(map_handle);
     try {
       return { map_handle, descriptor: this.describe_map(map_handle) };
+    } catch (error) {
+      this.release_map(map_handle);
+      throw error;
+    }
+  }
+
+  // Decode-only song-select pass: the engine parses and owns the summary, the
+  // caller extracts plain display data and releases the handle immediately.
+  prepare_map_foundation(bytes: Uint8Array) {
+    require_condition(this.engine_handle !== 0n, 'DISPOSED', 'Engine is disposed.');
+    require_condition(bytes instanceof Uint8Array && BigInt(bytes.length) <= this.capabilities.raw_bytes,
+      'QUOTA_EXCEEDED', 'Beatmap exceeds the engine input quota.');
+    const inbox = this.reserve_input(bytes.length);
+    new Uint8Array(this.wasm.memory.buffer, inbox.address, bytes.length).set(bytes);
+    this.note_operation('oe_map_prepare', { flags: MAP_PREPARE_FLAG_FOUNDATION, count: bytes.length });
+    this.write_creation(RECORD.map_prepare, { token: inbox.token, count: bytes.length, flags: MAP_PREPARE_FLAG_FOUNDATION });
+    this.check_status(this.wasm.oe_map_prepare(this.engine_handle, this.mailbox_address, this.result_address, this.error_address));
+    const map_handle = this.read_handle();
+    this.map_handles.add(map_handle);
+    try {
+      this.check_status(this.wasm.oe_map_describe(this.engine_handle, map_handle, this.result_address), false);
+      const span = this.read_span();
+      // This owned copy survives candidate allocations and map release.
+      const descriptor_bytes = new Uint8Array(this.wasm.memory.buffer, span.address, span.count).slice();
+      return { map_handle, descriptor: new Foundation_Description(descriptor_bytes) };
     } catch (error) {
       this.release_map(map_handle);
       throw error;
@@ -863,6 +890,58 @@ export class Prepared_Description {
       }
       yield* samples(this, object, 'auxiliary_samples', object.id as number, 0xfffffffe, true);
     }
+  }
+
+  array_span(record: Record<string, Record_Values>, field_name: string, minimum_stride: number) {
+    const offset = record[field_name + '_offset'] as number;
+    const count = record[field_name + '_count'] as number;
+    const stride = record[field_name + '_stride'] as number;
+    require_condition(stride >= minimum_stride && (minimum_stride === 1 || stride % 8 === 0),
+      'INVALID_SPAN', 'Invalid descriptor stride.');
+    checkedSpan(this.view, offset, count, stride, minimum_stride === 1 ? 1 : 8);
+    return { offset, count, stride };
+  }
+
+  text(record: Record<string, Record_Values>, field_name: string) {
+    const span = this.array_span(record, field_name, 1);
+    require_condition(span.stride === 1, 'INVALID_SPAN', 'Text stride must be one.');
+    return new TextDecoder('utf-8', { fatal: true }).decode(checkedSpan(this.view, span.offset, span.count, 1));
+  }
+}
+
+// Decode-only song-select summary read from the extended kind-5 foundation
+// descriptor: difficulty inputs plus display-only BPM and playable-duration
+// bounds derived by the engine, and the same kind-54 metadata record the
+// prepared descriptor carries. This is presentation data; it plays no role in
+// preparation identity or judgement.
+export class Foundation_Description {
+  bytes: Uint8Array;
+  view: DataView;
+  summary: Map_Descriptor_Record;
+  metadata: Prepared_Description_Metadata;
+
+  constructor(bytes: Uint8Array) {
+    this.bytes = bytes;
+    this.view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    this.summary = read_record(this.view, 0, RECORD.map_descriptor);
+    require_condition(this.summary.foundation === 1 && this.summary.reserved_124 === 0,
+      'INVALID_SPAN', 'Invalid foundation descriptor.');
+    const metadata_span = this.array_span(this.summary, 'metadata', record_size(RECORD.prepared_metadata));
+    require_condition(metadata_span.count === 1, 'INVALID_SPAN', 'Expected one metadata record.');
+    const metadata = read_record(this.view, metadata_span.offset, RECORD.prepared_metadata);
+    this.metadata = {
+      title: this.text(metadata, 'title'),
+      artist: this.text(metadata, 'artist'),
+      creator: this.text(metadata, 'creator'),
+      version: this.text(metadata, 'version'),
+    };
+  }
+
+  // Playable duration in milliseconds, first object start to last object end;
+  // null when the map has no objects.
+  duration_ms(): number | null {
+    if (this.summary.objects === 0) return null;
+    return this.summary.last_object_ms - this.summary.first_object_ms;
   }
 
   array_span(record: Record<string, Record_Values>, field_name: string, minimum_stride: number) {

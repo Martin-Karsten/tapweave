@@ -5,6 +5,7 @@ import { debug_dialog_open, open_debug_dialog } from '../state/debug_state';
 import { demo_error_message, demo_request_state, request_demo } from '../state/demo_state';
 import { player_session, shell_state } from '../state/session_state';
 import { DECODE_ERROR_CODE } from '@browser/abi-records.js';
+import { drain_ms, playable_span_of, type Map_Summary } from '@browser/map-summary.js';
 import type { Browser_Error } from '@browser/errors.js';
 import type { Active_Selection } from '@browser/selection.js';
 
@@ -43,6 +44,35 @@ const set_display_title = (filenames: readonly string[], active_filename: string
   return shared_prefix || map_display_name(active_filename);
 };
 
+const format_duration_ms = (duration_ms: number | null | undefined): string => {
+  if (duration_ms === null || duration_ms === undefined) return '';
+  const total_seconds = Math.round(duration_ms / 1000);
+  const minutes = Math.floor(total_seconds / 60);
+  const seconds = String(total_seconds % 60).padStart(2, '0');
+  return `${minutes}:${seconds}`;
+};
+
+// Display BPM as a single value or a min–max range; 0 bounds mean the map
+// declares no uninherited timing points.
+const format_bpm = (bpm_min: number, bpm_max: number): string => {
+  if (bpm_max <= 0) return '';
+  const minimum = Math.round(bpm_min);
+  const maximum = Math.round(bpm_max);
+  return minimum === maximum ? `${maximum}` : `${minimum}–${maximum}`;
+};
+
+const stat_fill_percent = (value: number): string =>
+  `${Math.max(0, Math.min(100, value * 10))}%`;
+
+// Brief per-stat explanations (mvp-player-experience.md); the wedge shows
+// them as native tooltips on each stat row.
+const STAT_EXPLANATIONS = {
+  hp: 'Health drain — how quickly health drains while playing. Higher values recover less.',
+  cs: 'Circle size — smaller circles are harder to hit.',
+  ar: 'Approach rate — higher means objects appear closer to their hit time.',
+  od: 'Overall difficulty — higher tightens hit timings and spinner requirements.',
+};
+
 const selection_status = (): string => {
   const state = shell_state();
   if (state.phase === 'booting') return 'Starting engine…';
@@ -65,16 +95,26 @@ export const Select_Screen: Component = () => {
   const active = () => selection().active;
   const gameplay = () => state().gameplay;
   const selection_locked = () => gameplay().in_attempt || gameplay().state === 'loading' || gameplay().state === 'disposed';
+  const summaries = () => selection().summaries;
+  const summary_for = (filename: string): Map_Summary | null => summaries().get(filename) ?? null;
+  const active_summary = (): Map_Summary | null => {
+    const current = active();
+    return current ? summary_for(current.filename) : null;
+  };
   const difficulty_rows = () => {
     const current = active();
     return current ? current.source.list_maps() : [];
   };
 
-  // Only the active difficulty is prepared; its row can show decoder-owned
-  // version metadata while unprepared rows keep their filename labels. This
-  // helper is the single label representation: the carousel rows and the
-  // difficulty filter below both render and search through it.
+  // Row labels prefer the background summary's decoder-owned version name so
+  // every difficulty is labelled consistently; the active difficulty falls
+  // back to its own prepared metadata before the summary pass reaches it, and
+  // unsummarized rows keep their filename labels. This helper is the single
+  // label representation: the carousel rows and the difficulty filter below
+  // both render and search through it.
   const difficulty_row_label = (filename: string): string => {
+    const summary = summary_for(filename);
+    if (summary && summary.version !== '') return summary.version;
     const current = active();
     if (current && filename === current.filename) {
       const version = metadata_value(current, 'version');
@@ -83,8 +123,8 @@ export const Select_Screen: Component = () => {
     return map_display_name(filename);
   };
 
-  // The filter matches the displayed labels (version metadata for the active
-  // row, filename bases otherwise), so searching what is shown finds the row.
+  // The filter matches the displayed labels (version metadata when known,
+  // filename bases otherwise), so searching what is shown finds the row.
   const visible_difficulty_rows = (): readonly string[] => {
     const query = difficulty_filter().trim().toLowerCase();
     if (!query) return difficulty_rows();
@@ -121,18 +161,69 @@ export const Select_Screen: Component = () => {
     return version !== null && version !== map_display_name(current.filename) ? version : null;
   };
 
+  // The set panel prefers decoder-owned titles/artists from any difficulty
+  // summary and stays stable across difficulty switches; the filename-prefix
+  // fallback covers scopes whose summaries have not landed yet.
   const set_title = (): string => {
     const current = active();
     if (current) {
       const title = metadata_value(current, 'title');
       if (title !== null) return title;
     }
+    for (const filename of difficulty_rows()) {
+      const summary_title = summaries().get(filename)?.title;
+      if (summary_title) return summary_title;
+    }
     return set_display_title(difficulty_rows(), active()?.filename ?? '');
+  };
+
+  const set_artist = (): string | null => {
+    for (const filename of difficulty_rows()) {
+      const artist = summaries().get(filename)?.artist;
+      if (artist) return artist;
+    }
+    return null;
   };
 
   const difficulty_count_text = (): string => {
     const count = difficulty_rows().length;
     return `${count} ${count === 1 ? 'difficulty' : 'difficulties'}`;
+  };
+
+  const row_meta_text = (filename: string): string => {
+    const summary = summary_for(filename);
+    if (!summary) return '';
+    const parts = [format_duration_ms(summary.duration_ms), format_bpm(summary.bpm_min, summary.bpm_max)];
+    return parts.filter(Boolean).join(' · ');
+  };
+
+  // Playable span and drain for the active difficulty, derived once per
+  // selection from the prepared descriptor (mvp-player-experience.md).
+  const active_span = () => {
+    const current = active();
+    return current ? playable_span_of(current.descriptor) : null;
+  };
+  const active_drain_ms = () => {
+    const current = active();
+    const span = active_span();
+    if (!current || !span) return null;
+    return drain_ms(span.start_ms, span.end_ms, [...current.descriptor.breaks()]);
+  };
+  const duration_chip_text = (): string | null => {
+    const summary = active_summary();
+    if (summary) return format_duration_ms(summary.duration_ms) || null;
+    const span = active_span();
+    return span ? format_duration_ms(span.end_ms - span.start_ms) || null : null;
+  };
+  const duration_chip_title = (): string => {
+    const drain = active_drain_ms();
+    const drain_text = format_duration_ms(drain);
+    return drain_text ? `Playable duration; drain time ${drain_text}.` : 'Playable duration.';
+  };
+  const bpm_chip_text = (): string | null => {
+    const summary = active_summary();
+    if (!summary) return null;
+    return format_bpm(summary.bpm_min, summary.bpm_max) || null;
   };
 
   // Actionable copy for engine refusals the product can explain; the raw
@@ -276,7 +367,12 @@ export const Select_Screen: Component = () => {
         >
           <div class="set-panel">
             <div class="set-panel-content">
-              <h2 class="set-title">{set_title()}</h2>
+              <div class="set-heading">
+                <h2 class="set-title">{set_title()}</h2>
+                <Show when={set_artist()} keyed>
+                  {(artist) => <p class="set-artist">{artist}</p>}
+                </Show>
+              </div>
               <p class="set-count">{difficulty_count_text()}</p>
             </div>
           </div>
@@ -284,12 +380,19 @@ export const Select_Screen: Component = () => {
           <div class="difficulty-list" role="listbox" aria-labelledby="difficulty-label">
             <Virtual_List
               rows={visible_difficulty_rows()}
-              row_height={44}
+              row_height={48}
               list_name="difficulties"
               aria_label="Difficulty"
               disabled={selection_locked()}
               fill_height
-              render_row={(filename) => <span data-map-filename={filename}>{difficulty_row_label(filename)}</span>}
+              render_row={(filename) => (
+                <span class="difficulty-row" data-map-filename={filename}>
+                  <span class="difficulty-row-label">{difficulty_row_label(filename)}</span>
+                  <Show when={row_meta_text(filename)} keyed>
+                    {(meta) => <span class="difficulty-row-meta">{meta}</span>}
+                  </Show>
+                </span>
+              )}
               on_activate={choose_difficulty}
             />
           </div>
@@ -340,7 +443,7 @@ export const Select_Screen: Component = () => {
         <div class="wedge-content">
           <h2 id="map-name">{map_name()}</h2>
           <Show when={map_artist()} keyed>
-            {(artist) => <p id="map-artist" class="map-metadata">{artist}</p>}
+            {(artist) => <p id="map-artist" class="map-artist">{artist}</p>}
           </Show>
           <Show when={map_creator()} keyed>
             {(creator) => <p id="map-creator" class="map-metadata">{creator}</p>}
@@ -352,26 +455,45 @@ export const Select_Screen: Component = () => {
             {(selection) => (
               <>
                 <p id="map-detail">{selection.music_error || 'Music decoded. Prepared map and assets are ready.'}</p>
+                <div class="wedge-chips" aria-label="Beatmap timing">
+                  <Show when={duration_chip_text()} keyed>
+                    {(duration) => <span id="chip-duration" class="chip" title={duration_chip_title()}>{duration}</span>}
+                  </Show>
+                  <Show when={bpm_chip_text()} keyed>
+                    {(bpm) => <span id="chip-bpm" class="chip" title="Beats per minute range over the map's timing points.">{bpm} BPM</span>}
+                  </Show>
+                  <span id="objects" class="chip" title="Hit objects in this difficulty.">
+                    {Number(selection.descriptor.summary.objects_count).toLocaleString()} objects
+                  </span>
+                </div>
                 <dl id="stats">
-                  <div>
-                    <dt>Objects</dt>
-                    <dd id="objects">{Number(selection.descriptor.summary.objects_count).toLocaleString()}</dd>
-                  </div>
-                  <div>
-                    <dt>Circle size</dt>
-                    <dd id="circle-size">{String(selection.descriptor.summary.cs)}</dd>
-                  </div>
-                  <div>
-                    <dt>Approach rate</dt>
-                    <dd id="approach-rate">{String(selection.descriptor.summary.ar)}</dd>
-                  </div>
-                  <div>
-                    <dt>Overall difficulty</dt>
-                    <dd id="overall-difficulty">{String(selection.descriptor.summary.od)}</dd>
-                  </div>
-                  <div>
+                  <div class="stat-row" title={STAT_EXPLANATIONS.hp}>
                     <dt>Health drain</dt>
                     <dd id="health-drain">{String(selection.descriptor.summary.hp)}</dd>
+                    <div class="stat-track">
+                      <div class="stat-fill" style={{ '--stat-fill': stat_fill_percent(selection.descriptor.summary.hp) }} />
+                    </div>
+                  </div>
+                  <div class="stat-row" title={STAT_EXPLANATIONS.cs}>
+                    <dt>Circle size</dt>
+                    <dd id="circle-size">{String(selection.descriptor.summary.cs)}</dd>
+                    <div class="stat-track">
+                      <div class="stat-fill" style={{ '--stat-fill': stat_fill_percent(selection.descriptor.summary.cs) }} />
+                    </div>
+                  </div>
+                  <div class="stat-row" title={STAT_EXPLANATIONS.ar}>
+                    <dt>Approach rate</dt>
+                    <dd id="approach-rate">{String(selection.descriptor.summary.ar)}</dd>
+                    <div class="stat-track">
+                      <div class="stat-fill" style={{ '--stat-fill': stat_fill_percent(selection.descriptor.summary.ar) }} />
+                    </div>
+                  </div>
+                  <div class="stat-row" title={STAT_EXPLANATIONS.od}>
+                    <dt>Overall difficulty</dt>
+                    <dd id="overall-difficulty">{String(selection.descriptor.summary.od)}</dd>
+                    <div class="stat-track">
+                      <div class="stat-fill" style={{ '--stat-fill': stat_fill_percent(selection.descriptor.summary.od) }} />
+                    </div>
                   </div>
                 </dl>
               </>

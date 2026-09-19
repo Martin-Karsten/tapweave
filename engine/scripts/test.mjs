@@ -10,7 +10,10 @@ import { root, compile, verifyCompiler } from './toolchain.mjs';
 import { fixtures, referenceFixtures } from './fixtures.mjs';
 import { validateTrace, firstDifference } from './trace-diff.mjs';
 
-compile(['test', 'tests', '-out:artifacts/foundation-tests']);
+// The ABI tests share one global mailbox (abi_storage) and singleton instance,
+// so they must not interleave: concurrent exports would clobber each other's
+// input records. Serial threads keep the shared-transport suite deterministic.
+compile(['test', 'tests', '-define:ODIN_TEST_THREADS=1', '-out:artifacts/foundation-tests']);
 const bytes = readFileSync(resolve(root, 'artifacts/decode.wasm'));
 let memory;
 const { instance } = await WebAssembly.instantiate(bytes, { odin_env: {

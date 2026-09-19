@@ -23,7 +23,7 @@ Engine :: struct {
 }
 
 Map_Resource :: struct {
-	descriptor: [32]byte,
+	summary: core_types.Arena,
 	decoded: beatmap_decode.Map,
 	points: osu_prepare.Points,
 	prepared_map: prepared.Map,
@@ -207,6 +207,7 @@ map_prepare :: proc(
 			beatmap_decode.destroy(&map_resource.decoded)
 			osu_prepare.destroy(&map_resource.points)
 			prepared.destroy_map(&map_resource.prepared_map)
+			core_types.arena_destroy(&map_resource.summary)
 			core_types.arena_destroy(&map_resource.scene_attachment.arena)
 			core_types.arena_destroy(&map_resource.render_attachment)
 			free(map_resource, instance.allocator)
@@ -243,6 +244,20 @@ map_prepare :: proc(
 			code = .ARENA_BYTES,
 			requested = requested,
 			limit = engine_state.quotas.arena_bytes,
+		}
+	}
+	if !full_preparation {
+		live_arena_bytes :=
+			u64(len(map_resource.decoded.arena.bytes)) +
+			u64(len(map_resource.points.arena.bytes))
+		map_resource.summary, status = foundation_summary(
+			&map_resource.decoded,
+			live_arena_bytes,
+			engine_state.quotas.arena_bytes - live_arena_bytes,
+			instance.allocator,
+		)
+		if status != .OK {
+			return 0, {status = status}
 		}
 	}
 	if full_preparation {
@@ -298,6 +313,7 @@ map_drop :: proc(instance: ^Instance, map_resource: ^Map_Resource) {
 		beatmap_decode.destroy(&map_resource.decoded)
 		osu_prepare.destroy(&map_resource.points)
 		prepared.destroy_map(&map_resource.prepared_map)
+		core_types.arena_destroy(&map_resource.summary)
 		core_types.arena_destroy(&map_resource.scene_attachment.arena)
 		core_types.arena_destroy(&map_resource.render_attachment)
 		free(map_resource, instance.allocator)

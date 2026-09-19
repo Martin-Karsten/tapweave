@@ -10,14 +10,18 @@ const shell_module = vi.hoisted(() => {
     can_watch_replay: false, watching_replay: false,
     recovery: null, in_attempt: false, message: 'Starting engine…', error: null, result: null,
   });
+  const empty_selection = Object.freeze({
+    state: 'empty', active: null, error: null,
+    summaries: Object.freeze(new Map()), summary_failures: Object.freeze(new Map()),
+  });
   const booting_state: Shell_State = Object.freeze({
     phase: 'booting', boot_error: null,
-    selection: Object.freeze({ state: 'empty', active: null, error: null }),
+    selection: empty_selection,
     gameplay: gameplay_view,
   });
   const ready_state: Shell_State = Object.freeze({
     phase: 'ready', boot_error: null,
-    selection: Object.freeze({ state: 'empty', active: null, error: null }),
+    selection: empty_selection,
     gameplay: gameplay_view,
   });
   const create_mock = vi.fn();

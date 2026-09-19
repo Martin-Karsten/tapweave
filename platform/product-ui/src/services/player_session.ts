@@ -5,11 +5,16 @@ import { Engine_Bridge } from '@browser/engine-bridge.js';
 import { Selection_Controller, type Active_Selection } from '@browser/selection.js';
 import { Gameplay_Controller, type Gameplay_View } from '@browser/gameplay-controller.js';
 import { create_fallback_audio } from '@browser/fallback-audio.js';
+import { Music_Preview } from '@browser/preview.js';
+import type { Map_Summary } from '@browser/map-summary.js';
 import type { Browser_Error } from '@browser/errors.js';
 import { WASM_PAGE_BYTES, type Engine_Diagnostic, type Prepared_Descriptor_Record } from '@browser/abi-records.js';
 import { Debug_Session_Service } from './debug_session.js';
 
 const MAXIMUM_ENGINE_MESSAGES = 64;
+// The preview starts only once a selection has settled briefly, so rapid
+// difficulty switches never stack audio starts.
+const PREVIEW_DELAY_MS = 800;
 
 export type Shell_Phase = 'booting' | 'ready' | 'boot-failed';
 
@@ -17,6 +22,8 @@ export interface Selection_Snapshot {
   readonly state: 'empty' | 'loading' | 'prepared' | 'disposed';
   readonly active: Active_Selection | null;
   readonly error: Browser_Error | null;
+  readonly summaries: ReadonlyMap<string, Map_Summary>;
+  readonly summary_failures: ReadonlyMap<string, string>;
 }
 
 export interface Shell_State {
@@ -29,7 +36,13 @@ export interface Shell_State {
 export const INITIAL_SHELL_STATE: Shell_State = Object.freeze({
   phase: 'booting',
   boot_error: null,
-  selection: Object.freeze({ state: 'empty', active: null, error: null }),
+  selection: Object.freeze({
+    state: 'empty',
+    active: null,
+    error: null,
+    summaries: Object.freeze(new Map()),
+    summary_failures: Object.freeze(new Map()),
+  }),
   gameplay: Object.freeze({
     state: 'ready',
     can_play: false,
@@ -84,7 +97,16 @@ export class Player_Session_Service {
     gameplay: Gameplay_Controller, private readonly engine_logs: Engine_Diagnostic[],
     readonly debug: Debug_Session_Service, readonly settings: Player_Settings_Service, readonly mixer: Audio_Mixer) {
     this.gameplay = gameplay;
+    // The preview loops through the mixer's music destination so volume
+    // settings apply; it never touches the gameplay voice protocol.
+    this.preview = new Music_Preview(audio_context, mixer.music);
   }
+
+  private readonly preview: Music_Preview;
+  private preview_timer: ReturnType<typeof setTimeout> | null = null;
+  private preview_filename: string | null = null;
+  private summaries_view: ReadonlyMap<string, Map_Summary> = Object.freeze(new Map());
+  private summary_failures_view: ReadonlyMap<string, string> = Object.freeze(new Map());
 
   static async create(fetch_engine_wasm: () => Promise<ArrayBuffer> = Player_Session_Service.default_engine_fetch): Promise<Player_Session_Service> {
     const settings = new Player_Settings_Service(() => window.localStorage);
@@ -118,12 +140,16 @@ export class Player_Session_Service {
       selection = new Selection_Controller(engine, {
         fallback_assets,
         on_change: () => {},
+        on_summaries_change: () => publish(),
         decode_audio: async (bytes) => {
           if (fallback_assets.size === 0) {
             for (const [name, buffer] of create_fallback_audio(context)) fallback_assets.set(name, buffer);
           }
           return context.decodeAudioData(bytes as ArrayBuffer);
         },
+        // Summary passes use their own engine so the gameplay engine's input
+        // inbox stays dedicated to the live session.
+        summary_engine_factory: () => Engine_Bridge.create(wasm_bytes, { diagnostics: debug.diagnostics }),
       });
       debug.bind({ engine: () => engine, selection: () => selection!.active, audio_context: () => context });
       // The gameplay controller rewires selection.on_change to its own handler,
@@ -167,11 +193,62 @@ export class Player_Session_Service {
 
   private publish() {
     this.debug.note_gameplay_view(this.gameplay.view, this.selection.active);
+    this.summaries_view = Object.freeze(new Map(this.selection.summaries));
+    this.summary_failures_view = Object.freeze(new Map(this.selection.summary_failures));
+    this.coordinate_selection_extras();
     for (const listener of [...this.listeners]) listener();
     if (this.gameplay.view.state === 'disposed') {
       this.cleanup_settings();
       this.listeners.clear();
     }
+  }
+
+  // Song-select enrichment: background difficulty summaries and the looping
+  // music preview. Both run only for a settled selection and stop the moment
+  // an attempt starts or the selection leaves the prepared state.
+  private coordinate_selection_extras() {
+    const view = this.gameplay.view;
+    const active = this.selection.active;
+    if (view.state === 'disposed') {
+      this.cancel_preview();
+      return;
+    }
+    if (this.selection.state === 'prepared') {
+      // Background work: failures surface through the summaries snapshot and
+      // selection state, never as unhandled rejections.
+      this.selection.describe_summaries().catch(() => {});
+    }
+    if (view.in_attempt || this.selection.state !== 'prepared' || !active?.music_buffer) {
+      this.cancel_preview();
+      return;
+    }
+    if (this.preview_filename === active.filename) {
+      return;
+    }
+    this.cancel_preview_timer();
+    this.preview_filename = active.filename;
+    this.preview_timer = setTimeout(() => {
+      this.preview_timer = null;
+      const current = this.selection.active;
+      if (this.selection.state === 'prepared' && !this.gameplay.view.in_attempt &&
+          current?.music_buffer && current.filename === this.preview_filename) {
+        this.preview.start(current.music_buffer, current.descriptor.playback.preview_time as number)
+          .catch(() => {});
+      }
+    }, PREVIEW_DELAY_MS);
+  }
+
+  private cancel_preview_timer() {
+    if (this.preview_timer !== null) {
+      clearTimeout(this.preview_timer);
+      this.preview_timer = null;
+    }
+  }
+
+  private cancel_preview() {
+    this.cancel_preview_timer();
+    this.preview_filename = null;
+    this.preview.stop();
   }
 
   subscribe(listener: () => void): () => void {
@@ -187,6 +264,8 @@ export class Player_Session_Service {
         state: this.selection.state,
         active: this.selection.active,
         error: this.selection.error,
+        summaries: this.summaries_view,
+        summary_failures: this.summary_failures_view,
       }),
       gameplay: this.gameplay.view,
     });
@@ -252,6 +331,7 @@ export class Player_Session_Service {
   }
 
   dispose() {
+    this.cancel_preview();
     this.gameplay.dispose();
     this.cleanup_settings();
     this.listeners.clear();

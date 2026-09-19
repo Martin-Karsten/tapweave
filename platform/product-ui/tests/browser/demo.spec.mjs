@@ -55,7 +55,7 @@ test('first visit loads the demo from the empty-carousel call to action and play
   await expect(page.locator('#map-name')).toHaveText('Tapweave Demo', { timeout: 30000 });
   await expect(page.locator('#map-artist')).toHaveText('Tapweave');
   await expect(page.locator('#map-difficulty')).toHaveText('Beginner');
-  await expect(page.locator('#objects')).toHaveText('32');
+  await expect(page.locator('#objects')).toHaveText('32 objects');
   await expect(page.locator('.set-title')).toHaveText('Tapweave Demo');
   await expect(page.locator('#start')).toBeEnabled();
   // The explicit Play press is the audio-start gesture; the demo then runs.

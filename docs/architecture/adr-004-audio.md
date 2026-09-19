@@ -337,3 +337,16 @@ ordinary advancement; the controller drains and freezes the retained action stat
 This closes an observed Chromium suspension race without clamping, offsets or a
 second transition owner. A production-WASM regression delays `statechange` until
 after the frame and checks the exact committed pause timestamp.
+
+## Song-select preview loop
+
+Song select adds a menu-scoped music preview that is deliberately outside the
+gameplay audio protocol: a single looping `AudioBufferSourceNode` through a
+private gain on the shared page `AudioContext`, routed into the mixer's music
+destination so volume settings apply. It starts (debounced) at the selected
+map's `preview_time` only while a selection is settled, silently skips when the
+context cannot run, and stops before attempts, on navigation and on disposal.
+It owns no engine voices, participates in no scheduling or judgement, and never
+touches the gameplay transports; the one-audio-clock rule is preserved because
+it shares the page context. A suspended context is resumed only from the user
+activation that selection gestures provide.

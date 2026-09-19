@@ -8,6 +8,10 @@ import core_types "../core_types"
 import presentation "../presentation"
 import simulation "../simulation"
 
+// Fixed per-frame scene allowance beyond the per-object weights: HUD, judgement
+// feedback, cursor layers and the starfield backdrop, plus headroom.
+SCENE_FIXED_INSTANCE_ALLOWANCE :: 192
+
 scene_required_bytes :: proc(instance_count: u64, feedback_capacity: u64 = 0, cursor_capacity: u64 = 0, object_count: u64 = 0) -> (u64, core_types.Status) {
 	if instance_count > u64(max(u32)) {
 		return 0, .QUOTA_EXCEEDED
@@ -286,7 +290,7 @@ scene_capacity_count :: proc(instance: ^Instance, engine: core_types.Handle, ses
 		return 0, .QUOTA_EXCEEDED
 	}
 	if len(objects) == 0 {
-		return 2176, .OK
+		return 2048 + SCENE_FIXED_INSTANCE_ALLOWANCE, .OK
 	}
 	scratch, status := core_types.arena_create(byte_count, instance.allocator)
 	if status != .OK {
@@ -321,7 +325,7 @@ scene_capacity_count :: proc(instance: ^Instance, engine: core_types.Handle, ses
 		active_weight += event.weight
 		maximum_weight = max(maximum_weight, active_weight)
 	}
-	required := u64(maximum_weight) + 128 + min(u64(len(session.simulation.recording)), 2048)
+	required := u64(maximum_weight) + SCENE_FIXED_INSTANCE_ALLOWANCE + min(u64(len(session.simulation.recording)), 2048)
 	if required > MAX_DRAW_INSTANCES {
 		return 0, .QUOTA_EXCEEDED
 	}

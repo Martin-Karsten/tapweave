@@ -183,8 +183,14 @@ The single shader handles heterogeneous quad instances without reordering them.
 Commands group consecutive compatible layer/geometry/coverage runs. Analytic
 shapes and glyphs output premultiplied colour; the executor uses ONE /
 ONE_MINUS_SRC_ALPHA, disables depth/culling, clears the canvas and uses the full
-canvas viewport. There is no per-object JavaScript state. Glyph bitmaps are
-original Tapweave 5×7 designs in a 128×64 RGBA atlas. Unknown glyph cells are blank.
+canvas viewport. There is no per-object JavaScript state. Glyphs are original Tapweave rounded stroke designs, antialiased into a
+512×256 RGBA atlas with 32×32 cells. Unknown glyph cells are blank. The browser
+uses bilinear filtering and mipmaps; the engine shader uses screen derivatives
+for a pixel-sized coverage edge and adds a narrow dark outline. Stroke slices are constructed at lookup time rather than
+through nested global slice initializers, preserving native/WASM atlas parity.
+Digit ink bounds and circle number runs are centred independently. Pastel combo
+colours, disc gloss, a deterministic twinkling starfield and star hit bursts are
+original cosmetic policy; timing and gameplay rules are unchanged.
 
 The original cursor trail retains up to 2,048 semantic input points, fades over
 120 ms with exponent 1.7, and does not synthesize framework high-frequency cursor

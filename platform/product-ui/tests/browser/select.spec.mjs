@@ -115,7 +115,7 @@ test('the set panel counts difficulties and the filter narrows rows', async ({ p
   await page.getByLabel('Filter difficulties').fill('');
   await expect(rows).toHaveCount(2);
   await page.locator('[data-virtual-list="difficulties"] [data-map-filename="hard.osu"]').click();
-  await expect(page.locator('#objects')).toHaveText('2');
+  await expect(page.locator('#objects')).toHaveText('2 objects');
 });
 
 // WebKit cannot construct synthetic DragEvents carrying a DataTransfer, so
@@ -143,7 +143,7 @@ test('dropping files onto the screen imports them', async ({ page, browserName }
   await expect(page.getByRole('status')).toHaveText('Beatmap prepared successfully.');
   // The dropped map has no [Metadata]; the decoder default title displays.
   await expect(page.locator('#map-name')).toHaveText('Unknown');
-  await expect(page.locator('#objects')).toHaveText('1');
+  await expect(page.locator('#objects')).toHaveText('1 objects');
 });
 
 test('the wedge shows decoder-owned metadata and falls back only for empty fields', async ({ page }) => {
@@ -159,8 +159,9 @@ test('the wedge shows decoder-owned metadata and falls back only for empty field
   await expect(page.locator('#map-creator')).toHaveText('mapped by Test Creator');
   await expect(page.locator('#map-difficulty')).toHaveText('Field Coverage');
   await expect(page.locator('.set-title')).toHaveText('Song Select Parity');
+  await expect(page.locator('.set-artist')).toHaveText('Test Artist');
   const active_row = page.locator('[data-virtual-list="difficulties"] [data-map-filename="meta.osu"]');
-  await expect(active_row).toHaveText('Field Coverage');
+  await expect(active_row.locator('.difficulty-row-label')).toHaveText('Field Coverage');
   // The filter searches the displayed labels, not only filenames.
   await page.getByLabel('Filter difficulties').fill('field coverage');
   await expect(active_row).toBeVisible();
@@ -180,7 +181,7 @@ test('the wedge shows decoder-owned metadata and falls back only for empty field
   await expect(page.locator('#map-creator')).toHaveText('mapped by Unknown Creator');
   await expect(page.locator('#map-difficulty')).toHaveText('Normal');
   await expect(page.locator('.set-title')).toHaveText('Unknown');
-  await expect(page.locator('[data-virtual-list="difficulties"] [data-map-filename="stripped.osu"]'))
+  await expect(page.locator('[data-virtual-list="difficulties"] [data-map-filename="stripped.osu"] .difficulty-row-label'))
     .toHaveText('Normal');
 
   // Explicitly empty fields count as absent: filename-derived strings return.
@@ -195,8 +196,38 @@ test('the wedge shows decoder-owned metadata and falls back only for empty field
   await expect(page.locator('#map-creator')).toHaveCount(0);
   await expect(page.locator('#map-difficulty')).toHaveCount(0);
   await expect(page.locator('.set-title')).toHaveText('hollow');
-  await expect(page.locator('[data-virtual-list="difficulties"] [data-map-filename="hollow.osu"]'))
+  await expect(page.locator('[data-virtual-list="difficulties"] [data-map-filename="hollow.osu"] .difficulty-row-label'))
     .toHaveText('hollow');
+});
+
+// Background difficulty summaries power the row meta (duration and BPM) and
+// the wedge timing chips; the summary pass runs right after a set settles.
+test('difficulty rows and the wedge show duration, BPM and object counts', async ({ page }) => {
+  await wait_ready(page);
+  const timed_map = `osu file format v14
+[General]
+AudioFilename: music.wav
+[Metadata]
+Version:Timed
+[TimingPoints]
+1000,400,4,2,1,70,1,0
+[HitObjects]
+256,192,1000,1,0
+128,192,9000,12,8,11000`;
+  await page.getByLabel('Open local files', { exact: true }).setInputFiles({
+    name: 'timed.osu',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(timed_map),
+  });
+  await expect(page.getByRole('status')).toHaveText('Beatmap prepared successfully.');
+  const row = page.locator('[data-virtual-list="difficulties"] [data-map-filename="timed.osu"]');
+  await expect(row.locator('.difficulty-row-label')).toHaveText('Timed');
+  // Playable duration runs first object start to last object end (the
+  // spinner ends at 11000); 60000/400 gives a single 150 BPM bound.
+  await expect(row.locator('.difficulty-row-meta')).toHaveText('0:10 · 150');
+  await expect(page.locator('#chip-duration')).toHaveText('0:10');
+  await expect(page.locator('#chip-bpm')).toHaveText('150 BPM');
+  await expect(page.locator('#objects')).toHaveText('2 objects');
 });
 
 test('the wedge shows CS, AR, OD, HP and object stats from the descriptor', async ({ page }) => {
@@ -207,11 +238,16 @@ test('the wedge shows CS, AR, OD, HP and object stats from the descriptor', asyn
     buffer: Buffer.from(beatmap(1)),
   });
   await expect(page.getByRole('status')).toHaveText('Beatmap prepared successfully.');
-  await expect(page.locator('#objects')).toHaveText('2');
+  await expect(page.locator('#objects')).toHaveText('2 objects');
   await expect(page.locator('#circle-size')).toHaveText('4');
   await expect(page.locator('#approach-rate')).toHaveText('9');
   await expect(page.locator('#overall-difficulty')).toHaveText('8');
   await expect(page.locator('#health-drain')).toHaveText('7');
+  // Stat bars fill to value/10 in HP, CS, AR, OD order.
+  const fill_widths = await page.locator('#stats .stat-fill')
+    .evaluateAll(fills => fills.map(fill => fill.style.getPropertyValue('--stat-fill')));
+  expect(fill_widths).toEqual(['70%', '40%', '90%', '80%']);
+  await expect(page.locator('#stats .stat-row').first()).toHaveAttribute('title', /Health drain/);
   await expect(page.locator('#map-detail')).toContainText('Main music is missing');
   await expect(page.locator('#play-gate')).toBeVisible();
 });

@@ -288,13 +288,17 @@ export class WebGL_Resources {
     context.bufferData(context.ELEMENT_ARRAY_BUFFER, indices, context.STATIC_DRAW);
     context.activeTexture(context.TEXTURE0);
     context.bindTexture(context.TEXTURE_2D, candidate.atlas);
-    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
-    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
+    // The engine rasterizes the glyph atlas with antialiased coverage, so the
+    // texture is filtered bilinearly (with mipmaps for the small HUD digits)
+    // instead of magnifying hard pixels.
+    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR_MIPMAP_LINEAR);
+    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.LINEAR);
     context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
     context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
     context.texImage2D(context.TEXTURE_2D, 0, context.RGBA8, summary.atlas_width, summary.atlas_height,
       0, context.RGBA, context.UNSIGNED_BYTE, resources.bytes.subarray(summary.atlas_offset,
         summary.atlas_offset + summary.atlas_count));
+    context.generateMipmap(context.TEXTURE_2D);
     require_condition(!context.isContextLost() && context.getError() === context.NO_ERROR,
       'RENDER_RESOURCE_FAILED', 'Render resource upload failed.');
   }

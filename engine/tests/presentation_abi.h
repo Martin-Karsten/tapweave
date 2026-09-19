@@ -97,7 +97,7 @@ static uint32_t scene_native_probe(unsigned char *draw_bytes, unsigned char *res
     oe_handle map_handle = *handle_output;
     assert(oe_map_scene_resources(engine_handle, map_handle, (uintptr_t)span_output) == 0);
     *resource_byte_count = span_output->count;
-    assert(*resource_byte_count < 262144);
+    assert(*resource_byte_count < 1048576);
     memcpy(resource_bytes, (void *)(uintptr_t)span_output->address, *resource_byte_count);
     ((oe_scene_resource_v1 *)resource_bytes)->resource_id = 0; // Handles are process-local.
 

@@ -123,7 +123,7 @@ export const schema = {
     {
       "name": "map_descriptor",
       "kind": 5,
-      "size": 32,
+      "size": 128,
       "fields": {
         "format_version": [
           8,
@@ -144,6 +144,62 @@ export const schema = {
         "live_arena_bytes": [
           24,
           "u64"
+        ],
+        "hp": [
+          32,
+          "f64"
+        ],
+        "cs": [
+          40,
+          "f64"
+        ],
+        "od": [
+          48,
+          "f64"
+        ],
+        "ar": [
+          56,
+          "f64"
+        ],
+        "slider_multiplier": [
+          64,
+          "f64"
+        ],
+        "tick_rate": [
+          72,
+          "f64"
+        ],
+        "bpm_min": [
+          80,
+          "f64"
+        ],
+        "bpm_max": [
+          88,
+          "f64"
+        ],
+        "first_object_ms": [
+          96,
+          "f64"
+        ],
+        "last_object_ms": [
+          104,
+          "f64"
+        ],
+        "metadata_offset": [
+          112,
+          "u32"
+        ],
+        "metadata_count": [
+          116,
+          "u32"
+        ],
+        "metadata_stride": [
+          120,
+          "u32"
+        ],
+        "reserved_124": [
+          124,
+          "u32"
         ]
       }
     },

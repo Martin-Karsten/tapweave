@@ -61,6 +61,20 @@ Odin field names/order and serializer implementation changes. This deliberately
 changes the preparation profile; it does not claim new gameplay compatibility.
 See the [binary contract](interface-v2.md#m1-prepared-map-transport).
 
+## Song-select foundation summary
+
+Song select needs per-difficulty metadata without fully preparing every
+difficulty for list display. The foundation describe grows append-only instead:
+kind 5 keeps its original fields and adds the decoded difficulty inputs,
+display-only BPM and playable-duration bounds, and one kind-54 metadata record
+owned by the map. The bounds are presentation derivations computed by the
+engine — not upstream compatibility math — and the record plays no role in
+preparation identity or judgement. Browser readers use the generated offsets,
+extract plain values and release foundation map handles immediately; background
+describe passes run on a dedicated engine instance so they never replace the
+gameplay engine's input inbox. See the
+[foundation summary](interface-v2.md#foundation-map-summary).
+
 ## M2 headless session transport
 
 Gameplay uses a separate `GameplayCreateV1` (kind 18, flag 2) passed to

@@ -14,13 +14,13 @@ test('loads real engine, prepares local map and preserves it after failure', asy
   await expect(page.getByRole('status')).toHaveText('Engine ready. Open a beatmap to begin.');
   await page.getByLabel('Open local files', { exact: true }).setInputFiles({ name: 'local.osu', mimeType: 'text/plain', buffer: Buffer.from(beatmap) });
   await expect(page.getByRole('status')).toHaveText('Beatmap prepared successfully.');
-  await expect(page.locator('#objects')).toHaveText('1');
+  await expect(page.locator('#objects')).toHaveText('1 objects');
   await expect(page.locator('#map-detail')).toContainText('Main music is missing');
   await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeDisabled();
   await page.getByLabel('Open local files', { exact: true }).setInputFiles({ name: 'bad.osu', mimeType: 'text/plain', buffer: Buffer.from('invalid') });
   await expect(page.getByRole('alert')).toContainText('status 5');
   await expect(page.locator('#map-name')).toHaveText('Local Circuit');
-  await expect(page.locator('#objects')).toHaveText('1');
+  await expect(page.locator('#objects')).toHaveText('1 objects');
   expect(page_errors).toEqual([]);
 });
 
@@ -32,7 +32,7 @@ test('archive difficulty selection and narrow viewport remain usable', async ({ 
   await page.getByLabel('Open local files', { exact: true }).setInputFiles({ name: 'set.osz', mimeType: 'application/zip', buffer: Buffer.from(archive) });
   await expect(page.getByRole('status')).toContainText('successfully');
   await page.locator('[data-virtual-list="difficulties"] [data-map-filename="hard.osu"]').click();
-  await expect(page.locator('#objects')).toHaveText('2');
+  await expect(page.locator('#objects')).toHaveText('2 objects');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 

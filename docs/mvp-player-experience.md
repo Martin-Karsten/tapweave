@@ -98,9 +98,15 @@ map-owned transactional output and browser-owned string copies are in place,
 and song select shows title/artist/creator/difficulty with filename fallback
 for explicitly empty fields, while the decoder's pinned lazer defaults
 display as ordinary values (as in lazer's own song select). Prepared identity and replay behavior are
-unchanged. Remaining from the original item: playable-duration display and
-the per-stat explanations in the wedge, and metadata caching across
-difficulty switches beyond the current active-difficulty read.
+unchanged. The originally remaining items are implemented: playable-duration
+display and per-stat explanations in the wedge, and metadata caching across
+difficulty switches — powered by the foundation describe append (kind 5,
+[ADR-005](architecture/adr-005-interface-extensions.md#song-select-foundation-summary)),
+which gives every difficulty a decoder-owned summary (version name, difficulty
+inputs, display-only BPM/duration bounds) without fully preparing it for list
+display. The wedge also derives drain time from prepared breaks, and a
+debounced menu-scoped music preview loops from the map's preview point
+([ADR-004](architecture/adr-004-audio.md#song-select-preview-loop)).
 
 Expose decoder-owned title, artist, creator and difficulty name through a narrow
 versioned read-only ABI query. Do not parse .osu metadata independently in JS.

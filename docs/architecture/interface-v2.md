@@ -133,6 +133,12 @@ Reserve, engine creation, map preparation and session creation may grow memory. 
 
 For future session payloads, `oe_session_inputs` takes a **pointer to** the span descriptor, rather than a by-value platform-dependent aggregate. Reserved-token input remains the preferred WASM path. This concretizes the pointer calling convention; no input capability is currently advertised. See the [ADR-005 foundation refinement](adr-005-interface-extensions.md#m0-foundation-refinement).
 
+### Foundation map summary
+
+`oe_map_describe` on a flag-1 foundation map returns an immutable map-owned span headed by kind `5`, record size 128. The original 32-byte fields — `format_version`, `foundation`, `objects`, `raw_timing`, `live_arena_bytes` — keep their offsets; the append adds the decoded difficulty inputs `hp`, `cs`, `od`, `ar`, `slider_multiplier` and `tick_rate` (f64 at 32–79), display-only `bpm_min`/`bpm_max` bounds (80–95), `first_object_ms`/`last_object_ms` playable-duration bounds (96–111), and a `metadata_offset`/`metadata_count`/`metadata_stride` triple (112–123) with a named zero `reserved_124` tail keeping the record an eight-byte multiple. The metadata span addresses exactly one kind-54 `prepared_metadata` record: the same decoder-owned song-select strings the prepared descriptor carries, with the same filename-fallback reading rules.
+
+The bounds are presentation derivations computed once by the engine: BPM as `60000 / beat_length` over decoded uninherited timing points (inherited points have non-positive beat lengths and are excluded; both bounds are `0` without them), and the playable duration as first object start to last object end (`0`/`0` for objectless maps). They are display data, not upstream-matched compatibility math, and the record plays no role in preparation identity or judgement. The summary is encoded during foundation map preparation from the same engine quota, is immutable afterwards, and dies with the map's last reference. Readers must accept the grown `byte_size`; product consumers extract plain values and release the handle immediately rather than retaining foundation maps.
+
 ## M1 prepared-map transport
 
 `oe_preparation_capabilities(engine, out_span)` uses the same mailbox output span

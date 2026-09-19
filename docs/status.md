@@ -908,6 +908,62 @@ covered by the pinned lazer decoder's metadata defaults and field extraction;
 display-side has no upstream executable equivalent (search recorded in the
 findings), so no upstream acceptance scenario is closed by this increment.
 
+## Song-select info overhaul (summaries, timing chips, preview)
+
+Song select now shows map information for every difficulty, not only the
+active one, plus derived timing data and a looping preview. The engine side
+extends the foundation describe append-only: kind 5 grows 32 → 128 bytes
+keeping its original fields and adding the decoded difficulty inputs
+(HP/CS/OD/AR/slider multiplier/tick rate), display-only BPM min/max bounds
+(`60000 / beat_length` over uninherited timing points, `0` without them),
+first-object-start/last-object-end playable-duration bounds, and a
+`metadata` span addressing exactly one kind-54 record — the same
+decoder-owned strings the prepared descriptor carries. The bounds are
+presentation derivations computed by the engine, not upstream-matched math,
+and the record plays no role in preparation identity; the summary is encoded
+during foundation preparation from the same map quota and is immutable
+afterwards. See the [foundation summary contract](architecture/interface-v2.md#foundation-map-summary)
+and [ADR-005](architecture/adr-005-interface-extensions.md#song-select-foundation-summary);
+the "do not fully prepare every difficulty for list display" rule is
+unchanged — foundation decode plus describe is the whole cost per row.
+
+The browser layer adds `prepare_map_foundation` (flag 1) with a validating
+`Foundation_Description` reader, a `Map_Summary` extraction, and a
+`Selection_Controller` describe pass that runs one file at a time on a
+dedicated second `Engine_Bridge` instance so the gameplay engine's input
+inbox is never replaced outside the selection flow. Summaries cache per
+asset scope (cleared on `load_files`, surviving difficulty switches),
+release their map handles immediately, and record one failure per
+unsupported difficulty without touching selection state — those rows keep
+filename labels. The wedge derives drain time once per prepare from the
+active descriptor's breaks and object span.
+
+The shell renders the new data: set panel shows the cached set artist under
+the title; difficulty rows show each summary's version name with
+right-aligned `m:ss · BPM` meta; the wedge promotes the artist, adds
+duration/BPM/object chips (drain time in the duration chip tooltip), and
+replaces the stat table with lazer-style stat bars (HP/CS/OD/AR filled to
+value/10) carrying brief native-tooltip explanations. `#objects` moved onto
+the object-count chip; every other anchor is unchanged. A debounced
+menu-scoped music preview loops from the selected map's preview point on
+the shared page context through the mixer's music destination, stops before
+attempts/navigation/disposal, and silently skips when the context cannot
+run ([ADR-004](architecture/adr-004-audio.md#song-select-preview-loop)). Star
+rating/pp and difficulty colour ranking remain deferred (M5); rows stay
+neutral-accent.
+
+Local evidence: the full engine suite passes with new native ABI-path tests
+(exported foundation describe, quota rejection, bounds/defaults) and a WASM
+`abi-test` block asserting the kind-5 append and metadata strings; browser
+service tests cover the summary lifecycle, failure isolation and the
+preview fade/loop behaviour; product unit tests and the extended Playwright
+suite (row meta, timing chips, stat-bar fills, migrated `#objects` chip
+assertions) pass on Chromium and Firefox with `test:gates` css-lint green.
+WebKit could not run locally (the same documented Playwright CDN download
+failure); re-run the browser matrix when the CDN serves it. Upstream
+acceptance is unchanged: this is product-layer presentation with no
+upstream executable equivalent.
+
 ## Known gameplay MVP defects
 
 The audio executor no longer requires `cancelAndHoldAtTime`. It retains bounded
@@ -1290,3 +1346,42 @@ Classification: local product feature with no upstream counterpart — lazer
 ships no demo flow, so there is no pinned upstream test to port or acceptance
 ID to claim. Human beginner readability and audible playtesting of the demo
 remain open, as the MVP plan's validation section records.
+
+
+## Original gameplay typography and pastel effects
+
+The scene uses original rounded stroke glyphs in a 512×256 atlas, bilinear/mipmap
+sampling, tightened antialiasing and a narrow dark outline. Digit ink is centred
+within each cell; circle combo labels centre the complete number at the stacked
+object position in normal, hit-flash and miss states. HUD number runs retain their
+edge anchoring. Pastel combo cycling, disc gloss, deep-plum background, a
+deterministic starfield and star hit bursts are presentation policy in Odin;
+this styling adds no ABI records and changes no judgement rules.
+
+The atlas mismatch was a nested global stroke-slice initialization problem:
+WASM produced blank ink cells. Constructing borrowed slices at lookup time fixes
+it without reducing alpha precision. Native/WASM scene-resource byte comparison
+covers the full atlas; allocation-tracked glyph tests check defined/blank cells,
+clear borders and partial coverage. Circle-label tests cover one, two and three
+digits through normal/hit/miss states.
+
+Classification: original cosmetic policy, local regression evidence, not A22
+upstream acceptance. Search of the pinned osu test tree at
+`3c1c96f742e7aae2ff67a7361e058fe91ca3b955` identified and inspected
+`TestSceneHitCircle.TestHits/TestMisses`, `TestSceneHitCircleLongCombo.CreateBeatmap`
+and `TestSceneHitCircleComboChange` in `osu.Game.Rulesets.Osu.Tests`. They provide
+visual circle/long-combo scenarios, with no assertion for this original font's
+rasterization or label bounds. The retained `DrawableHitCircle.load` centres its
+circle piece. The framework test-tree search at
+`f02756c5aa5032e6d04729922702b8d56c4bc2eb` identified SpriteText layout/sizing tests;
+those exercise the framework text/font system, which this original stroke atlas
+does not use. No upstream executable font comparison is claimed or acceptance
+row closed.
+
+Validation for this typography fix: full `npm --prefix engine test` passes
+(66 allocation-tracked foundation tests and native/WASM resource, presentation
+and gameplay parity); browser typecheck, all 173 service tests and build pass.
+Product typecheck, all 40 unit tests, build and all three Chromium demo tests
+pass. A 1440×1000 CSS-pixel demo capture at DPR 2 was inspected for digit
+sharpness and centring. Firefox/WebKit visual certification and upstream A22
+acceptance are not established by this check.

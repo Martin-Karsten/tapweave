@@ -3,6 +3,7 @@ package tests
 import "core:testing"
 import "core:mem"
 import "core:math"
+import "core:strings"
 import presentation "../presentation"
 import prepared "../prepared"
 import core_types "../core_types"
@@ -135,7 +136,7 @@ scene_policy_validation_rejects_invalid_emissions :: proc(test: ^testing.T) {
 		testing.expect_value(test, presentation.validate_scene(instances, indices_count), core_types.Status.INVALID_STATE)
 	}
 	primitive_out_of_range := valid_scene
-	primitive_out_of_range[3].primitive = cast(presentation.Primitive)6
+	primitive_out_of_range[3].primitive = cast(presentation.Primitive)7
 	expect_invalid(test, primitive_out_of_range[:], 12)
 	flags_out_of_range := valid_scene
 	flags_out_of_range[0].flags = 2
@@ -392,4 +393,52 @@ scene_draw_frame_transform_uses_pinned_framing :: proc(test: ^testing.T) {
 	testing.expect(test, off_right_x > playfield_right)
 	testing.expect(test, off_bottom_y > playfield_bottom)
 	testing.expect(test, off_right_x <= 1280 && off_bottom_y <= 720)
+}
+
+// The stroke font must rasterize every defined glyph with smooth coverage,
+// leave undefined cells blank, and keep ink clear of the cell border so
+// bilinear filtering and the shader's outline dilation cannot bleed between
+// neighbouring cells.
+@(test)
+glyph_atlas_rasterizes_defined_glyphs_with_antialiased_coverage :: proc(test: ^testing.T) {
+	atlas := make([]byte, render_webgl.ATLAS_WIDTH * render_webgl.ATLAS_HEIGHT * 4)
+	defer delete(atlas)
+	render_webgl.fill_atlas(atlas)
+	has_partial_alpha := false
+	for glyph in 0 ..< 128 {
+		strokes := render_webgl.glyph_strokes(u32(glyph))
+		defined := len(strokes[0]) > 0
+		origin_x := glyph % 16 * render_webgl.GLYPH_CELL
+		origin_y := glyph / 16 * render_webgl.GLYPH_CELL
+		cell_alpha_total := 0
+		for pixel_y in 0 ..< render_webgl.GLYPH_CELL {
+			for pixel_x in 0 ..< render_webgl.GLYPH_CELL {
+				alpha := atlas[((origin_y + pixel_y) * render_webgl.ATLAS_WIDTH + origin_x + pixel_x) * 4 + 3]
+				if !defined {
+					testing.expect(test, alpha == 0, "undefined glyph cell must stay blank")
+				}
+				if pixel_y == 0 || pixel_x == 0 || pixel_y == render_webgl.GLYPH_CELL - 1 || pixel_x == render_webgl.GLYPH_CELL - 1 {
+					testing.expect(test, alpha == 0, "glyph ink must stay inside the cell border")
+				}
+				cell_alpha_total += int(alpha)
+				if alpha > 0 && alpha < 255 {
+					has_partial_alpha = true
+				}
+			}
+		}
+		if defined {
+			testing.expect(test, cell_alpha_total > 0, "defined glyph must draw ink")
+		}
+	}
+	testing.expect(test, has_partial_alpha, "glyph edges must be antialiased, not binary")
+}
+
+// The fragment shader hardcodes the atlas geometry; these tripwires keep the
+// shader string and the rasterizer constants in lockstep.
+@(test)
+glyph_shader_matches_atlas_geometry :: proc(test: ^testing.T) {
+	testing.expect(test, render_webgl.ATLAS_WIDTH == 512 && render_webgl.ATLAS_HEIGHT == 256)
+	testing.expect(test, render_webgl.GLYPH_CELL == 32 && render_webgl.GLYPH_MARGIN == 2)
+	testing.expect(test, strings.contains(render_webgl.FRAGMENT_SHADER, "vec2(512., 256.)"))
+	testing.expect(test, strings.contains(render_webgl.FRAGMENT_SHADER, "* 28. + 2."))
 }

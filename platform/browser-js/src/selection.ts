@@ -2,6 +2,7 @@ import { Archive_Assets, Loose_Assets, ASSET_LIMITS, normalize_asset_path, type 
 import { require_condition, Browser_Error } from './errors.js';
 import { Audio_Decoder, type Decode_Audio } from './audio-decoder.js';
 import { load_sample_assets, type Loaded_Samples } from './sample-assets.js';
+import { map_summary_of, type Map_Summary } from './map-summary.js';
 import type { Engine_Bridge, Prepared_Description } from './engine-bridge.js';
 
 export interface Prepared_Map {
@@ -27,8 +28,12 @@ export interface Selection_Candidate {
 export interface Selection_Options {
   decode_audio?: Decode_Audio | null;
   on_change?: (controller: Selection_Controller) => void;
+  on_summaries_change?: (controller: Selection_Controller) => void;
   limits?: Asset_Limits;
   fallback_assets?: Map<string, AudioBuffer>;
+  // Background summaries run on their own engine instance so the passes never
+  // replace the gameplay engine's dedicated input inbox.
+  summary_engine_factory?: (() => Promise<Engine_Bridge>) | null;
 }
 
 export class Selection_Controller {
@@ -37,6 +42,7 @@ export class Selection_Controller {
   audio_decoder: Audio_Decoder | null;
   decode_audio: Decode_Audio | null;
   on_change: (controller: Selection_Controller) => void;
+  on_summaries_change: (controller: Selection_Controller) => void;
   limits: Asset_Limits;
   generation = 0;
   active: Active_Selection | null = null;
@@ -44,23 +50,36 @@ export class Selection_Controller {
   disposed = false;
   state: 'empty' | 'loading' | 'prepared' | 'disposed' = 'empty';
   error: Browser_Error | null = null;
+  summaries = new Map<string, Map_Summary>();
+  summary_failures = new Map<string, string>();
+  private summary_engine: Engine_Bridge | null = null;
+  private summary_engine_factory: (() => Promise<Engine_Bridge>) | null;
+  private summary_work: Promise<void> | null = null;
+  private scope_generation = 0;
 
-  constructor(engine: Engine_Bridge, { decode_audio = null, on_change = () => {}, limits = ASSET_LIMITS,
-    fallback_assets = new Map<string, AudioBuffer>() }: Selection_Options = {}) {
+  constructor(engine: Engine_Bridge, { decode_audio = null, on_change = () => {},
+    on_summaries_change = () => {}, limits = ASSET_LIMITS, fallback_assets = new Map<string, AudioBuffer>(),
+    summary_engine_factory = null }: Selection_Options = {}) {
     this.engine = engine;
     this.fallback_assets = fallback_assets;
     this.audio_decoder = decode_audio ? new Audio_Decoder(decode_audio) : null;
     this.decode_audio = this.audio_decoder ? bytes => this.audio_decoder!.decode(bytes as Uint8Array) : null;
     this.on_change = on_change;
+    this.on_summaries_change = on_summaries_change;
     this.limits = limits;
+    this.summary_engine_factory = summary_engine_factory;
   }
 
   async load_files(files: File[]) {
     require_condition(!this.disposed, 'DISPOSED', 'Player is disposed.');
     const generation = ++this.generation;
+    this.scope_generation++;
     this.release_candidate(this.pending_candidate);
     this.state = 'loading';
     this.error = null;
+    // A new scope invalidates every cached difficulty summary.
+    this.summaries.clear();
+    this.summary_failures.clear();
     this.on_change(this);
     let source: Asset_Scope | null = null;
     try {
@@ -201,17 +220,82 @@ export class Selection_Controller {
     return generation !== this.generation || this.disposed;
   }
 
+  // Describe every difficulty in the loaded scope that has no cached summary
+  // yet. The pass runs one file at a time on the dedicated summary engine, so
+  // it never replaces the gameplay engine's input inbox; one failing
+  // difficulty is recorded and skipped without touching selection state.
+  // Concurrent callers await the running pass instead of starting a second.
+  describe_summaries(): Promise<void> {
+    if (this.summary_work) {
+      return this.summary_work;
+    }
+    const work = this.run_summary_pass();
+    this.summary_work = work;
+    return work.finally(() => {
+      if (this.summary_work === work) {
+        this.summary_work = null;
+      }
+    });
+  }
+
+  private async run_summary_pass(): Promise<void> {
+    const source = this.active?.source;
+    if (!source || !this.summary_engine_factory || this.disposed) {
+      return;
+    }
+    const scope = this.scope_generation;
+    if (!this.summary_engine) {
+      this.summary_engine = await this.summary_engine_factory();
+      if (scope !== this.scope_generation || this.disposed) {
+        return;
+      }
+    }
+    let changed = false;
+    for (const filename of source.list_maps()) {
+      if (scope !== this.scope_generation || this.disposed) {
+        break;
+      }
+      if (this.summaries.has(filename) || this.summary_failures.has(filename)) {
+        continue;
+      }
+      try {
+        const bytes = await source.read(filename);
+        if (scope !== this.scope_generation || this.disposed) {
+          break;
+        }
+        require_condition(bytes !== null, 'MISSING_MAP', 'Selected beatmap is missing.');
+        const { map_handle, descriptor } = this.summary_engine.prepare_map_foundation(bytes);
+        this.summaries.set(filename, map_summary_of(filename, descriptor));
+        this.summary_engine.release_map(map_handle);
+      } catch (error) {
+        this.summary_failures.set(filename, error instanceof Error ? error.message : String(error));
+      }
+      changed = true;
+      this.on_summaries_change(this);
+    }
+    if (changed) {
+      this.on_summaries_change(this);
+    }
+  }
+
   dispose() {
     if (this.disposed) {
       return;
     }
     this.disposed = true;
     this.generation++;
+    this.scope_generation++;
     this.release_candidate(this.pending_candidate);
     if (this.active) {
       this.engine.release_map(this.active.map_handle);
       this.active.source.dispose();
       this.active = null;
+    }
+    this.summaries.clear();
+    this.summary_failures.clear();
+    if (this.summary_engine) {
+      this.summary_engine.dispose();
+      this.summary_engine = null;
     }
     this.state = 'disposed';
   }

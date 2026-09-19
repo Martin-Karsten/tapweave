@@ -75,7 +75,7 @@ int main(void) {
     unsigned char draw_bytes[2048];
     uint32_t draw_byte_count = draw_native_probe(draw_bytes);
     unsigned char scene_bytes[65536];
-    unsigned char resource_bytes[262144];
+    unsigned char resource_bytes[1048576];
     uint32_t resource_byte_count = 0;
     uint32_t scene_byte_count = scene_native_probe(scene_bytes, resource_bytes, &resource_byte_count);
     printf("{\"capabilities\":[");

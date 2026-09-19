@@ -11,6 +11,7 @@ Primitive :: enum u32 {
 	GLYPH,
 	PATH,
 	RECTANGLE,
+	STAR,
 }
 Instance :: struct {
 	primitive: Primitive,
@@ -35,10 +36,29 @@ emit :: proc(builder: ^Builder, instance: Instance) {
 }
 
 // Original Tapweave colours. Timing follows the pinned drawable curves where
-// noted; full A22 comparisons remain a separate acceptance gate.
-OBJECT_COLOUR :: u32(0xffddac46)
+// noted; full A22 comparisons remain a separate acceptance gate. The palette
+// mirrors the product shell's pastel theme (styles/tokens.css), packed with
+// the low byte red like every instance colour.
+COMBO_COLOURS := [4]u32{
+	u32(0xffc8a6f0), // pastel pink #f0a6c8
+	u32(0xffe8b6a9), // periwinkle #a9b6e8
+	u32(0xffecb1c9), // lavender #c9b1ec
+	u32(0xff8acfee), // soft gold #eecf8a
+}
+ACCENT_COLOUR :: u32(0xffc8a6f0)
+BACKGROUND_COLOUR :: u32(0xff26191e) // deep plum #1e1926
 WHITE_COLOUR :: u32(0xffffffff)
 MISS_COLOUR :: u32(0xff6875ee)
+
+// Combo colour cycling: the classic per-combo object colouring, driven by the
+// combo group index the preparation stage already computed.
+combo_colour :: proc(object: ^prepared.Object) -> u32 {
+	combo_index := object.combo_index
+	if combo_index < 0 {
+		combo_index = 0
+	}
+	return COMBO_COLOURS[combo_index % len(COMBO_COLOURS)]
+}
 
 shape :: proc(builder: ^Builder, primitive: Primitive, layer: u32, object_id, component_id, ordinal: u32,
 	position: prepared.Position, radius, alpha: f64, colour: u32, progress: f64 = 0) {
@@ -60,7 +80,7 @@ fade_in :: proc(object: ^prepared.Object, time_ms: f64) -> f64 {
 }
 
 number :: proc(builder: ^Builder, displayed_number: u64, position: prepared.Position, size: f64,
-	layer, object_id, component_id, first_ordinal, colour: u32, alpha: f64 = 1) {
+	layer, object_id, component_id, first_ordinal, colour: u32, alpha: f64 = 1, centred: bool = false) {
 	digits: [20]u32
 	digit_count := 0
 	remaining_number := displayed_number
@@ -72,10 +92,11 @@ number :: proc(builder: ^Builder, displayed_number: u64, position: prepared.Posi
 			break
 		}
 	}
+	start_x := position[0] - (centred ? f64(digit_count - 1) * size / 2 : 0)
 	for digit_index in 0 ..< digit_count {
 		emit(builder, {
 			primitive = .GLYPH, layer = layer, object_id = object_id, component_id = component_id,
-			ordinal = first_ordinal + u32(digit_index), x = position[0] + f64(digit_index) * size,
+			ordinal = first_ordinal + u32(digit_index), x = start_x + f64(digit_index) * size,
 			y = position[1], scale_x = size, scale_y = size, alpha = alpha, colour = colour,
 			glyph = 48 + digits[digit_count - digit_index - 1], geometry_count = 6,
 		})
@@ -94,26 +115,29 @@ circle :: proc(builder: ^Builder, object: ^prepared.Object, result: core_types.H
 			growth := f64(clamp(f32(elapsed_ms) / f32(400), 0, 1))
 			scale := f64(f32(1) + f32(growth * (2 - growth)) * f32(0.5))
 			if elapsed_ms < 40 {
-				shape(builder, .DISC, 20, object.id, component_id, 0, position, object.radius * scale, alpha, OBJECT_COLOUR)
+				shape(builder, .DISC, 20, object.id, component_id, 0, position, object.radius * scale, alpha, combo_colour(object))
 				shape(builder, .RING, 20, object.id, component_id, 1, position, object.radius * scale, alpha, WHITE_COLOUR)
-				number(builder, u64(max(0, object.index_in_combo) + 1), position - prepared.Position{object.radius * scale / 4, object.radius * scale / 4},
-					object.radius * scale / 2, 20, object.id, component_id, 2, WHITE_COLOUR, alpha)
+				number(builder, u64(max(0, object.index_in_combo) + 1), position,
+					object.radius * scale / 2, 20, object.id, component_id, 2, WHITE_COLOUR, alpha, centred = true)
 			}
+			// The expanding judgement burst is an original star garnish: it
+			// keeps the pinned 400 ms growth and 800 ms fade of the feedback
+			// window while reading as a sparkle instead of a plain ring.
 			feedback_alpha := elapsed_ms < 800 ? f64(f32(1 - clamp((elapsed_ms - 40) / 800, 0, 1))) * alpha : 0
-			shape(builder, .RING, 40, object.id, component_id, 0, position, object.radius * scale, feedback_alpha, WHITE_COLOUR)
+			shape(builder, .STAR, 40, object.id, component_id, 0, position, object.radius * scale, feedback_alpha, WHITE_COLOUR)
 		} else {
 			alpha *= f64(f32(1 - clamp(elapsed_ms / 100, 0, 1)))
 			shape(builder, .DISC, 20, object.id, component_id, 0, position, object.radius, alpha, MISS_COLOUR)
 			shape(builder, .RING, 20, object.id, component_id, 1, position, object.radius, alpha, WHITE_COLOUR)
-			number(builder, u64(max(0, object.index_in_combo) + 1), position - prepared.Position{object.radius / 4, object.radius / 4},
-				object.radius / 2, 20, object.id, component_id, 2, WHITE_COLOUR, alpha)
+			number(builder, u64(max(0, object.index_in_combo) + 1), position,
+				object.radius / 2, 20, object.id, component_id, 2, WHITE_COLOUR, alpha, centred = true)
 		}
 		return
 	}
-	shape(builder, .DISC, 20, object.id, component_id, 0, position, object.radius, alpha, OBJECT_COLOUR)
+	shape(builder, .DISC, 20, object.id, component_id, 0, position, object.radius, alpha, combo_colour(object))
 	shape(builder, .RING, 20, object.id, component_id, 1, position, object.radius, alpha, WHITE_COLOUR)
-	number(builder, u64(max(0, object.index_in_combo) + 1), position - prepared.Position{object.radius / 4, object.radius / 4},
-		object.radius / 2, 20, object.id, component_id, 2, WHITE_COLOUR, alpha)
+	number(builder, u64(max(0, object.index_in_combo) + 1), position,
+		object.radius / 2, 20, object.id, component_id, 2, WHITE_COLOUR, alpha, centred = true)
 	if object.preempt_ms > 0 {
 		// Framework Vector2 interpolation casts elapsed/duration to f32 before
 		// division. Scalar alpha interpolation instead uses f64 with f32 endpoints.
@@ -173,7 +197,7 @@ validate_scene :: proc(instances: []Instance, indices_count: u32) -> core_types.
 	coverage_object_id := u32(max(u32))
 	for instance_index in 0 ..< len(instances) {
 		instance := instances[instance_index]
-		if instance.primitive < .DISC || instance.primitive > .RECTANGLE {
+		if instance.primitive < .DISC || instance.primitive > .STAR {
 			return .INVALID_STATE
 		}
 		if instance.flags > 1 || instance.flags == 1 && (instance.primitive != .DISC || instance.layer != 10) {

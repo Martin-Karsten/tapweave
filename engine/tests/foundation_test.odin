@@ -522,3 +522,155 @@ sample_probe_policy_publishes_pinned_extension_order :: proc(test: ^testing.T) {
 		u64(mailbox + engine_runtime.ABI_SAMPLE_PROBE_OUTPUT))
 	testing.expect_value(test, engine_runtime.get_u32(result_span, engine_runtime.ABI_BYTE_SPAN_COUNT_OFFSET), 72)
 }
+
+// The exported foundation describe path returns the song-select summary:
+// difficulty inputs, display-only BPM/duration bounds and owned metadata
+// strings, while the prepared path keeps returning kind 8.
+@(test)
+foundation_describe_exports_song_select_summary :: proc(test: ^testing.T) {
+	testing.expect_value(test, engine_runtime.abi_start(), core_types.Status.OK)
+	mailbox := engine_runtime.oe_abi_control()
+	output := mailbox + engine_runtime.ABI_OUTPUT_OFFSET
+	error_offset := mailbox + engine_runtime.ABI_ERROR_OFFSET
+	engine_handle, created := engine_runtime.engine_create(&engine_runtime.abi_instance)
+	testing.expect_value(test, created, core_types.Status.OK)
+	if created != .OK {
+		return
+	}
+	defer testing.expect_value(test, engine_runtime.engine_release(&engine_runtime.abi_instance, engine_handle), core_types.Status.OK)
+
+	map_text :: "osu file format v14\n" +
+		"[Metadata]\nTitle: Neon Sky\nArtist: Aurora\nCreator: Weaver\nVersion: Insane\n" +
+		"[Difficulty]\nHPDrainRate:6\nCircleSize:4\nOverallDifficulty:8\nApproachRate:9\nSliderMultiplier:2.4\nSliderTickRate:1.5\n" +
+		"[TimingPoints]\n1000,375,4,2,1,70,1,0\n2000,-100,4,2,1,70,0,0\n" +
+		"[HitObjects]\n64,96,1000,1,0\n256,192,2000,12,8,5200\n"
+	testing.expect_value(
+		test,
+		core_types.Status(engine_runtime.oe_buffer_reserve(engine_handle, 1, u64(len(map_text)), output)),
+		core_types.Status.OK,
+	)
+	byte_span := engine_runtime.abi_storage.bytes[engine_runtime.ABI_OUTPUT_OFFSET:]
+	inbox_address := engine_runtime.get_u64(byte_span, engine_runtime.ABI_BYTE_SPAN_ADDRESS_OFFSET)
+	inbox_token := engine_runtime.get_u64(byte_span, engine_runtime.ABI_BYTE_SPAN_TOKEN_OFFSET)
+	inbox_bytes := mem.slice_ptr((^byte)(transmute(rawptr)inbox_address), len(map_text))
+	copy(inbox_bytes, map_text)
+
+	write_map_prepare_record :: proc(token: u64, map_byte_count: int, flags: u32) {
+		engine_runtime.put_header(
+			engine_runtime.abi_storage.bytes[:],
+			engine_runtime.ABI_MAP_PREPARE_KIND,
+			engine_runtime.ABI_MAP_PREPARE_SIZE,
+		)
+		engine_runtime.put_u64(engine_runtime.abi_storage.bytes[:], engine_runtime.ABI_MAP_PREPARE_TOKEN_OFFSET, token)
+		engine_runtime.put_u32(engine_runtime.abi_storage.bytes[:], engine_runtime.ABI_MAP_PREPARE_OFFSET_OFFSET, 0)
+		engine_runtime.put_u32(engine_runtime.abi_storage.bytes[:], engine_runtime.ABI_MAP_PREPARE_COUNT_OFFSET, u32(map_byte_count))
+		engine_runtime.put_u32(engine_runtime.abi_storage.bytes[:], engine_runtime.ABI_MAP_PREPARE_FLAGS_OFFSET, flags)
+		engine_runtime.put_u32(engine_runtime.abi_storage.bytes[:], engine_runtime.ABI_MAP_PREPARE_RESERVED_OFFSET, 0)
+	}
+
+	write_map_prepare_record(inbox_token, len(map_text), 1)
+	testing.expect_value(
+		test,
+		core_types.Status(engine_runtime.oe_map_prepare(engine_handle, mailbox, output, error_offset)),
+		core_types.Status.OK,
+	)
+	foundation_map := core_types.Handle(engine_runtime.get_u64(byte_span, 0))
+
+	testing.expect_value(
+		test,
+		core_types.Status(engine_runtime.oe_map_describe(engine_handle, foundation_map, output)),
+		core_types.Status.OK,
+	)
+	summary_address := engine_runtime.get_u64(byte_span, engine_runtime.ABI_BYTE_SPAN_ADDRESS_OFFSET)
+	summary_count := engine_runtime.get_u32(byte_span, engine_runtime.ABI_BYTE_SPAN_COUNT_OFFSET)
+	summary := mem.slice_ptr((^byte)(transmute(rawptr)summary_address), int(summary_count))
+	testing.expect_value(test, engine_runtime.get_u32(summary, 0), u32(engine_runtime.ABI_MAP_DESCRIPTOR_KIND) | 1 << 16)
+	testing.expect_value(test, engine_runtime.get_u32(summary, 4), engine_runtime.ABI_MAP_DESCRIPTOR_SIZE)
+	testing.expect_value(test, engine_runtime.get_u32(summary, engine_runtime.ABI_MAP_DESCRIPTOR_FOUNDATION_OFFSET), 1)
+	testing.expect_value(test, engine_runtime.get_u32(summary, engine_runtime.ABI_MAP_DESCRIPTOR_OBJECTS_OFFSET), 2)
+	testing.expect_value(test, engine_runtime.get_u32(summary, engine_runtime.ABI_MAP_DESCRIPTOR_RAW_TIMING_OFFSET), 2)
+	testing.expect_value(test, engine_runtime.get_f64(summary, engine_runtime.ABI_MAP_DESCRIPTOR_HP_OFFSET), 6.0)
+	testing.expect_value(test, engine_runtime.get_f64(summary, engine_runtime.ABI_MAP_DESCRIPTOR_CS_OFFSET), 4.0)
+	testing.expect_value(test, engine_runtime.get_f64(summary, engine_runtime.ABI_MAP_DESCRIPTOR_OD_OFFSET), 8.0)
+	testing.expect_value(test, engine_runtime.get_f64(summary, engine_runtime.ABI_MAP_DESCRIPTOR_AR_OFFSET), 9.0)
+	testing.expect_value(test, engine_runtime.get_f64(summary, engine_runtime.ABI_MAP_DESCRIPTOR_SLIDER_MULTIPLIER_OFFSET), 2.4)
+	testing.expect_value(test, engine_runtime.get_f64(summary, engine_runtime.ABI_MAP_DESCRIPTOR_TICK_RATE_OFFSET), 1.5)
+	// 60000 / 375 from the single uninherited point; the inherited point at
+	// 2000 contributes nothing.
+	testing.expect_value(test, engine_runtime.get_f64(summary, engine_runtime.ABI_MAP_DESCRIPTOR_BPM_MIN_OFFSET), 160.0)
+	testing.expect_value(test, engine_runtime.get_f64(summary, engine_runtime.ABI_MAP_DESCRIPTOR_BPM_MAX_OFFSET), 160.0)
+	testing.expect_value(test, engine_runtime.get_f64(summary, engine_runtime.ABI_MAP_DESCRIPTOR_FIRST_OBJECT_MS_OFFSET), 1000.0)
+	testing.expect_value(test, engine_runtime.get_f64(summary, engine_runtime.ABI_MAP_DESCRIPTOR_LAST_OBJECT_MS_OFFSET), 5200.0)
+	testing.expect_value(test, engine_runtime.get_u32(summary, engine_runtime.ABI_MAP_DESCRIPTOR_RESERVED_124_OFFSET), 0)
+
+	metadata_offset := int(engine_runtime.get_u32(summary, engine_runtime.ABI_MAP_DESCRIPTOR_METADATA_OFFSET_OFFSET))
+	testing.expect_value(test, engine_runtime.get_u32(summary, engine_runtime.ABI_MAP_DESCRIPTOR_METADATA_COUNT_OFFSET), 1)
+	testing.expect_value(test, engine_runtime.get_u32(summary, engine_runtime.ABI_MAP_DESCRIPTOR_METADATA_STRIDE_OFFSET), engine_runtime.ABI_PREPARED_METADATA_SIZE)
+	testing.expect_value(test, engine_runtime.get_u32(summary, metadata_offset), u32(engine_runtime.ABI_PREPARED_METADATA_KIND) | 1 << 16)
+	testing.expect_value(test, engine_runtime.get_u32(summary, metadata_offset + 4), engine_runtime.ABI_PREPARED_METADATA_SIZE)
+	expected_summary_strings := [4]string{"Neon Sky", "Aurora", "Weaver", "Insane"}
+	for expected_index in 0 ..< len(expected_summary_strings) {
+		field_offset := metadata_offset + engine_runtime.ABI_PREPARED_METADATA_TITLE_OFFSET_OFFSET + 12 * expected_index
+		start := int(engine_runtime.get_u32(summary, field_offset))
+		count := int(engine_runtime.get_u32(summary, field_offset + 4))
+		testing.expect_value(test, engine_runtime.get_u32(summary, field_offset + 8), 1)
+		testing.expect(test, string(summary[start:start + count]) == expected_summary_strings[expected_index])
+	}
+
+	// The stale foundation map keeps its handle-generation contract.
+	testing.expect_value(
+		test,
+		core_types.Status(engine_runtime.oe_map_release(engine_handle, foundation_map)),
+		core_types.Status.OK,
+	)
+	testing.expect_value(
+		test,
+		core_types.Status(engine_runtime.oe_map_describe(engine_handle, foundation_map, output)),
+		core_types.Status.STALE_HANDLE,
+	)
+
+	// The fully prepared path is unchanged: kind 8 headed, no kind 5.
+	write_map_prepare_record(inbox_token, len(map_text), 2)
+	testing.expect_value(
+		test,
+		core_types.Status(engine_runtime.oe_map_prepare(engine_handle, mailbox, output, error_offset)),
+		core_types.Status.OK,
+	)
+	prepared_map := core_types.Handle(engine_runtime.get_u64(byte_span, 0))
+	testing.expect_value(
+		test,
+		core_types.Status(engine_runtime.oe_map_describe(engine_handle, prepared_map, output)),
+		core_types.Status.OK,
+	)
+	description_address := engine_runtime.get_u64(byte_span, engine_runtime.ABI_BYTE_SPAN_ADDRESS_OFFSET)
+	description := mem.slice_ptr((^byte)(transmute(rawptr)description_address), 8)
+	testing.expect_value(test, engine_runtime.get_u32(description, 0), u32(engine_runtime.ABI_PREPARED_DESCRIPTOR_KIND) | 1 << 16)
+	testing.expect_value(
+		test,
+		core_types.Status(engine_runtime.oe_map_release(engine_handle, prepared_map)),
+		core_types.Status.OK,
+	)
+}
+
+// The summary builder refuses quota violations with typed errors, reports no
+// BPM for inherited-only timing and no duration for objectless maps.
+@(test)
+foundation_summary_bounds_and_quota :: proc(test: ^testing.T) {
+	text :: "osu file format v14\n[Metadata]\nTitle: shared\n[TimingPoints]\n100,-50,4,2,1,70,0,1\n"
+	decoded_map, error := beatmap_decode.decode(text)
+	testing.expect_value(test, error.status, core_types.Status.OK)
+	defer beatmap_decode.destroy(&decoded_map)
+
+	summary, status := engine_runtime.foundation_summary(&decoded_map, 0, 0)
+	testing.expect_value(test, status, core_types.Status.QUOTA_EXCEEDED)
+	testing.expect(test, summary.bytes == nil)
+
+	summary, status = engine_runtime.foundation_summary(&decoded_map, 0, 1 << 20)
+	testing.expect_value(test, status, core_types.Status.OK)
+	defer core_types.arena_destroy(&summary)
+	testing.expect_value(test, engine_runtime.get_f64(summary.bytes, engine_runtime.ABI_MAP_DESCRIPTOR_BPM_MIN_OFFSET), 0.0)
+	testing.expect_value(test, engine_runtime.get_f64(summary.bytes, engine_runtime.ABI_MAP_DESCRIPTOR_BPM_MAX_OFFSET), 0.0)
+	testing.expect_value(test, engine_runtime.get_f64(summary.bytes, engine_runtime.ABI_MAP_DESCRIPTOR_FIRST_OBJECT_MS_OFFSET), 0.0)
+	testing.expect_value(test, engine_runtime.get_f64(summary.bytes, engine_runtime.ABI_MAP_DESCRIPTOR_LAST_OBJECT_MS_OFFSET), 0.0)
+	testing.expect_value(test, engine_runtime.get_f64(summary.bytes, engine_runtime.ABI_MAP_DESCRIPTOR_SLIDER_MULTIPLIER_OFFSET), 1.4)
+}

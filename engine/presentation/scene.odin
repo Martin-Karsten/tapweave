@@ -80,7 +80,7 @@ slider :: proc(builder: ^Builder, projection: simulation.Projection, object_inde
 	if geometry.count > 0 && clip_end > clip_start {
 		emit(builder, {primitive = .PATH, layer = 10, object_id = object.id, x = object.position[0] + object.stack_offset[0],
 			y = object.position[1] + object.stack_offset[1], scale_x = 1, scale_y = 1, alpha = body_alpha * 0.65,
-			colour = OBJECT_COLOUR, geometry_first = geometry.first, geometry_count = geometry.count,
+			colour = combo_colour(object), geometry_first = geometry.first, geometry_count = geometry.count,
 			clip_start = clip_start, clip_end = clip_end})
 		// Dynamic round clipping caps share the body's stencil coverage. They
 		// never require rebuilding static mesh geometry as the slider snakes.
@@ -88,7 +88,7 @@ slider :: proc(builder: ^Builder, projection: simulation.Projection, object_inde
 			cap_position := path_position(object, cap_index == 0 ? clip_start : clip_end)
 			emit(builder, {primitive = .DISC, layer = 10, object_id = object.id, ordinal = u32(cap_index + 1), flags = 1,
 				x = cap_position[0], y = cap_position[1], scale_x = object.radius, scale_y = object.radius,
-				alpha = body_alpha * 0.65, colour = OBJECT_COLOUR, geometry_count = 6})
+				alpha = body_alpha * 0.65, colour = combo_colour(object), geometry_count = 6})
 		}
 	}
 	for &component, component_index in object.components {
@@ -156,7 +156,7 @@ slider :: proc(builder: ^Builder, projection: simulation.Projection, object_inde
 	if time_ms >= object.time_ms && time_ms <= object.end_time_ms {
 		shape(builder, .DISC, 35, object.id, max(u32), 0, outcome.position, object.radius * 0.7, alpha, WHITE_COLOUR)
 		if outcome.tracking {
-			shape(builder, .RING, 35, object.id, max(u32), 1, outcome.position, object.radius * 2.4, alpha * 0.65, OBJECT_COLOUR)
+			shape(builder, .RING, 35, object.id, max(u32), 1, outcome.position, object.radius * 2.4, alpha * 0.65, ACCENT_COLOUR)
 		}
 	}
 }
@@ -170,10 +170,10 @@ spinner :: proc(builder: ^Builder, projection: simulation.Projection, object_ind
 	}
 	progress := object.spins_required == 0 ? 1 : f64(clamp(f32(outcome.rotation) / f32(360) / f32(object.spins_required), 0, 1))
 	position := prepared.Position{256, 192}
-	shape(builder, .DISC, 5, object.id, 0, 0, position, 140, alpha * 0.2, OBJECT_COLOUR)
+	shape(builder, .DISC, 5, object.id, 0, 0, position, 140, alpha * 0.2, ACCENT_COLOUR)
 	shape(builder, .RING, 20, object.id, 0, 0, position, 128, alpha, WHITE_COLOUR)
 	if progress > 0 {
-		shape(builder, .RING, 20, object.id, 0, 1, position, 115, alpha, OBJECT_COLOUR, progress)
+		shape(builder, .RING, 20, object.id, 0, 1, position, 115, alpha, ACCENT_COLOUR, progress)
 	}
 	emit(builder, {primitive = .GLYPH, layer = 30, object_id = object.id, x = 256, y = 192,
 		scale_x = 70, scale_y = 70, alpha = alpha, colour = WHITE_COLOUR, glyph = 62,
@@ -181,7 +181,7 @@ spinner :: proc(builder: ^Builder, projection: simulation.Projection, object_ind
 	number(builder, u64(progress * 100), {235, 270}, 12, 30, object.id, 0, 1, WHITE_COLOUR, alpha)
 	bonus := max(0, int(outcome.rotation / 360) - int(object.spins_required))
 	if bonus > 0 {
-		number(builder, u64(bonus), {250, 300}, 12, 30, object.id, 0, 10, OBJECT_COLOUR, alpha)
+		number(builder, u64(bonus), {250, 300}, 12, 30, object.id, 0, 10, ACCENT_COLOUR, alpha, centred = true)
 	}
 }
 
@@ -238,7 +238,7 @@ hud :: proc(builder: ^Builder, score: u64, accuracy, health: f64, combo: u32, vi
 		scale_x = 8 * unit, scale_y = 8 * unit, alpha = 1, colour = WHITE_COLOUR, glyph = 46, geometry_count = 6})
 	emit(builder, {primitive = .GLYPH, layer = 60, component_id = 1, ordinal = 6, x = right_x - 8 * unit, y = top_y,
 		scale_x = 8 * unit, scale_y = 8 * unit, alpha = 1, colour = WHITE_COLOUR, glyph = 37, geometry_count = 6})
-	number(builder, u64(combo), {left_x, bottom_y}, 12 * unit, 60, 0, 2, 0, OBJECT_COLOUR)
+	number(builder, u64(combo), {left_x, bottom_y}, 12 * unit, 60, 0, 2, 0, ACCENT_COLOUR)
 	centre_x, centre_y := to_playfield(view.transform,
 		view.viewport.css_left + view.viewport.css_width / 2, view.viewport.css_top + 6 * hs)
 	emit(builder, {primitive = .RECTANGLE, layer = 60, object_id = 0, component_id = 3,
@@ -246,7 +246,7 @@ hud :: proc(builder: ^Builder, score: u64, accuracy, health: f64, combo: u32, vi
 	emit(builder, {primitive = .RECTANGLE, layer = 60, object_id = 0, component_id = 3, ordinal = 1,
 		x = centre_x + (clamp(health, 0, 1) - 1) * 100 * unit,
 		y = centre_y, scale_x = clamp(health, 0, 1) * 100 * unit,
-		scale_y = 2 * unit, alpha = 1, colour = OBJECT_COLOUR, geometry_count = 6})
+		scale_y = 2 * unit, alpha = 1, colour = ACCENT_COLOUR, geometry_count = 6})
 }
 
 build_scene :: proc(builder: ^Builder, active: ^Active_Set, history: ^Semantic_History,
@@ -258,7 +258,8 @@ build_scene :: proc(builder: ^Builder, active: ^Active_Set, history: ^Semantic_H
 	background_x, background_y := to_playfield(view.transform,
 		view.viewport.css_left + view.viewport.css_width / 2, view.viewport.css_top + view.viewport.css_height / 2)
 	emit(builder, {primitive = .RECTANGLE, layer = 0, x = background_x, y = background_y,
-		scale_x = half_width, scale_y = half_height, alpha = 1, colour = 0xff191310, geometry_count = 6})
+		scale_x = half_width, scale_y = half_height, alpha = 1, colour = BACKGROUND_COLOUR, geometry_count = 6})
+	starfield(builder, view, time_ms)
 	for object_index in active.indices[:active.count] {
 		object := &projection.prepared_objects[object_index]
 		if object_index > 0 {
@@ -288,7 +289,7 @@ build_scene :: proc(builder: ^Builder, active: ^Active_Set, history: ^Semantic_H
 		}
 		if hit {
 			number(builder, event.result == .GREAT ? 300 : event.result == .OK ? 100 : event.result == .MEH ? 50 : 10,
-				position, 8, 45, event.object_id, event.component_id, 0, OBJECT_COLOUR, alpha)
+				position, 8, 45, event.object_id, event.component_id, 0, ACCENT_COLOUR, alpha, centred = true)
 		} else {
 			emit(builder, {primitive = .GLYPH, layer = 45, object_id = event.object_id, component_id = event.component_id,
 				x = position[0], y = position[1], scale_x = 12, scale_y = 12, alpha = alpha,
@@ -305,10 +306,45 @@ build_scene :: proc(builder: ^Builder, active: ^Active_Set, history: ^Semantic_H
 			continue
 		}
 		shape(builder, .DISC, 70, 0, 0, u32(cursor_index), {snapshot.x, snapshot.y}, 3,
-			math.pow(1 - age / 120, 1.7) * 0.5, OBJECT_COLOUR)
+			math.pow(1 - age / 120, 1.7) * 0.5, ACCENT_COLOUR)
 	}
 	shape(builder, .RING, 75, 0, 0, 0, {projection.cursor.x, projection.cursor.y}, 9, 1, WHITE_COLOUR)
-	shape(builder, .DISC, 75, 0, 0, 1, {projection.cursor.x, projection.cursor.y}, 3, 1, OBJECT_COLOUR)
+	shape(builder, .DISC, 75, 0, 0, 1, {projection.cursor.x, projection.cursor.y}, 3, 1, ACCENT_COLOUR)
+}
+
+STARFIELD_STAR_COUNT :: 40
+
+// Deterministic backdrop garnish: a quiet anime night sky behind the
+// playfield, echoing the product shell's star-dotted menu backdrops. Stars
+// derive only from a fixed seed and beatmap time, so sessions and replays
+// stay reproducible, and they sit on layer 1 under every gameplay element.
+starfield :: proc(builder: ^Builder, view: Scene_View, time_ms: f64) {
+	half_width := view.viewport.css_width / 2 / view.transform.scale + 2 / view.transform.scale
+	half_height := view.viewport.css_height / 2 / view.transform.scale + 2 / view.transform.scale
+	centre_x, centre_y := to_playfield(view.transform,
+		view.viewport.css_left + view.viewport.css_width / 2, view.viewport.css_top + view.viewport.css_height / 2)
+	random_state := u32(0x13579bdf)
+	for star_index in 0 ..< STARFIELD_STAR_COUNT {
+		random_state = random_state * 1103515245 + 12345
+		position_x := centre_x + (f64(random_state >> 8 & 0xffff) / 65535 * 2 - 1) * half_width
+		random_state = random_state * 1103515245 + 12345
+		position_y := centre_y + (f64(random_state >> 8 & 0xffff) / 65535 * 2 - 1) * half_height
+		random_state = random_state * 1103515245 + 12345
+		radius := 1.2 + f64(random_state >> 8 & 0xffff) / 65535 * 1.4
+		random_state = random_state * 1103515245 + 12345
+		twinkle_phase := f64(random_state >> 8 & 0xffff) / 65535 * 2 * math.PI
+		random_state = random_state * 1103515245 + 12345
+		colour_roll := random_state >> 8 & 0xffff
+		star_colour := WHITE_COLOUR
+		if colour_roll < 9830 {
+			star_colour = ACCENT_COLOUR
+		} else if colour_roll < 16384 {
+			star_colour = COMBO_COLOURS[1]
+		}
+		twinkle := 0.75 + 0.25 * math.sin(time_ms * 0.0011 + twinkle_phase)
+		star_alpha := 0.05 + 0.08 * f64(colour_roll % 512) / 512
+		shape(builder, .DISC, 1, 0, 0, u32(star_index), {position_x, position_y}, radius, star_alpha * twinkle, star_colour)
+	}
 }
 
 starts_scene_batch :: proc(current, previous: Instance) -> bool {
@@ -330,11 +366,8 @@ initialize_scene_reveals :: proc(active: ^Active_Set, objects: []prepared.Object
 
 finish_scene :: proc(builder: ^Builder) {
 	for &instance in builder.instances[:min(builder.count, len(builder.instances))] {
-		if instance.primitive == .GLYPH && instance.glyph >= 48 && instance.glyph <= 57 {
-			// Glyphs use half extents; number() advances by one em.
-			instance.scale_x *= 0.6
-			instance.scale_y *= 0.85
-		}
+		// Glyph artwork is pre-proportioned inside its em-square cell, so
+		// quads need no per-digit scale correction.
 		instance.x = f64(f32(instance.x))
 		instance.y = f64(f32(instance.y))
 		instance.scale_x = f64(f32(instance.scale_x))

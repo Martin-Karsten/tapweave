@@ -229,18 +229,10 @@ oe_map_describe :: proc "c" (engine, map_handle: core_types.Handle, span_output:
 		abi_span(uintptr(raw_data(bytes)), u32(len(bytes)))
 		return abi_status(.OK)
 	}
-	bytes := map_resource.descriptor[:]
-	put_header(bytes, ABI_MAP_DESCRIPTOR_KIND, ABI_MAP_DESCRIPTOR_SIZE)
-	put_u32(bytes, ABI_MAP_DESCRIPTOR_FORMAT_VERSION_OFFSET, map_resource.decoded.format_version)
-	put_u32(bytes, ABI_MAP_DESCRIPTOR_FOUNDATION_OFFSET, 1)
-	put_u32(bytes, ABI_MAP_DESCRIPTOR_OBJECTS_OFFSET, u32(len(map_resource.decoded.objects)))
-	put_u32(bytes, ABI_MAP_DESCRIPTOR_RAW_TIMING_OFFSET, u32(len(map_resource.decoded.timing)))
-	put_u64(
-		bytes,
-		ABI_MAP_DESCRIPTOR_LIVE_ARENA_BYTES_OFFSET,
-		u64(len(map_resource.decoded.arena.bytes) + len(map_resource.points.arena.bytes)),
-	)
-	abi_span(uintptr(raw_data(bytes)), ABI_MAP_DESCRIPTOR_SIZE)
+	if len(map_resource.summary.bytes) == 0 {
+		return abi_status(.INVALID_STATE)
+	}
+	abi_span(uintptr(raw_data(map_resource.summary.bytes)), u32(len(map_resource.summary.bytes)))
 	return abi_status(.OK)
 }
 

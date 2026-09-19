@@ -338,7 +338,9 @@ circle_draw_curves_are_readonly_and_counted :: proc(test: ^testing.T) {
 	builder.count = 0
 	presentation.circle(&builder, &object, .GREAT, 1000, 1100)
 	testing.expect_value(test, builder.count, 1)
-	testing.expect_value(test, instances[0].primitive, presentation.Primitive.RING)
+	// The expanding feedback burst is the original star garnish; the pinned
+	// 400 ms growth curve and 800 ms fade window are unchanged.
+	testing.expect_value(test, instances[0].primitive, presentation.Primitive.STAR)
 	testing.expect_value(test, instances[0].scale_x, 39)
 	testing.expect_value(test, instances[0].alpha, f64(f32(0.925)))
 	builder.count = 0
@@ -392,4 +394,33 @@ semantic_history_expires_without_duplicates_and_rebuilds_after_seek :: proc(test
 	testing.expect_value(test, history.feedback_count, 0)
 	testing.expect_value(test, history.next_feedback, 0)
 	testing.expect_value(test, history.cursor_count, 0)
+}
+
+// Original Tapweave text placement: quad coordinates are already centred.
+@(test)
+circle_combo_labels_stay_centred_across_digit_counts_and_feedback :: proc(test: ^testing.T) {
+	for combo_index in ([]i32{0, 11, 122}) {
+		for result in ([]core_types.Hit_Result{.NONE, .GREAT, .MISS}) {
+			instances: [16]presentation.Instance
+			builder := presentation.Builder{instances = instances[:]}
+			object := prepared.Object{position = {200, 150}, stack_offset = {4, 6},
+				radius = 32, index_in_combo = combo_index, time_ms = 1000, preempt_ms = 600, fade_in_ms = 400}
+			presentation.circle(&builder, &object, result, 1000, 1010)
+			first_x, last_x := f64(0), f64(0)
+			glyph_count := 0
+			for instance in instances[:builder.count] {
+				if instance.primitive != .GLYPH {
+					continue
+				}
+				if glyph_count == 0 {
+					first_x = instance.x
+				}
+				last_x = instance.x
+				glyph_count += 1
+				testing.expect_value(test, instance.y, f64(156))
+			}
+			testing.expect(test, glyph_count > 0)
+			testing.expect_value(test, (first_x + last_x) / 2, f64(204))
+		}
+	}
 }

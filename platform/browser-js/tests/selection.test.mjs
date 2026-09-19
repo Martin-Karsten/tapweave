@@ -226,3 +226,81 @@ test('unsupported ruleset rejection carries the attempted filename in its detail
     engine.dispose();
   }
 });
+
+test('background summaries describe every difficulty on their own engine', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  const summary_engine = await Engine_Bridge.create(wasm_bytes);
+  const controller = new Selection_Controller(engine, {
+    decode_audio: async () => ({ length: 100, numberOfChannels: 2 }),
+    summary_engine_factory: async () => summary_engine,
+  });
+  try {
+    const archive = zipSync({ 'set/easy.osu': strToU8(valid_map), 'set/hard.osu': strToU8(valid_map),
+      'set/music.wav': new Uint8Array(4) });
+    await controller.load_files([new File([archive], 'map.osz')]);
+    const gameplay_engine_handles_before = engine.map_handles.size;
+    await controller.describe_summaries();
+    assert.equal(controller.summaries.size, 2);
+    const easy = controller.summaries.get('set/easy.osu');
+    assert.equal(easy.title, 'Unknown');
+    assert.equal(easy.version, 'Normal');
+    assert.equal(easy.objects_count, 1);
+    assert.equal(easy.cs, 5);
+    // Summary handles were released and the gameplay engine was untouched.
+    assert.equal(summary_engine.map_handles.size, 0);
+    assert.equal(engine.map_handles.size, gameplay_engine_handles_before);
+    // The cache survives difficulty switches inside the same scope.
+    await controller.select_map('set/hard.osu');
+    assert.equal(controller.summaries.size, 2);
+    // A new scope starts from an empty cache.
+    await controller.load_files([new File([valid_map], 'single.osu')]);
+    assert.equal(controller.summaries.size, 0);
+    assert.equal(controller.summary_failures.size, 0);
+  } finally {
+    controller.dispose();
+    engine.dispose();
+    summary_engine.dispose();
+  }
+});
+
+test('summary passes isolate one unsupported difficulty without touching selection', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  const summary_engine = await Engine_Bridge.create(wasm_bytes);
+  const controller = new Selection_Controller(engine, {
+    summary_engine_factory: async () => summary_engine,
+  });
+  try {
+    const taiko_map = 'osu file format v14\n[General]\nMode: 1\n[HitObjects]\n256,192,1000,1,0';
+    const archive = zipSync({ 'a.osu': strToU8(valid_map), 'b.osu': strToU8(taiko_map) });
+    await controller.load_files([new File([archive], 'map.osz')]);
+    const active_before = controller.active;
+    await controller.describe_summaries();
+    assert.equal(controller.summaries.has('a.osu'), true);
+    assert.equal(controller.summaries.has('b.osu'), false);
+    assert.match(controller.summary_failures.get('b.osu'), /UNSUPPORTED/);
+    assert.strictEqual(controller.active, active_before);
+    assert.equal(controller.state, 'prepared');
+    assert.equal(controller.error, null);
+    // A repeated call does not retry recorded failures.
+    await controller.describe_summaries();
+    assert.equal(controller.summaries.size, 1);
+  } finally {
+    controller.dispose();
+    engine.dispose();
+    summary_engine.dispose();
+  }
+});
+
+test('without a summary factory the describe pass is a no-op', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  const controller = new Selection_Controller(engine);
+  try {
+    await controller.load_files([new File([valid_map], 'map.osu')]);
+    await controller.describe_summaries();
+    assert.equal(controller.summaries.size, 0);
+    assert.equal(controller.summary_failures.size, 0);
+  } finally {
+    controller.dispose();
+    engine.dispose();
+  }
+});
