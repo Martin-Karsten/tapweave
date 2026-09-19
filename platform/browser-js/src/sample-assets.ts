@@ -45,6 +45,11 @@ export async function load_sample_assets(descriptor: Prepared_Description, sourc
   const bindings: Sample_Binding_Values[] = [];
   const warnings: string[] = [];
   const resolved = new Map<string, bigint>();
+  // Decode-refused paths per candidate key, kept only for keys that ended with
+  // no playable source at all: when a later extension of the same name (or an
+  // exact fallback) decoded, the refusal is irrelevant and stays unreported.
+  const failed_paths_by_key = new Map<string, string[]>();
+  const reported_decode_paths = new Set<string>();
   const retained_buffers = new Map<AudioBuffer, bigint>();
   const check_active = () => require_condition(!cancelled(), 'CANCELLED', 'Sample loading was cancelled.');
   for (const sample of descriptor.sample_candidates()) {
@@ -56,6 +61,7 @@ export async function load_sample_assets(descriptor: Prepared_Description, sourc
       if (!resolved.has(key)) {
         require_condition(resolved.size < maximum_assets, 'QUOTA_EXCEEDED', 'Sample candidate limit exceeded.');
         let buffer: AudioBuffer | null = null;
+        const failed_paths: string[] = [];
         if (sample.use_beatmap) {
           const filename = candidate.startsWith('Gameplay/') ? candidate.slice('Gameplay/'.length) : candidate;
           for (const extension of probe_extensions) {
@@ -68,7 +74,7 @@ export async function load_sample_assets(descriptor: Prepared_Description, sourc
               buffer = await source.decode_music(path, encoded, decode_audio);
             } catch (error) {
               if (error instanceof Browser_Error && ['QUOTA_EXCEEDED', 'DISPOSED', 'CANCELLED'].includes(error.code)) throw error;
-              warnings.push(`Could not decode hitsound: ${path}`);
+              failed_paths.push(path);
             }
             check_active();
             if (buffer) break;
@@ -86,6 +92,9 @@ export async function load_sample_assets(descriptor: Prepared_Description, sourc
           }
         }
         resolved.set(key, asset_id);
+        if (failed_paths.length > 0 && asset_id === 0n) {
+          failed_paths_by_key.set(key, failed_paths);
+        }
       }
       const asset_id = resolved.get(key)!;
       available ||= asset_id !== 0n;
@@ -93,7 +102,27 @@ export async function load_sample_assets(descriptor: Prepared_Description, sourc
       bindings.push({ object_id: sample.object_id, component_id: sample.component_id,
         sample_index: sample.sample_index, candidate_index, asset_id });
     }
-    if (!available) warnings.push(`Missing hitsound: object ${sample.object_id}, ${sample.name}`);
+    // Report each refused path once, when it actually mattered: either the
+    // sample has no playable source at all (the missing warning below), or it
+    // plays a substitute and the note says so instead of sounding fatal.
+    const sample_failed_paths: string[] = [];
+    for (const candidate of sample.candidates) {
+      for (const failed_path of failed_paths_by_key.get(`${sample.use_beatmap}:${candidate}`) ?? []) {
+        if (!sample_failed_paths.includes(failed_path)) {
+          sample_failed_paths.push(failed_path);
+        }
+      }
+    }
+    const unreported_paths = sample_failed_paths.filter(path => !reported_decode_paths.has(path));
+    if (!available) {
+      warnings.push(...unreported_paths.map(path => `Could not decode hitsound: ${path}`));
+      warnings.push(`Missing hitsound: object ${sample.object_id}, ${sample.name}`);
+    } else if (unreported_paths.length > 0) {
+      warnings.push(`Could not decode hitsound ${unreported_paths.join(', ')}; a substitute sound plays instead.`);
+    }
+    for (const path of unreported_paths) {
+      reported_decode_paths.add(path);
+    }
   }
   check_active();
   return { assets, bindings, warnings };

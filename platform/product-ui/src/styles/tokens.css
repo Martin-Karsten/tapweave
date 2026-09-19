@@ -12,7 +12,7 @@
   font-family: system-ui, -apple-system, sans-serif;
 
   /* Core palette: muted pastel direction (ADR-007 divergence 1) — soft
-     lavender-grey chrome with pastel pink/periwinkle accents, soft contrast. */
+     lavender-grey chrome, pastel accents, WCAG-AA text on every chrome surface. */
   --color-background: #2b2433;
   --color-background-deep: #1e1926;
   --color-overlay: rgb(30 25 38 / 88%);
@@ -20,18 +20,18 @@
   --color-surface-selected: #433752;
   --color-text: #e9e2ee;
   --color-text-bright: #f7f2f9;
-  --color-text-muted: #b5abc2;
-  --color-text-dim: #a69cb4;
-  --color-text-faint: #948aa3;
+  --color-text-muted: #c9c0d5;
+  --color-text-dim: #bcb2cc;
+  --color-text-faint: #b0a6c0;
   --color-link: #a9b6e8;
   --color-accent: #f0a6c8;
   --color-accent-strong: #f7c1da;
   --color-accent-contrast: #3a2030;
   --color-danger: #e8a1af;
   --color-button-bg: #45385430;
-  --color-border: #4a3d5c;
-  --color-border-strong: #5d4d73;
-  --color-border-subtle: #3e334e;
+  --color-border: #5a4b70;
+  --color-border-strong: #71608c;
+  --color-border-subtle: #4d4160;
 
   /* Decorative treatment: soft panel shadows, whisper-quiet accent halos
      (no neon), a gentle pastel gradient wash and the anime garnishes. */

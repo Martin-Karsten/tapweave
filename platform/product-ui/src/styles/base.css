@@ -180,7 +180,7 @@ button:hover:not(:disabled) {
 }
 
 button:disabled {
-  opacity: 0.45;
+  opacity: 0.6;
   cursor: default;
 }
 

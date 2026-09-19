@@ -19,7 +19,6 @@
   top: var(--space-6);
   right: var(--space-6);
   z-index: var(--z-floating);
-  opacity: 0.8;
   display: flex;
   gap: var(--space-3);
 }

@@ -147,6 +147,9 @@ export class Player_Session_Service {
           }
           return context.decodeAudioData(bytes as ArrayBuffer);
         },
+        // In-house PCM/WAVE fallback for encodings the browser decoder rejects.
+        create_buffer: (channel_count, length, sample_rate) =>
+          context.createBuffer(channel_count, length, sample_rate),
         // Summary passes use their own engine so the gameplay engine's input
         // inbox stays dedicated to the live session.
         summary_engine_factory: () => Engine_Bridge.create(wasm_bytes, { diagnostics: debug.diagnostics }),

@@ -3,6 +3,7 @@ import { require_condition, Browser_Error } from './errors.js';
 import { Audio_Decoder, type Decode_Audio } from './audio-decoder.js';
 import { load_sample_assets, type Loaded_Samples } from './sample-assets.js';
 import { map_summary_of, type Map_Summary } from './map-summary.js';
+import type { Create_Audio_Buffer } from './wav-fallback.js';
 import type { Engine_Bridge, Prepared_Description } from './engine-bridge.js';
 
 export interface Prepared_Map {
@@ -27,6 +28,9 @@ export interface Selection_Candidate {
 
 export interface Selection_Options {
   decode_audio?: Decode_Audio | null;
+  // Optional in-house PCM/WAVE fallback for encodings the browser decoder
+  // rejects; needs a factory that creates AudioBuffer instances.
+  create_buffer?: Create_Audio_Buffer | null;
   on_change?: (controller: Selection_Controller) => void;
   on_summaries_change?: (controller: Selection_Controller) => void;
   limits?: Asset_Limits;
@@ -57,12 +61,12 @@ export class Selection_Controller {
   private summary_work: Promise<void> | null = null;
   private scope_generation = 0;
 
-  constructor(engine: Engine_Bridge, { decode_audio = null, on_change = () => {},
+  constructor(engine: Engine_Bridge, { decode_audio = null, create_buffer = null, on_change = () => {},
     on_summaries_change = () => {}, limits = ASSET_LIMITS, fallback_assets = new Map<string, AudioBuffer>(),
     summary_engine_factory = null }: Selection_Options = {}) {
     this.engine = engine;
     this.fallback_assets = fallback_assets;
-    this.audio_decoder = decode_audio ? new Audio_Decoder(decode_audio) : null;
+    this.audio_decoder = decode_audio ? new Audio_Decoder(decode_audio, { create_buffer }) : null;
     this.decode_audio = this.audio_decoder ? bytes => this.audio_decoder!.decode(bytes as Uint8Array) : null;
     this.on_change = on_change;
     this.on_summaries_change = on_summaries_change;

@@ -71,7 +71,9 @@
   letter-spacing: 0.04em;
 }
 
-/* Lazer skip position: floating bottom-right of the playfield. */
+/* Lazer skip position: floating bottom-right of the playfield. Full opacity:
+   the pill's chunky border and translucent fill separate it from the canvas
+   (same treatment as #watch-banner), so the label never needs diluting. */
 #skip {
   position: absolute;
   bottom: var(--space-6);
@@ -80,5 +82,4 @@
   padding: var(--space-5) var(--space-9);
   font-size: var(--font-size-skip);
   font-weight: 700;
-  opacity: 0.85;
 }

@@ -39,6 +39,42 @@ test('bank zero skips beatmap files, corrupt candidates fall through, missing as
   assert.equal(bank_zero.bindings[2].asset_id, 1n);
 });
 
+test('a refused extension covered by the same name in another encoding stays unreported', async () => {
+  const decoded = {};
+  const source = {
+    async read(filename) { return filename.endsWith('.ogg') ? new Uint8Array([1]) : new Uint8Array([1]); },
+    async decode_music(filename) {
+      if (filename.endsWith('.wav')) throw new Error('decodeAudioData failed');
+      return decoded;
+    },
+  };
+  const soft_slide = { ...sample, name: 'sliderslide', candidates: ['Gameplay/soft-sliderslide'] };
+  const loaded = await load_sample_assets(description(soft_slide), source, 'map.osu', async () => {}, probe_extensions);
+  assert.equal(loaded.bindings[0].asset_id, 1n);
+  assert.deepEqual(loaded.warnings, []);
+});
+
+test('a refused name playing a substitute sound emits one clear note instead of a fatal line', async () => {
+  const fallback = {};
+  const source = {
+    async read(filename) { return filename.endsWith('.wav') ? new Uint8Array([1]) : null; },
+    async decode_music() { throw new Error('decodeAudioData failed'); },
+  };
+  const samples = description(
+    { ...sample, name: 'sliderslide', object_id: 1, candidates: ['Gameplay/soft-sliderslide', 'Gameplay/sliderslide'] },
+    { ...sample, name: 'sliderslide', object_id: 2, candidates: ['Gameplay/soft-sliderslide', 'Gameplay/sliderslide'] },
+  );
+  const loaded = await load_sample_assets(samples, source, 'map.osu', async () => {}, probe_extensions,
+    { fallback_assets: new Map([['Gameplay/sliderslide', fallback]]) });
+  // Both samples play through the unbanked fallback binding; the banked
+  // candidate legitimately binds zero and the engine falls through it.
+  assert.ok(loaded.bindings.filter(binding => binding.candidate_index === 1)
+    .every(binding => binding.asset_id === 1n));
+  assert.equal(loaded.warnings.length, 1);
+  assert.match(loaded.warnings[0], /Could not decode hitsound soft-sliderslide\.wav; a substitute sound plays instead\./);
+  assert.doesNotMatch(loaded.warnings[0], /Missing hitsound/);
+});
+
 test('sample quota and cancellation reject without publishing partially loaded assets', async () => {
   await assert.rejects(load_sample_assets(description(sample), { async read() { return null; } }, 'map.osu', async () => {}, probe_extensions,
     { maximum_assets: 1 }), { code: 'QUOTA_EXCEEDED' });

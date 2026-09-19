@@ -964,6 +964,39 @@ failure); re-run the browser matrix when the CDN serves it. Upstream
 acceptance is unchanged: this is product-layer presentation with no
 upstream executable equivalent.
 
+## Hitsound decode fallback and warning semantics
+
+Browser `decodeAudioData` refuses some PCM WAVE encodings shipped by real
+beatmaps (24-bit integer and WAVE_FORMAT_EXTENSIBLE headers are common), which
+surfaced as a per-file "Could not decode hitsound" warning on every probed
+candidate even when a later extension or the synthesized fallback covered the
+sound. Two changes in the browser asset layer, no engine or ABI changes:
+
+- `Audio_Decoder` gained an optional in-house RIFF/WAVE fallback decoder
+  (`wav-fallback.ts`, no dependencies) used only when the browser decoder
+  rejects a file: PCM 8/16/24/32-bit integer and 32-bit float, including
+  WAVE_FORMAT_EXTENSIBLE with the PCM/float sub-format GUID, chunk walking
+  with count-validated reads. Unsupported encodings (IMA-ADPCM and friends)
+  and truncated input fail with a plain error and the browser's original
+  refusal propagates. The production session supplies the AudioBuffer
+  factory; decoded output flows through the existing decoded-audio quota and
+  cache, and music WAVs benefit identically.
+- `load_sample_assets` warnings became per-sample and honest: a refusal
+  covered by a later extension of the same name is unreported; a refusal
+  whose sample still plays through another candidate or the synthesized
+  fallback emits one note per unique path ("…a substitute sound plays
+  instead"); a sample with no playable source keeps the per-path detail
+  lines followed by the existing "Missing hitsound" warning.
+
+Classification is unchanged: browser resource handling with no upstream
+executable equivalent (lazer decodes through its own native audio stack).
+Local evidence: new generated-fixture tests for every supported encoding and
+rejection path, decoder fallback wiring tests (original error preserved on
+double failure, quota short-circuits before any decode), and loader warning
+matrix tests; the full browser-js suite passes (191 tests) with typecheck and
+build, and product gates plus the Chromium/Firefox Playwright suite pass
+(WebKit availability unchanged — see the CDN note above).
+
 ## Known gameplay MVP defects
 
 The audio executor no longer requires `cancelAndHoldAtTime`. It retains bounded
