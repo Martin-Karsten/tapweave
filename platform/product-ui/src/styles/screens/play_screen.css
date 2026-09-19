@@ -52,6 +52,25 @@
   right: var(--space-6);
 }
 
+/* Replay-watch banner: a floating pill badge over the playfield (a sibling
+   of the canvas host, so its transform is not an ancestor transform). */
+#watch-banner {
+  position: absolute;
+  top: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-floating);
+  padding: var(--space-3) var(--space-8);
+  border: var(--stroke-width-panel) solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-overlay);
+  box-shadow: var(--shadow-raised);
+  color: var(--color-text-bright);
+  font-size: var(--font-size-note);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
 /* Lazer skip position: floating bottom-right of the playfield. */
 #skip {
   position: absolute;

@@ -734,6 +734,18 @@ browser evidence only: `test:gates` green and the Playwright suite passing on
 Chromium and Firefox; WebKit could not run locally this time either (the
 documented CDN download failure).
 
+A theme pass then re-skinned the product chrome from the flat navy lazer look
+to an old-osu/anime hybrid through `src/styles/tokens.css` and CSS only:
+muted pastel lavender-grey chrome with pastel pink/periwinkle accents, chunky
+2px borders, pill buttons, soft drop shadows and halos, a gentle pastel
+gradient wash on the Play/demo CTAs, and a static diagonal-stripe backdrop
+behind the menu and intro screens. An anime garnish layer adds scattered
+static starfield dots on the backdrop screens, a pastel gradient wordmark,
+star difficulty markers in the carousel, and pastel-pink eyebrows. The
+previously unstyled `.warnings` list and `#watch-banner` badge gained rules.
+Layout, DOM, selectors and copy are unchanged, so the Playwright suite passes
+unmodified (ADR-007 divergence 1 records the updated palette direction).
+
 Classification is honest and narrow: this is structure-reference chrome, not
 upstream acceptance. The structural citations (SongSelect.cs, FilterControl.cs,
 BeatmapTitleWedge.cs, PanelBeatmapSet.cs, ScreenFooter.cs, MainMenu.cs,

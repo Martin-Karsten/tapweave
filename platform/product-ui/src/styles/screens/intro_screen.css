@@ -8,13 +8,14 @@
   justify-items: center;
   text-align: center;
   padding: 0 var(--space-10);
-  background: var(--screen-backdrop);
+  background: var(--screen-stars), var(--screen-stripes), var(--screen-backdrop);
   overflow-y: auto;
 }
 
 .intro-screen .brand-mark {
   width: 56px;
   height: 56px;
+  filter: var(--glow-drop);
 }
 
 .intro-spinner {

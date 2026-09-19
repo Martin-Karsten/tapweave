@@ -5,7 +5,7 @@
   grid-template-columns: minmax(140px, 1fr) auto minmax(140px, 1fr);
   align-content: safe center;
   padding: 0 var(--space-10);
-  background: var(--screen-backdrop);
+  background: var(--screen-stars), var(--screen-stripes), var(--screen-backdrop);
   overflow-y: auto;
 }
 
@@ -20,6 +20,7 @@
 .menu-logo .brand-mark {
   width: 96px;
   height: 96px;
+  filter: var(--glow-drop);
   animation: menu-logo-pulse var(--duration-logo-pulse) ease-in-out infinite;
 }
 
@@ -44,25 +45,21 @@
   text-align: left;
 }
 
-/* Lazer-scaled action presence: large type over generous padding, with clear
-   hover and focus-visible feedback. The grid, roving order, ids and the
-   logo/wordmark anchors are unchanged; the transitions collapse under the
-   reduced-motion override like every other animation. */
+/* Lazer-scaled action presence: large type over generous padding. The pill
+   chrome, hover lift and transitions come from the shared button rules in
+   base.css; the grid, roving order, ids and the logo/wordmark anchors are
+   unchanged. */
 .menu-buttons button {
   font-size: var(--font-size-menu-action);
   font-weight: 600;
   letter-spacing: 0.02em;
   padding: var(--space-10) var(--space-14);
-  transition:
-    background-color var(--duration-fade-in) ease-out,
-    border-color var(--duration-fade-in) ease-out,
-    color var(--duration-fade-in) ease-out;
 }
 
+/* Old-osu glowing hover, pastel edition: the whisper halo joins the lift. */
 .menu-buttons button:hover {
   border-color: var(--color-accent);
-  background: var(--color-surface-selected);
-  color: var(--color-text-bright);
+  box-shadow: var(--shadow-raised), var(--glow-accent);
 }
 
 .menu-buttons button:focus-visible {

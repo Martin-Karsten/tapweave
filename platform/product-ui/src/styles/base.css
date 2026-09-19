@@ -47,7 +47,7 @@ a {
 .eyebrow {
   font-size: var(--font-size-eyebrow);
   letter-spacing: 0.14em;
-  color: var(--color-text-muted);
+  color: var(--color-accent);
   margin: 0 0 var(--space-2);
 }
 
@@ -82,19 +82,24 @@ a {
   color: var(--color-text-bright);
 }
 
+/* Anime-logo wordmark: pastel pink→periwinkle text gradient. */
 .wordmark-title {
   margin: 0;
-  font-weight: 700;
+  font-weight: 800;
   font-size: var(--font-size-wordmark);
-  letter-spacing: 0.01em;
-  color: var(--color-text);
+  letter-spacing: 0.02em;
+  background: var(--gradient-wordmark);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .panel {
-  border: 1px solid var(--color-border);
+  border: var(--stroke-width-panel) solid var(--color-border);
   border-radius: var(--panel-radius);
   padding: var(--space-10);
   background: var(--color-surface);
+  box-shadow: var(--shadow-panel);
 }
 
 .panel h2 {
@@ -103,9 +108,10 @@ a {
 
 .file-control {
   display: inline-block;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--control-radius);
-  padding: var(--space-4) var(--space-7);
+  border: var(--stroke-width-panel) solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  padding: var(--space-4) var(--space-8);
+  background: var(--color-button-bg);
   cursor: pointer;
 }
 
@@ -149,14 +155,28 @@ dl dd {
   margin: 0;
 }
 
+/* Old-osu pill buttons: chunky borders, a translucent fill and a hover lift
+   with an accent edge; transitions collapse under reduced-motion above. */
 button {
   font: inherit;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--control-radius);
-  padding: var(--space-4) var(--space-8);
+  border: var(--stroke-width-panel) solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  padding: var(--space-4) var(--space-10);
   background: var(--color-button-bg);
   color: var(--color-text);
   cursor: pointer;
+  transition:
+    border-color var(--duration-fade-in) ease-out,
+    background-color var(--duration-fade-in) ease-out,
+    color var(--duration-fade-in) ease-out,
+    box-shadow var(--duration-fade-in) ease-out;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-surface-selected);
+  color: var(--color-text-bright);
+  box-shadow: var(--shadow-raised);
 }
 
 button:disabled {
@@ -165,10 +185,15 @@ button:disabled {
 }
 
 #start {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+  background: var(--gradient-accent);
+  border-color: var(--color-accent-strong);
   color: var(--color-accent-contrast);
   font-weight: 700;
+  box-shadow: var(--glow-accent);
+}
+
+#start:hover:not(:disabled) {
+  box-shadow: var(--glow-accent-strong);
 }
 
 pre {

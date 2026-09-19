@@ -28,3 +28,7 @@
   width: 100%;
   border-bottom: 1px solid var(--color-border);
 }
+
+.virtual-list-row:hover {
+  background: var(--color-surface-selected);
+}

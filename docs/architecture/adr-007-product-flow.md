@@ -118,10 +118,17 @@ These are product-policy divergences, not compatibility claims. Visual
 similarity to lazer is not upstream acceptance, and nothing here counts
 toward upstream acceptance scenarios.
 
-1. **Purple palette.** The shell keeps its dark purple product palette
-   instead of lazer's `OverlayColourProvider` blues and pinks. The menu and
-   intro screens carry a static full-bleed radial gradient composed from that
-   palette; lazer's animated triangle backdrop is deliberately absent.
+1. **Purple palette.** The shell keeps its dark purple product palette —
+   muted pastel lavender-grey chrome with pastel pink/periwinkle accents —
+   instead of lazer's `OverlayColourProvider` blues and pinks. The chrome
+   carries an old-osu / anime treatment (chunky borders, pill buttons, soft
+   drop shadows, whisper-quiet accent halos, one gentle pastel gradient
+   wash, and static anime garnishes: scattered starfield dots, a gradient
+   wordmark and star difficulty markers) composed from the tokens in
+   `src/styles/tokens.css`; the menu and intro screens layer a static
+   full-bleed radial gradient with a faint diagonal-stripe pattern, and
+   lazer's animated triangle backdrop is deliberately absent. Everything is
+   static CSS, so the reduced-motion override has nothing new to cover.
 2. **Enter-only transitions.** Route changes play a CSS enter animation; the
    shell does not reproduce lazer's symmetrical enter/exit choreography
    (`SongSelect.ENTER_DURATION` both ways, filter/wedge sliding out to

@@ -1,16 +1,30 @@
-/* Demo-import feature of the song select screen (MVP player experience,
-   "Try the demo"): the accent control in the top bar and the empty-carousel
-   call to action, plus the fetch status/retry feedback in the status strip.
-   Split from select_screen.css for the css-lint file-size cap; import order
-   keeps it after the owning screen file. */
+/* Select-screen feature styles (split from select_screen.css for the
+   css-lint file-size cap; import order keeps this after the owning screen
+   file). Currently: the demo-import feature (MVP player experience, "Try
+   the demo" accent control and empty-carousel call to action, plus fetch
+   status/retry feedback) and the difficulty rows' star markers. */
 
-/* The demo entry is a primary action: same accent treatment as Play. */
+/* Anime/osu garnish: a pastel star before each difficulty label. */
+[data-virtual-list='difficulties'] .virtual-list-row > span::before {
+  content: '☆';
+  margin-right: var(--space-3);
+  color: var(--color-accent);
+}
+
+/* The demo entry is a primary action: the shared Play treatment (gradient
+   wash + accent glow, stronger on hover). */
 .demo-button {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+  background: var(--gradient-accent);
+  border-color: var(--color-accent-strong);
   color: var(--color-accent-contrast);
   font-weight: 700;
   white-space: nowrap;
+  box-shadow: var(--glow-accent);
+}
+
+.demo-button:hover:not(:disabled) {
+  background: var(--gradient-accent);
+  box-shadow: var(--glow-accent-strong);
 }
 
 /* Empty carousel: the beginner call to action first, the import explanation
