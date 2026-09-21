@@ -194,6 +194,12 @@ jobs:
         run: npm --prefix platform/product-ui run test:gates
         env:
           PROBE_SECONDS: '10'
+      - name: Start virtual audio output
+        run: |
+          sudo apt-get install -y pulseaudio
+          pulseaudio --start --exit-idle-time=-1
+          pactl load-module module-null-sink sink_name=tapweave_ci
+          pactl set-default-sink tapweave_ci
       - name: Test product shell browsers
         run: xvfb-run -a npm --prefix platform/product-ui run test:browser
       - uses: actions/upload-artifact@v4
