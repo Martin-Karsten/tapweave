@@ -23,6 +23,7 @@ On macOS, install Xcode command-line tools and LLD (for example `brew install ll
 
 ```sh
 npm --prefix engine run setup
+npm --prefix platform/browser-js ci
 npm --prefix engine test
 npm --prefix engine run build
 engine/artifacts/decode-native path/to/map.osu

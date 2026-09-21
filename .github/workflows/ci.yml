@@ -17,6 +17,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y clang lld
       - name: Install pinned Odin
         run: npm --prefix engine run setup
+      - name: Install pinned browser dependencies
+        run: npm --prefix platform/browser-js ci
       - name: Test native and WebAssembly foundation
         run: npm --prefix engine test
   geometry-reference:
@@ -69,6 +71,8 @@ jobs:
           git -C "$OSU_FRAMEWORK_CHECKOUT" remote add origin https://github.com/ppy/osu-framework.git
           git -C "$OSU_FRAMEWORK_CHECKOUT" fetch --depth=1 origin f02756c5aa5032e6d04729922702b8d56c4bc2eb
           git -C "$OSU_FRAMEWORK_CHECKOUT" checkout --detach FETCH_HEAD
+      - name: Install pinned browser dependencies
+        run: npm --prefix platform/browser-js ci
       - name: Compare complete preparation with pinned upstream
         run: npm --prefix engine run test:prepared:upstream
       - uses: actions/upload-artifact@v4
@@ -123,6 +127,12 @@ jobs:
   browser-foundation:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -143,18 +153,22 @@ jobs:
           npm --prefix platform/browser-js test
           npm --prefix platform/browser-js run build
       - name: Install browser engines
-        run: npm exec --prefix platform/browser-js -- playwright install --with-deps chromium firefox webkit
+        run: npm exec --prefix platform/browser-js -- playwright install --with-deps ${{ matrix.browser }}
+      - name: Install software graphics support
+        run: sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0
       - name: Test browser foundation
-        run: npm --prefix platform/browser-js run test:browser
+        run: xvfb-run -a npm --prefix platform/browser-js run test:browser -- --project=${{ matrix.browser }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: browser-foundation
+          name: browser-foundation-${{ matrix.browser }}
           path: platform/browser-js/artifacts/browser-results*
 
   product-shell:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -166,18 +180,22 @@ jobs:
           npm --prefix engine run setup
       - name: Build production browser engine
         run: npm --prefix engine run build
+      - name: Install pinned browser dependencies
+        run: npm --prefix platform/browser-js ci
       - name: Install pinned shell dependencies
         run: npm --prefix platform/product-ui ci
       - name: Typecheck product shell
         run: npm --prefix platform/product-ui run typecheck
+      - name: Install browser engines
+        run: npm exec --prefix platform/product-ui -- playwright install --with-deps chromium firefox webkit
+      - name: Install software graphics support
+        run: sudo apt-get install -y xvfb libgl1-mesa-dri libegl-mesa0
       - name: Run product shell gate suite
         run: npm --prefix platform/product-ui run test:gates
         env:
           PROBE_SECONDS: '10'
-      - name: Install browser engines
-        run: npm exec --prefix platform/product-ui -- playwright install --with-deps chromium firefox webkit
       - name: Test product shell browsers
-        run: npm --prefix platform/product-ui run test:browser
+        run: xvfb-run -a npm --prefix platform/product-ui run test:browser
       - uses: actions/upload-artifact@v4
         if: always()
         with:
