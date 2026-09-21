@@ -5,3 +5,5 @@
 /play /index.html 200
 /results /index.html 200
 /diagnostics /index.html 200
+/multiplayer /index.html 200
+/room/:room_id /index.html 200

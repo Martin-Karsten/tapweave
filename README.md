@@ -41,7 +41,8 @@ CI runner prerequisites and the latest failure investigation are documented in
 The product shell is configured for Cloudflare Workers Static Assets on a free
 `workers.dev` subdomain. Successful `main` builds deploy through GitHub Actions
 after account setup. See the [hosting guide](docs/hosting.md) for credentials,
-local verification, and rollback. Initial public deployment remains pending.
+local verification, and rollback. Play at
+[tapweave.mrtnkarsten.workers.dev](https://tapweave.mrtnkarsten.workers.dev).
 
 ## Repository layout
 

@@ -1,0 +1,5 @@
+{
+  "name": "tapweave-worker-tests", "private": true, "type": "module", "engines": { "node": ">=24 <25" },
+  "scripts": { "test": "vitest run" },
+  "devDependencies": { "@cloudflare/vitest-plugin": "1.1.13", "vitest": "4.1.0" }
+}

@@ -354,11 +354,24 @@ export class Gameplay_Controller {
     }
   }
 
-  async play() {
+  async play(scheduled_audio_seconds?: number) {
     if (!this.view.can_play) return;
     this.in_attempt = true;
     this.diagnostics?.begin_attempt();
-    await this.start();
+    await this.start(false, 0, undefined, scheduled_audio_seconds);
+  }
+
+  get multiplayer_score() {
+    const summary = this.playback?.gameplay_output.summary;
+    if (!summary) {
+      return null;
+    }
+    return {
+      score: Number(summary.score),
+      accuracy: Number(summary.accuracy),
+      combo: Number(summary.combo),
+      committed_ms: Number(summary.committed_ms),
+    };
   }
 
   private physical_position(): { x: number; y: number } | undefined {
@@ -404,13 +417,13 @@ export class Gameplay_Controller {
   // starting publication, the awaited playback start and the graphics
   // precondition. Failures recover once; a superseded start (Back, dispose,
   // retry) resolves false without touching state.
-  async #await_playback_start(before_pump?: () => void, starting_message = 'Starting audio…'): Promise<boolean> {
+  async #await_playback_start(before_pump?: () => void, starting_message = 'Starting audio…', scheduled_audio_seconds?: number): Promise<boolean> {
     const generation = ++this.generation;
     this.state = 'starting';
     this.message = starting_message;
     this.publish();
     try {
-      await this.playback!.start(0, before_pump);
+      await this.playback!.start(0, before_pump, scheduled_audio_seconds);
       if (generation !== this.generation) return false;
       require_condition(this.renderer?.ready && !this.graphics_lost, 'INVALID_STATE', 'Graphics are not ready.');
       return true;
@@ -420,7 +433,7 @@ export class Gameplay_Controller {
     }
   }
 
-  private async start(resuming = false, resume_flags = 0, resume_source?: string) {
+  private async start(resuming = false, resume_flags = 0, resume_source?: string, scheduled_audio_seconds?: number) {
     const resume_sources = new Set(this.held_input.gameplay_sources);
     const input_settings = this.options.input_settings?.() ?? DEFAULT_PLAYER_SETTINGS;
     const resume_position = resuming ? this.physical_position() : undefined;
@@ -444,7 +457,7 @@ export class Gameplay_Controller {
       for (const source of retained_sources.keys()) if (!physical_sources.has(source)) retained_sources.delete(source);
       this.frame!.input.reconcile(retained_sources, audio_seconds, playback.clock.epoch, 0, this.physical_position());
       this.frame!.drain();
-    } : undefined)) return;
+    } : undefined, 'Starting audio…', scheduled_audio_seconds)) return;
     try {
       this.state = 'running';
       this.message = gameplay_control_hint(input_settings);

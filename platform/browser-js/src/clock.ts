@@ -103,6 +103,15 @@ export class Audio_Clock {
     return audio_seconds;
   }
 
+  cancel_scheduled(audio_seconds: number) {
+    require_condition(this.anchor !== null && Number.isFinite(audio_seconds) && audio_seconds < this.anchor.audio_seconds,
+      'INVALID_CLOCK', 'Only a future anchor can be cancelled before launch.');
+    require_condition(this.epoch < 0xffffffff, 'QUOTA_EXCEEDED', 'Clock epoch exhausted.');
+    this.anchor = null;
+    this.session_mapping = null;
+    this.epoch++;
+  }
+
   resume(audio_seconds: number) {
     require_condition(this.paused_offsets !== null, 'INVALID_STATE', 'Pause a running clock before resuming.');
     return this.start(audio_seconds, this.paused_media_ms, this.paused_offsets);

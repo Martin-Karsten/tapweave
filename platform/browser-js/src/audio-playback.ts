@@ -61,7 +61,7 @@ export class Audio_Playback {
     this.music.set_buffer(selection.music_buffer!);
   }
 
-  async start(beatmap_ms = 0, before_pump?: () => void) {
+  async start(beatmap_ms = 0, before_pump?: () => void, scheduled_audio_seconds?: number) {
     require_condition(this.state === 'ready' || this.state === 'paused', 'INVALID_STATE', 'Playback must be ready or paused.');
     const resuming = this.state === 'paused';
     const generation = ++this.generation;
@@ -76,7 +76,11 @@ export class Audio_Playback {
           new Browser_Error('INVALID_STATE', 'Audio output is suspended.'), { audio_state: resumed_state });
         require_condition(this.context.state === 'running', 'INVALID_STATE', 'Audio output is suspended.');
       }
-      const audio_seconds = this.context.currentTime;
+      const audio_seconds = scheduled_audio_seconds ?? this.context.currentTime;
+      if (scheduled_audio_seconds !== undefined) {
+        require_condition(!resuming && Number.isFinite(audio_seconds) && audio_seconds >= this.context.currentTime + 0.1,
+          'INVALID_CLOCK', 'Multiplayer start deadline was missed.');
+      }
       if (!resuming) {
         this.note('oe_session_voice_output');
         this.engine.voice_output(this.session_handle, this.voice_output);
@@ -106,6 +110,21 @@ export class Audio_Playback {
       if (resuming) this.audio.resume_one_shots();
       this.note('music start');
       this.music.start();
+      // Music is already armed on the audio timeline. A timer only enables
+      // input/advancement once that timeline reaches the anchor; its callback
+      // time never becomes a judgement timestamp.
+      while (scheduled_audio_seconds !== undefined && this.context.currentTime < audio_seconds) {
+        const remaining_ms = (audio_seconds - this.context.currentTime) * 1000;
+        const poll_delay_ms = Math.min(25, Math.max(1, remaining_ms));
+        await new Promise<void>(resolve => setTimeout(resolve, poll_delay_ms));
+        if (generation !== this.generation) {
+          return;
+        }
+        require_condition(this.context.state === 'running', 'INVALID_CLOCK', 'Audio interrupted during multiplayer countdown.');
+      }
+      if (scheduled_audio_seconds !== undefined) {
+        require_condition(this.context.currentTime - audio_seconds <= 0.1, 'INVALID_CLOCK', 'Multiplayer launch was more than 100 ms late.');
+      }
       this.state = 'running';
       before_pump?.();
       this.pump();
@@ -237,7 +256,13 @@ export class Audio_Playback {
   finish() {
     this.music.cancel();
     this.audio.cancel();
-    if (this.clock.anchor) this.clock.pause(this.context.currentTime);
+    if (this.clock.anchor) {
+      if (this.context.currentTime >= this.clock.anchor.audio_seconds) {
+        this.clock.pause(this.context.currentTime);
+      } else {
+        this.clock.cancel_scheduled(this.context.currentTime);
+      }
+    }
   }
 
   recover(error: unknown) {
@@ -256,7 +281,13 @@ export class Audio_Playback {
     this.state = 'recovering';
     try { this.music.cancel(); } finally {
       this.audio.cancel();
-      if (this.clock.anchor) this.clock.pause(this.context.currentTime);
+      if (this.clock.anchor) {
+        if (this.context.currentTime >= this.clock.anchor.audio_seconds) {
+          this.clock.pause(this.context.currentTime);
+        } else {
+          this.clock.cancel_scheduled(this.context.currentTime);
+        }
+      }
     }
   }
 

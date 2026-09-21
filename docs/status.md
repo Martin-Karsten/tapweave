@@ -21,8 +21,11 @@ The product shell has Cloudflare Workers Static Assets configuration for a free
 `workers.dev` address, fingerprinted engine loading, explicit SPA route rewrites,
 and a CI deployment job gated on all existing validation jobs. Local hosting
 checks cover routes, cache headers, missing-asset 404s, engine boot, and demo start.
-Account setup and the first public deployment remain pending; public smoke and
-physical audible-output checks have not been executed. See [hosting](hosting.md).
+The first deployment is live at
+[tapweave.mrtnkarsten.workers.dev](https://tapweave.mrtnkarsten.workers.dev).
+Public hosting smoke passed on 2026-09-21, including engine boot and demo start/pause.
+GitHub automatic publishing still needs its API-token secret. Physical
+audible-output checks remain open. See [hosting](hosting.md).
 This adds no multiplayer or upstream compatibility acceptance.
 
 ## M0: foundation
@@ -1428,3 +1431,19 @@ Product typecheck, all 40 unit tests, build and all three Chromium demo tests
 pass. A 1440×1000 CSS-pixel demo capture at DPR 2 was inspected for digit
 sharpness and centring. Firefox/WebKit visual certification and upstream A22
 acceptance are not established by this check.
+
+## Private demo rooms (ADR-008)
+
+Private 2–8-player rooms add the bundled-demo lobby, cookie membership, readiness,
+a five-second scheduled audio start, transient scoreboard, client-reported shared
+results and rematch. A SQLite-backed Durable Object coordinates each room with
+hibernating WebSockets and deadline/expiry alarms. Odin judgement and scoring
+remain local and the production ABI is unchanged. Networking is limited to this
+explicit scope; no competitive verification, accounts, uploads or public directory.
+
+See [ADR-008](architecture/adr-008-private-demo-rooms.md) and the
+[MP-01–MP-08 validation matrix](compatibility/multiplayer.md). Workers-runtime
+tests exercise real SQLite, alarms and socket hibernation/eviction. Independent
+context browser tests exercise demo rounds and interruptions. These are product
+regressions, not new upstream gameplay acceptance. Separate physical devices and
+audible-output start skew remain an open release check.

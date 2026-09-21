@@ -1,0 +1,65 @@
+.multiplayer-screen {
+  overflow: auto;
+  padding: var(--space-6);
+}
+.multiplayer-heading {
+  margin-bottom: var(--space-4);
+}
+.multiplayer-lobby {
+  margin-block: var(--space-4);
+}
+.multiplayer-screen input {
+  display: block;
+  width: min(100%, 48rem);
+  margin-block: var(--space-3);
+}
+.multiplayer-playfield {
+  display: none;
+}
+.multiplayer-playfield.active {
+  display: block;
+  position: relative;
+  height: 70vh;
+}
+.multiplayer-playfield .playfield-host {
+  width: 100%;
+  height: 100%;
+}
+.multiplayer-playfield canvas {
+  width: 100%;
+  height: 100%;
+}
+.multiplayer-screen.playing .multiplayer-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.multiplayer-scores {
+  margin-block: var(--space-4);
+}
+
+.multiplayer-round-layout.active {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18rem;
+  gap: var(--space-6);
+}
+.multiplayer-round-layout.active .multiplayer-scores {
+  max-height: 70vh;
+  overflow: auto;
+}
+@media (max-width: 760px) {
+  .multiplayer-round-layout.active {
+    grid-template-columns: 1fr;
+  }
+}
+
+.multiplayer-screen.playing {
+  gap: var(--space-3);
+}
+.multiplayer-screen.playing .multiplayer-heading h1,
+.multiplayer-screen.playing .multiplayer-heading p {
+  display: none;
+}
+.multiplayer-screen.playing .multiplayer-playfield {
+  height: calc(100dvh - 12rem);
+}

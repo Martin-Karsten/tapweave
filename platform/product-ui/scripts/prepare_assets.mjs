@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { access, copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { write_demo_assets } from './generate_demo.mjs';
@@ -8,19 +9,29 @@ const engine_wasm = new URL('../../engine/artifacts/tapweave.wasm', package_root
 try {
   await access(engine_wasm);
 } catch {
-  throw new Error('engine/artifacts/tapweave.wasm is missing; run `npm --prefix engine run build` first');
+  throw new Error(
+    'engine/artifacts/tapweave.wasm is missing; run `npm --prefix engine run build` first',
+  );
 }
 
 await mkdir(new URL('../public/', import.meta.url), { recursive: true });
 // Remove the obsolete fixed-name copy left by earlier builds.
 await rm(new URL('../public/tapweave.wasm', import.meta.url), { force: true });
 for (const filename of ['_headers', '_redirects']) {
-  await copyFile(new URL('../hosting/' + filename, import.meta.url), new URL('../public/' + filename, import.meta.url));
+  await copyFile(
+    new URL('../hosting/' + filename, import.meta.url),
+    new URL('../public/' + filename, import.meta.url),
+  );
 }
 
 // Ship attribution with the browser distribution, not just in the repository.
-await copyFile(new URL('../../LICENSE', package_root), new URL('../public/LICENSE.txt', import.meta.url));
-const notice_sections = [await readFile(new URL('../../THIRD_PARTY_NOTICES.md', package_root), 'utf8')];
+await copyFile(
+  new URL('../../LICENSE', package_root),
+  new URL('../public/LICENSE.txt', import.meta.url),
+);
+const notice_sections = [
+  await readFile(new URL('../../THIRD_PARTY_NOTICES.md', package_root), 'utf8'),
+];
 for (const [label, license_path] of [
   ['osu!', '../../engine/reference/sources/osu__LICENCE'],
   ['osu!framework', '../../engine/reference/sources/osu-framework__LICENCE'],
@@ -30,11 +41,34 @@ for (const [label, license_path] of [
   ['Virtual Core', 'node_modules/@tanstack/virtual-core/LICENSE'],
   ['fflate', 'node_modules/fflate/LICENSE'],
 ]) {
-  notice_sections.push(label + '\n\n' + await readFile(new URL(license_path, package_root), 'utf8'));
+  notice_sections.push(
+    label + '\n\n' + (await readFile(new URL(license_path, package_root), 'utf8')),
+  );
 }
-await writeFile(new URL('../public/THIRD_PARTY_NOTICES.txt', import.meta.url), notice_sections.join('\n\n'));
+await writeFile(
+  new URL('../public/THIRD_PARTY_NOTICES.txt', import.meta.url),
+  notice_sections.join('\n\n'),
+);
 
 // The demo beatmap is generated (and verified against the tracked manifest)
 // on every asset preparation pass; see scripts/demo/README.md.
 const demo_path = await write_demo_assets(new URL('../public/demo/', import.meta.url));
 console.log('Product assets: ' + demo_path);
+
+// Both bundles embed the exact engine and demo identity from this release.
+const demo_manifest = JSON.parse(
+  await readFile(new URL('./demo/manifest.json', import.meta.url), 'utf8'),
+);
+const engine_hash = createHash('sha256')
+  .update(await readFile(engine_wasm))
+  .digest('hex');
+const archive_hash = demo_manifest.outputs.find((output) => output.path.endsWith('.osz')).sha256;
+await mkdir(new URL('../artifacts/', import.meta.url), { recursive: true });
+await writeFile(
+  new URL('../artifacts/multiplayer_identity.json', import.meta.url),
+  JSON.stringify({
+    identity: engine_hash + ':' + archive_hash,
+    engine_hash,
+    archive_hash,
+  }) + '\n',
+);

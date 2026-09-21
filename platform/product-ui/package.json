@@ -16,11 +16,19 @@
     "test": "vitest run",
     "test:browser": "node scripts/prepare_assets.mjs && playwright test",
     "test:gates": "node scripts/run_gates.mjs",
-    "preview:hosting": "wrangler dev --ip 127.0.0.1 --port 8787",
-    "deploy": "wrangler deploy",
+    "preview:hosting": "wrangler dev --config artifacts/deployment/wrangler.json --ip 127.0.0.1 --port 8787",
+    "deploy": "npm run verify:deployment && npm run deploy:artifact",
     "test:hosting": "node scripts/hosting_smoke.mjs",
     "deploy:ci": "node scripts/deploy_cloudflare.mjs",
-    "test:hosting:assets": "node scripts/verify_hosting_assets.mjs"
+    "test:hosting:assets": "node scripts/verify_hosting_assets.mjs",
+    "types:worker": "wrangler types worker/generated.d.ts",
+    "typecheck:worker": "npm run types:worker && tsc --noEmit -p tsconfig.worker.json",
+    "build:worker": "wrangler deploy --dry-run --outdir artifacts/worker",
+    "test:worker": "npm --prefix worker-tests test",
+    "build:deployment": "node scripts/package_deployment.mjs",
+    "deploy:artifact": "wrangler deploy --config artifacts/deployment/wrangler.json --no-bundle",
+    "test:multiplayer": "playwright test -c playwright.multiplayer.config.mjs",
+    "verify:deployment": "node scripts/verify_deployment.mjs"
   },
   "dependencies": {
     "fflate": "0.8.3",

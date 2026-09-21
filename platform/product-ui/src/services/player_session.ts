@@ -295,6 +295,14 @@ export class Player_Session_Service {
   }
 
   async play() { await this.gameplay.play(); }
+  async play_scheduled(audio_seconds: number) {
+    await this.gameplay.play(audio_seconds);
+  }
+
+  get multiplayer_score() {
+    return this.gameplay.multiplayer_score;
+  }
+
   quarantine_input(source: string) { this.gameplay.quarantine_input(source); }
   pause(reason?: string) { this.gameplay.pause(reason); }
   skip() { this.gameplay.skip(); }

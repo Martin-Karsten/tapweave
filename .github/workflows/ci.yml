@@ -184,6 +184,8 @@ jobs:
         run: npm --prefix platform/browser-js ci
       - name: Install pinned shell dependencies
         run: npm --prefix platform/product-ui ci
+      - name: Install pinned Workers test dependencies
+        run: npm --prefix platform/product-ui/worker-tests ci
       - name: Typecheck product shell
         run: npm --prefix platform/product-ui run typecheck
       - name: Install browser engines
@@ -202,19 +204,26 @@ jobs:
           pactl set-default-sink tapweave_ci
       - name: Test product shell browsers
         run: xvfb-run -a npm --prefix platform/product-ui run test:browser
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: product-shell
-          path: platform/product-ui/artifacts/
+      - name: Package tested deployment
+        run: npm --prefix platform/product-ui run build:deployment
+      - name: Test multiplayer Worker and browser coordination
+        run: |
+          npm --prefix platform/product-ui run typecheck:worker
+          npm --prefix platform/product-ui run test:worker
+          xvfb-run -a npm --prefix platform/product-ui run test:multiplayer
       - name: Verify Cloudflare asset hosting
         run: |
           npm --prefix platform/product-ui run test:hosting:assets
           npm --prefix platform/product-ui run test:hosting
       - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-shell
+          path: platform/product-ui/artifacts/
+      - uses: actions/upload-artifact@v4
         with:
           name: product-site
-          path: platform/product-ui/dist/
+          path: platform/product-ui/artifacts/deployment/
           if-no-files-found: error
 
   deploy:
@@ -235,7 +244,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: product-site
-          path: platform/product-ui/dist/
+          path: platform/product-ui/artifacts/deployment/
       - name: Skip superseded commits
         id: current
         shell: bash

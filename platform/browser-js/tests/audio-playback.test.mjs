@@ -223,3 +223,54 @@ test('skip_forward re-anchors clock, music and session mapping in one synchronou
     assert.throws(() => playback.skip_forward(4000), { code: 'INVALID_STATE' });
   } finally { engine.dispose(); }
 });
+
+test('scheduled multiplayer music is armed ahead of time without advancing; cancellation stops the source', async () => {
+  const engine = await Engine_Bridge.create(wasm);
+  try {
+    const { session, samples, context } = await prepare(engine);
+    const playback = new Audio_Playback(engine, session, context, { samples, music_buffer: { duration: 10 } });
+    const starting = playback.start(0, undefined, 15);
+    await new Promise(resolve => setTimeout(resolve, 1));
+    assert.deepEqual(context.calls.find(call => call[0] === 'start'), ['start', 15, 0]);
+    assert.equal(playback.state, 'starting');
+    assert.equal(playback.last_committed_ms, null);
+    playback.dispose();
+    await starting;
+    assert.equal(playback.state, 'disposed');
+    assert.ok(context.calls.some(call => call[0] === 'stop'));
+  } finally {
+    engine.dispose();
+  }
+});
+
+test('scheduled launch anchors input to audio time and rejects late or interrupted starts', async () => {
+  for (const outcome of ['on-time', 'late', 'interrupted', 'too-late-to-arm']) {
+    const engine = await Engine_Bridge.create(wasm);
+    try {
+      const { session, samples, context } = await prepare(engine);
+      const playback = new Audio_Playback(engine, session, context, { samples, music_buffer: { duration: 10 } });
+      if (outcome === 'too-late-to-arm') {
+        await assert.rejects(playback.start(0, undefined, context.currentTime), /deadline/);
+      } else {
+        const starting = playback.start(0, undefined, 15);
+        // Attach rejection handling before changing the fixture's audio timeline.
+        const launch_expectation = outcome === 'on-time' ? starting : assert.rejects(starting, /interrupted|late/);
+        await new Promise(resolve => setTimeout(resolve, 1));
+        if (outcome === 'interrupted') {
+          context.state = 'suspended';
+        } else {
+          context.currentTime = outcome === 'late' ? 15.2 : 15;
+        }
+        await launch_expectation;
+        if (outcome === 'on-time') {
+          assert.equal(playback.clock.anchor.audio_seconds, 15);
+          assert.ok(Math.abs(playback.clock.input_time(session, playback.voice_output.summary.epoch, 15.05) - 50) < 1e-9);
+          assert.equal(playback.last_committed_ms, 0);
+        }
+      }
+      playback.dispose();
+    } finally {
+      engine.dispose();
+    }
+  }
+});

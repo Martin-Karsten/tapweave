@@ -42,3 +42,6 @@
 **/.wrangler/
 **/.dev.vars
 **/.dev.vars.*
+
+# Wrangler regenerates binding/runtime types from the pinned configuration.
+/platform/product-ui/worker/generated.d.ts

@@ -15,6 +15,7 @@ interface Menu_Entry {
 // anchors the center while every rendered column action is live.
 const MENU_ENTRIES: readonly Menu_Entry[] = [
   { id: 'menu-play', label: 'Play', target: '/select' },
+  { id: 'menu-multiplayer', label: 'Multiplayer', target: '/multiplayer' },
   { id: 'menu-diagnostics', label: 'Diagnostics', target: '/diagnostics' },
 ];
 

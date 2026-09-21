@@ -1,7 +1,8 @@
+import { Multiplayer_Screen } from './screens/multiplayer_screen';
 import { Settings_Dialog } from './components/settings_dialog';
 import { open_settings_dialog } from './state/settings_state';
 import { onMount, Show, type Component, type ParentProps } from 'solid-js';
-import { Route, Router, useLocation } from '@solidjs/router';
+import { Route, Router, useLocation, useParams } from '@solidjs/router';
 import { Intro_Screen } from './screens/intro_screen';
 import { Main_Menu_Screen } from './screens/main_menu_screen';
 import { Select_Screen } from './screens/select_screen';
@@ -71,10 +72,17 @@ const App_Frame: Component<ParentProps> = (props) => {
   );
 };
 
+const Room_Screen: Component = () => {
+  const parameters = useParams();
+  return <Show when={parameters.room_id} keyed>{(_room_id) => <Multiplayer_Screen />}</Show>;
+};
+
 export const App: Component = () => {
   return (
     <Router root={App_Frame}>
       <Route path="/" component={Intro_Screen} />
+      <Route path="/multiplayer" component={Multiplayer_Screen} />
+      <Route path="/room/:room_id" component={Room_Screen} />
       <Route path="/menu" component={Main_Menu_Screen} />
       <Route path="/select" component={Select_Screen} />
       <Route path="/play" component={Play_Screen} />

@@ -2,10 +2,17 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "tapweave",
   "compatibility_date": "2026-09-21",
+  "main": "worker/index.ts",
   "workers_dev": true,
+  "vars": { "MULTIPLAYER_ENABLED": "true" },
+  "durable_objects": { "bindings": [{ "name": "MULTIPLAYER_ROOMS", "class_name": "Multiplayer_Room" }] },
+  "migrations": [{ "tag": "multiplayer-v1", "new_sqlite_classes": ["Multiplayer_Room"] }],
+  "observability": { "enabled": true, "traces": { "enabled": true, "head_sampling_rate": 0.1 } },
   "preview_urls": false,
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/multiplayer/*"],
     // Explicit SPA rewrites in hosting/_redirects keep missing assets as 404.
     "not_found_handling": "none",
     "html_handling": "none"

@@ -129,3 +129,9 @@ A21/A23/A24 have bounded local lifecycle evidence. The six pinned osu!standard p
 [resume host](pause-resume.md); complete pause UI coverage,
 physical input/audible output and the complete release/resource matrix remain
 open. Play exposes a validation build, not an assertion that these rows pass.
+
+## Original private demo rooms
+
+[MP-01–MP-08](multiplayer.md) track the original social coordination contract.
+These checks do not close any lazer gameplay compatibility row. Physical public
+two-device/audio-output acceptance remains separate.

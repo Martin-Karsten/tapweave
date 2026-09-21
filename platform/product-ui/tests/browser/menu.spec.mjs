@@ -8,12 +8,16 @@ import { expect, test } from '@playwright/test';
 test('the menu shows the logo and a left column with live buttons only', async ({ page }) => {
   await page.goto('/menu');
   const menu_buttons = page.locator('.menu-buttons button');
-  await expect(menu_buttons).toHaveCount(2);
+  await expect(menu_buttons).toHaveCount(3);
   for (const button of await menu_buttons.all()) {
     await expect(button).toBeEnabled();
   }
   await expect(page.locator('.menu-logo .brand-mark')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'tapweave' })).toBeVisible();
+  await page.locator('#menu-multiplayer').click();
+  await expect(page).toHaveURL(/\/multiplayer$/);
+  await expect(page.getByLabel('Your nickname')).toBeVisible();
+  await page.goto('/menu');
   await page.locator('#menu-diagnostics').click();
   await expect(page).toHaveURL(/\/diagnostics$/);
 });
@@ -39,6 +43,8 @@ test('arrow keys rove the menu column and wrap around', async ({ page }) => {
   await page.goto('/menu');
   await expect(page.locator('#menu-play')).toBeFocused({ timeout: 20_000 });
   await page.keyboard.press('ArrowDown');
+  await expect(page.locator('#menu-multiplayer')).toBeFocused();
+  await page.keyboard.press('ArrowDown');
   await expect(page.locator('#menu-diagnostics')).toBeFocused();
   await page.keyboard.press('ArrowDown');
   await expect(page.locator('#menu-play')).toBeFocused();
@@ -53,6 +59,8 @@ test('Tab walks natively out of the menu into the footer', async ({ page, browse
   test.skip(browserName === 'webkit', 'WebKit automation does not move focus on Tab');
   await page.goto('/menu');
   await expect(page.locator('#menu-play')).toBeFocused({ timeout: 20_000 });
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#menu-multiplayer')).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.locator('#menu-diagnostics')).toBeFocused();
   await page.keyboard.press('Tab');
