@@ -1,3 +1,4 @@
+import { engine_wasm_url } from './engine_asset';
 import { Engine_Bridge } from '@browser/engine-bridge.js';
 import { WASM_PAGE_BYTES, type Engine_Diagnostic } from '@browser/abi-records.js';
 
@@ -25,7 +26,7 @@ export interface Engine_Capabilities_View {
 
 export async function boot_engine(): Promise<Engine_Boot_Result> {
   const engine_logs: Engine_Diagnostic[] = [];
-  const wasm_response = await fetch('/tapweave.wasm');
+  const wasm_response = await fetch(engine_wasm_url);
   if (!wasm_response.ok) {
     throw new Error(`tapweave.wasm fetch failed with status ${wasm_response.status}`);
   }

@@ -23,6 +23,7 @@ On macOS, install Xcode command-line tools and LLD (for example `brew install ll
 
 ```sh
 npm --prefix engine run setup
+npm --prefix platform/browser-js ci
 npm --prefix engine test
 npm --prefix engine run build
 engine/artifacts/decode-native path/to/map.osu
@@ -31,6 +32,16 @@ engine/artifacts/decode-native path/to/map.osu
 Setup downloads a checksum-verified Odin compiler into the ignored `engine/.toolchain/` directory, pinned in [toolchain.json](engine/toolchain.json); set `ODIN_BIN` to use an existing matching compiler.
 
 Tests verify upstream source hashes, run allocation-tracked Odin and native C ABI checks, and compare native/WASM traces byte-for-byte. The `test:*:upstream` scripts execute pinned upstream comparisons; see the [reference-host setup](engine/reference-host/README.md).
+
+CI runner prerequisites and the latest failure investigation are documented in
+[GitHub CI](docs/ci.md).
+
+## Hosting
+
+The product shell is configured for Cloudflare Workers Static Assets on a free
+`workers.dev` subdomain. Successful `main` builds deploy through GitHub Actions
+after account setup. See the [hosting guide](docs/hosting.md) for credentials,
+local verification, and rollback. Initial public deployment remains pending.
 
 ## Repository layout
 

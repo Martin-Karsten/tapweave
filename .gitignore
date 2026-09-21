@@ -37,3 +37,8 @@
 **/.env.*
 **/*.pem
 **/*.key
+
+# Local Cloudflare emulator state and credentials.
+**/.wrangler/
+**/.dev.vars
+**/.dev.vars.*

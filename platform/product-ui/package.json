@@ -15,7 +15,12 @@
     "preview": "node scripts/prepare_assets.mjs && vite preview",
     "test": "vitest run",
     "test:browser": "node scripts/prepare_assets.mjs && playwright test",
-    "test:gates": "node scripts/run_gates.mjs"
+    "test:gates": "node scripts/run_gates.mjs",
+    "preview:hosting": "wrangler dev --ip 127.0.0.1 --port 8787",
+    "deploy": "wrangler deploy",
+    "test:hosting": "node scripts/hosting_smoke.mjs",
+    "deploy:ci": "node scripts/deploy_cloudflare.mjs",
+    "test:hosting:assets": "node scripts/verify_hosting_assets.mjs"
   },
   "dependencies": {
     "fflate": "0.8.3",
@@ -31,6 +36,7 @@
     "typescript": "7.0.2",
     "vite": "8.3.0",
     "vite-plugin-solid": "2.11.14",
-    "vitest": "5.0.0"
+    "vitest": "5.0.0",
+    "wrangler": "4.135.0"
   }
 }

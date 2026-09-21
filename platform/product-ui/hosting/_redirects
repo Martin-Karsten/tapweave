@@ -1,0 +1,7 @@
+# Explicit SPA routes keep missing asset requests as 404 responses.
+/ /index.html 200
+/menu /index.html 200
+/select /index.html 200
+/play /index.html 200
+/results /index.html 200
+/diagnostics /index.html 200

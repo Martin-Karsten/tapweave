@@ -11,6 +11,7 @@ From the repository root, with Node 24, a native C compiler/linker and `wasm-ld`
 
 ```sh
 npm --prefix engine run setup
+npm --prefix platform/browser-js ci
 npm --prefix engine test
 npm --prefix engine run build
 engine/artifacts/decode-native path/to/map.osu

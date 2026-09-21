@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "tapweave",
+  "compatibility_date": "2026-09-21",
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist",
+    // Explicit SPA rewrites in hosting/_redirects keep missing assets as 404.
+    "not_found_handling": "none",
+    "html_handling": "none"
+  }
+}

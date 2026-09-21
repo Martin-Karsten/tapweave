@@ -40,7 +40,7 @@ Carniato), **@solidjs/router 1.0.0** (MIT), **@tanstack/solid-virtual
 3.13.39** with **@tanstack/virtual-core 3.17.10** (both MIT) and **fflate
 0.8.3** at the same pinned version as the browser package. Development-only
 tooling (Vite, vite-plugin-solid, Vitest, happy-dom, @solidjs/testing-library,
-Playwright and the pinned Go-native `typescript` compiler) is not distributed
+Playwright, Wrangler, and the pinned Go-native `typescript` compiler) is not distributed
 with the game. See <https://github.com/solidjs/solid> and
 <https://github.com/TanStack/virtual>.
 

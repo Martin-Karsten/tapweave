@@ -10,7 +10,7 @@ import { expect, test } from '@playwright/test';
 const ENTER_HOLD_MS = 600;
 
 function delay_engine_boot(page, delay_ms) {
-  page.route('**/tapweave.wasm', route => setTimeout(() => route.continue(), delay_ms));
+  page.route(/\/tapweave(?:-[\w-]+)?\.wasm(?:\?.*)?$/, route => setTimeout(() => route.continue(), delay_ms));
 }
 
 test('intro shows the boot status and auto-advances to the menu with Play focused', async ({ page }) => {
@@ -44,7 +44,7 @@ test('clicking the ready intro skips the hold', async ({ page }) => {
 
 test('a blocked engine boot shows an alert and Retry recovers into the menu', async ({ page }) => {
   let block_engine = true;
-  await page.route('**/tapweave.wasm', route => (block_engine ? route.abort() : route.continue()));
+  await page.route(/\/tapweave(?:-[\w-]+)?\.wasm(?:\?.*)?$/, route => (block_engine ? route.abort() : route.continue()));
   await page.goto('/');
   await expect(page.getByRole('alert')).toContainText('Engine failed to start.');
   await expect(page.getByRole('link', { name: 'Diagnostics' })).toBeVisible();

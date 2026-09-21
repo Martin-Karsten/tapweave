@@ -1,3 +1,4 @@
+import { engine_wasm_url } from './engine_asset';
 import { Engine_Bridge } from '@browser/engine-bridge.js';
 
 const SELF_CHECK_BEATMAP = 'osu file format v14\n[General]\nAudioFilename: missing.wav\n[Difficulty]\nCircleSize:4\nApproachRate:9\n[HitObjects]\n256,192,1000,1,0';
@@ -15,7 +16,7 @@ export interface Engine_Self_Check_Result {
 // work end to end: prepare, session, playfield transform, input submission,
 // advance/acknowledge, result and handle cleanup (player parity port).
 export const run_engine_self_check = async (): Promise<Engine_Self_Check_Result> => {
-  const engine = await Engine_Bridge.create(await (await fetch('/tapweave.wasm')).arrayBuffer());
+  const engine = await Engine_Bridge.create(await (await fetch(engine_wasm_url)).arrayBuffer());
   try {
     const prepared = engine.prepare_map(new TextEncoder().encode(SELF_CHECK_BEATMAP));
     const session = engine.create_session(prepared.map_handle, { input_capacity: 64, batch_capacity: 8 });

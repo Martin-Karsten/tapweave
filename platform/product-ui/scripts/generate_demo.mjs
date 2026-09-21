@@ -37,8 +37,10 @@ const SPINNER_START_MS = 60000;
 const SPINNER_END_MS = 70800;
 const GROOVE_START_SECONDS = 4.8;
 const GROOVE_END_SECONDS = SPINNER_END_MS / 1000;
-// Fixed ZIP timestamp keeps the archive byte-stable across runs.
-const DEMO_ARCHIVE_MTIME = Date.UTC(2026, 0, 1);
+// ZIP stores local calendar fields, and fflate reads those fields from Date.
+// Pin the wall time instead of a UTC instant so every build timezone emits
+// the original archive timestamp (2026-01-01 01:00), preserving its checksum.
+const DEMO_ARCHIVE_MTIME = new Date(2026, 0, 1, 1, 0, 0);
 
 // Circle positions: hand-authored, each at least ~160 px from the previous
 // one (CS4 diameter is ~73 px, so even generous spacing stays readable).

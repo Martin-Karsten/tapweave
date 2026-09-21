@@ -1,3 +1,4 @@
+import { engine_wasm_url } from './engine_asset';
 import { Engine_Bridge } from '@browser/engine-bridge.js';
 import { Gameplay_Input } from '@browser/gameplay-input.js';
 import { Input_Buffer } from '@browser/input.js';
@@ -22,7 +23,7 @@ let active_fixture: { canvas: HTMLCanvasElement; engine: Engine_Bridge; binding:
 // suite). Nothing here runs during gameplay.
 export const start_input_gate_fixture = async (): Promise<void> => {
   stop_input_gate_fixture();
-  const engine = await Engine_Bridge.create(await (await fetch('/tapweave.wasm')).arrayBuffer());
+  const engine = await Engine_Bridge.create(await (await fetch(engine_wasm_url)).arrayBuffer());
   const canvas = document.createElement('canvas');
   canvas.setAttribute('data-input-fixture', 'playfield');
   canvas.style.cssText = 'position:fixed;left:20px;top:40px;width:512px;height:384px;z-index:999';

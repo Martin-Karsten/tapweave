@@ -15,6 +15,16 @@ The final **Known gameplay MVP defects** section supersedes the historical
 Firefox ramp failure and unresolved spinner/tracking findings below. It closes
 those bounded issues, not full M2/M3 or release certification.
 
+## Static hosting
+
+The product shell has Cloudflare Workers Static Assets configuration for a free
+`workers.dev` address, fingerprinted engine loading, explicit SPA route rewrites,
+and a CI deployment job gated on all existing validation jobs. Local hosting
+checks cover routes, cache headers, missing-asset 404s, engine boot, and demo start.
+Account setup and the first public deployment remain pending; public smoke and
+physical audible-output checks have not been executed. See [hosting](hosting.md).
+This adds no multiplayer or upstream compatibility acceptance.
+
 ## M0: foundation
 
 The owned decoder supports versions 1–14 and 128, defaults, gameplay metadata,

@@ -1,3 +1,4 @@
+import { engine_wasm_url } from './engine_asset';
 import { Audio_Mixer } from '@browser/audio-mixer.js';
 import { gameplay_accessible_label } from '@browser/player-settings.js';
 import { Player_Settings_Service } from './player_settings.js';
@@ -187,7 +188,7 @@ export class Player_Session_Service {
   }
 
   private static async default_engine_fetch(): Promise<ArrayBuffer> {
-    const wasm_response = await fetch('/tapweave.wasm');
+    const wasm_response = await fetch(engine_wasm_url);
     if (!wasm_response.ok) {
       throw new Error('Engine download failed. Build the browser assets and try again.');
     }
