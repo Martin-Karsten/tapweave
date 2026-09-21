@@ -1233,8 +1233,8 @@ reference-host adapter.
 Gameplay now fills the browser content area and fits every map's complete
 visual extent at one stable, uniform scale, instead of clipping to a bordered
 4:3 panel over the logical 512×384 rectangle (ADR-003
-[playfield framing](../architecture/adr-003-rendering.md#pinned-lazer-playfield-framing),
-ADR-006 [play route layout](../architecture/adr-006-product-shell.md#play-route-layout)).
+[playfield framing](architecture/adr-003-rendering.md#pinned-lazer-playfield-framing),
+ADR-006 [play route layout](architecture/adr-006-product-shell.md#play-route-layout)).
 
 Engine side: `presentation.visual_bounds` derives one `Visual_Bounds` per map
 from final prepared geometry (stacked positions, 4× approach rings, 1.5× hit
@@ -1432,18 +1432,31 @@ pass. A 1440×1000 CSS-pixel demo capture at DPR 2 was inspected for digit
 sharpness and centring. Firefox/WebKit visual certification and upstream A22
 acceptance are not established by this check.
 
-## Private demo rooms (ADR-008)
+## Private rooms with local maps (ADR-008)
 
-Private 2–8-player rooms add the bundled-demo lobby, cookie membership, readiness,
+Private 2–8-player rooms support host-selected local difficulties, session-only
+imports, exact map/music/WASM SHA-256 matching, revisioned availability/readiness,
 a five-second scheduled audio start, transient scoreboard, client-reported shared
-results and rematch. A SQLite-backed Durable Object coordinates each room with
-hibernating WebSockets and deadline/expiry alarms. Odin judgement and scoring
+results and return to lobby with the selection retained. A SQLite-backed Durable
+Object coordinates each room with hibernating WebSockets and deadline/expiry alarms. Odin judgement and scoring
 remain local and the production ABI is unchanged. Networking is limited to this
 explicit scope; no competitive verification, accounts, uploads or public directory.
+The room screen follows the shared product grammar of ADR-007 (sheared top bar
+and footer actions, wedge panels, chips, gradient CTAs over the common backdrop)
+without adding primitives or changing room contracts.
 
 See [ADR-008](architecture/adr-008-private-demo-rooms.md) and the
-[MP-01–MP-08 validation matrix](compatibility/multiplayer.md). Workers-runtime
+[MP-01–MP-11 validation matrix](compatibility/multiplayer.md). Workers-runtime
 tests exercise real SQLite, alarms and socket hibernation/eviction. Independent
-context browser tests exercise demo rounds and interruptions. These are product
-regressions, not new upstream gameplay acceptance. Separate physical devices and
+context browser tests exercise independently imported local fixtures and
+interruptions. These are product regressions, not new upstream gameplay acceptance. Separate physical devices and
 audible-output start skew remain an open release check.
+
+Protocol v2 uses the prepared final object end time from playback zero for
+progress and deadlines, plus a 30-second completion grace period. Active rounds
+are exempt from inactivity expiry; the absolute four-hour limit still applies.
+Legacy demo-only rooms retire with a recreate-room explanation. Local validation
+passes the full engine suite, 194 browser-runtime tests, 47 product unit tests,
+product gates, 16 Worker tests and 30 Chromium/Firefox/WebKit multiplayer cases.
+These changes have not been deployed; see the linked validation record for scope
+and the remaining physical-device gate.

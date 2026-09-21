@@ -1,5 +1,14 @@
+import type { Selection_Request } from '@browser/selection.js';
 import {
-  DEMO_DURATION_MS,
+  describe_local_map,
+  matching_filename,
+  require_matching_map,
+  Incompatible_Map,
+} from './multiplayer_map';
+import {
+  PROTOCOL_VERSION,
+  type Map_Availability,
+  type Selected_Map,
   RECONNECT_MS,
   type Client_Command,
   type Room_Snapshot,
@@ -15,6 +24,7 @@ export interface Multiplayer_State {
   room: Room_Snapshot | null;
   connected: boolean;
   prepared: boolean;
+  availability: Map_Availability;
   busy: boolean;
   error: string | null;
   scores: Readonly<
@@ -26,6 +36,21 @@ export interface Multiplayer_State {
     >
   >;
 }
+type Map_Preparation_Action =
+  | { type: 'import'; files: File[] }
+  | { type: 'difficulty'; filename: string }
+  | { type: 'demo' }
+  | { type: 'check' };
+
+interface Map_Preparation_Operation {
+  generation: number;
+  selection_revision: number;
+  member_id: string;
+  selects_room_map: boolean;
+  expected_map: Selected_Map | null;
+  room_engine_hash: string;
+}
+
 interface Clock_Sample {
   round_trip_ms: number;
   offset_ms: number;
@@ -69,6 +94,7 @@ export class Multiplayer_Service {
     room: null,
     connected: false,
     prepared: false,
+    availability: 'missing',
     busy: false,
     error: null,
     scores: {},
@@ -93,7 +119,11 @@ export class Multiplayer_Service {
   private local_round_id: string | null = null;
   private terminal_report: Terminal_Report | null = null;
   private terminal_report_sent = false;
-  private demo_preparation: Promise<void> | null = null;
+  private preparation_generation = 0;
+  private prepared_revision = -1;
+  private check_on_snapshot = true;
+  private host_preparation_generation: number | null = null;
+  private selection_acknowledgement: Promise<void> | null = null;
   private readonly unsubscribe_player: () => void;
   private readonly pagehide = () => this.leave();
   private readonly audio_changed = () => {
@@ -104,7 +134,7 @@ export class Multiplayer_Service {
         this.send_command({
           type: 'ready',
           ready: false,
-          identity: build_identity.identity,
+          selection_revision: this.state.room?.selection_revision ?? 0,
         });
       }
     }
@@ -125,6 +155,15 @@ export class Multiplayer_Service {
     return this.state.room?.members.find(
       (member) => member.member_id === this.state.room?.member_id,
     );
+  }
+  // Presentational estimate of server time from the best clock sample, for
+  // UI text such as the lobby countdown. The audio anchor stays the only
+  // judgement clock (ADR-004); null means no synchronized sample exists yet.
+  get server_now_ms(): number | null {
+    const sample = [...this.clock_samples].sort(
+      (left, right) => left.round_trip_ms - right.round_trip_ms,
+    )[0];
+    return sample ? performance.now() + sample.offset_ms : null;
   }
   subscribe(listener: () => void) {
     this.listeners.add(listener);
@@ -185,7 +224,6 @@ export class Multiplayer_Service {
         return;
       }
       this.open_socket();
-      await this.prepare_demo();
     } catch (error) {
       this.report_error(error);
     } finally {
@@ -195,40 +233,237 @@ export class Multiplayer_Service {
     }
   }
 
-  private async prepare_demo() {
-    if (this.demo_preparation) {
-      return this.demo_preparation;
+  private set_availability(availability: Map_Availability) {
+    this.publish({ availability, prepared: availability === 'available' });
+    const room = this.state.room;
+    if (room?.phase === 'lobby') {
+      this.send_command({
+        type: 'availability',
+        availability,
+        selection_revision: room.selection_revision,
+      });
     }
-    this.demo_preparation = (async () => {
-      this.publish({ prepared: false });
-      this.player.back();
-      const response = await fetch('/demo/tapweave-demo.osz', { cache: 'reload' });
-      if (!response.ok) {
-        throw new Error('Demo download failed. Try joining again.');
-      }
-      const bytes = await response.arrayBuffer();
-      const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)))
-        .map((byte) => byte.toString(16).padStart(2, '0'))
-        .join('');
-      if (digest !== build_identity.archive_hash) {
-        throw new Error('Demo files differ from this release. Reload the page.');
-      }
-      if (this.disposed) {
+  }
+
+  private is_current_preparation(operation: Map_Preparation_Operation): boolean {
+    const room = this.state.room;
+    if (this.disposed || operation.generation !== this.preparation_generation) {
+      return false;
+    }
+    if (!room || room.phase !== 'lobby') {
+      return false;
+    }
+    if (operation.selects_room_map) {
+      // A newer host choice can wait for an earlier choice's acknowledgement.
+      // Its revision changes during that wait, but its local intent stays valid.
+      return room.host_id === operation.member_id;
+    }
+    return room.selection_revision === operation.selection_revision;
+  }
+
+  private require_compatible_build(operation: Map_Preparation_Operation) {
+    if (operation.room_engine_hash !== build_identity.engine_hash) {
+      throw new Incompatible_Map('Incompatible engine build. Reload this page.');
+    }
+    if (
+      operation.expected_map &&
+      operation.expected_map.engine_hash !== build_identity.engine_hash
+    ) {
+      throw new Incompatible_Map('Incompatible engine build. Reload this page.');
+    }
+  }
+
+  private async load_preparation_candidate(
+    action: Map_Preparation_Action,
+    operation: Map_Preparation_Operation,
+    request: Selection_Request,
+  ) {
+    switch (action.type) {
+      case 'import':
+        await this.player.load_files(action.files, request);
+        return;
+      case 'demo': {
+        const response = await fetch('/demo/tapweave-demo.osz');
+        if (!response.ok) {
+          throw new Error('Demo could not load. Try again.');
+        }
+        const demo_archive = new File([await response.arrayBuffer()], 'tapweave-demo.osz');
+        if (this.is_current_preparation(operation)) {
+          await this.player.load_files([demo_archive], request);
+        }
         return;
       }
-      await this.player.load_files([
-        new File([bytes], 'tapweave-demo.osz', { type: 'application/zip' }),
-      ]);
-      if (!this.player.view.can_play) {
-        throw new Error(this.player.view.message);
+      case 'difficulty':
+        await this.player.select_map(action.filename, request);
+        return;
+      case 'check': {
+        const active_selection = this.player.selection.active;
+        if (!active_selection || !operation.expected_map) {
+          return;
+        }
+        const filename = await matching_filename(active_selection.source, operation.expected_map);
+        if (this.is_current_preparation(operation)) {
+          await this.player.select_map(filename, request);
+        }
+        return;
       }
-      this.publish({ prepared: true });
-    })();
-    try {
-      await this.demo_preparation;
-    } finally {
-      this.demo_preparation = null;
     }
+  }
+
+  private async prepare_matching_candidate(
+    action: Map_Preparation_Action,
+    operation: Map_Preparation_Operation,
+  ): Promise<Selected_Map | null> {
+    let prepared_map: Selected_Map | null = null;
+    const request: Selection_Request = {
+      validate: async (candidate) => {
+        const candidate_map = await describe_local_map(candidate, build_identity.engine_hash);
+        if (operation.expected_map) {
+          require_matching_map(candidate_map, operation.expected_map);
+        }
+        if (!this.is_current_preparation(operation)) {
+          throw new Error('Map check superseded.');
+        }
+        prepared_map = candidate_map;
+      },
+    };
+    const expected_map = operation.expected_map;
+    if (expected_map) {
+      request.choose_map = (source) => matching_filename(source, expected_map);
+    }
+    await this.load_preparation_candidate(action, operation, request);
+    if (!this.is_current_preparation(operation)) {
+      return null;
+    }
+    if (this.player.selection.error) {
+      throw this.player.selection.error;
+    }
+    if (!prepared_map || !this.player.view.can_play) {
+      throw new Error('Map preparation did not complete.');
+    }
+    return prepared_map;
+  }
+
+  private async prepare_local(action: Map_Preparation_Action) {
+    const room = this.state.room;
+    if (!room || room.phase !== 'lobby' || !this.state.connected) {
+      return;
+    }
+    const selects_room_map = room.host_id === room.member_id && action.type !== 'check';
+    const operation: Map_Preparation_Operation = {
+      generation: ++this.preparation_generation,
+      selection_revision: room.selection_revision,
+      member_id: room.member_id,
+      selects_room_map,
+      expected_map: selects_room_map ? null : room.selected_map,
+      room_engine_hash: room.engine_hash,
+    };
+    this.host_preparation_generation = selects_room_map ? operation.generation : null;
+    this.player.selection.cancel_pending();
+    this.prepared_revision = -1;
+    this.publish({ busy: true, error: null, prepared: false, availability: 'checking' });
+
+    try {
+      // Serialize host publications so each command uses the acknowledged revision.
+      if (selects_room_map && this.selection_acknowledgement) {
+        await this.selection_acknowledgement;
+      }
+      if (!this.is_current_preparation(operation)) {
+        return;
+      }
+      this.set_availability('checking');
+      if (!selects_room_map && !operation.expected_map) {
+        this.set_availability('missing');
+        return;
+      }
+      this.require_compatible_build(operation);
+      const needs_loaded_set = action.type === 'check' || action.type === 'difficulty';
+      if (needs_loaded_set && !this.player.selection.active) {
+        this.set_availability('missing');
+        return;
+      }
+      const prepared_map = await this.prepare_matching_candidate(action, operation);
+      if (!prepared_map || !this.is_current_preparation(operation)) {
+        return;
+      }
+      if (selects_room_map) {
+        await this.publish_selection(prepared_map);
+        if (this.is_current_preparation(operation)) {
+          void this.check_map();
+        }
+      } else {
+        this.prepared_revision = operation.selection_revision;
+        this.set_availability('available');
+      }
+    } catch (error) {
+      if (this.is_current_preparation(operation)) {
+        this.set_availability(error instanceof Incompatible_Map ? 'incompatible' : 'failed');
+        this.report_error(error);
+      }
+    } finally {
+      if (this.host_preparation_generation === operation.generation) {
+        this.host_preparation_generation = null;
+      }
+      if (this.is_current_preparation(operation)) {
+        this.publish({ busy: false });
+      }
+    }
+  }
+
+  private async publish_selection(selected_map: Selected_Map) {
+    const room = this.state.room!;
+    let unsubscribe = () => {};
+    let timeout: ReturnType<typeof setTimeout>;
+    const acknowledgement = new Promise<void>((resolve, reject) => {
+      timeout = setTimeout(
+        () =>
+          reject(new Error('Map selection confirmation timed out. Reconnect and check the map.')),
+        5000,
+      );
+      unsubscribe = this.subscribe(() => {
+        if (
+          !this.state.connected ||
+          this.state.room?.host_id !== room.member_id ||
+          this.state.error
+        ) {
+          reject(new Error(this.state.error ?? 'Map selection interrupted.'));
+        } else if (this.state.room.selection_revision > room.selection_revision) {
+          resolve();
+        }
+      });
+    });
+    this.selection_acknowledgement = acknowledgement;
+    this.send_command({
+      type: 'select',
+      selection_revision: room.selection_revision,
+      selected_map,
+    });
+    try {
+      await acknowledgement;
+    } finally {
+      clearTimeout(timeout!);
+      unsubscribe();
+      if (this.selection_acknowledgement === acknowledgement) {
+        this.selection_acknowledgement = null;
+      }
+    }
+  }
+
+  import_files(files: File[]) {
+    if (files.length) {
+      return this.prepare_local({ type: 'import', files });
+    }
+  }
+  select_map(filename: string) {
+    if (this.state.room?.host_id === this.state.room?.member_id) {
+      return this.prepare_local({ type: 'difficulty', filename });
+    }
+  }
+  select_demo() {
+    return this.prepare_local({ type: 'demo' });
+  }
+  check_map() {
+    return this.prepare_local({ type: 'check' });
   }
 
   private open_socket() {
@@ -248,6 +483,7 @@ export class Multiplayer_Service {
     const socket = new WebSocket(url);
     this.socket = socket;
     socket.onopen = () => {
+      this.check_on_snapshot = true;
       this.disconnected_ms = null;
       this.terminal_report_sent = false;
       this.publish({
@@ -270,11 +506,17 @@ export class Multiplayer_Service {
         return;
       }
       this.socket = null;
+      this.preparation_generation++;
+      this.host_preparation_generation = null;
+      this.player.selection.cancel_pending();
+      this.prepared_revision = -1;
       this.publish({
+        prepared: false,
+        busy: false,
         connected: false,
         error: 'Connection lost. Reconnecting for up to 30 seconds; live scores are stale.',
       });
-      if ([4000, 4001, 4002, 4008].includes(event.code)) {
+      if ([4000, 4001, 4002, 4003, 4008].includes(event.code)) {
         this.withdraw(event.reason);
         return;
       }
@@ -295,8 +537,8 @@ export class Multiplayer_Service {
   }
 
   private receive(message: Server_Message) {
-    if (!message || message.version !== 1) {
-      throw new Error('Incompatible room protocol. Reload the page.');
+    if (!message || message.version !== PROTOCOL_VERSION) {
+      throw new Error('Room protocol upgraded. Reload and recreate the room.');
     }
     if (message.type === 'error') {
       this.report_error(new Error(message.message));
@@ -338,20 +580,28 @@ export class Multiplayer_Service {
     ) {
       return;
     }
+    const needs_check = this.check_on_snapshot;
+    this.check_on_snapshot = false;
+    const previous_revision = this.state.room?.selection_revision;
+    const returning_to_lobby = this.state.room?.phase !== 'lobby' && message.phase === 'lobby';
     const previous_round_id = this.state.room?.round?.round_id;
     this.publish({
       room: message,
       ...(previous_round_id !== message.round?.round_id ? { scores: {} } : {}),
     });
-    if (message.identity !== build_identity.identity) {
-      this.report_error(new Error('Incompatible engine or demo build. Reload to join.'));
-    }
+
     if (message.phase === 'lobby' && this.local_round_id) {
       this.local_round_id = null;
       this.terminal_report = null;
       this.terminal_report_sent = false;
       this.player.back();
-      this.publish({ prepared: this.player.view.can_play });
+    }
+    if (
+      message.phase === 'lobby' &&
+      (needs_check || previous_revision !== message.selection_revision || returning_to_lobby) &&
+      !(this.host_preparation_generation !== null && message.host_id === message.member_id)
+    ) {
+      void this.check_map();
     }
     if (
       message.phase === 'countdown' &&
@@ -387,7 +637,7 @@ export class Multiplayer_Service {
     this.socket.send(
       JSON.stringify({
         ...message,
-        version: 1,
+        version: 2,
         sequence: ++this.sequence,
       }),
     );
@@ -429,6 +679,8 @@ export class Multiplayer_Service {
 
   async ready() {
     // Invoke resume synchronously in the Ready gesture, before any network await.
+    const revision = this.state.room?.selection_revision;
+    const generation = this.preparation_generation;
     const audio_unlock = this.player.audio_context.resume();
     this.publish({
       busy: true,
@@ -441,13 +693,23 @@ export class Multiplayer_Service {
         !this.player.view.can_play ||
         this.player.audio_context.state !== 'running'
       ) {
-        throw new Error('Prepare the demo and enable audio before readying.');
+        throw new Error('Import matching files and enable audio before readying.');
       }
       await this.synchronize();
+      if (
+        this.disposed ||
+        generation !== this.preparation_generation ||
+        revision !== this.prepared_revision ||
+        revision !== this.state.room?.selection_revision ||
+        this.state.room?.phase !== 'lobby' ||
+        !this.state.prepared
+      ) {
+        return;
+      }
       this.send_command({
         type: 'ready',
         ready: true,
-        identity: build_identity.identity,
+        selection_revision: this.state.room?.selection_revision ?? 0,
       });
     } catch (error) {
       this.report_error(error);
@@ -466,11 +728,14 @@ export class Multiplayer_Service {
     this.send_command({
       type: 'ready',
       ready: false,
-      identity: build_identity.identity,
+      selection_revision: this.state.room?.selection_revision ?? 0,
     });
   }
   start() {
-    this.send_command({ type: 'start' });
+    this.send_command({
+      type: 'start',
+      selection_revision: this.state.room?.selection_revision ?? 0,
+    });
   }
   rematch() {
     this.send_command({ type: 'rematch' });
@@ -486,6 +751,9 @@ export class Multiplayer_Service {
         this.state.room?.phase !== 'countdown'
       ) {
         return;
+      }
+      if (!this.state.prepared || this.prepared_revision !== round.selection_revision) {
+        throw new Error('The current map was not prepared for this round.');
       }
       if (this.player.audio_context.state !== 'running') {
         throw new Error('Audio is suspended.');
@@ -521,7 +789,14 @@ export class Multiplayer_Service {
         score: Number(view.result.summary.score),
         accuracy: Number(view.result.summary.accuracy),
         combo: Number(view.result.summary.highest_combo),
-        progress: Math.min(1, Number(view.result.summary.terminal_ms) / DEMO_DURATION_MS),
+        progress: Math.min(
+          1,
+          Math.max(
+            0,
+            Number(view.result.summary.terminal_ms) /
+              (this.state.room?.round?.selected_map.end_ms ?? 1),
+          ),
+        ),
       };
       this.report_score();
     } else if (['paused', 'recovering', 'disposed'].includes(view.state)) {
@@ -560,7 +835,10 @@ export class Multiplayer_Service {
           score: score.score,
           accuracy: score.accuracy,
           combo: score.combo,
-          progress: Math.min(1, Math.max(0, score.committed_ms / DEMO_DURATION_MS)),
+          progress: Math.min(
+            1,
+            Math.max(0, score.committed_ms / (this.state.room?.round?.selected_map.end_ms ?? 1)),
+          ),
         },
       });
     }
@@ -588,6 +866,9 @@ export class Multiplayer_Service {
       return;
     }
     this.disposed = true;
+    this.publish({ connected: false });
+    this.preparation_generation++;
+    this.player.selection.cancel_pending();
     this.unsubscribe_player();
     window.removeEventListener('pagehide', this.pagehide);
     this.player.audio_context.removeEventListener('statechange', this.audio_changed);

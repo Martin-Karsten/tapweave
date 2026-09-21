@@ -1,3 +1,4 @@
+import type { Selection_Request } from '@browser/selection.js';
 import { engine_wasm_url } from './engine_asset';
 import { Audio_Mixer } from '@browser/audio-mixer.js';
 import { gameplay_accessible_label } from '@browser/player-settings.js';
@@ -312,8 +313,12 @@ export class Player_Session_Service {
   export_replay(): Uint8Array { return this.gameplay.export_replay(); }
   async watch_replay(): Promise<void> { await this.gameplay.watch_replay(); }
   stop_watch(): void { this.gameplay.stop_watch(); }
-  async load_files(files: File[]) { await this.gameplay.load_files(files); }
-  async select_map(filename: string) { await this.gameplay.select_map(filename); }
+  async load_files(files: File[], request: Selection_Request = {}) {
+    await this.gameplay.load_files(files, request);
+  }
+  async select_map(filename: string, request: Selection_Request = {}) {
+    await this.gameplay.select_map(filename, request);
+  }
 
   mark_boot_failed(error: unknown) {
     this.phase = 'boot-failed';

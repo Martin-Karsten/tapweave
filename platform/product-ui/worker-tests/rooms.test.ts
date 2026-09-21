@@ -94,8 +94,11 @@ async function connect(
       sequences.set(member.member_id, sequence + 1);
       socket.send(
         JSON.stringify({
-          version: 1,
+          version: 2,
           sequence: ++sequence,
+          ...(['select', 'ready', 'availability', 'start'].includes(String(message.type))
+            ? { selection_revision: 1 }
+            : {}),
           ...message,
         }),
       );
@@ -141,16 +144,49 @@ async function edit_stored_room(room_id: string, mutate: (room: Stored_Test_Room
     context.storage.sql.exec('UPDATE room SET payload = ?', JSON.stringify(room));
   });
 }
+const selected_map = {
+  map_hash: 'a'.repeat(64),
+  music_hash: 'b'.repeat(64),
+  engine_hash: identity.engine_hash,
+  title: 'Local fixture',
+  artist: 'Tapweave',
+  creator: 'Test',
+  difficulty: 'Normal',
+  end_ms: 90_000,
+};
+async function select_fixture(
+  connection: Awaited<ReturnType<typeof connect>>,
+  revision = 0,
+  end_ms = 90_000,
+) {
+  connection.send({
+    type: 'select',
+    selection_revision: revision,
+    selected_map: { ...selected_map, end_ms },
+  });
+  await connection.wait('snapshot', (snapshot) => snapshot.selection_revision === revision + 1);
+}
+async function make_available(connection: Awaited<ReturnType<typeof connect>>) {
+  connection.send({ type: 'availability', availability: 'available' });
+  await connection.wait(
+    'snapshot',
+    (snapshot) =>
+      snapshot.members.find((member) => member.member_id === snapshot.member_id)?.availability ===
+      'available',
+  );
+}
 async function prepared_room() {
   const host = await create();
   const host_connection = await connect(host);
   const friend = await join(host.room_id);
   const friend_connection = await connect(friend);
+  await select_fixture(host_connection);
   for (const connection of [host_connection, friend_connection]) {
+    await make_available(connection);
     connection.send({
       type: 'ready',
       ready: true,
-      identity: identity.identity,
+      selection_revision: 1,
     });
   }
   await host_connection.wait(
@@ -229,23 +265,25 @@ test('eight member capacity holds under concurrent joins; names and bodies are b
 test('host permissions, readiness, incompatible builds, and countdown cancellation', async () => {
   const host = await create();
   const host_connection = await connect(host);
-  host_connection.send({ type: 'start' });
+  host_connection.send({ type: 'start', selection_revision: 0 });
   expect((await host_connection.wait('error')).message).toContain('two');
   const friend = await join(host.room_id);
   const friend_connection = await connect(friend);
   friend_connection.send({ type: 'start' });
   expect((await friend_connection.wait('error')).message).toContain('host');
-  friend_connection.send({
-    type: 'ready',
-    ready: true,
-    identity: 'old-build',
+  host_connection.send({
+    type: 'select',
+    selection_revision: 0,
+    selected_map: { ...selected_map, engine_hash: 'f'.repeat(64) },
   });
-  expect((await friend_connection.wait('error')).message).toContain('Incompatible');
+  expect((await host_connection.wait('error')).message).toContain('Incompatible');
+  await select_fixture(host_connection);
   for (const connection of [host_connection, friend_connection]) {
+    await make_available(connection);
     connection.send({
       type: 'ready',
       ready: true,
-      identity: identity.identity,
+      selection_revision: 1,
     });
   }
   await host_connection.wait('snapshot', (message) =>
@@ -261,7 +299,7 @@ test('host permissions, readiness, incompatible builds, and countdown cancellati
   friend_connection.send({
     type: 'ready',
     ready: false,
-    identity: identity.identity,
+    selection_revision: 1,
   });
   await host_connection.wait(
     'snapshot',
@@ -284,6 +322,8 @@ test('disconnect before launch cancels countdown and transfers host', async () =
   );
   expect(lobby.host_id).toBe(friend.member_id);
   expect(lobby.members.every((member) => !member.ready)).toBe(true);
+  expect(lobby.selected_map).toEqual(selected_map);
+  await select_fixture(friend_connection, 1, 1500);
 });
 
 test('first terminal persists across eviction; duplicate and stale round reports cannot overwrite it', async () => {
@@ -450,7 +490,7 @@ test('member flood closes the socket and one member cannot open a second connect
   const closed = new Promise<number>((resolve) =>
     connection.socket.addEventListener('close', (event) => resolve(event.code)),
   );
-  for (let message_index = 0; message_index < 11; message_index++) {
+  for (let message_index = 0; message_index < 33; message_index++) {
     connection.send({
       type: 'clock',
       client_ms: message_index,
@@ -526,4 +566,137 @@ test('same-session half-open countdown reconnection cancels launch and keeps one
         .filter((socket) => socket.readyState === WebSocket.OPEN),
     ).toHaveLength(1);
   });
+});
+
+test('selection is host-only, revisioned, frozen per round, and clears every readiness', async () => {
+  const room = await prepared_room();
+  room.friend_connection.send({ type: 'select', selected_map });
+  expect((await room.friend_connection.wait('error')).message).toContain('host');
+  await select_fixture(room.host_connection, 1, 120_000);
+  const changed = await room.friend_connection.wait(
+    'snapshot',
+    (snapshot) => snapshot.selection_revision === 2,
+  );
+  expect(
+    changed.members.every((member) => !member.ready && member.availability === 'missing'),
+  ).toBe(true);
+  room.friend_connection.send({
+    type: 'ready',
+    ready: true,
+    selection_revision: 1,
+  });
+  expect((await room.friend_connection.wait('error')).message).toContain('Stale');
+  room.host_connection.send({ type: 'start', selection_revision: 1 });
+  expect((await room.host_connection.wait('error')).message).toContain('Stale');
+  room.host_connection.send({ type: 'start', selection_revision: 2 });
+  expect((await room.host_connection.wait('error')).message).toContain('ready');
+  for (const connection of [room.host_connection, room.friend_connection]) {
+    connection.send({
+      type: 'availability',
+      availability: 'available',
+      selection_revision: 2,
+    });
+    connection.send({ type: 'ready', ready: true, selection_revision: 2 });
+  }
+  await room.host_connection.wait('snapshot', (snapshot) =>
+    snapshot.members.every((member) => member.ready),
+  );
+  room.host_connection.send({ type: 'start', selection_revision: 2 });
+  const countdown = await room.host_connection.wait(
+    'snapshot',
+    (snapshot) => snapshot.phase === 'countdown',
+  );
+  expect(countdown.round!.selected_map.end_ms).toBe(120_000);
+  expect(countdown.round!.deadline_ms - countdown.round!.start_ms).toBe(150_000);
+  room.friend_connection.send({
+    type: 'select',
+    selected_map,
+    selection_revision: 2,
+  });
+  expect((await room.friend_connection.wait('error')).message).toContain('lobby');
+});
+
+test('short and delayed long timelines use playback zero; starts must fit the absolute lifetime', async () => {
+  const room = await prepared_room();
+  await edit_stored_room(room.host.room_id, (state) => {
+    state.created_ms = Date.now() - 4 * 60 * 60_000 + 100_000;
+  });
+  room.host_connection.send({ type: 'start' });
+  expect((await room.host_connection.wait('error')).message).toContain('four-hour');
+  await select_fixture(room.host_connection, 1, 1500);
+  for (const connection of [room.host_connection, room.friend_connection]) {
+    connection.send({
+      type: 'availability',
+      availability: 'available',
+      selection_revision: 2,
+    });
+    connection.send({ type: 'ready', ready: true, selection_revision: 2 });
+  }
+  await room.host_connection.wait(
+    'snapshot',
+    (snapshot) =>
+      snapshot.selection_revision === 2 && snapshot.members.every((member) => member.ready),
+  );
+  room.host_connection.send({ type: 'start', selection_revision: 2 });
+  const countdown = await room.host_connection.wait(
+    'snapshot',
+    (snapshot) => snapshot.phase === 'countdown',
+  );
+  expect(countdown.round!.deadline_ms - countdown.round!.start_ms).toBe(31_500);
+});
+
+test('an active long round ignores inactivity and gets a fresh lobby timeout after results', async () => {
+  const room = await started_room();
+  await edit_stored_room(room.host.room_id, (state) => {
+    state.active_ms = Date.now() - 31 * 60_000;
+    state.round!.deadline_ms = Date.now() + 60_000;
+  });
+  await runDurableObjectAlarm(room_stub(room.host.room_id));
+  const playing = await room.host_connection.wait(
+    'snapshot',
+    (snapshot) => snapshot.phase === 'playing',
+  );
+  expect(playing.expires_ms).toBeGreaterThan(Date.now() + 60_000);
+  for (const connection of [room.host_connection, room.friend_connection]) {
+    connection.send({
+      type: 'terminal',
+      round_id: room.round_id,
+      report: completed_report,
+    });
+  }
+  const results = await room.host_connection.wait(
+    'snapshot',
+    (snapshot) => snapshot.phase === 'results',
+  );
+  expect(results.expires_ms).toBeGreaterThan(Date.now() + 29 * 60_000);
+  room.host_connection.send({ type: 'rematch' });
+  const lobby = await room.host_connection.wait(
+    'snapshot',
+    (snapshot) => snapshot.phase === 'lobby' && snapshot.sequence > results.sequence,
+  );
+  expect(lobby.selected_map).toEqual(results.round!.selected_map);
+  expect(lobby.selection_revision).toBe(results.round!.selection_revision);
+});
+
+test('legacy stored rooms and old wire clients retire with a recreate-room explanation', async () => {
+  const host = await create();
+  const connection = await connect(host);
+  const closed = new Promise<CloseEvent>((resolve) =>
+    connection.socket.addEventListener('close', resolve),
+  );
+  connection.send({ version: 1, type: 'start' });
+  const close_event = await closed;
+  expect(close_event.code).toBe(4000);
+  expect(close_event.reason).toContain('recreate');
+  await runInDurableObject(room_stub(host.room_id), (_instance, context) => {
+    const stored = JSON.parse(
+      context.storage.sql.exec('SELECT payload FROM room').one().payload as string,
+    );
+    delete stored.version;
+    context.storage.sql.exec('UPDATE room SET payload = ?', JSON.stringify(stored));
+  });
+  const response = await request(`/api/multiplayer/${host.room_id}/join`);
+  expect(response.status).toBe(410);
+  expect(await response.text()).toContain('Recreate');
+  await runDurableObjectAlarm(room_stub(host.room_id));
 });

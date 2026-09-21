@@ -1,65 +1,140 @@
+/* Multiplayer RoomView chrome (ADR-008 private rooms): lazer structure
+   reference only — sheared FilterControl-style top bar over the shared
+   night-sky backdrop and pill CTA treatments; no new primitives (ADR-007). */
+
 .multiplayer-screen {
-  overflow: auto;
-  padding: var(--space-6);
+  padding: 0 var(--space-10);
+  background: var(--screen-stars), var(--screen-stripes), var(--screen-backdrop);
+  /* The sheared top bar bleeds past the screen edge; clip that axis only. */
+  overflow-x: clip;
+  overflow-y: auto;
 }
-.multiplayer-heading {
-  margin-bottom: var(--space-4);
-}
-.multiplayer-lobby {
-  margin-block: var(--space-4);
-}
-.multiplayer-screen input {
-  display: block;
-  width: min(100%, 48rem);
-  margin-block: var(--space-3);
-}
-.multiplayer-playfield {
-  display: none;
-}
-.multiplayer-playfield.active {
-  display: block;
-  position: relative;
-  height: 70vh;
-}
-.multiplayer-playfield .playfield-host {
-  width: 100%;
-  height: 100%;
-}
-.multiplayer-playfield canvas {
-  width: 100%;
-  height: 100%;
-}
-.multiplayer-screen.playing .multiplayer-heading {
+
+/* FilterControl bar: edge-to-edge sheared chrome with counter-sheared content. */
+.multiplayer-topbar {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
-}
-.multiplayer-scores {
-  margin-block: var(--space-4);
+  gap: var(--space-5) var(--space-8);
+  min-width: 0;
+  margin: 0 calc(-1 * var(--space-10));
+  border-bottom: var(--stroke-width-panel) solid var(--color-border);
+  background: linear-gradient(180deg, var(--color-surface-selected), var(--color-surface));
+  box-shadow: var(--shadow-raised);
+  padding: var(--space-5) var(--space-10);
+  transform: skewX(var(--wedge-shear));
+  transform-origin: top left;
 }
 
-.multiplayer-round-layout.active {
+.multiplayer-topbar > * {
+  transform: skewX(var(--wedge-unshear));
+}
+
+.multiplayer-heading {
+  min-width: 0;
+}
+
+.multiplayer-title {
+  margin: 0;
+  font-size: var(--font-size-title);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--color-text-bright);
+  white-space: nowrap;
+}
+
+/* Anime garnish shared with song select: a sparkle marks the screen title. */
+.multiplayer-title::before {
+  content: '✦';
+  margin-right: var(--space-4);
+  color: var(--color-accent-strong);
+}
+
+.multiplayer-tagline {
+  margin: 0;
+  font-size: var(--font-size-note);
+  color: var(--color-text-muted);
+}
+
+.multiplayer-status {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-accent-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.multiplayer-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-left: auto;
+  font-size: var(--font-size-note);
+}
+
+/* Withdraw exits the local run; danger-toned like the leave action. */
+.multiplayer-withdraw {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.multiplayer-alert {
+  margin: 0;
+  color: var(--color-danger);
+  overflow-wrap: anywhere;
+}
+
+/* Entry form: a centered panel under the top bar. */
+.multiplayer-entry {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 18rem;
-  gap: var(--space-6);
-}
-.multiplayer-round-layout.active .multiplayer-scores {
-  max-height: 70vh;
-  overflow: auto;
-}
-@media (max-width: 760px) {
-  .multiplayer-round-layout.active {
-    grid-template-columns: 1fr;
-  }
+  gap: var(--space-4);
+  justify-self: center;
+  width: min(100%, 26rem);
+  margin-block: var(--space-16);
 }
 
-.multiplayer-screen.playing {
-  gap: var(--space-3);
+.multiplayer-entry label {
+  font-weight: 600;
+  color: var(--color-text-bright);
 }
-.multiplayer-screen.playing .multiplayer-heading h1,
-.multiplayer-screen.playing .multiplayer-heading p {
+
+.multiplayer-entry input {
+  border: var(--stroke-width-panel) solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-background-deep);
+  color: var(--color-text);
+  padding: var(--space-4) var(--space-8);
+  font: inherit;
+}
+
+.multiplayer-entry input:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: var(--glow-accent);
+}
+
+.multiplayer-note {
+  margin: 0;
+  font-size: var(--font-size-note);
+  color: var(--color-text-muted);
+}
+
+/* Gradient CTA treatment shared with the song-select Play button. */
+.multiplayer-cta {
+  background: var(--gradient-accent);
+  border-color: var(--color-accent-strong);
+  color: var(--color-accent-contrast);
+  font-weight: 700;
+  box-shadow: var(--glow-accent);
+}
+
+.multiplayer-cta:hover:not(:disabled) {
+  background: var(--gradient-accent);
+  border-color: var(--color-accent-strong);
+  color: var(--color-accent-contrast);
+  box-shadow: var(--glow-accent-strong);
+}
+
+/* While a round runs the top bar collapses to status plus actions. */
+.multiplayer-screen.playing .multiplayer-heading {
   display: none;
-}
-.multiplayer-screen.playing .multiplayer-playfield {
-  height: calc(100dvh - 12rem);
 }

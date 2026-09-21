@@ -1,3 +1,4 @@
+import type { Selection_Request } from './selection.js';
 import { Resume_Gate, mapped_sources } from './resume-gate.js';
 import { Held_Input } from './held-input.js';
 import { DEFAULT_PLAYER_SETTINGS, gameplay_control_hint, gameplay_accessible_label, type Gameplay_Input_Settings } from './player-settings.js';
@@ -726,16 +727,20 @@ export class Gameplay_Controller {
     this.publish();
   }
 
-  async load_files(files: File[]) {
-    if (this.state === 'disposed') return;
+  async load_files(files: File[], request: Selection_Request = {}) {
+    if (this.state === 'disposed') {
+      return;
+    }
     this.release_attempt();
-    await this.selection.load_files(files);
+    await this.selection.load_files(files, request);
   }
 
-  async select_map(filename: string) {
-    if (this.state === 'disposed') return;
+  async select_map(filename: string, request: Selection_Request = {}) {
+    if (this.state === 'disposed') {
+      return;
+    }
     this.release_attempt();
-    await this.selection.select_map(filename);
+    await this.selection.select_map(filename, request);
   }
 
   private stop_owners() {

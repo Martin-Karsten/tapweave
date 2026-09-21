@@ -1,7 +1,59 @@
-// Private demo protocol. These values describe client reports, never judgements.
-export const PROTOCOL_VERSION = 1;
-export const DEMO_DURATION_MS = 75_000;
+// Private room protocol. These values describe client reports, never judgements.
+export const PROTOCOL_VERSION = 2;
 export const RECONNECT_MS = 30_000;
+export type Map_Availability = 'missing' | 'checking' | 'incompatible' | 'failed' | 'available';
+export interface Selected_Map {
+  map_hash: string;
+  music_hash: string;
+  engine_hash: string;
+  title: string;
+  artist: string;
+  creator: string;
+  difficulty: string;
+  end_ms: number;
+}
+
+function valid_sha256(hash: unknown): hash is string {
+  return typeof hash === 'string' && /^[a-f0-9]{64}$/.test(hash);
+}
+
+function valid_map_label(label: unknown): label is string {
+  if (typeof label !== 'string' || label.length > 128) {
+    return false;
+  }
+  return !/[\u0000-\u001f\u007f]/.test(label);
+}
+
+export function valid_selected_map(candidate: unknown): candidate is Selected_Map {
+  if (!candidate || typeof candidate !== 'object') {
+    return false;
+  }
+  const descriptor = candidate as Selected_Map;
+  const valid_hashes =
+    valid_sha256(descriptor.map_hash) &&
+    valid_sha256(descriptor.music_hash) &&
+    valid_sha256(descriptor.engine_hash);
+  const valid_labels =
+    valid_map_label(descriptor.title) &&
+    valid_map_label(descriptor.artist) &&
+    valid_map_label(descriptor.creator) &&
+    valid_map_label(descriptor.difficulty);
+  const valid_timeline =
+    Number.isFinite(descriptor.end_ms) &&
+    descriptor.end_ms > 0 &&
+    descriptor.end_ms < 4 * 60 * 60_000;
+  return valid_hashes && valid_labels && valid_timeline;
+}
+
+export function matching_map(actual: Selected_Map, expected: Selected_Map): boolean {
+  return (
+    actual.map_hash === expected.map_hash &&
+    actual.music_hash === expected.music_hash &&
+    actual.engine_hash === expected.engine_hash &&
+    actual.end_ms === expected.end_ms
+  );
+}
+
 export interface Score_Report {
   score: number;
   accuracy: number;
@@ -17,10 +69,13 @@ export interface Room_Member {
   member_id: string;
   nickname: string;
   ready: boolean;
+  availability: Map_Availability;
   connected: boolean;
 }
 
 export interface Room_Round {
+  selected_map: Selected_Map;
+  selection_revision: number;
   round_id: string;
   start_ms: number;
   deadline_ms: number;
@@ -29,7 +84,7 @@ export interface Room_Round {
 }
 
 export interface Room_Snapshot {
-  version: 1;
+  version: 2;
   type: 'snapshot';
   sequence: number;
   room_id: string;
@@ -38,7 +93,9 @@ export interface Room_Snapshot {
   phase: 'lobby' | 'countdown' | 'playing' | 'results';
   members: Room_Member[];
   round: Room_Round | null;
-  identity: string;
+  engine_hash: string;
+  selected_map: Selected_Map | null;
+  selection_revision: number;
   expires_ms: number;
 }
 
@@ -50,10 +107,24 @@ export type Client_Command =
   | {
       type: 'ready';
       ready: boolean;
-      identity: string;
+      selection_revision: number;
     }
   | {
-      type: 'start' | 'rematch' | 'leave';
+      type: 'select';
+      selection_revision: number;
+      selected_map: Selected_Map;
+    }
+  | {
+      type: 'availability';
+      selection_revision: number;
+      availability: Map_Availability;
+    }
+  | {
+      type: 'start';
+      selection_revision: number;
+    }
+  | {
+      type: 'rematch' | 'leave';
     }
   | {
       type: 'score';
@@ -68,21 +139,21 @@ export type Client_Command =
 
 // The browser assigns the protocol envelope when sending a command.
 export type Client_Message = Client_Command & {
-  version: 1;
+  version: 2;
   sequence: number;
 };
 
 export type Server_Message =
   | Room_Snapshot
   | {
-      version: 1;
+      version: 2;
       type: 'clock';
       sequence: number;
       client_ms: number;
       server_ms: number;
     }
   | {
-      version: 1;
+      version: 2;
       type: 'score';
       member_id: string;
       round_id: string;
@@ -90,7 +161,7 @@ export type Server_Message =
       report: Score_Report;
     }
   | {
-      version: 1;
+      version: 2;
       type: 'error';
       code: string;
       message: string;
@@ -124,24 +195,43 @@ export function parse_client_message(raw: string): Client_Message {
   const message = JSON.parse(raw);
   if (
     !message ||
-    message.version !== 1 ||
+    message.version !== PROTOCOL_VERSION ||
     !Number.isSafeInteger(message.sequence) ||
     message.sequence < 1
   ) {
     throw new Error('Invalid protocol or sequence.');
   }
+  if (
+    ['select', 'availability', 'ready', 'start'].includes(message.type) &&
+    (!Number.isSafeInteger(message.selection_revision) || message.selection_revision < 0)
+  ) {
+    throw new Error('Invalid selection revision.');
+  }
   switch (message.type) {
+    case 'select':
+      if (
+        !valid_selected_map(message.selected_map) ||
+        Object.keys(message.selected_map).length !== 8
+      ) {
+        throw new Error('Invalid selected map descriptor.');
+      }
+      break;
+    case 'availability':
+      if (
+        !['missing', 'checking', 'incompatible', 'failed', 'available'].includes(
+          message.availability,
+        )
+      ) {
+        throw new Error('Invalid map availability.');
+      }
+      break;
     case 'clock':
       if (!Number.isFinite(message.client_ms) || message.client_ms < 0) {
         throw new Error('Invalid clock sample.');
       }
       break;
     case 'ready':
-      if (
-        typeof message.ready !== 'boolean' ||
-        typeof message.identity !== 'string' ||
-        message.identity.length > 256
-      ) {
+      if (typeof message.ready !== 'boolean') {
         throw new Error('Invalid readiness.');
       }
       break;
@@ -176,6 +266,21 @@ export function parse_client_message(raw: string): Client_Message {
     default:
       throw new Error('Unknown message type.');
   }
+  const command_fields: Record<string, string[]> = {
+    clock: ['client_ms'],
+    select: ['selection_revision', 'selected_map'],
+    availability: ['selection_revision', 'availability'],
+    ready: ['selection_revision', 'ready'],
+    start: ['selection_revision'],
+    rematch: [],
+    leave: [],
+    score: ['round_id', 'report'],
+    terminal: ['round_id', 'report'],
+  };
+  const allowed_fields = ['type', 'version', 'sequence', ...command_fields[message.type]];
+  if (Object.keys(message).some((field) => !allowed_fields.includes(field))) {
+    throw new Error('Unexpected protocol field.');
+  }
   return message;
 }
 
@@ -186,6 +291,7 @@ export function ranked_results(round: Room_Round) {
   return completed_results.map(([member_id, report]) => ({
     member_id,
     ...report,
-    placement: completed_results.findIndex(([, other_report]) => other_report.score === report.score) + 1,
+    placement:
+      completed_results.findIndex(([, other_report]) => other_report.score === report.score) + 1,
   }));
 }

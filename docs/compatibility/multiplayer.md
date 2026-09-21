@@ -1,4 +1,4 @@
-# Private demo multiplayer validation
+# Private multiplayer with local maps validation
 
 This feature implements the product contract in [ADR-008](../architecture/adr-008-private-demo-rooms.md).
 Scores are client-reported and unverified. It does not implement osu! multiplayer
@@ -64,7 +64,7 @@ as newly ported upstream evidence. In particular, upstream multiplayer's
 multiplayer-specific fail policy are outside this task's existing local-engine
 scoring contract. Tapweave retains ordinary local terminal failure semantics.
 
-## Local validation on 2026-09-21
+## Prior demo-only validation on 2026-09-21 (protocol v1)
 
 Node 24.21.0; pinned Odin and Wrangler toolchains retained. The full engine suite
 passed (native/WASM local parity, no new upstream run). Browser runtime typecheck,
@@ -88,3 +88,80 @@ hosting smoke and an independent-context Chromium room round through rematch.
 The public run measured 0.4 ms estimated audio-anchor skew.
 MP-08 remains open by user request: both automated contexts ran on one machine,
 and no physical-device or audible-output timing measurement is claimed.
+
+## Protocol v2 local-map coverage
+
+- MP-09: `tests/multiplayer_map.test.mjs` executes the real WASM preparation
+  pipeline with loose and repackaged fixtures. It checks matching difficulty,
+  changed map/music bytes, missing audio, incompatible engine identity and
+  transactional rollback. Compression levels 0/9, relative directories and
+  unrelated backgrounds do not affect identity. The fake audio decoder in this
+  unit fixture isolates byte matching; real decoding is exercised in browsers.
+- MP-10: `worker-tests/rooms.test.ts` exercises host-only revisioned selection,
+  stale readiness/start rejection, all-ready enforcement, frozen descriptors,
+  rematches retaining selection, short/long deadlines, active-round inactivity
+  exemption, four-hour start admission, and v1 retirement through real workerd.
+- MP-11: `tests/multiplayer/rooms.spec.mjs` independently imports loose host files
+  and a differently packaged guest archive, checks automatic difficulty choice,
+  failed imports/rapid map changes, short/80-second-map final-result agreement and outgoing
+  HTTP/WebSocket metadata allowlists. Existing synchronized audio, withdrawal,
+  refresh, reconnect and delayed-start cases remain. `selection_race.spec.mjs`
+  holds an earlier selection acknowledgement across a newer host choice;
+  `demo.spec.mjs` verifies no automatic demo fetch and explicit matching/readiness.
+- `platform/browser-js/tests/selection.test.mjs` checks prepublication admission
+  failure and cancellation against real WASM handles, retaining the old map and
+  releasing candidate ownership.
+
+The delayed unit fixture starts at 8,000 ms and ends at 95,000 ms; its round
+length is 95,000 ms, not the 87,000 ms object span. Short-map browser results
+compare the room report to Odin's actual final score. Server lifetime tests
+advance persisted deadlines rather than waiting four hours.
+
+Additional pinned search: `osu.Game.Tests/Online/TestSceneMultiplayerBeatmapAvailabilityTracker.cs`
+at osu! `3c1c96f742e7aae2ff67a7361e058fe91ca3b955`, SHA-256
+`b520cf3886131d3a44226b45f1e74046f3523316bd4afa8536f17ca16690096a`.
+Inspected `TestEnterRoomWithNotDownloadedBeatmap`,
+`TestEnterRoomWithLocallyAvailableBeatmap`, `TestAvailabilityUpdatesOnItemEdit`
+and `TestAvailabilityUpdatesOnSettingsChange`, plus
+`TestSceneMatchStartControl.TestDeletedBeatmapDisableReady`. The pinned recursive
+osu! tree was searched for multiplayer, availability and import tests; the
+framework tree at `f02756c5aa5032e6d04729922702b8d56c4bc2eb` has no multiplayer
+availability tests. These scenarios inform MP-09–MP-11 but use account/API-backed
+beatmap IDs and persistent database availability, outside the local-byte matching
+contract. They are not Odin rule scenarios or new upstream oracle ports.
+No equivalent upstream test covers this SHA-256 triple, browser transaction
+fence or Cloudflare revision protocol. Local product regression evidence does
+not close A20/A21/A22; no new upstream executable comparison is claimed.
+
+The browser fixture is generated from the original bundled demo with a changed
+local title (not a server-provided room asset). Its selected `.osu` SHA-256 is
+`77a649c733391f85a90b6e5fc6001bc2e33e0f732969ca3ac552c22162a79f3f`;
+referenced WAV SHA-256 is
+`331e1abc4d5b92d2e9ab494abcaddaddd0ce2f78aa4c2d83790614aea7aee98d`.
+Archive bytes intentionally vary; they are not matching identity.
+
+## Protocol v2 validation on 2026-09-21
+
+Using Node 24.21.0 and the repository's pinned toolchains:
+
+- Full `npm --prefix engine test` passed: source verification, allocation-tracked
+  tests, native/WASM local parity and existing gameplay regressions. No new
+  upstream executable comparison was run or acceptance row closed.
+- Browser runtime typecheck, all 194 tests and build passed.
+- Product typecheck, all 47 unit tests, build and `test:gates` passed, including
+  the 60-second B3 probe (60.08 fps, no long tasks, zero measured heap growth).
+- Worker generated types/typecheck, dry-run bundle and all 16 workerd tests passed.
+- All 30 multiplayer browser cases passed across Chromium, Firefox and WebKit:
+  27 lobby/lifecycle/demo/race cases and three actual 80-second delayed-map
+  rounds. Each long round stayed playing beyond 75 seconds, reported progress
+  below 100% before the final object, then produced agreed completed results.
+  The delayed-acknowledgement and superseded-read checks also passed separately
+  on all three browsers. API traffic assertions found only bounded metadata and
+  score reports, with no map/music payloads.
+- Packaged artifact hashes, static-asset integrity, documentation paths and
+  `git diff --check` passed. No npm dependency or compiler version changed.
+
+Local browser logs are retained in ignored
+`platform/product-ui/artifacts/multiplayer-v2-validation/`. These are product
+regression results, not upstream oracle evidence. Protocol v2 was not deployed.
+MP-08 physical-device and audible-output validation remain open.

@@ -304,3 +304,42 @@ test('without a summary factory the describe pass is a no-op', async () => {
     engine.dispose();
   }
 });
+
+test('candidate admission failure and cancellation retain the previous prepared map', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  const controller = new Selection_Controller(engine);
+  try {
+    await controller.load_files([new File([valid_map], 'previous.osu')]);
+    const previous = controller.active;
+    await controller.load_files([new File([valid_map], 'wrong.osu')], {
+      validate: async () => {
+        throw new Error('Incompatible files');
+      },
+    });
+    assert.strictEqual(controller.active, previous);
+    assert.match(controller.error.message, /Incompatible/);
+    let finish_validation;
+    const pending = controller.load_files([new File([valid_map], 'cancelled.osu')], {
+      validate: () => new Promise(resolve => {
+        finish_validation = resolve;
+      }),
+    });
+    while (!finish_validation) {
+      await new Promise(resolve => setImmediate(resolve));
+    }
+    controller.cancel_pending();
+    finish_validation();
+    await pending;
+    assert.strictEqual(controller.active, previous);
+    assert.equal(controller.state, 'prepared');
+    assert.equal(engine.map_handles.size, 1);
+    await controller.load_files([new File([valid_map], 'first.osu'), new File([valid_map], 'chosen.osu')], {
+      choose_map: async () => 'chosen.osu',
+    });
+    assert.equal(controller.active.filename, 'chosen.osu');
+    assert.equal(engine.map_handles.size, 1);
+  } finally {
+    controller.dispose();
+    engine.dispose();
+  }
+});

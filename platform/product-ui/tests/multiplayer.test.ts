@@ -33,6 +33,17 @@ test('ranking shares placement for equal final scores and excludes failures and 
   };
   expect(
     ranked_results({
+      selected_map: {
+        map_hash: 'a'.repeat(64),
+        music_hash: 'b'.repeat(64),
+        engine_hash: 'c'.repeat(64),
+        title: '',
+        artist: '',
+        creator: '',
+        difficulty: '',
+        end_ms: 100,
+      },
+      selection_revision: 1,
       round_id: 'round',
       start_ms: 0,
       deadline_ms: 100,
@@ -64,28 +75,28 @@ test('ranking shares placement for equal final scores and excludes failures and 
 test('protocol validation rejects invalid ranges, binary-sized strings, and unknown versions', () => {
   for (const message of [
     {
-      version: 2,
+      version: 1,
       type: 'start',
       sequence: 1,
     },
     {
-      version: 1,
+      version: 2,
       type: 'start',
       sequence: 0,
     },
     {
-      version: 1,
+      version: 2,
       type: 'unknown',
       sequence: 1,
     },
     {
-      version: 1,
+      version: 2,
       type: 'clock',
       sequence: 1,
       client_ms: null,
     },
     {
-      version: 1,
+      version: 2,
       type: 'score',
       sequence: 1,
       round_id: 'round',
@@ -97,7 +108,7 @@ test('protocol validation rejects invalid ranges, binary-sized strings, and unkn
       },
     },
     {
-      version: 1,
+      version: 2,
       type: 'ready',
       sequence: 1,
       ready: 'yes',
@@ -107,4 +118,45 @@ test('protocol validation rejects invalid ranges, binary-sized strings, and unkn
     expect(() => parse_client_message(JSON.stringify(message))).toThrow();
   }
   expect(() => parse_client_message('é'.repeat(2049))).toThrow(/4 KiB/);
+});
+
+test('v2 map descriptors and selection revisions are bounded and reject file payload fields', () => {
+  const selected_map = {
+    map_hash: 'a'.repeat(64),
+    music_hash: 'b'.repeat(64),
+    engine_hash: 'c'.repeat(64),
+    title: 'Local fixture',
+    artist: 'Tapweave',
+    creator: 'Test',
+    difficulty: 'Normal',
+    end_ms: 95_000,
+  };
+  const message = { version: 2, type: 'select', sequence: 1, selection_revision: 0, selected_map };
+  expect(parse_client_message(JSON.stringify(message))).toEqual(message);
+  for (const changed of [
+    { end_ms: 0 },
+    { end_ms: -1 },
+    { end_ms: 14_400_000 },
+    { end_ms: null },
+    { map_hash: ['a'.repeat(64)] },
+    { music_hash: 'wrong' },
+    { engine_hash: '' },
+    { title: 'a'.repeat(129) },
+    { creator: 'control\ncharacter' },
+    { audio: 'payload' },
+  ]) {
+    expect(() =>
+      parse_client_message(
+        JSON.stringify({ ...message, selected_map: { ...selected_map, ...changed } }),
+      ),
+    ).toThrow();
+  }
+  for (const selection_revision of [-1, 1.5, null, '1']) {
+    expect(() =>
+      parse_client_message(JSON.stringify({ ...message, selection_revision })),
+    ).toThrow();
+  }
+  expect(() => parse_client_message(JSON.stringify({ ...message, map_bytes: 'payload' }))).toThrow(
+    /Unexpected/,
+  );
 });

@@ -26,6 +26,12 @@ export interface Selection_Candidate {
   released: boolean;
 }
 
+// Optional admission checks run before publishing or releasing the old map.
+export interface Selection_Request {
+  choose_map?: (source: Asset_Scope) => Promise<string>;
+  validate?: (candidate: Active_Selection) => Promise<void>;
+}
+
 export interface Selection_Options {
   decode_audio?: Decode_Audio | null;
   // Optional in-house PCM/WAVE fallback for encodings the browser decoder
@@ -74,7 +80,7 @@ export class Selection_Controller {
     this.summary_engine_factory = summary_engine_factory;
   }
 
-  async load_files(files: File[]) {
+  async load_files(files: File[], request: Selection_Request = {}) {
     require_condition(!this.disposed, 'DISPOSED', 'Player is disposed.');
     const generation = ++this.generation;
     this.scope_generation++;
@@ -105,7 +111,12 @@ export class Selection_Controller {
       }
       const maps = source.list_maps();
       require_condition(maps.length > 0, 'MISSING_MAP', 'No .osu difficulty was found.');
-      await this.prepare_candidate(source, maps[0], generation);
+      const filename = request.choose_map ? await request.choose_map(source) : maps[0];
+      if (this.is_stale(generation)) {
+        source.dispose();
+        return;
+      }
+      await this.prepare_candidate(source, filename, generation, request);
     } catch (error) {
       if (source && source !== this.active?.source) {
         source.dispose();
@@ -114,7 +125,7 @@ export class Selection_Controller {
     }
   }
 
-  async select_map(filename: string) {
+  async select_map(filename: string, request: Selection_Request = {}) {
     require_condition(this.active && !this.disposed, 'INVALID_STATE', 'Load a beatmap set first.');
     const generation = ++this.generation;
     this.release_candidate(this.pending_candidate);
@@ -122,13 +133,13 @@ export class Selection_Controller {
     this.error = null;
     this.on_change(this);
     try {
-      await this.prepare_candidate(this.active!.source, filename, generation);
+      await this.prepare_candidate(this.active!.source, filename, generation, request);
     } catch (error) {
       this.report_failure(error, generation);
     }
   }
 
-  async prepare_candidate(source: Asset_Scope, filename: string, generation: number) {
+  async prepare_candidate(source: Asset_Scope, filename: string, generation: number, request: Selection_Request = {}) {
     const candidate: Selection_Candidate = { source, prepared_map: null, released: false };
     this.pending_candidate = candidate;
     try {
@@ -176,9 +187,21 @@ export class Selection_Controller {
             fallback_assets: this.fallback_assets, cancelled: () => this.is_stale(generation),
           }) : null;
       if (this.is_stale(generation)) return;
+      const prepared_selection: Active_Selection = {
+        source,
+        filename,
+        ...candidate.prepared_map,
+        music_buffer,
+        music_error,
+        samples,
+        music_status: music_buffer ? 'decoded' : audio_bytes ? 'available' : 'missing',
+      };
+      await request.validate?.(prepared_selection);
+      if (this.is_stale(generation)) {
+        return;
+      }
       const previous = this.active;
-      this.active = { source, filename, ...candidate.prepared_map, music_buffer, music_error, samples,
-        music_status: music_buffer ? 'decoded' : audio_bytes ? 'available' : 'missing' };
+      this.active = prepared_selection;
       candidate.prepared_map = null;
       this.state = 'prepared';
       this.error = null;
@@ -192,6 +215,17 @@ export class Selection_Controller {
     } finally {
       this.release_candidate(candidate);
     }
+  }
+
+  cancel_pending() {
+    if (this.state !== 'loading' || this.disposed) {
+      return;
+    }
+    this.generation++;
+    this.release_candidate(this.pending_candidate);
+    this.state = this.active ? 'prepared' : 'empty';
+    this.error = null;
+    this.on_change(this);
   }
 
   release_candidate(candidate: Selection_Candidate | null) {

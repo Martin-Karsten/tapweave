@@ -55,20 +55,14 @@ await writeFile(
 const demo_path = await write_demo_assets(new URL('../public/demo/', import.meta.url));
 console.log('Product assets: ' + demo_path);
 
-// Both bundles embed the exact engine and demo identity from this release.
-const demo_manifest = JSON.parse(
-  await readFile(new URL('./demo/manifest.json', import.meta.url), 'utf8'),
-);
+// Both bundles embed the exact WASM identity; maps are matched locally by content.
 const engine_hash = createHash('sha256')
   .update(await readFile(engine_wasm))
   .digest('hex');
-const archive_hash = demo_manifest.outputs.find((output) => output.path.endsWith('.osz')).sha256;
 await mkdir(new URL('../artifacts/', import.meta.url), { recursive: true });
 await writeFile(
   new URL('../artifacts/multiplayer_identity.json', import.meta.url),
   JSON.stringify({
-    identity: engine_hash + ':' + archive_hash,
     engine_hash,
-    archive_hash,
   }) + '\n',
 );

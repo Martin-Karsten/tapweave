@@ -1,0 +1,227 @@
+/* Multiplayer lobby: invite row, sheared map wedge, players panel and the
+   ScreenFooter-height action bar (ADR-008 private rooms, ADR-007 grammar). */
+
+/* Multiplayer lobby and round views: sheared wedge panels, participant
+   chips, the ScreenFooter-height action bar and leaderboard rows. */
+
+.multiplayer-reconnect {
+  display: flex;
+  justify-content: center;
+}
+
+.multiplayer-lobby {
+  display: grid;
+  gap: var(--space-6);
+}
+
+/* Invite row: readonly link input with the copy action beside it. */
+.multiplayer-invite-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.multiplayer-invite-row input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--control-radius);
+  background: var(--color-background-deep);
+  color: var(--color-text);
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Two-column lobby: selected map wedge left, players panel right. */
+.multiplayer-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(16rem, 2fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+/* Map wedge: the same clipped, rounded wedge geometry as song select. */
+.multiplayer-map {
+  padding: 0;
+  overflow: clip;
+}
+
+.multiplayer-map-content {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-9) var(--space-10);
+}
+
+.multiplayer-map h2 {
+  margin: 0;
+}
+
+.multiplayer-map-title {
+  font-size: var(--font-size-title-wedge);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text-bright);
+  overflow-wrap: anywhere;
+}
+
+.multiplayer-map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.multiplayer-map-actions .file-control {
+  font-size: var(--font-size-note);
+}
+
+.multiplayer-host-picker {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.multiplayer-host-picker label {
+  font-size: var(--font-size-note);
+  color: var(--color-text-muted);
+}
+
+.multiplayer-host-picker-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.multiplayer-host-picker select {
+  flex: 1;
+  min-width: 0;
+  border: var(--stroke-width-panel) solid var(--color-border-strong);
+  border-radius: var(--control-radius);
+  background: var(--color-background-deep);
+  color: var(--color-text);
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+}
+
+.multiplayer-availability {
+  margin: 0;
+  font-size: var(--font-size-note);
+  color: var(--color-text-muted);
+}
+
+.multiplayer-chip.ready {
+  border-color: var(--color-accent);
+  color: var(--color-accent-strong);
+}
+
+/* Players panel: participant rows with host and readiness chips. */
+.multiplayer-players {
+  padding: 0;
+  overflow: clip;
+}
+
+.multiplayer-players ul {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-6) var(--space-8);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.multiplayer-member {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--control-radius);
+  background: var(--color-background-deep);
+  padding: var(--space-3) var(--space-4);
+}
+
+.multiplayer-member.local {
+  border-color: var(--color-border-strong);
+}
+
+.multiplayer-member.ready {
+  border-color: var(--color-accent);
+}
+
+.multiplayer-member.disconnected {
+  opacity: 0.55;
+}
+
+.multiplayer-member-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: var(--color-text-bright);
+}
+
+.multiplayer-chip-host {
+  border-color: var(--color-accent);
+  color: var(--color-accent-strong);
+}
+
+.multiplayer-chip-status {
+  margin-left: auto;
+}
+
+.multiplayer-chip-status.ready {
+  border-color: var(--color-accent);
+  color: var(--color-accent-strong);
+}
+
+.multiplayer-chip-status.disconnected {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+/* ScreenFooter bar: sheared actions right, session small print left. */
+.multiplayer-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5) var(--space-8);
+  min-width: 0;
+  margin: 0 calc(-1 * var(--space-10));
+  min-height: var(--footer-bar-height);
+  border-top: var(--stroke-width-panel) solid var(--color-border);
+  background: linear-gradient(180deg, var(--color-surface), var(--color-surface-selected));
+  box-shadow: var(--shadow-raised);
+  padding: var(--space-4) var(--space-10);
+}
+
+.multiplayer-footer-note {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--font-size-eyebrow);
+  color: var(--color-text-faint);
+}
+
+.multiplayer-footer-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-left: auto;
+}
+
+.multiplayer-footer button {
+  transform: skewX(var(--wedge-shear));
+  transform-origin: top left;
+}
+
+.multiplayer-footer button > span {
+  display: inline-block;
+  transform: skewX(var(--wedge-unshear));
+}
+
+.multiplayer-leave {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}

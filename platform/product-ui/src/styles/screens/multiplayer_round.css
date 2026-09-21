@@ -1,0 +1,166 @@
+/* Multiplayer round and results: engine-owned playfield layout, the
+   client-reported scoreboard leaderboard and shared results lists. */
+
+/* Round layout: the engine-owned playfield with the scoreboard sidebar. */
+.multiplayer-playfield {
+  display: none;
+}
+
+.multiplayer-playfield.active {
+  display: block;
+  position: relative;
+  height: 70vh;
+}
+
+.multiplayer-playfield .playfield-host {
+  width: 100%;
+  height: 100%;
+}
+
+.multiplayer-playfield canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.multiplayer-round-layout.active {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18rem;
+  gap: var(--space-6);
+}
+
+.multiplayer-round-layout.active .multiplayer-scores {
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.multiplayer-scores h2 {
+  margin-bottom: 0;
+}
+
+.multiplayer-scores h3 {
+  margin-block: var(--space-6) var(--space-3);
+}
+
+.multiplayer-scores-note {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-note);
+  color: var(--color-text-faint);
+}
+
+/* Leaderboard rows: placement, name, tabular detail and a progress meter. */
+.multiplayer-scoreboard {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.multiplayer-score-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--control-radius);
+  background: var(--color-background-deep);
+  padding: var(--space-3) var(--space-4);
+}
+
+.multiplayer-score-row.local {
+  border-color: var(--color-accent);
+  box-shadow: inset var(--space-2) 0 0 var(--color-accent);
+}
+
+.multiplayer-score-row.stale {
+  opacity: 0.55;
+}
+
+.multiplayer-score-place {
+  font-weight: 700;
+  color: var(--color-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.multiplayer-score-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.multiplayer-score-name {
+  font-weight: 600;
+  color: var(--color-text-bright);
+}
+
+.multiplayer-score-detail {
+  display: block;
+  font-size: var(--font-size-note);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.multiplayer-score-row .stat-track {
+  margin-top: var(--space-2);
+}
+
+/* Results: placement rows with an accent winner; secondary lists dimmed. */
+.multiplayer-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.multiplayer-results li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--control-radius);
+  background: var(--color-background-deep);
+  padding: var(--space-3) var(--space-4);
+}
+
+.multiplayer-results li.winner {
+  border-color: var(--color-accent);
+  background: linear-gradient(135deg, var(--color-surface-selected), var(--color-surface));
+}
+
+.multiplayer-results .multiplayer-score-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.multiplayer-results .multiplayer-score-detail {
+  margin-left: auto;
+  text-align: right;
+}
+
+.multiplayer-secondary-results {
+  margin: 0;
+  padding-left: var(--space-10);
+  font-size: var(--font-size-note);
+  color: var(--color-text-faint);
+}
+
+#room-rematch {
+  margin-top: var(--space-6);
+}
+
+/* While a round runs the playfield owns the viewport under the slim bar. */
+.multiplayer-screen.playing .multiplayer-playfield {
+  height: calc(100dvh - 12rem);
+}
+
+@media (max-width: 760px) {
+  .multiplayer-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .multiplayer-round-layout.active {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,6 +1,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import {
-  DEMO_DURATION_MS,
+  PROTOCOL_VERSION,
+  type Selected_Map,
   RECONNECT_MS,
   parse_client_message,
   type Client_Message,
@@ -30,6 +31,9 @@ interface Stored_Member extends Room_Member {
   traffic?: Socket_State;
 }
 interface Stored_Room {
+  version: 2;
+  selected_map: Selected_Map | null;
+  selection_revision: number;
   room_id: string;
   created_ms: number;
   active_ms: number;
@@ -60,12 +64,16 @@ const failure = (code: string, status: number) =>
   response_json(
     {
       error: code,
-      message: 'Multiplayer is unavailable. Try again; solo play remains available.',
+      message:
+        code === 'PROTOCOL_UPGRADE'
+          ? 'This demo-only room has retired. Recreate the room with the updated page.'
+          : 'Multiplayer is unavailable. Try again; solo play remains available.',
     },
     status,
   );
 const random_id = () => crypto.randomUUID().replaceAll('-', '');
 class Invalid_Request extends Error {}
+class Protocol_Upgrade extends Error {}
 async function hash_token(token: string) {
   return Array.from(
     new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token))),
@@ -150,7 +158,7 @@ export default {
     if (url.pathname === '/api/multiplayer/status' && request.method === 'GET') {
       return response_json({
         enabled: String(environment.MULTIPLAYER_ENABLED) === 'true',
-        version: 1,
+        version: 2,
       });
     }
     if (request.headers.get('Origin') !== url.origin) {
@@ -190,9 +198,11 @@ export default {
       return failure('METHOD', 405);
     } catch (error) {
       count_event('request_failure');
-      return error instanceof SyntaxError || error instanceof Invalid_Request
-        ? failure('INVALID_REQUEST', 400)
-        : failure('SERVICE_FAILURE', 503);
+      return error instanceof Protocol_Upgrade
+        ? failure('PROTOCOL_UPGRADE', 410)
+        : error instanceof SyntaxError || error instanceof Invalid_Request
+          ? failure('INVALID_REQUEST', 400)
+          : failure('SERVICE_FAILURE', 503);
     }
   },
 } satisfies ExportedHandler<Env>;
@@ -217,7 +227,19 @@ export class Multiplayer_Room extends DurableObject<Env> {
         payload: string;
       }>('SELECT payload FROM room WHERE singleton = 1')
       .toArray();
-    return rows.length ? JSON.parse(rows[0].payload) : null;
+    if (!rows.length) {
+      return null;
+    }
+    const room = JSON.parse(rows[0].payload);
+    if (room.version !== PROTOCOL_VERSION) {
+      for (const socket of this.open_sockets()) {
+        socket.close(4000, 'Room protocol upgraded. Reload and recreate the room.');
+      }
+      // Keep the old record until its existing expiry alarm retires it. Join
+      // can distinguish an upgraded invite from a nonexistent room.
+      throw new Protocol_Upgrade();
+    }
+    return room;
   }
 
   private open_sockets(member_id?: string) {
@@ -232,7 +254,12 @@ export class Multiplayer_Room extends DurableObject<Env> {
   }
 
   private expiration_time(room: Stored_Room) {
-    return Math.min(room.created_ms + ROOM_MAX_LIFETIME_MS, room.active_ms + ROOM_IDLE_TIMEOUT_MS);
+    const absolute_expiry_ms = room.created_ms + ROOM_MAX_LIFETIME_MS;
+    if (room.phase === 'countdown' || room.phase === 'playing') {
+      return absolute_expiry_ms;
+    }
+    const inactivity_expiry_ms = room.active_ms + ROOM_IDLE_TIMEOUT_MS;
+    return Math.min(absolute_expiry_ms, inactivity_expiry_ms);
   }
 
   private async schedule_next_alarm(room: Stored_Room) {
@@ -268,21 +295,24 @@ export class Multiplayer_Room extends DurableObject<Env> {
     for (const socket of this.open_sockets()) {
       const attachment: Socket_State = socket.deserializeAttachment();
       this.send_message(socket, {
-        version: 1,
+        version: 2,
         type: 'snapshot',
         sequence: room.sequence,
         room_id: room.room_id,
         member_id: attachment.member_id,
         host_id: room.host_id,
         phase: room.phase,
-        members: room.members.map(({ member_id, nickname, ready, connected }) => ({
+        members: room.members.map(({ member_id, nickname, ready, availability, connected }) => ({
           member_id,
           nickname,
           ready,
+          availability,
           connected,
         })),
         round: room.round,
-        identity: build_identity.identity,
+        engine_hash: build_identity.engine_hash,
+        selected_map: room.selected_map,
+        selection_revision: room.selection_revision,
         expires_ms: this.expiration_time(room),
       });
     }
@@ -315,6 +345,7 @@ export class Multiplayer_Room extends DurableObject<Env> {
       room.round?.participants.every((member_id) => room.round!.results[member_id])
     ) {
       room.phase = 'results';
+      room.active_ms = Date.now();
       for (const member of room.members) {
         member.ready = false;
       }
@@ -391,7 +422,15 @@ export class Multiplayer_Room extends DurableObject<Env> {
     if (!ROOM_PATTERN.test(room_id)) {
       return failure('NOT_FOUND', 404);
     }
-    let room = this.read_room();
+    let room: Stored_Room | null;
+    try {
+      room = this.read_room();
+    } catch (error) {
+      if (error instanceof Protocol_Upgrade) {
+        return failure('PROTOCOL_UPGRADE', 410);
+      }
+      throw error;
+    }
     if (room && Date.now() >= this.expiration_time(room)) {
       await this.expire_room();
       return failure('EXPIRED', 410);
@@ -404,6 +443,9 @@ export class Multiplayer_Room extends DurableObject<Env> {
     }
     if (!room) {
       room = {
+        version: 2,
+        selected_map: null,
+        selection_revision: 0,
         room_id,
         created_ms: Date.now(),
         active_ms: Date.now(),
@@ -444,6 +486,7 @@ export class Multiplayer_Room extends DurableObject<Env> {
       token_hash: credential_hash,
       joined_ms: Date.now(),
       ready: false,
+      availability: 'missing',
       connected: false,
       disconnected_ms: Date.now(),
     });
@@ -488,7 +531,15 @@ export class Multiplayer_Room extends DurableObject<Env> {
     resume_round: string | null,
     connection_id: string | null,
   ): Promise<Response> {
-    const room = this.read_room();
+    let room: Stored_Room | null;
+    try {
+      room = this.read_room();
+    } catch (error) {
+      if (error instanceof Protocol_Upgrade) {
+        return failure('PROTOCOL_UPGRADE', 410);
+      }
+      throw error;
+    }
     if (!room) {
       return failure('NOT_FOUND', 404);
     }
@@ -563,8 +614,9 @@ export class Multiplayer_Room extends DurableObject<Env> {
     if (room.phase !== 'lobby' && room.phase !== 'countdown') {
       throw new Error('Return to the lobby first.');
     }
-    if (message.ready && message.identity !== build_identity.identity) {
-      throw new Error('Incompatible demo or engine build. Reload this page.');
+    this.require_revision(room, message.selection_revision);
+    if (message.ready && (!room.selected_map || member.availability !== 'available')) {
+      throw new Error('Matching files must be available before readying.');
     }
     if (!message.ready) {
       this.cancel_countdown(room);
@@ -572,22 +624,74 @@ export class Multiplayer_Room extends DurableObject<Env> {
     member.ready = message.ready;
   }
 
-  private start_countdown(room: Stored_Room, member: Stored_Member) {
+  private require_revision(room: Stored_Room, revision: number) {
+    if (revision !== room.selection_revision) {
+      throw new Error('Stale map selection. Check the current map before readying.');
+    }
+  }
+
+  private select_map(
+    room: Stored_Room,
+    member: Stored_Member,
+    message: Extract<Client_Message, { type: 'select' }>,
+  ) {
+    if (member.member_id !== room.host_id || room.phase !== 'lobby') {
+      throw new Error('Only the host can select a map in the lobby.');
+    }
+    this.require_revision(room, message.selection_revision);
+    if (message.selected_map.engine_hash !== build_identity.engine_hash) {
+      throw new Error('Incompatible engine build. Reload this page.');
+    }
+    room.selected_map = message.selected_map;
+    room.selection_revision++;
+    for (const candidate of room.members) {
+      candidate.ready = false;
+      candidate.availability = 'missing';
+    }
+  }
+
+  private set_availability(
+    room: Stored_Room,
+    member: Stored_Member,
+    message: Extract<Client_Message, { type: 'availability' }>,
+  ) {
+    this.require_revision(room, message.selection_revision);
+    if (room.phase !== 'lobby') {
+      throw new Error('Map checks are only allowed in the lobby.');
+    }
+    member.availability = message.availability;
+    member.ready = false;
+  }
+
+  private start_countdown(room: Stored_Room, member: Stored_Member, revision: number) {
     if (member.member_id !== room.host_id) {
       throw new Error('Only the host can start.');
     }
+    this.require_revision(room, revision);
     if (
+      !room.selected_map ||
       room.phase !== 'lobby' ||
       room.members.length < 2 ||
-      !room.members.every((candidate) => candidate.ready && candidate.connected)
+      !room.members.every(
+        (candidate) =>
+          candidate.ready && candidate.connected && candidate.availability === 'available',
+      )
     ) {
       throw new Error('At least two connected, ready players are required.');
     }
     const start_ms = Date.now() + 5000;
+    const deadline_ms = start_ms + room.selected_map.end_ms + RECONNECT_MS;
+    if (deadline_ms >= room.created_ms + ROOM_MAX_LIFETIME_MS) {
+      throw new Error(
+        'This round cannot finish within the four-hour room limit. Recreate the room.',
+      );
+    }
     room.round = {
+      selected_map: { ...room.selected_map },
+      selection_revision: room.selection_revision,
       round_id: random_id(),
       start_ms,
-      deadline_ms: start_ms + DEMO_DURATION_MS + RECONNECT_MS,
+      deadline_ms,
       participants: room.members.map((candidate) => candidate.member_id),
       results: {},
     };
@@ -653,7 +757,7 @@ export class Multiplayer_Room extends DurableObject<Env> {
       socket.serializeAttachment(attachment);
       for (const recipient of this.open_sockets()) {
         this.send_message(recipient, {
-          version: 1,
+          version: 2,
           type: 'score',
           round_id: message.round_id,
           member_id: member.member_id,
@@ -684,16 +788,25 @@ export class Multiplayer_Room extends DurableObject<Env> {
         attachment.window_ms = Date.now();
         attachment.count = 0;
       }
+      // A local import/check/selection cycle emits several small control messages.
+      // Permit bounded rapid lobby changes; live scores still have a 2 Hz limit.
       attachment.count++;
       attachment.received_ms = Date.now();
       socket.serializeAttachment(attachment);
-      if (attachment.count > 10) {
+      if (attachment.count > 32) {
         socket.close(4008, 'Rate limit');
         count_event('rate_limited');
         return;
       }
       if (typeof raw !== 'string') {
         throw new Error('Text messages required.');
+      }
+      if (new TextEncoder().encode(raw).byteLength > 4096) {
+        throw new Error('Message exceeds 4 KiB.');
+      }
+      if (JSON.parse(raw).version !== PROTOCOL_VERSION) {
+        socket.close(4000, 'Room protocol upgraded. Reload and recreate the room.');
+        return;
       }
       const message = parse_client_message(raw);
       if (message.sequence <= attachment.sequence) {
@@ -708,7 +821,7 @@ export class Multiplayer_Room extends DurableObject<Env> {
       }
       if (message.type === 'clock') {
         this.send_message(socket, {
-          version: 1,
+          version: 2,
           type: 'clock',
           sequence: message.sequence,
           client_ms: message.client_ms,
@@ -721,10 +834,14 @@ export class Multiplayer_Room extends DurableObject<Env> {
         if (message.type === 'score') {
           return;
         }
+      } else if (message.type === 'select') {
+        this.select_map(room, member, message);
+      } else if (message.type === 'availability') {
+        this.set_availability(room, member, message);
       } else if (message.type === 'ready') {
         this.set_member_ready(room, member, message);
       } else if (message.type === 'start') {
-        this.start_countdown(room, member);
+        this.start_countdown(room, member, message.selection_revision);
       } else if (message.type === 'rematch') {
         this.open_rematch(room, member);
       } else if (message.type === 'leave') {
@@ -739,7 +856,7 @@ export class Multiplayer_Room extends DurableObject<Env> {
     } catch (error) {
       count_event('message_rejected');
       this.send_message(socket, {
-        version: 1,
+        version: 2,
         type: 'error',
         code: 'REJECTED',
         message: error instanceof Error ? error.message : 'Recoverable multiplayer failure.',
@@ -750,7 +867,15 @@ export class Multiplayer_Room extends DurableObject<Env> {
   async webSocketClose(socket: WebSocket, code: number, reason: string, was_clean: boolean) {
     // Complete the close handshake so the retired connection cannot block a reconnect.
     socket.close(code === 1005 || code === 1006 ? 1000 : code, 'Connection closed');
-    const room = this.read_room();
+    let room: Stored_Room | null;
+    try {
+      room = this.read_room();
+    } catch (error) {
+      if (error instanceof Protocol_Upgrade) {
+        return;
+      }
+      throw error;
+    }
     if (!room) {
       return;
     }
@@ -778,7 +903,16 @@ export class Multiplayer_Room extends DurableObject<Env> {
   }
 
   async alarm() {
-    const room = this.read_room();
+    let room: Stored_Room | null;
+    try {
+      room = this.read_room();
+    } catch (error) {
+      if (error instanceof Protocol_Upgrade) {
+        await this.expire_room();
+        return;
+      }
+      throw error;
+    }
     if (!room) {
       return;
     }
