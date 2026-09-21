@@ -94,6 +94,14 @@ test('debug panel opens from selection with tabs, filtering, search and freeze',
 });
 
 test('HUD is non-interactive, marks unavailable measurements and refreshes during play', async ({ page }) => {
+  // Exercise the unsupported-timer path even on Mesa, which provides GPU timing.
+  await page.addInitScript(() => {
+    const get_extension = WebGL2RenderingContext.prototype.getExtension;
+    WebGL2RenderingContext.prototype.getExtension = function (name) {
+      if (name === 'EXT_disjoint_timer_query_webgl2') return null;
+      return get_extension.call(this, name);
+    };
+  });
   await load(page);
   await page.locator('#start').click();
   await expect(page.locator('#pause')).toBeVisible();

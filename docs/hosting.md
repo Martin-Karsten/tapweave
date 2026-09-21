@@ -166,3 +166,17 @@ Release Worker SHA-256:
 `c919d751bf617a64bfd3d85f6a5f03bb3e1a58b64d0a63ab75d4d3279690eb46`.
 Deployment manifest SHA-256:
 `2db0e8c7e1b2963509b97203dfb0ef2e9d49c834c3c4fe5ae869c4851a2e2511`.
+
+The local-map multiplayer protocol v2 deployment on 2026-09-21 published version
+`58a8cf19-d548-453c-b02c-650d56804c7f` to the same production address, with room
+creation enabled. This manual release used the current working-tree build,
+verified deployment hashes and hosting asset checks. Public hosting smoke passed,
+including engine initialization and demo playback. Two independent Chromium
+contexts imported local fixtures, completed a synchronized round, agreed on
+results and returned to the lobby. Existing protocol v1 rooms require recreation.
+Physical-device validation remains open.
+
+Protocol v2 release Worker SHA-256:
+`09c949f54b6135f3f231b78a2e3b95ad312893638a801c86996ec54b96d28ee1`.
+Deployment manifest SHA-256:
+`56e8cf4ca2243c51427b002d66a9a8476d1345fe144cc2f963f68bb13e53cdbc`.

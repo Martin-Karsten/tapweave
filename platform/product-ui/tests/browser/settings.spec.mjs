@@ -111,6 +111,8 @@ test('paused settings retain gameplay holds but quarantine captured bindings; mu
   await page.keyboard.up('z'); await page.keyboard.down('z');
   await page.evaluate(() => { window.settings_mixer = window.__tapweave_player_probe.session.mixer; });
   await page.locator('#resume').click();
+  // Settings update the canvas label before the asynchronous audio resume completes.
+  await expect(page.locator('#pause')).toBeVisible();
   await expect(page.locator('#playfield')).toHaveAttribute('aria-label', /Z and Space/);
   const held_count = () => page.evaluate(() => window.__tapweave_player_probe.session.gameplay.frame.input.held_sources.size);
   expect(await page.evaluate(() => [...window.__tapweave_player_probe.session.gameplay.frame.input.held_sources]))

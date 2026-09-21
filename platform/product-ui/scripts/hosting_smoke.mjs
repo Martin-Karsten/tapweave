@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
 import { chromium } from '@playwright/test';
+import { PROTOCOL_VERSION } from '../shared/multiplayer.ts';
 
 // With no URL, exercise the actual Cloudflare asset router locally. A URL
 // exercises the same public contract after deployment without rebuilding.
@@ -60,7 +61,7 @@ try {
   }
   const status_response = await fetch(new URL('/api/multiplayer/status', base_url));
   assert.equal(status_response.status, 200);
-  assert.equal((await status_response.json()).version, 1);
+  assert.equal((await status_response.json()).version, PROTOCOL_VERSION);
   const rejected_creation = await fetch(new URL('/api/multiplayer/rooms', base_url), {
     method: 'POST',
     headers: { Origin: 'https://invalid.example' },

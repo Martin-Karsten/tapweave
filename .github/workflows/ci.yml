@@ -13,6 +13,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Cache pinned Odin
+        uses: actions/cache@v4
+        with:
+          path: engine/.toolchain/odin
+          key: odin-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('engine/toolchain.json') }}
       - name: Install linkers
         run: sudo apt-get update && sudo apt-get install -y clang lld
       - name: Install pinned Odin
@@ -32,6 +37,11 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+      - name: Cache pinned Odin
+        uses: actions/cache@v4
+        with:
+          path: engine/.toolchain/odin
+          key: odin-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('engine/toolchain.json') }}
       - name: Install linkers
         run: sudo apt-get update && sudo apt-get install -y clang lld
       - name: Install pinned Odin
@@ -57,6 +67,11 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+      - name: Cache pinned Odin
+        uses: actions/cache@v4
+        with:
+          path: engine/.toolchain/odin
+          key: odin-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('engine/toolchain.json') }}
       - name: Install linkers and pinned Odin
         run: |
           sudo apt-get update && sudo apt-get install -y clang lld
@@ -108,6 +123,11 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+      - name: Cache pinned Odin
+        uses: actions/cache@v4
+        with:
+          path: engine/.toolchain/odin
+          key: odin-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('engine/toolchain.json') }}
       - name: Install linkers
         run: sudo apt-get update && sudo apt-get install -y clang lld
       - name: Install pinned Odin
@@ -138,6 +158,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Cache pinned Odin
+        uses: actions/cache@v4
+        with:
+          path: engine/.toolchain/odin
+          key: odin-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('engine/toolchain.json') }}
       - name: Install linkers and pinned Odin
         run: |
           sudo apt-get update && sudo apt-get install -y clang lld
@@ -174,6 +199,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Cache pinned Odin
+        uses: actions/cache@v4
+        with:
+          path: engine/.toolchain/odin
+          key: odin-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('engine/toolchain.json') }}
       - name: Install linkers and pinned Odin
         run: |
           sudo apt-get update && sudo apt-get install -y clang lld

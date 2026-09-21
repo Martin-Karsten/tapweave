@@ -14,7 +14,8 @@ if (process.env.ODIN_BIN || existsSync(resolve(root, '.toolchain/odin/odin'))) {
   const staging = mkdtempSync(join(cache, 'install-'));
   try {
     const archive = join(staging, 'odin.tar.gz');
-    execFileSync('curl', ['--fail', '--location', '--retry', '3', asset.url, '--output', archive], { stdio: 'inherit' });
+    execFileSync('curl', ['--fail', '--location', '--retry', '6', '--retry-delay', '10',
+      '--retry-max-time', '180', '--connect-timeout', '30', '--max-time', '120', asset.url, '--output', archive], { stdio: 'inherit' });
     if (createHash('sha256').update(readFileSync(archive)).digest('hex') !== asset.sha256) throw new Error('Odin archive checksum mismatch');
     const extracted = join(staging, 'extracted');
     mkdirSync(extracted);

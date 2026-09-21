@@ -89,6 +89,31 @@ The product gate suite launches Chromium directly, so browser binaries must be
 installed before the gates. The hosting change already moves that installation
 ahead of the gate step.
 
+## Follow-up: download outage and browser test preconditions
+
+[Run 35615239126](https://github.com/Martin-Karsten/tapweave/actions/runs/35615239126)
+failed in product-shell setup: the pinned Odin release download returned HTTP
+504 on all four attempts. Other validation jobs passed; deployment was skipped.
+Every Odin job now caches the verified installation by OS, architecture and the
+complete toolchain manifest hash. Setup still verifies the compiler on cache
+hits and verifies the archive checksum before installing on misses. Downloads
+allow six retries spaced ten seconds apart, with connection and transfer
+limits; the pinned compiler and checksum are unchanged.
+
+The preceding [run 35596953610](https://github.com/Martin-Karsten/tapweave/actions/runs/35596953610)
+exposed two product-test preconditions. Mesa provided valid GPU timings, so the
+HUD test's unconditional expectation of an unavailable measurement was false.
+That test now disables only the timer-query extension before page startup to
+exercise its intended unsupported-measurement case. The settings test read held
+sources before asynchronous audio resume completed; it now waits for the running
+pause control before checking the exact retained source. Neither change modifies
+gameplay behavior or relaxes the held-input assertion.
+
+Local validation for this follow-up: Node 24 setup and the full engine suite
+passed, as did actionlint and three repetitions of each repaired browser test
+in Chromium, Firefox and WebKit (18 passes) on macOS. Linux GitHub confirmation
+remains pending a push; these checks do not establish new upstream acceptance.
+
 ## References
 
 - [Playwright CI setup, worker count, and Xvfb](https://playwright.dev/docs/ci)
