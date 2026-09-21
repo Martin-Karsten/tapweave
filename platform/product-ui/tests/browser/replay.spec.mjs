@@ -43,11 +43,15 @@ async function load(page) {
   await expect(page.locator('#start')).toBeEnabled();
 }
 
-// z bursts spanning each hit window (OD 0 gives ±200 ms meh windows): browser
-// timing jitter stays far below the span, and presses outside a window are
-// ignored rather than penalized, so the circle head and slider head each take
-// a hit. The spinner stays unrotated.
-const press_burst = async page => {
+// Observe the real audio clock instead of sleeping from UI visibility: the
+// browser can take different amounts of time to display its first frame.
+// Keep real DOM key presses spanning each OD 0 hit window. The spinner stays
+// unrotated; neither the clock nor engine input is patched by this harness.
+const press_burst = async (page, hit_time_ms) => {
+  await page.waitForFunction(target_ms => {
+    const session = window.__tapweave_player_probe.session;
+    return session.playback_clock.beatmap_time(session.audio_context.currentTime) >= target_ms - 180;
+  }, hit_time_ms, { polling: 10 });
   for (let press_index = 0; press_index < 5; press_index++) {
     await page.keyboard.press('z');
     await page.waitForTimeout(80);
@@ -61,10 +65,14 @@ async function play_to_results_with_hits(page) {
   await page.locator('#start').focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#pause')).toBeVisible();
-  await page.waitForTimeout(1300);
-  await press_burst(page);
-  await page.waitForTimeout(700);
-  await press_burst(page);
+  const canvas = page.locator('#playfield');
+  await expect(canvas).toBeFocused();
+  const bounds = await canvas.boundingBox();
+  // Both heads are at the playfield centre; do not depend on the browser's
+  // initial pointer position or a synthetic pointer move after navigation.
+  await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+  await press_burst(page, 1500);
+  await press_burst(page, 2500);
   await expect(page.locator('#lifecycle-title')).toHaveText('Passed', { timeout: 12000 });
   // Natural completion must leave the results route (not the transient
   // terminal panel on the play route, which carries no replay actions).
