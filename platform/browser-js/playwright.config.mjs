@@ -14,7 +14,10 @@ export default defineConfig({
       launchOptions: process.env.CI && process.platform === 'linux'
         ? { args: ['--use-angle=gl', '--ignore-gpu-blocklist'] } : {},
     } },
-    { name: 'firefox', use: { browserName: 'firefox' } },
+    { name: 'firefox', use: { browserName: 'firefox',
+      // Exercise the regular GL display path on the CI virtual display.
+      headless: !(process.env.CI && process.platform === 'linux'),
+    } },
     { name: 'webkit', use: { browserName: 'webkit' } },
   ],
   webServer: { command: 'node scripts/serve.mjs', url: 'http://127.0.0.1:4173', reuseExistingServer: !process.env.CI },
