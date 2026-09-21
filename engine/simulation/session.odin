@@ -23,6 +23,14 @@ Cause :: enum u32 {
 	TRACKING,
 	SPINNER,
 }
+// TERMINAL reproduces solo Player failure: the run ends at the failing
+// judgement and scoring freezes. MARK_AND_CONTINUE reproduces the pinned
+// multiplayer policy (MultiplayerPlayer.PerformFail): failing latches the F
+// rank and freezes health at zero while play and scoring continue to the end.
+Failure_Policy :: enum u32 {
+	TERMINAL,
+	MARK_AND_CONTINUE,
+}
 Judgement_Event :: struct {
 	sequence: u64,
 	time_ms, offset_ms: f64,
@@ -74,6 +82,9 @@ Session :: struct {
 	voices: Voice_Journal,
 	maximum_voice_overlap, voice_transition_capacity: u64,
 	state: Session_Status,
+	failure_policy: Failure_Policy,
+	failure_latched: bool,
+	failure_ms: f64,
 	committed_ms, lead_in_ms, health_time_ms, drain_start_ms, drain_end_ms, drain_rate: f64,
 	live_input_capacity, submitted_input_count, pause_count, completed_objects: int,
 	block_next_press: bool,
@@ -205,7 +216,7 @@ required_bytes :: proc(prepared_map: ^prepared.Map, input_capacity: u64) -> (u64
 	return total, .OK
 }
 
-initialize :: proc(session: ^Session, prepared_map: ^prepared.Map, arena: ^core_types.Arena, input_capacity: u64, lead_in_ms: f64) -> core_types.Status {
+initialize :: proc(session: ^Session, prepared_map: ^prepared.Map, arena: ^core_types.Arena, input_capacity: u64, lead_in_ms: f64, failure_policy: Failure_Policy) -> core_types.Status {
 	required, status := required_bytes(prepared_map, input_capacity)
 	if status != .OK {
 		return status
@@ -213,6 +224,7 @@ initialize :: proc(session: ^Session, prepared_map: ^prepared.Map, arena: ^core_
 	if arena.used > u64(len(arena.bytes)) || required > u64(len(arena.bytes)) - arena.used {
 		return .QUOTA_EXCEEDED
 	}
+	session.failure_policy = failure_policy
 	component_count, judgement_count, _ := counts(prepared_map)
 	session.prepared_map = prepared_map
 	session.objects, _ = core_types.arena_take(arena, rules.Object_State, u64(len(prepared_map.objects)))
@@ -381,7 +393,9 @@ reset_session :: proc(session: ^Session, lead_in_ms: f64) -> core_types.Status {
 	reset_candidates(session)
 	session.cursor = {}
 	session.health = {amount = 1}
-	session.score = scoring.create(session.score.maxima)
+	session.failure_latched = false
+	session.failure_ms = 0
+	session.score = scoring.create(session.score.maxima, session.failure_policy == .MARK_AND_CONTINUE)
 	session.terminal_ms = 0
 	session.replay_mode = false
 	session.replay_frames = nil
@@ -505,7 +519,12 @@ emit_judgement :: proc(session: ^Session, object_index, component_index: int, re
 		result = result, maximum = maximum, cause = cause,
 		combo_before = session.score.accumulator.combo, health_before = session.health.amount,
 	}
-	failed := scoring.apply_health(&session.health, result, maximum, session.prepared_map.difficulty.health_drain_rate, combo_object, new_combo, last_in_combo, slider_tick)
+	failed := false
+	if !session.failure_latched {
+		// Once failed, health never changes again (HealthProcessor.ApplyResultInternal).
+		// MARK_AND_CONTINUE keeps later judgements at frozen zero health.
+		failed = scoring.apply_health(&session.health, result, maximum, session.prepared_map.difficulty.health_drain_rate, combo_object, new_combo, last_in_combo, slider_tick)
+	}
 	status := scoring.apply(&session.score, {result, maximum})
 	assert(status == .OK)
 	event.combo_after = session.score.accumulator.combo
@@ -537,10 +556,19 @@ emit_judgement :: proc(session: ^Session, object_index, component_index: int, re
 		}
 	}
 	if failed {
-		session.state = .FAILED
-		session.terminal_ms = time_ms
-		scoring.fail(&session.score)
-	} else if session.completed_objects == len(session.objects) {
+		if session.failure_policy == .MARK_AND_CONTINUE {
+			// MultiplayerPlayer.PerformFail suppresses the fail sequence; failing
+			// only marks the score while the run continues to the map's end.
+			session.failure_latched = true
+			session.failure_ms = time_ms
+			scoring.fail(&session.score)
+		} else {
+			session.state = .FAILED
+			session.terminal_ms = time_ms
+			scoring.fail(&session.score)
+		}
+	}
+	if session.state != .FAILED && session.completed_objects == len(session.objects) {
 		session.state = .PASSED
 		session.terminal_ms = time_ms
 	}

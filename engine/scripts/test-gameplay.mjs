@@ -47,6 +47,14 @@ function assertExpected(fixture, observation) {
       assert.ok(observation.recording.some(frame => frame.action_bits === actions), `No recorded action ${actions}`);
   }
   if (expected.state && observation.state) assert.equal(observation.state, expected.state);
+  if (expected.rank && observation.rank) assert.equal(observation.rank, expected.rank);
+  if (expected.assertion === 'continue_after_failure') {
+    const failure_index = judgements.findIndex(judgement => judgement.health < 0.0000001);
+    assert.ok(failure_index >= 0, 'Run must reach zero health');
+    assert.ok(judgements.slice(failure_index).every(judgement => judgement.health === 0), 'Health must stay frozen at zero after failure');
+    assert.ok(judgements.slice(failure_index + 1).some(judgement => judgement.score > judgements[failure_index].score),
+      'Score must keep counting after failure');
+  }
   if (expected.component_results) {
     for (const [object_type, expected_result] of Object.entries(expected.component_results)) {
       const components = judgements.filter(judgement => judgement.object_type === object_type);
@@ -124,6 +132,12 @@ if (upstream_enabled) {
   execFileSync(dotnet, ['restore', project, '--locked-mode'], { stdio: 'inherit' });
   execFileSync(dotnet, ['build', project, '--no-restore', '-t:Rebuild', '-m:1', '-p:RunAnalyzers=false', '-v:quiet'], { stdio: 'inherit' });
   for (const [fixture_index, fixture] of fixtures.entries()) {
+    if (fixture.local_only) {
+      // Product-policy fixtures (multiplayer fail marking) have no solo-Player
+      // upstream oracle; the reference host runs ordinary terminal failure.
+      console.log(`${fixture.id}: local-only, no upstream oracle`);
+      continue;
+    }
     // Exact input boundaries are included, without moving the receipt timestamps.
     // This semantic schedule establishes the assertion oracle independently of
     // the separate frame-quantisation experiments in test-scenarios.mjs.

@@ -11,7 +11,7 @@ import { read_record, record_size,
   type Transport_Capabilities_Record, type Viewport_Values, type Voice_Capacity_Record,
   type Presentation_Output_Header, RECORD, ENGINE_STATUS, PREPARED_OBJECT_KIND, PREPARED_COMPONENT_KIND,
   SAMPLE_FLAG_LOOP, VOICE_COMMAND_FAMILY_BIT, ALL_VOICE_COMMAND_FAMILIES,
-  SESSION_INPUT_CAPACITY, SESSION_ARENA_BYTES } from './abi-records.js';
+  SESSION_INPUT_CAPACITY, SESSION_ARENA_BYTES, FAIL_POLICY } from './abi-records.js';
 import { Browser_Error, require_condition } from './errors.js';
 import type { Diagnostics_Service } from './diagnostics.js';
 
@@ -44,6 +44,7 @@ export interface Session_Create_Options {
   lead_in_ms?: number;
   input_capacity?: number;
   batch_capacity?: number;
+  fail_policy?: number;
 }
 
 export type Session_Operation = (engine_handle: bigint, session_handle: bigint, time_ms: number,
@@ -271,12 +272,15 @@ export class Engine_Bridge {
   }
 
   create_session(map_handle: bigint, { arena_bytes = SESSION_ARENA_BYTES, lead_in_ms = 0,
-    input_capacity = SESSION_INPUT_CAPACITY, batch_capacity = 256 }: Session_Create_Options = {}) {
+    input_capacity = SESSION_INPUT_CAPACITY, batch_capacity = 256,
+    fail_policy = FAIL_POLICY.TERMINAL }: Session_Create_Options = {}) {
     require_condition(Number.isSafeInteger(batch_capacity) && batch_capacity > 0 && batch_capacity <= input_capacity,
       'INVALID_ARGUMENT', 'Invalid input batch capacity.');
+    require_condition(fail_policy === FAIL_POLICY.TERMINAL || fail_policy === FAIL_POLICY.MARK_AND_CONTINUE,
+      'INVALID_ARGUMENT', 'Unknown fail policy.');
     this.reserve_input(batch_capacity * record_size(RECORD.input_snapshot));
-    this.note_operation('oe_session_create', { flags: GAMEPLAY_CREATE_FLAG_PREPARED_MAP, arena_bytes: arena_bytes.toString(), lead_in_ms, input_capacity });
-    this.write_creation(RECORD.gameplay_create, { flags: GAMEPLAY_CREATE_FLAG_PREPARED_MAP, arena_bytes, lead_in_ms, input_capacity });
+    this.note_operation('oe_session_create', { flags: GAMEPLAY_CREATE_FLAG_PREPARED_MAP, arena_bytes: arena_bytes.toString(), lead_in_ms, input_capacity, fail_policy });
+    this.write_creation(RECORD.gameplay_create, { flags: GAMEPLAY_CREATE_FLAG_PREPARED_MAP, arena_bytes, lead_in_ms, input_capacity, fail_policy });
     this.check_status(this.wasm.oe_session_create(this.engine_handle, map_handle,
       this.mailbox_address, this.result_address, this.error_address));
     const session_handle = this.read_handle();

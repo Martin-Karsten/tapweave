@@ -258,17 +258,20 @@ oe_session_create :: proc "c" (
 		return abi_status(.UNSUPPORTED)
 	}
 	input_capacity: u64 = 4096
+	failure_policy := simulation.Failure_Policy.TERMINAL
 	if gameplay {
-		if get_u32(bytes, ABI_GAMEPLAY_CREATE_RESERVED_36_OFFSET) != 0 {
+		fail_policy_value := get_u32(bytes, ABI_GAMEPLAY_CREATE_FAIL_POLICY_OFFSET)
+		if fail_policy_value > u32(simulation.Failure_Policy.MARK_AND_CONTINUE) {
 			return abi_status(.INVALID_ARGUMENT)
 		}
+		failure_policy = simulation.Failure_Policy(fail_policy_value)
 		input_capacity = u64(get_u32(bytes, ABI_GAMEPLAY_CREATE_INPUT_CAPACITY_OFFSET))
 	}
 	handle, created := session_create(
 		&abi_instance, engine, map_handle,
 		get_u64(bytes, ABI_SESSION_CREATE_ARENA_BYTES_OFFSET),
 		get_f64(bytes, ABI_SESSION_CREATE_LEAD_IN_MS_OFFSET),
-		gameplay, input_capacity,
+		gameplay, input_capacity, failure_policy,
 	)
 	if created == .OK {
 		put_u64(abi_storage.bytes[:], ABI_OUTPUT_OFFSET, u64(handle))

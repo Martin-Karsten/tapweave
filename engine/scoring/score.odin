@@ -45,6 +45,9 @@ Score :: struct {
 	total: i64,
 	rank: Rank,
 	failed: bool,
+	// ApplyNewJudgementsWhenFailed: multiplayer keeps accounting judgements
+	// after failure while the run continues (MultiplayerPlayer).
+	apply_judgements_when_failed: bool,
 }
 
 valid_judgement :: proc(judgement: Judgement) -> bool {
@@ -136,8 +139,8 @@ prepare_maxima :: proc(maximum_results: []core_types.Hit_Result) -> (Maxima, cor
 		.OK
 }
 
-create :: proc(maxima: Maxima) -> Score {
-	return {maxima = maxima, accuracy = 1, rank = .X}
+create :: proc(maxima: Maxima, apply_judgements_when_failed := false) -> Score {
+	return {maxima = maxima, accuracy = 1, rank = .X, apply_judgements_when_failed = apply_judgements_when_failed}
 
 }
 
@@ -182,7 +185,7 @@ apply :: proc(score: ^Score, judgement: Judgement, failed_before := false) -> co
 	if !valid_judgement(judgement) {
 		return .INVALID_ARGUMENT
 	}
-	if score.failed {
+	if score.failed && !score.apply_judgements_when_failed {
 		return .INVALID_STATE
 	}
 	if failed_before {
@@ -211,6 +214,10 @@ apply :: proc(score: ^Score, judgement: Judgement, failed_before := false) -> co
 	}
 	candidate.total = total
 	candidate.rank = rank_for(candidate.accuracy, accumulator.counts[.MISS])
+	if score.failed {
+		// Once failed, the rank never updates again (ScoreProcessor.updateRank).
+		candidate.rank = .F
+	}
 	score^ = candidate
 	return .OK
 }

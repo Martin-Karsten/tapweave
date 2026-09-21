@@ -6,6 +6,7 @@ import "core:mem"
 import core_types "../core_types"
 import engine_runtime "../runtime"
 import simulation "../simulation"
+import scoring "../scoring"
 import prepared "../prepared"
 import audio_protocol "../audio_protocol"
 
@@ -247,6 +248,87 @@ gameplay_note_lock_failure_and_replay_round_trip :: proc(test: ^testing.T) {
 	for event, event_index in session.simulation.journal[:failed_count] {
 		testing.expect_value(test, replay_session.simulation.journal[event_index], event)
 	}
+}
+
+// MultiplayerPlayer.PerformFail demotes failure to an F-rank marking: the run
+// continues at frozen zero health and post-failure judgements keep scoring
+// (ScoreProcessor.ApplyNewJudgementsWhenFailed, ported TestSceneMultiplayerPlayer.TestFail).
+@(test)
+gameplay_multiplayer_failure_marks_and_continues :: proc(test: ^testing.T) {
+	instance, _ := engine_runtime.instance_create()
+	defer engine_runtime.instance_destroy(&instance)
+	engine, _ := engine_runtime.engine_create(&instance)
+	defer engine_runtime.engine_release(&instance, engine)
+	map_text := "osu file format v14\n[Difficulty]\nHPDrainRate:10\nOverallDifficulty:5\n[HitObjects]\n256,192,1000,1,0\n320,192,1100,1,0\n400,192,1200,1,0\n480,192,1300,1,0\n560,192,1400,1,0\n100,100,1500,1,0\n64,64,3000,1,0\n64,64,3500,1,0\n64,64,4000,1,0\n64,64,4500,1,0\n"
+	map_handle, _ := engine_runtime.map_prepare(&instance, engine, map_text, true)
+	session_handle, created := engine_runtime.session_create(&instance, engine, map_handle, 65536, 0, true, 32, .MARK_AND_CONTINUE)
+	testing.expect_value(test, created, core_types.Status.OK)
+	if created != .OK {
+		return
+	}
+	session, _ := engine_runtime.session_get(&instance, engine, session_handle)
+	inputs := []core_types.Input_Snapshot{
+		input_frame(1, 3000, 64, 64, 1),
+		input_frame(2, 3005, 64, 64, 0),
+		input_frame(3, 3500, 64, 64, 1),
+		input_frame(4, 3505, 64, 64, 0),
+		input_frame(5, 4000, 64, 64, 1),
+		input_frame(6, 4005, 64, 64, 0),
+		input_frame(7, 4500, 64, 64, 1),
+		input_frame(8, 4505, 64, 64, 0),
+	}
+	testing.expect_value(test, simulation.submit_inputs(&session.simulation, inputs), core_types.Status.OK)
+	testing.expect_value(test, simulation.advance_session(&session.simulation, 3600), core_types.Status.OK)
+	// The opening misses failed the run, but the session keeps playing.
+	testing.expect(test, session.simulation.failure_latched)
+	testing.expect_value(test, session.simulation.state, simulation.Session_Status.RUNNING)
+	testing.expect_value(test, session.simulation.score.rank, scoring.Rank.F)
+	testing.expect(test, session.simulation.score.failed)
+	testing.expect(test, session.simulation.score.total > 0)
+	testing.expect_value(test, simulation.advance_session(&session.simulation, 6000), core_types.Status.OK)
+	testing.expect_value(test, session.simulation.state, simulation.Session_Status.PASSED)
+	testing.expect_value(test, session.simulation.score.rank, scoring.Rank.F)
+	testing.expect_value(test, session.simulation.journal_count, 10)
+	failure_index := -1
+	for event, event_index in session.simulation.journal[:session.simulation.journal_count] {
+		if event.health_after < 0.0000001 {
+			failure_index = event_index
+			break
+		}
+	}
+	testing.expect(test, failure_index >= 0)
+	if failure_index < 0 {
+		return
+	}
+	failed_score := session.simulation.journal[failure_index].score_after
+	testing.expect(test, session.simulation.score.total > failed_score)
+	post_failure_hits := 0
+	for event in session.simulation.journal[failure_index:session.simulation.journal_count] {
+		// HealthProcessor freezes health once failed; no later judgement recovers it.
+		testing.expect_value(test, event.health_after, 0.0)
+		if event.result == .GREAT {
+			post_failure_hits += 1
+		}
+	}
+	testing.expect_value(test, post_failure_hits, 4)
+	testing.expect(test, session.simulation.terminal_ms > session.simulation.failure_ms)
+	replay_handle, replay_created := engine_runtime.session_create(&instance, engine, map_handle, 65536, 0, true, 32, .MARK_AND_CONTINUE)
+	testing.expect_value(test, replay_created, core_types.Status.OK)
+	if replay_created != .OK {
+		return
+	}
+	replay_session, _ := engine_runtime.session_get(&instance, engine, replay_handle)
+	testing.expect_value(test, simulation.load_replay(&replay_session.simulation, session.simulation.recording[:session.simulation.recording_count]), core_types.Status.OK)
+	testing.expect_value(test, simulation.advance_session(&replay_session.simulation, 6000), core_types.Status.OK)
+	testing.expect_value(test, replay_session.simulation.journal_count, session.simulation.journal_count)
+	for event, event_index in session.simulation.journal[:session.simulation.journal_count] {
+		testing.expect_value(test, replay_session.simulation.journal[event_index], event)
+	}
+	// Reset clears the latch and restores a fresh continue-mode score.
+	testing.expect_value(test, engine_runtime.session_reset(&instance, engine, session_handle, 0), core_types.Status.OK)
+	testing.expect(test, !session.simulation.failure_latched)
+	testing.expect_value(test, session.simulation.state, simulation.Session_Status.READY)
+	testing.expect_value(test, session.simulation.score.rank, scoring.Rank.X)
 }
 
 @(test)

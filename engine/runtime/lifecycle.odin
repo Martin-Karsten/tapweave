@@ -74,6 +74,7 @@ Session :: struct {
 	arena: core_types.Arena,
 	lead_in_ms: f64,
 	gameplay: bool,
+	failure_policy: simulation.Failure_Policy,
 	simulation: simulation.Session,
 	output: []byte,
 	presentation_output: []byte,
@@ -353,6 +354,7 @@ session_create :: proc(
 	lead_in_ms: f64 = 0,
 	gameplay: bool = false,
 	input_capacity: u64 = 4096,
+	failure_policy: simulation.Failure_Policy = .TERMINAL,
 ) -> (
 	core_types.Handle,
 	core_types.Status,
@@ -389,6 +391,7 @@ session_create :: proc(
 	session_state.map_storage = map_resource
 	session_state.lead_in_ms = lead_in_ms
 	session_state.gameplay = gameplay
+	session_state.failure_policy = failure_policy
 	if gameplay {
 		if !map_resource.fully_prepared {
 			return 0, .INVALID_STATE

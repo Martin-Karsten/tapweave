@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { Engine_Bridge, Session_Output, Gameplay_Output, Presentation_Output } from '../build/engine-bridge.js';
+import { SESSION_STATE, RANK, FAIL_POLICY } from '../build/abi-records.js';
 import { schema, readRecord, writeRecord, checkedSpan } from '../../../engine/abi/records.mjs';
 
 const wasm_bytes = await readFile(new URL('../../../engine/artifacts/tapweave.wasm', import.meta.url));
@@ -427,6 +428,51 @@ test('immutable render attachment is shared across four session lifetimes', asyn
     assert.equal(engine.wasm.memory.buffer, buffer);
     assert.equal(resources.summary.attachment_version, 1);
     assert.throws(() => engine.render_resources(prepared.map_handle));
+  } finally {
+    engine.dispose();
+  }
+});
+
+// Pinned multiplayer fail policy (MultiplayerPlayer.PerformFail): the
+// MARK_AND_CONTINUE session keeps playing and scoring after zero health with a
+// frozen F rank, while the default session stays terminally failed.
+test('fail policy marks multiplayer failure without ending the run', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  try {
+    const failing_map = new TextEncoder().encode('osu file format v14\n[Difficulty]\nHPDrainRate:10\nOverallDifficulty:5\n[HitObjects]\n256,192,1000,1,0\n320,192,1100,1,0\n400,192,1200,1,0\n480,192,1300,1,0\n560,192,1400,1,0\n100,100,1500,1,0\n64,64,3000,1,0\n64,64,3500,1,0\n64,64,4000,1,0\n64,64,4500,1,0');
+    const map = engine.prepare_map(failing_map);
+    const submit_late_hits = (session) => engine.submit_inputs(session, [
+      { sequence: 1n, raw_time_ms: 3000, effective_time_ms: 3000, x: 64, y: 64, action_bits: 1 },
+      { sequence: 2n, raw_time_ms: 3005, effective_time_ms: 3005, x: 64, y: 64, action_bits: 0 },
+      { sequence: 3n, raw_time_ms: 3500, effective_time_ms: 3500, x: 64, y: 64, action_bits: 1 },
+      { sequence: 4n, raw_time_ms: 3505, effective_time_ms: 3505, x: 64, y: 64, action_bits: 0 },
+      { sequence: 5n, raw_time_ms: 4000, effective_time_ms: 4000, x: 64, y: 64, action_bits: 1 },
+      { sequence: 6n, raw_time_ms: 4005, effective_time_ms: 4005, x: 64, y: 64, action_bits: 0 },
+      { sequence: 7n, raw_time_ms: 4500, effective_time_ms: 4500, x: 64, y: 64, action_bits: 1 },
+      { sequence: 8n, raw_time_ms: 4505, effective_time_ms: 4505, x: 64, y: 64, action_bits: 0 },
+    ]);
+    assert.throws(() => engine.create_session(map.map_handle, { fail_policy: 2 }), /Unknown fail policy/);
+    const solo = engine.create_session(map.map_handle);
+    submit_late_hits(solo);
+    engine.advance(solo, 6000);
+    const solo_result = engine.result(solo);
+    assert.equal(Number(solo_result.summary.state), SESSION_STATE.FAILED);
+    assert.equal(Number(solo_result.summary.rank), RANK.F);
+    assert.equal(Number(solo_result.summary.score), 0);
+    const room = engine.create_session(map.map_handle, { fail_policy: FAIL_POLICY.MARK_AND_CONTINUE });
+    submit_late_hits(room);
+    const mid_run = engine.advance(room, 3600);
+    assert.equal(Number(mid_run.summary.state), SESSION_STATE.RUNNING);
+    assert.equal(Number(mid_run.summary.health), 0);
+    engine.advance(room, 6000);
+    const room_result = engine.result(room);
+    assert.equal(Number(room_result.summary.state), SESSION_STATE.PASSED);
+    assert.equal(Number(room_result.summary.rank), 6);
+    assert.ok(Number(room_result.summary.score) > 0);
+    assert.equal(Number(room_result.summary.health), 0);
+    engine.release_session(solo);
+    engine.release_session(room);
+    engine.release_map(map.map_handle);
   } finally {
     engine.dispose();
   }

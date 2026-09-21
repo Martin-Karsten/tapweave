@@ -14,6 +14,7 @@ wire compatibility, server replay verification or new gameplay rules.
 | MP-06 independent browser contexts, scoreboard, shared results, rematch, interruptions | `platform/product-ui/tests/multiplayer/rooms.spec.mjs`, dedicated Workers-hosted Playwright config |
 | MP-07 deployment artifact and routing | `scripts/package_deployment.mjs`, artifact hashes and hosting smoke |
 | MP-08 public two-device completion and measured start skew | **Open:** separate physical devices and audio output have not been certified |
+| MP-12 multiplayer fail policy: mark-and-continue at zero health | `engine/scripts/test-gameplay.mjs` fixtures `multiplayer-failure-continue-hp{0,5,10}` (native/WASM parity), `engine/tests/gameplay_test.odin`, `platform/browser-js/tests/engine.test.mjs`, multiplayer browser suites |
 
 The browser synchronization assertion compares audio-anchor estimates on a common
 wall-clock epoch, targeting less than 100 ms in controlled local conditions. It
@@ -62,7 +63,36 @@ or browser room orchestration. These backend-specific scenarios are not claimed
 as newly ported upstream evidence. In particular, upstream multiplayer's
 `TestFail` continues score accounting after failure using Autopilot; that mod and
 multiplayer-specific fail policy are outside this task's existing local-engine
-scoring contract. Tapweave retains ordinary local terminal failure semantics.
+scoring contract. **Superseded 2026-09-21:** rounds now implement the pinned
+upstream fail policy through an explicit session fail policy (see
+"Multiplayer fail policy" below); solo play retains terminal failure.
+
+## Multiplayer fail policy
+
+Rounds create their gameplay session with `fail_policy=1` (kind-18 record,
+ABI 2.1): reaching zero health latches an F rank and freezes health at zero
+while play, scoring and audio continue to the map's end, where the session
+finishes `PASSED` with rank F and the client reports terminal status `failed`
+with the full end-of-run score. This mirrors the pinned upstream mechanism at
+osu! `3c1c96f742e7aae2ff67a7361e058fe91ca3b955`: `MultiplayerPlayer.PerformFail()`
+(which only calls `ScoreProcessor.FailScore` and suppresses the fail sequence),
+`ScoreProcessor.ApplyNewJudgementsWhenFailed` and the `HealthProcessor`
+post-`HasFailed` health freeze. Solo play keeps `fail_policy=0` terminal
+failure. Results ranking is unchanged: failed runs stay separate and unranked,
+now carrying their complete end-of-run scores.
+
+Evidence: the `multiplayer-failure-continue-hp{0,5,10}` fixtures in
+`engine/scripts/gameplay-fixtures.mjs` port the
+`TestSceneMultiplayerPlayer.TestFail` scenario (no fail sequence, score keeps
+counting after failure, health frozen at zero) with native/WASM parity and
+cadence invariants; `engine/tests/gameplay_test.odin`
+(`gameplay_multiplayer_failure_marks_and_continues`) covers failure latching,
+rank freeze, replay round-trip and reset; `platform/browser-js/tests/engine.test.mjs`
+checks the create record and both policies; the multiplayer browser suites
+exercise the complete round. The upstream visual scene test itself is not
+executable through the H01–H04 reference hosts, so this remains a local port
+with recorded provenance, not an upstream oracle comparison, and closes no
+lazer gameplay acceptance row.
 
 ## Prior demo-only validation on 2026-09-21 (protocol v1)
 

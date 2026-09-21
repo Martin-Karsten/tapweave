@@ -14,6 +14,7 @@ Fixture :: struct {
 	inputs: []core_types.Input_Snapshot,
 	schedule_ms: []f64,
 	replay: bool,
+	continue_after_failure: bool,
 }
 
 Judgement :: struct {
@@ -72,6 +73,7 @@ run_fixture :: proc(fixture: ^Fixture, output: ^[dynamic]byte) -> bool {
 	}
 	session_handle, session_status := engine_runtime.session_create(
 		&instance, engine, map_handle, required_bytes, 0, true, input_capacity,
+		fixture.continue_after_failure ? .MARK_AND_CONTINUE : .TERMINAL,
 	)
 	if session_status != .OK {
 		return false

@@ -64,6 +64,32 @@ score_rejection_failure_and_rounding :: proc(test: ^testing.T) {
 	testing.expect_value(test, scoring.rank_for(0.95, 0), scoring.Rank.S)
 }
 
+// ApplyNewJudgementsWhenFailed: multiplayer keeps accounting judgements after
+// failure while the rank stays frozen at F (ScoreProcessor.updateRank).
+@(test)
+score_continues_after_failure_when_enabled :: proc(test: ^testing.T) {
+	maxima, _ := scoring.prepare_maxima([]core_types.Hit_Result{.GREAT, .GREAT, .GREAT})
+	score := scoring.create(maxima, true)
+	testing.expect_value(test, scoring.apply(&score, {.GREAT, .GREAT}), core_types.Status.OK)
+	scoring.fail(&score)
+	failed_total := score.total
+	testing.expect_value(test, score.rank, scoring.Rank.F)
+	testing.expect_value(test, scoring.apply(&score, {.GREAT, .GREAT}), core_types.Status.OK)
+	testing.expect(test, score.total > failed_total)
+	testing.expect_value(test, score.accumulator.combo, 2)
+	// The rank never updates again once failed, even with perfect later play.
+	testing.expect_value(test, score.rank, scoring.Rank.F)
+	// Without the flag, the default contract still rejects post-failure scoring.
+	terminal_score := scoring.create(maxima)
+	testing.expect_value(test, scoring.apply(&terminal_score, {.GREAT, .GREAT}), core_types.Status.OK)
+	scoring.fail(&terminal_score)
+	testing.expect_value(
+		test,
+		scoring.apply(&terminal_score, {.GREAT, .GREAT}),
+		core_types.Status.INVALID_STATE,
+	)
+}
+
 @(test)
 hit_window_and_spin_source_semantics :: proc(test: ^testing.T) {
 	windows, status := rules.hit_windows(5)

@@ -50,7 +50,7 @@ gameplay_initialize :: proc(session: ^Session, input_capacity: u64) -> core_type
 	if required_bytes > u64(len(session.arena.bytes)) {
 		return .QUOTA_EXCEEDED
 	}
-	status = simulation.initialize(&session.simulation, prepared_map, &session.arena, input_capacity, session.lead_in_ms)
+	status = simulation.initialize(&session.simulation, prepared_map, &session.arena, input_capacity, session.lead_in_ms, session.failure_policy)
 	if status != .OK {
 		return status
 	}

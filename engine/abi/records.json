@@ -1,6 +1,6 @@
 {
   "abi_major": 2,
-  "abi_minor": 0,
+  "abi_minor": 1,
   "version": 1,
   "records": [
     {
@@ -1004,7 +1004,7 @@
           32,
           "u32"
         ],
-        "reserved_36": [
+        "fail_policy": [
           36,
           "u32"
         ]

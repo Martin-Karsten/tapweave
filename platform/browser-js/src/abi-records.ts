@@ -92,6 +92,12 @@ export const DECODE_ERROR_CODE = Object.freeze({ NONE: 0, HEADER: 1, FORMAT_VERS
 // (docs/architecture/interface-v2.md: READY=0, RUNNING=1, PAUSED=2, PASSED=3, FAILED=4).
 export const SESSION_STATE = Object.freeze({ READY: 0, RUNNING: 1, PAUSED: 2, PASSED: 3, FAILED: 4 } as const);
 
+// Fail policy values in the kind-18 gameplay-create record
+// (docs/architecture/interface-v2.md). TERMINAL reproduces solo fail-and-freeze;
+// MARK_AND_CONTINUE is the pinned multiplayer policy where reaching zero health
+// only marks the F rank while play and scoring continue.
+export const FAIL_POLICY = Object.freeze({ TERMINAL: 0, MARK_AND_CONTINUE: 1 } as const);
+
 // Voice command families and late policy (docs/architecture/interface-v2.md voice section).
 export const VOICE_COMMAND_KIND = Object.freeze({ ONE_SHOT: 1, LOOP_START: 2, LOOP_STOP: 3, PARAM_RAMP: 4 } as const);
 export const VOICE_COMMAND_FAMILY_BIT = Object.freeze({ ONE_SHOT: 1, LOOP_START: 2, LOOP_STOP: 4, PARAM_RAMP: 8 } as const);
@@ -116,6 +122,7 @@ export const SCENE_ATTACHMENT_MAGIC = 46;
 
 // Score rank and hit-result enumerations, mirroring engine/scoring/score.odin
 // and engine/core_types/results.odin. Index into these with the record values.
+export const RANK = Object.freeze({ X: 0, S: 1, A: 2, B: 3, C: 4, D: 5, F: 6 } as const);
 export const RANK_NAMES = ['X', 'S', 'A', 'B', 'C', 'D', 'F'] as const;
 export const HIT_RESULT_NAMES = ['None', 'Miss', 'Meh', 'Ok', 'Good', 'Great', 'Perfect', 'Small tick miss',
   'Small tick hit', 'Large tick miss', 'Large tick hit', 'Small bonus', 'Large bonus', 'Ignored miss',

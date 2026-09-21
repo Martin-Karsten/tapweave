@@ -100,7 +100,10 @@ disposal and stale handles. The existing 50-cycle/four-session lifecycle matrix,
 Prepared-map-backed sessions implement event-driven circles/note lock, default
 lazer slider heads/tracking/key restriction/children/early tail, spinner history
 and final thresholds, score maxima, normalized score/counts, health calibration,
-no-drain intervals, failure freeze and terminal results. Legacy-last-tick markers
+no-drain intervals, failure freeze and terminal results. The session create
+record additionally offers the pinned multiplayer mark-and-continue fail policy
+(`fail_policy=1`): failure latches the F rank and freezes health while scoring
+continues to completion. Legacy-last-tick markers
 are not judged. Health is anchored at semantic judgements to avoid render-rate
 rounding differences.
 
@@ -1439,17 +1442,24 @@ imports, exact map/music/WASM SHA-256 matching, revisioned availability/readines
 a five-second scheduled audio start, transient scoreboard, client-reported shared
 results and return to lobby with the selection retained. A SQLite-backed Durable
 Object coordinates each room with hibernating WebSockets and deadline/expiry alarms. Odin judgement and scoring
-remain local and the production ABI is unchanged. Networking is limited to this
+remain local; rounds run the pinned upstream multiplayer fail policy
+(`fail_policy=1` in the kind-18 gameplay-create record, ABI 2.1): zero health
+marks the F rank and freezes health while play and scoring continue to the
+map's end, with terminal status `failed` carrying the full score. Solo play
+keeps terminal failure. Networking is limited to this
 explicit scope; no competitive verification, accounts, uploads or public directory.
 The room screen follows the shared product grammar of ADR-007 (sheared top bar
 and footer actions, wedge panels, chips, gradient CTAs over the common backdrop)
 without adding primitives or changing room contracts.
 
 See [ADR-008](architecture/adr-008-private-demo-rooms.md) and the
-[MP-01–MP-11 validation matrix](compatibility/multiplayer.md). Workers-runtime
+[MP-01–MP-12 validation matrix](compatibility/multiplayer.md). Workers-runtime
 tests exercise real SQLite, alarms and socket hibernation/eviction. Independent
 context browser tests exercise independently imported local fixtures and
-interruptions. These are product regressions, not new upstream gameplay acceptance. Separate physical devices and
+interruptions. The MP-12 fail-policy fixtures port the pinned
+`TestSceneMultiplayerPlayer.TestFail` scenario as local native/WASM parity
+evidence; the upstream visual scene test is not executable through the reference
+hosts, so no lazer gameplay acceptance row is closed. These are product regressions, not new upstream gameplay acceptance. Separate physical devices and
 audible-output start skew remain an open release check.
 
 Protocol v2 uses the prepared final object end time from playback zero for

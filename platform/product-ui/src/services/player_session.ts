@@ -300,6 +300,11 @@ export class Player_Session_Service {
     await this.gameplay.play(audio_seconds);
   }
 
+  // ADR-008: multiplayer rooms arm the pinned continue-after-failure policy;
+  // solo play retains terminal failure. The controller re-prepares idle
+  // selections so the switch is visible to the next attempt.
+  set_fail_policy(fail_policy: number): void { this.gameplay.set_fail_policy(fail_policy); }
+
   get multiplayer_score() {
     return this.gameplay.multiplayer_score;
   }

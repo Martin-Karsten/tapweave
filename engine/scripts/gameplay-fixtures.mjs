@@ -142,6 +142,20 @@ export function gameplayFixtures() {
     add({ id: `player-failure-hp${hp}`, map: beatmap(Array.from({ length: 40 }, (_, object_index) => circle(64 + (object_index % 4) * 100, 64, 1000 + object_index * 100)), { hp }),
       inputs: [], replay: true, player: true, expected: { state: 'FAILED' }, end_ms: 7000, acceptance: ['A19'], upstream_tests: [],
       source_symbols: ['osu.Game/Screens/Play/Player.cs', 'osu.Game.Rulesets.Osu/Scoring/OsuHealthProcessor.cs'], adaptation: 'Source-derived real Player failure and post-failure score observations.' });
+    // Pinned multiplayer fail policy: failing marks the F rank without ending
+    // play, and later judgements keep scoring at frozen zero health. Local
+    // native/WASM parity only; the upstream visual scene test is not runnable
+    // through the reference hosts, so no upstream oracle is claimed.
+    const continue_frames = [];
+    for (let object_index = 30; object_index < 40; object_index++) {
+      continue_frames.push(input(1000 + object_index * 100, 64 + (object_index % 4) * 100, 64, 1));
+      continue_frames.push(input(1000 + object_index * 100 + 5, 64 + (object_index % 4) * 100, 64));
+    }
+    add({ id: `multiplayer-failure-continue-hp${hp}`, map: beatmap(Array.from({ length: 40 }, (_, object_index) => circle(64 + (object_index % 4) * 100, 64, 1000 + object_index * 100)), { hp }),
+      inputs: continue_frames, replay: true, continue_after_failure: true, local_only: true,
+      expected: { assertion: 'continue_after_failure', state: 'PASSED', rank: 'F' }, end_ms: 7000, acceptance: ['MP-12'], upstream_tests: [],
+      source_symbols: ['osu.Game/Screens/OnlinePlay/Multiplayer/MultiplayerPlayer.cs', 'osu.Game/Rulesets/Scoring/ScoreProcessor.cs'],
+      adaptation: 'Local port of the pinned multiplayer fail policy (TestSceneMultiplayerPlayer.TestFail scenario): fail animation suppressed, F rank marked at failure, post-failure judgements keep accounting score while health stays frozen at zero.' });
   }
   const recording_map = beatmap([1000, 6000, 11000, 16000].map(time_ms => circle(256, 192, time_ms)), { hp: 0 });
   add({ id: 'replay-record-actions-port', map: recording_map, inputs: [input(1000, 256, 192, 2), input(1015, 256, 192),
@@ -155,7 +169,7 @@ export function gameplayFixtures() {
   return fixtures;
 }
 export function localFixture(fixture, schedule_ms) {
-  return { id: fixture.id, map_text: fixture.map, replay: fixture.replay, schedule_ms, inputs: fixture.inputs.map((frame, frame_index) => ({ sequence: frame_index + 1, raw_time_ms: frame.time_ms, effective_time_ms: frame.time_ms, x: frame.x, y: frame.y, action_bits: frame.actions })) };
+  return { id: fixture.id, map_text: fixture.map, replay: fixture.replay, continue_after_failure: fixture.continue_after_failure === true, schedule_ms, inputs: fixture.inputs.map((frame, frame_index) => ({ sequence: frame_index + 1, raw_time_ms: frame.time_ms, effective_time_ms: frame.time_ms, x: frame.x, y: frame.y, action_bits: frame.actions })) };
 }
 export function schedules(fixture) {
   const schedules = [{ id: 'direct', times: [fixture.end_ms] }];

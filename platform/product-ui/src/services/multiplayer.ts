@@ -17,7 +17,7 @@ import {
   type Terminal_Report,
 } from '../../shared/multiplayer';
 import build_identity from '../../artifacts/multiplayer_identity.json';
-import { SESSION_STATE } from '@browser/abi-records.js';
+import { SESSION_STATE, RANK, FAIL_POLICY } from '@browser/abi-records.js';
 import type { Player_Session_Service } from './player_session';
 
 export interface Multiplayer_State {
@@ -143,6 +143,10 @@ export class Multiplayer_Service {
     readonly player: Player_Session_Service,
     readonly room_id: string,
   ) {
+    // ADR-008: rounds run the pinned multiplayer fail policy — reaching zero
+    // health marks the F rank while play and scoring continue (osu!lazer
+    // MultiplayerPlayer). Solo navigation restores terminal failure on dispose.
+    player.set_fail_policy(FAIL_POLICY.MARK_AND_CONTINUE);
     this.unsubscribe_player = player.subscribe(() => this.observe_player());
     this.score_interval = setInterval(() => this.report_score(), 550);
     window.addEventListener('pagehide', this.pagehide);
@@ -784,8 +788,12 @@ export class Multiplayer_Service {
     }
     const view = this.player.view;
     if (view.state === 'terminal' && view.result) {
+      // Continue-after-failure runs finish PASSED with a frozen F rank; the
+      // rank, not the terminal state, classifies the report.
+      const run_failed = view.result.summary.state === SESSION_STATE.FAILED ||
+        Number(view.result.summary.rank) === RANK.F;
       this.terminal_report = {
-        status: view.result.summary.state === SESSION_STATE.PASSED ? 'completed' : 'failed',
+        status: run_failed ? 'failed' : 'completed',
         score: Number(view.result.summary.score),
         accuracy: Number(view.result.summary.accuracy),
         combo: Number(view.result.summary.highest_combo),
@@ -868,6 +876,7 @@ export class Multiplayer_Service {
     this.disposed = true;
     this.publish({ connected: false });
     this.preparation_generation++;
+    this.player.set_fail_policy(FAIL_POLICY.TERMINAL);
     this.player.selection.cancel_pending();
     this.unsubscribe_player();
     window.removeEventListener('pagehide', this.pagehide);

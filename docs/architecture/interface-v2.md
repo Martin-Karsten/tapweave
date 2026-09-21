@@ -264,7 +264,14 @@ sessions continue returning `UNSUPPORTED` for simulation calls.
 
 Create a gameplay session by putting kind 18/version 1/size 40 in the bootstrap
 input slot and calling `oe_session_create`. Fields are flags=2, reserved=0,
-`arena_bytes:u64`, finite `lead_in_ms:f64`, `input_capacity:u32`, reserved=0.
+`arena_bytes:u64`, finite `lead_in_ms:f64`, `input_capacity:u32`,
+`fail_policy:u32` (ABI 2.1; the former zero-reserved tail at offset 36).
+`fail_policy=0` is terminal failure — the run ends at the failing judgement and
+scoring freezes. `fail_policy=1` is the pinned multiplayer mark-and-continue
+policy (osu!lazer `MultiplayerPlayer`): reaching zero health latches the F rank
+and freezes health at zero while play and score accounting continue to the
+map's end, where the session finishes `PASSED` with rank F. Any other value is
+`INVALID_ARGUMENT`; omitted zero keeps the historical terminal behavior.
 The map must have been prepared with flag 2 and contain at least one object.
 Lead-in cannot exceed the first object's start. Capacity bounds total accepted live input. Recording/input storage also reserves
 important judgement and pause frames. Creation requires

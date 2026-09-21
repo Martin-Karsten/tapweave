@@ -62,6 +62,8 @@ At the last hit of a combo, an additional `+0.07`, `+0.05`, or `+0.03` is awarde
 
 Default failure occurs when clamped health reaches zero within framework precision (`AlmostBigger(0, health)`). NoFail/SuddenDeath/Perfect and Classic health alter this; they are outside the unmodded normative path.
 
+The Player layer owns what failure does. Solo `Player.PerformFail()` starts the fail sequence and freezes scoring (`ApplyNewJudgementsWhenFailed` defaults to false). Multiplayer overrides it: `MultiplayerPlayer.PerformFail()` only marks the F rank via `ScoreProcessor.FailScore`, sets `ApplyNewJudgementsWhenFailed = true`, and once `HealthProcessor.HasFailed` health never changes again — play, scoring and drain-clamped zero health continue to the map's end ([`MultiplayerPlayer`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Screens/OnlinePlay/Multiplayer/MultiplayerPlayer.cs)). Odin exposes this as the session create record's `fail_policy=1` (mark-and-continue); the default `fail_policy=0` keeps solo terminal failure.
+
 ## Result contract
 
 Final results must contain rules identity, map identity, replay identity, score/score-without-mods, accuracy, rank, current/max combo, result counts including nested and bonus types, maximum counts, health/fail/pass state, timestamps, and ordered hit events. Hit events contain time offset, gameplay rate, result, current and previous object identity, and optional positional offset ([`HitEvent`](https://github.com/ppy/osu/blob/3c1c96f742e7aae2ff67a7361e058fe91ca3b955/osu.Game/Rulesets/Scoring/HitEvent.cs)).
@@ -72,7 +74,7 @@ Rank uses the base thresholds, with osu!standard preventing S/X when misses exis
 
 - Health receives a new result before score.
 - Equal-time results use the simulator’s stable component order; reversion logic in lazer deliberately neutralizes concurrent order for combo restoration.
-- A result that triggers failure still reaches score; in Odin, subsequent judgements are suppressed by default (the Player layer may still emit visual post-failure judgements, which score processing rejects — see [gameplay tests](../compatibility/gameplay-tests.md)).
+- A result that triggers failure still reaches score; in Odin, subsequent judgements are suppressed by default (the Player layer may still emit visual post-failure judgements, which score processing rejects — see [gameplay tests](../compatibility/gameplay-tests.md)). Under the multiplayer `fail_policy=1` the run instead continues: post-failure judgements keep scoring, health stays frozen at zero, and the rank stays F.
 - Score maxima are computed from the exact prepared map after mods, never from object-count shortcuts.
 - `round` parity must match .NET midpoint-to-even behavior; acceptance fixtures cover `.5` totals.
 

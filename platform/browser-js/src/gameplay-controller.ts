@@ -9,7 +9,7 @@ import type { Audio_Clock } from './clock.js';
 import { Gameplay_Frame } from './gameplay-frame.js';
 import { Gameplay_Input } from './gameplay-input.js';
 import { Renderer } from './renderer.js';
-import { SESSION_STATE, ALL_VOICE_COMMAND_FAMILIES, SESSION_INPUT_CAPACITY, INPUT_STAGING_RECORDS, WASM_PAGE_BYTES } from './abi-records.js';
+import { SESSION_STATE, RANK, FAIL_POLICY, ALL_VOICE_COMMAND_FAMILIES, SESSION_INPUT_CAPACITY, INPUT_STAGING_RECORDS, WASM_PAGE_BYTES } from './abi-records.js';
 import { Browser_Error, require_condition } from './errors.js';
 import type { Diagnostics_Service } from './diagnostics.js';
 
@@ -99,6 +99,7 @@ export class Gameplay_Controller {
   private terminal_draining = false;
   private graphics_lost = false;
   private watching_replay = false;
+  private fail_policy: number = FAIL_POLICY.TERMINAL;
   private restoration_timer: ReturnType<typeof setTimeout> | null = null;
   private skip_windows: Skip_Window[] = [];
   private skip_available = false;
@@ -246,7 +247,7 @@ export class Gameplay_Controller {
       require_condition(this.context.state !== 'closed', 'INVALID_STATE', 'Audio output is closed. Reload the page.');
       this.#require_complete_protocols();
       this.engine.scene_capabilities();
-      this.session_handle = this.engine.create_session(active.map_handle);
+      this.session_handle = this.engine.create_session(active.map_handle, { fail_policy: this.fail_policy });
       this.prepared_selection = active;
       this.skip_windows = skip_windows_of(active.descriptor);
       this.diagnostics?.note_session_context(this.session_handle.toString(), null, null);
@@ -373,6 +374,20 @@ export class Gameplay_Controller {
       combo: Number(summary.combo),
       committed_ms: Number(summary.committed_ms),
     };
+  }
+
+  // Multiplayer rooms arm the pinned upstream continue-after-failure policy
+  // (ADR-008): reaching zero health marks the F rank and play continues; solo
+  // keeps terminal failure. Switching re-prepares any idle selection so the
+  // next attempt always runs under the visible policy.
+  set_fail_policy(fail_policy: number) {
+    require_condition(fail_policy === FAIL_POLICY.TERMINAL || fail_policy === FAIL_POLICY.MARK_AND_CONTINUE,
+      'INVALID_ARGUMENT', 'Unknown fail policy.');
+    if (this.fail_policy === fail_policy) return;
+    this.fail_policy = fail_policy;
+    if (this.state !== 'disposed' && !this.in_attempt && this.selection.state !== 'loading') {
+      this.prepare();
+    }
   }
 
   private physical_position(): { x: number; y: number } | undefined {
@@ -562,7 +577,10 @@ export class Gameplay_Controller {
     }
     const result = this.completed_run!.result;
     this.state = 'terminal';
-    this.message = result.summary.state === SESSION_STATE.PASSED ? 'Passed' : 'Failed';
+    // Continue-after-failure runs finish PASSED with a frozen F rank; the rank,
+    // not the state, decides the failed presentation.
+    const run_failed = result.summary.state === SESSION_STATE.FAILED || Number(result.summary.rank) === RANK.F;
+    this.message = run_failed ? 'Failed' : 'Passed';
     this.diagnostics?.note_lifecycle(`Run complete: ${this.message}.`,
       { state: Number(result.summary.state), score: result.summary.score.toString(),
         accuracy: Number(result.summary.accuracy), highest_combo: Number(result.summary.highest_combo) });

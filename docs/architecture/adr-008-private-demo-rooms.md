@@ -1,6 +1,9 @@
 # ADR-008: Private rooms with local maps
 
 Status: accepted for implementation; physical two-device release acceptance open.
+Amended 2026-09-21: rounds run the pinned multiplayer fail policy through the
+kind-18 `fail_policy` field (ABI 2.1), the feature's first production ABI
+addition; see "Fail policy" below.
 
 ## Decision
 
@@ -76,6 +79,17 @@ within 30 seconds retains only the already-running local session. A page reload
 cannot reconstruct or resume that session. Multiplayer exposes no skip/retry or
 resume action within a round; solo behavior remains unchanged.
 
+## Fail policy
+
+Rounds create their gameplay session with the pinned upstream multiplayer fail
+policy (`fail_policy=1` in the kind-18 gameplay-create record, ABI 2.1, matching
+osu!lazer `MultiplayerPlayer`): reaching zero health latches the F rank and
+freezes health at zero while play and score accounting continue to the map's
+end. The run then finishes `PASSED` with rank F and reports terminal status
+`failed` with its complete score. Solo navigation keeps ordinary terminal
+failure (`fail_policy=0`); entering a room arms the continue policy and leaving
+restores terminal failure before the next solo attempt.
+
 ## Persistence and lifetime
 
 A single bounded JSON room record in SQLite stores membership, host, creation and
@@ -90,8 +104,9 @@ attachments by the alarm; this detects silent half-open connections without
 writing each score update. Transient live scores are sent no more than twice
 per second and are not written to SQLite; clients refresh them after eviction.
 Snapshots redact credential hashes. Completed runs use the existing final score;
-equal scores share competition placement. Failed runs are separate, withdrawals
-unranked. Terminal submissions are immutable for that round.
+equal scores share competition placement. Failed runs — including
+mark-and-continue runs that finish the map at rank F with their full score —
+are separate, withdrawals unranked. Terminal submissions are immutable for that round.
 
 One alarm covers countdown, disconnected-member grace, round deadline (scheduled
 start plus prepared `end_ms` plus 30 seconds), 30-minute lobby/results inactivity
@@ -138,6 +153,7 @@ Cloudflare references retrieved 2026-09-21:
 
 Product inspiration: [osu! multiplayer room flow](https://osu.ppy.sh/wiki/en/Client/Interface/Multiplayer)
 (host selection, map availability, ready and start). Tapweave requires everyone
-ready and retains its ordinary local Odin failure/judgement rules. This is not
+ready and ports the pinned upstream multiplayer fail marking for rounds; solo
+play retains its ordinary local Odin failure/judgement rules. This is not
 osu! multiplayer wire or scoring compatibility. Deployment is separate from local
 validation; physical-device acceptance remains open.

@@ -132,6 +132,8 @@ open. Play exposes a validation build, not an assertion that these rows pass.
 
 ## Original private rooms with local maps
 
-[MP-01–MP-11](multiplayer.md) track the original social coordination contract.
-These checks do not close any lazer gameplay compatibility row. Physical public
+[MP-01–MP-12](multiplayer.md) track the original social coordination contract,
+plus MP-12 for the pinned upstream multiplayer fail policy (mark-and-continue at
+zero health; local port, no upstream oracle run). These checks do not close any
+lazer gameplay compatibility row. Physical public
 two-device/audio-output acceptance remains separate.
