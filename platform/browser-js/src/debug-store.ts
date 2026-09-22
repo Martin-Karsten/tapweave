@@ -78,7 +78,11 @@ export class IndexedDB_Report_Backend implements Debug_Report_Backend {
     return new Promise<T>((resolve, reject) => {
       const transaction = database.transaction(this.store_name, mode);
       const request = operate(transaction.objectStore(this.store_name));
-      request.onsuccess = () => resolve(request.result);
+      // Request success precedes commit. A later abort must still reject the
+      // operation, and callers awaiting persistence must be safe to navigate.
+      transaction.oncomplete = () => resolve(request.result);
+      transaction.onabort = () => reject(transaction.error ?? new Error('IndexedDB transaction aborted.'));
+      transaction.onerror = () => reject(transaction.error ?? new Error('IndexedDB transaction failed.'));
       request.onerror = () => reject(request.error ?? new Error('IndexedDB request failed.'));
     });
   }

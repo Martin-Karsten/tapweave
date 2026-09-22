@@ -169,6 +169,13 @@ test('failure reports persist across reload and remain listed with controls', as
   await page.keyboard.press('z');
   await expect(page.locator('#lifecycle-title')).toHaveText('Playback interrupted');
   await expect(page.locator('#recovery-report')).toBeVisible();
+  // Recovery UI is published before the asynchronous IndexedDB write commits.
+  // Reload only after persistence finishes; navigation can abort a pending write.
+  await page.evaluate(async () => {
+    const persistence = window.__tapweave_player_probe.session.debug.failure_persistence;
+    if (!persistence) throw new Error('Failure report persistence was not started');
+    await persistence;
+  });
   // The vanilla single page reloaded in place; the shell returns to the
   // selection route, whose status element gates the fresh boot.
   await page.goto('/select');

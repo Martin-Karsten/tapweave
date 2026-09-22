@@ -545,7 +545,10 @@ Reports use the versioned 2 MiB-bounded `tapweave-debug-report` JSON with bigint
 identifiers as decimal strings, first-failure preservation before recovery,
 bounded secondary failures, timing provenance and explicit unavailable markers.
 The latest five persist in IndexedDB with view/copy/download/delete controls;
-storage failures keep the in-memory report usable. Exports import for
+storage failures keep the in-memory report usable. Persistence resolves only after
+transaction commit and rejects transaction aborts, including aborts after request
+success. The reload regression waits for this completion before navigating, so
+Firefox cannot cancel an unfinished write during the test. Exports import for
 text-only inspection with size/schema validation. Nothing is uploaded;
 beatmap/audio contents, screenshots, absolute paths and unrelated keyboard input
 are excluded.

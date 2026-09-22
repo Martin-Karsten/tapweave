@@ -191,7 +191,8 @@ jobs:
 
   product-shell:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    # Browser coverage plus serial, real-time multiplayer rounds exceed 20 minutes.
+    timeout-minutes: 40
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
     steps:

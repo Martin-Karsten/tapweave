@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Debug_Report_Store, In_Memory_Report_Backend, MAXIMUM_STORED_REPORTS } from '../build/debug-store.js';
+import { Debug_Report_Store, In_Memory_Report_Backend, IndexedDB_Report_Backend, MAXIMUM_STORED_REPORTS } from '../build/debug-store.js';
 
 function store_fixture() {
   const backend = new In_Memory_Report_Backend();
@@ -70,4 +70,37 @@ test('failed reads return null text without throwing', async () => {
   await store.persist('report', summary_for(0));
   backend.failure = new Error('io');
   assert.equal(await store.text('any-key'), null);
+});
+
+function indexed_database_fixture() {
+  const request = { result: 'report-key', error: null };
+  const transaction = { error: null, objectStore: () => ({ put: () => request }) };
+  const open_request = { result: { transaction: () => transaction } };
+  const backend = new IndexedDB_Report_Backend(() => ({ open: () => open_request }));
+  return { backend, request, transaction, open_request };
+}
+
+test('IndexedDB persistence waits for commit after request success', async () => {
+  const { backend, request, transaction, open_request } = indexed_database_fixture();
+  let settled = false;
+  const pending = backend.put({ key: 'report-key' }).then(() => { settled = true; });
+  open_request.onsuccess();
+  await new Promise(resolve => setImmediate(resolve));
+  request.onsuccess?.();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(settled, false, 'request success is not a committed transaction');
+  transaction.oncomplete();
+  await pending;
+  assert.equal(settled, true);
+});
+
+test('IndexedDB abort after request success rejects persistence', async () => {
+  const { backend, request, transaction, open_request } = indexed_database_fixture();
+  const pending = backend.put({ key: 'report-key' });
+  const rejection = assert.rejects(pending, /transaction aborted/);
+  open_request.onsuccess();
+  await new Promise(resolve => setImmediate(resolve));
+  request.onsuccess?.();
+  transaction.onabort();
+  await rejection;
 });
