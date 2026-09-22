@@ -268,17 +268,37 @@ jobs:
       group: tapweave-production
       cancel-in-progress: false
     steps:
+      - name: Check automatic deployment credentials
+        id: credentials
+        shell: bash
+        env:
+          DEPLOYMENT_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          DEPLOYMENT_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -n "$DEPLOYMENT_ACCOUNT_ID" ] && [ -n "$DEPLOYMENT_API_TOKEN" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Automatic deployment skipped: Cloudflare credentials are not configured."
+            echo "Automatic deployment skipped: configure CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN to publish. Validation passed; no release was published by this job." >> "$GITHUB_STEP_SUMMARY"
+          fi
       - uses: actions/checkout@v4
+        if: steps.credentials.outputs.configured == 'true'
       - uses: actions/setup-node@v4
+        if: steps.credentials.outputs.configured == 'true'
         with:
           node-version: '24'
       - run: npm --prefix platform/product-ui ci
+        if: steps.credentials.outputs.configured == 'true'
       - run: npm exec --prefix platform/product-ui -- playwright install --with-deps chromium
+        if: steps.credentials.outputs.configured == 'true'
       - uses: actions/download-artifact@v4
+        if: steps.credentials.outputs.configured == 'true'
         with:
           name: product-site
           path: platform/product-ui/artifacts/deployment/
       - name: Skip superseded commits
+        if: steps.credentials.outputs.configured == 'true'
         id: current
         shell: bash
         run: |

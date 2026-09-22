@@ -52,7 +52,10 @@ or release-browser gates.
    necessary; a headless smoke cannot certify audible output.
 
 Pull requests never deploy and need no Cloudflare credentials. Missing credentials
-fail only the deployment job with a setup message. Production deployments share a
+skip automatic publishing with an explicit job-summary notice; all validation jobs
+still have to pass. Configured but invalid credentials fail the deployment job.
+Manual releases remain available through the verified-artifact workflow below.
+Production deployments share a
 concurrency group; queued runs check the current `main` head immediately before
 publishing and skip obsolete commits. An already publishing run finishes before
 the next one starts. A failed public smoke marks the job failed but does not undo
