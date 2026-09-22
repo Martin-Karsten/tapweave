@@ -216,6 +216,8 @@ jobs:
         run: npm --prefix platform/product-ui ci
       - name: Install pinned Workers test dependencies
         run: npm --prefix platform/product-ui/worker-tests ci
+      - name: Prepare product assets and multiplayer engine identity
+        run: npm --prefix platform/product-ui run prepare-assets
       - name: Typecheck product shell
         run: npm --prefix platform/product-ui run typecheck
       - name: Install browser engines
