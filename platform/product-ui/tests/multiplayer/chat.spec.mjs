@@ -130,10 +130,10 @@ test('room chat survives gameplay, effective breaks, results, rematch and new me
     await expect(host.locator('.room-chat-log')).toContainText('Traffic');
     await expect.poll(() => host.evaluate(() => window.__chat_performance.elapsed_ms ?? 0)).toBeGreaterThan(0);
     const metrics = await host.evaluate(() => window.__chat_performance);
+    await test.info().attach('chat-performance', { body: JSON.stringify(metrics), contentType: 'application/json' });
     expect(metrics.frames * 1000 / metrics.elapsed_ms).toBeGreaterThan(30);
     expect(metrics.publications).toBeLessThan(30);
     expect(await host.locator('.room-chat-message').count()).toBeLessThanOrEqual(100);
-    await test.info().attach('chat-performance', { body: JSON.stringify(metrics), contentType: 'application/json' });
     await composer(host).fill('results message');
     await composer(host).press('Enter');
     await expect(friend.locator('.room-chat-log')).toContainText('results message');

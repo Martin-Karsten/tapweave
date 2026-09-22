@@ -10,10 +10,17 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     ignoreHTTPSErrors: true,
   },
-  projects: ['chromium', 'firefox', 'webkit'].map((browser_name) => ({
-    name: browser_name,
-    use: { browserName: browser_name },
-  })),
+  projects: [
+    { name: 'chromium', use: { browserName: 'chromium',
+      // Match the other browser suites: CI provides Mesa under xvfb.
+      launchOptions: process.env.CI && process.platform === 'linux'
+        ? { args: ['--use-angle=gl', '--ignore-gpu-blocklist'] } : {},
+    } },
+    { name: 'firefox', use: { browserName: 'firefox',
+      headless: !(process.env.CI && process.platform === 'linux'),
+    } },
+    { name: 'webkit', use: { browserName: 'webkit' } },
+  ],
   webServer: process.env.MULTIPLAYER_TEST_URL
     ? undefined
     : {
