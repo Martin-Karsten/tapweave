@@ -8,12 +8,27 @@ import {
   type Component,
 } from 'solid-js';
 import { A, useNavigate, useParams } from '@solidjs/router';
+import { Virtual_List } from '../components/virtual_list';
 import { boot_player_session, player_session, shell_state } from '../state/session_state';
 import { Multiplayer_Service, type Multiplayer_State } from '../services/multiplayer';
+import {
+  difficulty_row_label,
+  format_duration_ms,
+  row_meta_text,
+  set_count_text,
+  set_title_for,
+} from '../services/selection_display';
+import type { Selection_Set_Snapshot } from '../services/player_session';
 import { ranked_results, type Room_Member } from '../../shared/multiplayer';
 import '../styles/screens/multiplayer.css';
 import '../styles/screens/multiplayer_lobby.css';
 import '../styles/screens/multiplayer_round.css';
+
+// Lobby picker row model: the host's whole session library, one header per
+// set with its difficulty rows underneath.
+type Room_Picker_Row =
+  | { kind: 'set'; set: Selection_Set_Snapshot }
+  | { kind: 'difficulty'; set: Selection_Set_Snapshot; filename: string };
 
 export const Multiplayer_Screen: Component = () => {
   const navigate = useNavigate();
@@ -112,6 +127,36 @@ export const Multiplayer_Screen: Component = () => {
       failed: 'Preparation failure',
       available: 'Available',
     })[availability] ?? availability;
+  const selected_duration_text = (): string => {
+    const end_ms = room()?.selected_map?.end_ms ?? 0;
+    return end_ms > 0 ? format_duration_ms(end_ms) : '';
+  };
+  // Host picker rows over the full session library; publishing a choice goes
+  // through the same revision-fenced select command as before.
+  const active_selection = () => shell_state().selection.active;
+  const host_picker_rows = (): readonly Room_Picker_Row[] => {
+    const rows: Room_Picker_Row[] = [];
+    for (const loaded_set of shell_state().selection.sets) {
+      rows.push({ kind: 'set', set: loaded_set });
+      for (const filename of loaded_set.filenames) {
+        rows.push({ kind: 'difficulty', set: loaded_set, filename });
+      }
+    }
+    return rows;
+  };
+  const picker_row_is_published = (row: Room_Picker_Row): boolean => {
+    if (row.kind !== 'difficulty') return false;
+    const current = active_selection();
+    return !!current && current.set_id === row.set.set_id && current.filename === row.filename;
+  };
+  const activate_host_row = (row_index: number) => {
+    const row = host_picker_rows()[row_index];
+    // A newer choice may queue while an earlier publication is still being
+    // acknowledged (the service serializes them), so busy never blocks picks.
+    if (!row || row.kind !== 'difficulty' || !state().connected) return;
+    if (picker_row_is_published(row)) return;
+    void service?.select_map(row.set.set_id, row.filename);
+  };
   const member_status = (member: Room_Member) => {
     if (!member.connected) {
       return 'Disconnected';
@@ -337,13 +382,18 @@ export const Multiplayer_Screen: Component = () => {
                 <div class="multiplayer-map-content">
                   <Show
                     when={room()?.selected_map}
-                    fallback={<h2>The host can choose a difficulty</h2>}
+                    fallback={<h2>Waiting for the host to choose a difficulty</h2>}
                   >
                     <h2 class="multiplayer-map-title">{room()?.selected_map?.title}</h2>
                     <p class="map-metadata">
                       {room()?.selected_map?.artist} · mapped by {room()?.selected_map?.creator}
                     </p>
-                    <p class="map-metadata">Difficulty: {room()?.selected_map?.difficulty}</p>
+                    <p class="map-metadata">
+                      Difficulty: {room()?.selected_map?.difficulty}
+                      <Show when={selected_duration_text()}>
+                        {(duration) => <span> · {duration()}</span>}
+                      </Show>
+                    </p>
                   </Show>
                   <p class="multiplayer-availability">
                     <span
@@ -381,31 +431,48 @@ export const Multiplayer_Screen: Component = () => {
                       <span>Check loaded map</span>
                     </button>
                   </div>
-                  <Show when={is_host() && shell_state().selection.active}>
+                  <p class="multiplayer-map-hint">
+                    Matching is by file content: import the exact difficulty and music the host
+                    chose. Files never leave your device, and every import stays available for
+                    later host choices.
+                  </p>
+                  <Show when={is_host() && shell_state().selection.sets.length > 0}>
                     <div class="multiplayer-host-picker">
-                      <label for="room-difficulty">Choose difficulty from loaded set</label>
-                      <div class="multiplayer-host-picker-row">
-                        <select
-                          id="room-difficulty"
+                      <p class="eyebrow" id="room-difficulty-label">
+                        Choose difficulty from your library
+                      </p>
+                      <div id="room-difficulty" class="multiplayer-host-list" role="listbox" aria-labelledby="room-difficulty-label">
+                        <Virtual_List
+                          rows={host_picker_rows()}
+                          row_height={40}
+                          list_name="room difficulties"
+                          aria_label="Room difficulty picker"
                           disabled={!state().connected}
-                          value={shell_state().selection.active?.filename ?? ''}
-                          onChange={(event) => void service?.select_map(event.currentTarget.value)}
-                        >
-                          <For each={shell_state().selection.active?.source.list_maps() ?? []}>
-                            {(filename) => <option value={filename}>{filename}</option>}
-                          </For>
-                        </select>
-                        <button
-                          onClick={() => {
-                            const filename = shell_state().selection.active?.filename;
-                            if (filename) {
-                              void service?.select_map(filename);
-                            }
-                          }}
-                          disabled={state().busy || !state().connected}
-                        >
-                          <span>Select loaded difficulty</span>
-                        </button>
+                          render_row={(row) =>
+                            row.kind === 'set' ? (
+                              <span class="difficulty-row set-header-row" data-set-id={row.set.set_id}>
+                                <span class="set-header-title">
+                                  {set_title_for(row.set, active_selection())}
+                                </span>
+                                <span class="set-header-count">{set_count_text(row.set)}</span>
+                              </span>
+                            ) : (
+                              <span
+                                class="difficulty-row"
+                                data-map-filename={row.filename}
+                                classList={{ 'room-pick-published': picker_row_is_published(row) }}
+                              >
+                                <span class="difficulty-row-label">
+                                  {difficulty_row_label(row.set, active_selection(), row.filename)}
+                                </span>
+                                <Show when={row_meta_text(row.set, row.filename)} keyed>
+                                  {(meta) => <span class="difficulty-row-meta">{meta}</span>}
+                                </Show>
+                              </span>
+                            )
+                          }
+                          on_activate={activate_host_row}
+                        />
                       </div>
                     </div>
                   </Show>

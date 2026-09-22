@@ -5,60 +5,35 @@ import { debug_dialog_open, open_debug_dialog } from '../state/debug_state';
 import { demo_error_message, demo_request_state, request_demo } from '../state/demo_state';
 import { player_session, shell_state } from '../state/session_state';
 import { DECODE_ERROR_CODE } from '@browser/abi-records.js';
-import { drain_ms, playable_span_of, type Map_Summary } from '@browser/map-summary.js';
+import { drain_ms, playable_span_of } from '@browser/map-summary.js';
 import type { Browser_Error } from '@browser/errors.js';
 import type { Active_Selection } from '@browser/selection.js';
+import type { Selection_Set_Snapshot } from '../services/player_session';
+import {
+  difficulty_row_label as label_for_row,
+  format_bpm,
+  format_duration_ms,
+  map_display_name,
+  metadata_field,
+  row_meta_text as meta_for_row,
+  set_artist_for,
+  set_count_text,
+  set_title_for as title_for_set,
+} from '../services/selection_display';
 
-const map_display_name = (filename: string): string =>
-  filename.split('/').at(-1)?.replace(/\.osu$/i, '') ?? filename;
+// Grouped-carousel row model: one header per loaded set, its difficulty rows
+// indented under it; headers collapse their set.
+type Carousel_Row =
+  | { kind: 'set'; set: Selection_Set_Snapshot }
+  | { kind: 'difficulty'; set: Selection_Set_Snapshot; filename: string };
 
-// Decoder-owned song-select metadata, with filename fallback for explicitly
-// empty fields. The decoder fills the pinned lazer defaults ("Unknown" /
-// "Unknown" / "Unknown Creator" / "Normal"; lazer Beatmap.cs constructor at
-// the pinned commit) for maps without a [Metadata] section, and those are
-// legitimate values a beatmap can also set deliberately — they display like
-// any other string, matching lazer's own song select. Only an empty value
-// counts as absent.
-type Metadata_Field = 'title' | 'artist' | 'creator' | 'version';
-
-const metadata_value = (selection: Active_Selection, field: Metadata_Field): string | null => {
-  const value = selection.descriptor.metadata[field];
-  return value !== '' ? value : null;
-};
-
-// Filename-derived stand-in for the lazer set panel title: the shared prefix
-// of the loaded scope's difficulty filenames, falling back to the active
-// difficulty when decoder-owned title metadata is absent.
-const set_display_title = (filenames: readonly string[], active_filename: string): string => {
-  let shared_prefix = map_display_name(filenames[0] ?? active_filename);
-  for (const filename of filenames.slice(1)) {
-    const display_name = map_display_name(filename);
-    let shared_length = 0;
-    const shared_limit = Math.min(shared_prefix.length, display_name.length);
-    while (shared_length < shared_limit && shared_prefix[shared_length] === display_name[shared_length]) {
-      shared_length += 1;
-    }
-    shared_prefix = shared_prefix.slice(0, shared_length);
-  }
-  shared_prefix = shared_prefix.replace(/[\s\-_.([{$]+$/, '');
-  return shared_prefix || map_display_name(active_filename);
-};
-
-const format_duration_ms = (duration_ms: number | null | undefined): string => {
-  if (duration_ms === null || duration_ms === undefined) return '';
-  const total_seconds = Math.round(duration_ms / 1000);
-  const minutes = Math.floor(total_seconds / 60);
-  const seconds = String(total_seconds % 60).padStart(2, '0');
-  return `${minutes}:${seconds}`;
-};
-
-// Display BPM as a single value or a min–max range; 0 bounds mean the map
-// declares no uninherited timing points.
-const format_bpm = (bpm_min: number, bpm_max: number): string => {
-  if (bpm_max <= 0) return '';
-  const minimum = Math.round(bpm_min);
-  const maximum = Math.round(bpm_max);
-  return minimum === maximum ? `${maximum}` : `${minimum}–${maximum}`;
+const selection_status = (): string => {
+  const state = shell_state();
+  if (state.phase === 'booting') return 'Starting engine…';
+  if (state.phase === 'boot-failed') return 'Engine unavailable.';
+  if (state.selection.state === 'loading') return 'Preparing beatmap…';
+  if (state.selection.active) return 'Beatmap prepared successfully.';
+  return 'Engine ready. Open a beatmap to begin.';
 };
 
 const stat_fill_percent = (value: number): string =>
@@ -73,69 +48,84 @@ const STAT_EXPLANATIONS = {
   od: 'Overall difficulty — higher tightens hit timings and spinner requirements.',
 };
 
-const selection_status = (): string => {
-  const state = shell_state();
-  if (state.phase === 'booting') return 'Starting engine…';
-  if (state.phase === 'boot-failed') return 'Engine unavailable.';
-  if (state.selection.state === 'loading') return 'Preparing beatmap…';
-  if (state.selection.active) return 'Beatmap prepared successfully.';
-  return 'Engine ready. Open a beatmap to begin.';
-};
-
 // Lazer SongSelect structure (structure reference only): the FilterControl
-// bar on top, the sheared BeatmapTitleWedge on the left, the beatmap-set
-// carousel with expanded difficulty rows on the right, and a ScreenFooter
-// action bar below.
+// bar on top, the sheared BeatmapTitleWedge on the left, the loaded-set
+// carousel with grouped difficulty rows on the right, and a ScreenFooter
+// action bar below. The grouping/collapse interaction is a browser-product
+// idiom (ADR-007 divergence), not a lazer carousel claim.
 export const Select_Screen: Component = () => {
   const navigate = useNavigate();
   const [difficulty_filter, set_difficulty_filter] = createSignal('');
   const [drop_active, set_drop_active] = createSignal(false);
+  const [collapsed_set_ids, set_collapsed_set_ids] = createSignal<ReadonlySet<number>>(new Set());
   const state = () => shell_state();
   const selection = () => state().selection;
   const active = () => selection().active;
   const gameplay = () => state().gameplay;
   const selection_locked = () => gameplay().in_attempt || gameplay().state === 'loading' || gameplay().state === 'disposed';
-  const summaries = () => selection().summaries;
-  const summary_for = (filename: string): Map_Summary | null => summaries().get(filename) ?? null;
-  const active_summary = (): Map_Summary | null => {
+  const loaded_sets = () => selection().sets;
+  const active_set = (): Selection_Set_Snapshot | null => {
     const current = active();
-    return current ? summary_for(current.filename) : null;
-  };
-  const difficulty_rows = () => {
-    const current = active();
-    return current ? current.source.list_maps() : [];
+    return current ? loaded_sets().find((loaded_set) => loaded_set.set_id === current.set_id) ?? null : null;
   };
 
-  // Row labels prefer the background summary's decoder-owned version name so
-  // every difficulty is labelled consistently; the active difficulty falls
-  // back to its own prepared metadata before the summary pass reaches it, and
-  // unsummarized rows keep their filename labels. This helper is the single
-  // label representation: the carousel rows and the difficulty filter below
-  // both render and search through it.
-  const difficulty_row_label = (filename: string): string => {
-    const summary = summary_for(filename);
-    if (summary && summary.version !== '') return summary.version;
-    const current = active();
-    if (current && filename === current.filename) {
-      const version = metadata_value(current, 'version');
-      if (version !== null) return version;
-    }
-    return map_display_name(filename);
+  // Row labels come from the shared display helpers; this wrapper binds the
+  // active selection. The label is the single search representation too: the
+  // carousel rows and the difficulty filter both render and match through it.
+  const difficulty_row_label = (loaded_set: Selection_Set_Snapshot, filename: string): string =>
+    label_for_row(loaded_set, active(), filename);
+
+  const set_title_for = (loaded_set: Selection_Set_Snapshot): string =>
+    title_for_set(loaded_set, active());
+
+  const toggle_set_collapsed = (set_id: number) => {
+    set_collapsed_set_ids((previous_ids) => {
+      const next_ids = new Set(previous_ids);
+      if (next_ids.has(set_id)) {
+        next_ids.delete(set_id);
+      } else {
+        next_ids.add(set_id);
+      }
+      return next_ids;
+    });
   };
 
-  // The filter matches the displayed labels (version metadata when known,
-  // filename bases otherwise), so searching what is shown finds the row.
-  const visible_difficulty_rows = (): readonly string[] => {
+  // The filter searches across the whole library: matching sets auto-expand
+  // (their headers stay visible above the matching rows) and non-matching
+  // sets drop out entirely.
+  const visible_rows = (): readonly Carousel_Row[] => {
     const query = difficulty_filter().trim().toLowerCase();
-    if (!query) return difficulty_rows();
-    return difficulty_rows().filter((filename) =>
-      filename.toLowerCase().includes(query) || difficulty_row_label(filename).toLowerCase().includes(query));
+    const rows: Carousel_Row[] = [];
+    for (const loaded_set of loaded_sets()) {
+      if (query) {
+        const set_text_match =
+          set_title_for(loaded_set).toLowerCase().includes(query) ||
+          (set_artist_for(loaded_set) ?? '').toLowerCase().includes(query);
+        const matching_filenames = set_text_match ? [...loaded_set.filenames] : loaded_set.filenames.filter((filename) => {
+          const label = difficulty_row_label(loaded_set, filename);
+          return filename.toLowerCase().includes(query) || label.toLowerCase().includes(query);
+        });
+        if (matching_filenames.length === 0) continue;
+        rows.push({ kind: 'set', set: loaded_set });
+        for (const filename of matching_filenames) {
+          rows.push({ kind: 'difficulty', set: loaded_set, filename });
+        }
+      } else {
+        rows.push({ kind: 'set', set: loaded_set });
+        if (!collapsed_set_ids().has(loaded_set.set_id)) {
+          for (const filename of loaded_set.filenames) {
+            rows.push({ kind: 'difficulty', set: loaded_set, filename });
+          }
+        }
+      }
+    }
+    return rows;
   };
 
   const map_name = (): string => {
     const current = active();
     if (current) {
-      const title = metadata_value(current, 'title');
+      const title = metadata_field(current, 'title');
       if (title !== null) return title;
     }
     return current ? map_display_name(current.filename) : 'Ready when you are.';
@@ -143,12 +133,12 @@ export const Select_Screen: Component = () => {
 
   const map_artist = (): string | null => {
     const current = active();
-    return current ? metadata_value(current, 'artist') : null;
+    return current ? metadata_field(current, 'artist') : null;
   };
 
   const map_creator = (): string | null => {
     const current = active();
-    const creator = current ? metadata_value(current, 'creator') : null;
+    const creator = current ? metadata_field(current, 'creator') : null;
     return creator !== null ? `mapped by ${creator}` : null;
   };
 
@@ -157,44 +147,22 @@ export const Select_Screen: Component = () => {
     if (!current) {
       return null;
     }
-    const version = metadata_value(current, 'version');
+    const version = metadata_field(current, 'version');
     return version !== null && version !== map_display_name(current.filename) ? version : null;
   };
 
-  // The set panel prefers decoder-owned titles/artists from any difficulty
-  // summary and stays stable across difficulty switches; the filename-prefix
-  // fallback covers scopes whose summaries have not landed yet.
-  const set_title = (): string => {
-    const current = active();
-    if (current) {
-      const title = metadata_value(current, 'title');
-      if (title !== null) return title;
-    }
-    for (const filename of difficulty_rows()) {
-      const summary_title = summaries().get(filename)?.title;
-      if (summary_title) return summary_title;
-    }
-    return set_display_title(difficulty_rows(), active()?.filename ?? '');
+  // The big set panel mirrors the active set; counts come from the snapshot.
+  const set_panel_title = (): string => {
+    const current_set = active_set();
+    return current_set ? set_title_for(current_set) : 'Ready when you are.';
   };
-
-  const set_artist = (): string | null => {
-    for (const filename of difficulty_rows()) {
-      const artist = summaries().get(filename)?.artist;
-      if (artist) return artist;
-    }
-    return null;
+  const set_panel_artist = (): string | null => {
+    const current_set = active_set();
+    return current_set ? set_artist_for(current_set) : null;
   };
-
-  const difficulty_count_text = (): string => {
-    const count = difficulty_rows().length;
-    return `${count} ${count === 1 ? 'difficulty' : 'difficulties'}`;
-  };
-
-  const row_meta_text = (filename: string): string => {
-    const summary = summary_for(filename);
-    if (!summary) return '';
-    const parts = [format_duration_ms(summary.duration_ms), format_bpm(summary.bpm_min, summary.bpm_max)];
-    return parts.filter(Boolean).join(' · ');
+  const set_panel_count = (): string => {
+    const current_set = active_set();
+    return current_set ? set_count_text(current_set) : '';
   };
 
   // Playable span and drain for the active difficulty, derived once per
@@ -210,7 +178,9 @@ export const Select_Screen: Component = () => {
     return drain_ms(span.start_ms, span.end_ms, [...current.descriptor.breaks()]);
   };
   const duration_chip_text = (): string | null => {
-    const summary = active_summary();
+    const current_set = active_set();
+    const current = active();
+    const summary = current && current_set ? current_set.summaries.get(current.filename) : undefined;
     if (summary) return format_duration_ms(summary.duration_ms) || null;
     const span = active_span();
     return span ? format_duration_ms(span.end_ms - span.start_ms) || null : null;
@@ -221,7 +191,9 @@ export const Select_Screen: Component = () => {
     return drain_text ? `Playable duration; drain time ${drain_text}.` : 'Playable duration.';
   };
   const bpm_chip_text = (): string | null => {
-    const summary = active_summary();
+    const current_set = active_set();
+    const current = active();
+    const summary = current && current_set ? current_set.summaries.get(current.filename) : undefined;
     if (!summary) return null;
     return format_bpm(summary.bpm_min, summary.bpm_max) || null;
   };
@@ -249,16 +221,29 @@ export const Select_Screen: Component = () => {
     const input = event.target as HTMLInputElement;
     const files = [...(input.files ?? [])];
     if (files.length) {
-      void player_session()?.load_files(files);
+      void player_session()?.add_files(files);
     }
     input.value = '';
   };
 
-  const choose_difficulty = (row_index: number) => {
-    const filename = visible_difficulty_rows()[row_index];
-    if (filename !== undefined && filename !== active()?.filename) {
-      void player_session()?.select_map(filename);
+  // Enter on a header toggles the set; Enter on a difficulty selects it.
+  const activate_row = (row_index: number) => {
+    const row = visible_rows()[row_index];
+    if (!row) return;
+    if (row.kind === 'set') {
+      toggle_set_collapsed(row.set.set_id);
+      return;
     }
+    const current = active();
+    if (current === null || current.set_id !== row.set.set_id || current.filename !== row.filename) {
+      void player_session()?.select_map(row.set.set_id, row.filename);
+    }
+  };
+
+  const remove_loaded_set = (set_id: number, event: MouseEvent) => {
+    event.stopPropagation();
+    if (selection_locked()) return;
+    void player_session()?.remove_set(set_id);
   };
 
   const start_play = () => {
@@ -306,7 +291,7 @@ export const Select_Screen: Component = () => {
     if (selection_locked()) return;
     const dropped_files = [...(event.dataTransfer?.files ?? [])];
     if (dropped_files.length) {
-      void player_session()?.load_files(dropped_files);
+      void player_session()?.add_files(dropped_files);
     }
   };
 
@@ -350,9 +335,9 @@ export const Select_Screen: Component = () => {
           <input id="files" type="file" multiple aria-label="Open local files" disabled={selection_locked()} onChange={open_files} />
         </label>
       </header>
-      <section class="select-carousel" aria-label="Beatmap set">
+      <section class="select-carousel" aria-label="Beatmap sets">
         <Show
-          when={difficulty_rows().length > 0}
+          when={loaded_sets().length > 0}
           fallback={
             <div class="carousel-empty">
               <p class="carousel-empty-lead">First time here? Try the demo — a beginner beatmap with original music.</p>
@@ -360,7 +345,8 @@ export const Select_Screen: Component = () => {
                 {demo_button_label()}
               </button>
               <p class="carousel-empty-hint">
-                Or load an .osz archive, or drop files onto this screen. An .osu file belongs with its music.
+                Or add an .osz archive, or drop files onto this screen. Every import joins your
+                session library; an .osu file belongs with its music.
               </p>
             </div>
           }
@@ -368,35 +354,54 @@ export const Select_Screen: Component = () => {
           <div class="set-panel">
             <div class="set-panel-content">
               <div class="set-heading">
-                <h2 class="set-title">{set_title()}</h2>
-                <Show when={set_artist()} keyed>
+                <h2 class="set-title">{set_panel_title()}</h2>
+                <Show when={set_panel_artist()} keyed>
                   {(artist) => <p class="set-artist">{artist}</p>}
                 </Show>
               </div>
-              <p class="set-count">{difficulty_count_text()}</p>
+              <p class="set-count">{set_panel_count()}</p>
             </div>
           </div>
-          <h3 id="difficulty-label" class="difficulty-heading">Difficulty</h3>
+          <h3 id="difficulty-label" class="difficulty-heading">Beatmap sets</h3>
           <div class="difficulty-list" role="listbox" aria-labelledby="difficulty-label">
             <Virtual_List
-              rows={visible_difficulty_rows()}
+              rows={visible_rows()}
               row_height={48}
               list_name="difficulties"
-              aria_label="Difficulty"
+              aria_label="Beatmap sets and difficulties"
               disabled={selection_locked()}
               fill_height
-              render_row={(filename) => (
-                <span class="difficulty-row" data-map-filename={filename}>
-                  <span class="difficulty-row-label">{difficulty_row_label(filename)}</span>
-                  <Show when={row_meta_text(filename)} keyed>
-                    {(meta) => <span class="difficulty-row-meta">{meta}</span>}
-                  </Show>
-                </span>
-              )}
-              on_activate={choose_difficulty}
+              render_row={(row) =>
+                row.kind === 'set' ? (
+                  <span class="difficulty-row set-header-row" data-set-id={row.set.set_id}>
+                    <span class="set-chevron" aria-hidden="true">
+                      {collapsed_set_ids().has(row.set.set_id) ? '▸' : '▾'}
+                    </span>
+                    <span class="set-header-title">{set_title_for(row.set)}</span>
+                    <span class="set-header-count">{set_count_text(row.set)}</span>
+                    <button
+                      type="button"
+                      class="set-remove"
+                      aria-label={`Remove ${set_title_for(row.set)} from this session`}
+                      disabled={selection_locked()}
+                      onClick={(event) => remove_loaded_set(row.set.set_id, event)}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ) : (
+                  <span class="difficulty-row" data-map-filename={row.filename}>
+                    <span class="difficulty-row-label">{difficulty_row_label(row.set, row.filename)}</span>
+                    <Show when={meta_for_row(row.set, row.filename)} keyed>
+                      {(meta) => <span class="difficulty-row-meta">{meta}</span>}
+                    </Show>
+                  </span>
+                )
+              }
+              on_activate={activate_row}
             />
           </div>
-          <Show when={difficulty_filter().trim() !== '' && visible_difficulty_rows().length === 0}>
+          <Show when={difficulty_filter().trim() !== '' && visible_rows().length === 0}>
             <p class="filter-empty">No difficulty matches this filter.</p>
           </Show>
         </Show>
@@ -500,7 +505,8 @@ export const Select_Screen: Component = () => {
             )}
           </Show>
           <Show when={!active()}>
-            <p id="map-detail">Your files stay in this browser.</p>
+            <p id="map-detail">Tap circles with the mouse or Z/X, hold sliders, spin spinners. Escape pauses.</p>
+            <p id="privacy-note" class="map-metadata">Your files stay in this browser.</p>
           </Show>
           <p id="play-gate" class="gate">
             {gameplay().message}

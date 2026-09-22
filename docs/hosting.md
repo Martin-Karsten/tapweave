@@ -1,10 +1,29 @@
 # Cloudflare hosting
 
 Tapweave deploys the Solid product shell, a small room API Worker and one
-SQLite-backed Durable Object per private room on Cloudflare Workers Free, at
+SQLite-backed Durable Object per private room on Cloudflare Workers, at
 `https://tapweave.<account-subdomain>.workers.dev`. No purchased domain, paid plan,
 R2 or D1 is required. Solo assets continue to use direct static asset serving.
-Production: [tapweave.mrtnkarsten.workers.dev](https://tapweave.mrtnkarsten.workers.dev).
+Production now uses the dedicated standalone Free account `Tapweave`
+(`1da4d2cf87f5713195cb6bc88895e0ad`), created through Cloudflare's
+`standalone: true` account API on 2026-09-21. No paid subscription was enabled.
+Production: [tapweave.tapweave-game.workers.dev](https://tapweave.tapweave-game.workers.dev).
+
+The migration deployed the existing hash-verified artifact as version
+`e9555ae5-d8dc-4b48-a4ca-70206fc8e996`. API checks passed for the site, multiplayer
+route, JavaScript/WASM assets, status, room creation and second-player join.
+The old `tapweave.mrtnkarsten.workers.dev` endpoint and its rooms are retired:
+nothing legacy is deployed or supported from this repository, old room invites
+are invalid and must be recreated, and any remaining Worker or Durable Object
+storage on the original account can be deleted there. No unrelated project was
+migrated.
+
+The Wrangler config and GitHub `CLOUDFLARE_ACCOUNT_ID` variable target the new
+account. CI rejects a different account or an artifact missing that account ID.
+GitHub still needs a deployment API-token secret scoped to the new account;
+local deployment used Wrangler OAuth. Keep this account on Workers Free:
+account pinning does not prevent an operator from upgrading its subscription.
+
 The first deployment on 2026-09-21 used local Wrangler OAuth and the validated
 static build from commit `dbaae2296cff2ce8edf12b22a8aef08d870668d4`;
 Cloudflare version `8fb041c5-45b4-4351-8eae-e60d5f8294c3`.
@@ -138,10 +157,33 @@ the same variable can be changed in the Cloudflare dashboard; reconcile that
 change into the config before the next deployment. The release config enables it.
 
 The initial `multiplayer-v1` migration declares `Multiplayer_Room` as SQLite-backed.
-Do not change this to a key-value Durable Object or upgrade the account plan.
-Free-tier quota exhaustion returns recoverable multiplayer errors and never
-automatically upgrades billing. The deployment API token needs permission to
+Do not change this to a key-value Durable Object. On Workers Free, quota
+exhaustion fails operations without automatically upgrading billing. On Workers Paid, usage beyond the included allocation is billable.
+The dedicated production account must remain on Workers Free for the provider
+to enforce its quota boundary.
+The deployment API token needs permission to
 deploy Worker scripts and their Durable Object bindings/migrations.
+
+### Durable Objects budget boundary
+
+[Cloudflare pricing](https://developers.cloudflare.com/durable-objects/platform/pricing/)
+checked on 2026-09-21 lists Free-plan limits of 100,000 requests/day,
+13,000 GB-s/day, 5 million rows read/day, 100,000 rows written/day, and 5 GB
+stored. Daily limits reset at 00:00 UTC. Paid-plan included allocations are
+monthly and are not the same limits. Incoming WebSocket messages count at a
+20:1 ratio for request billing; alarm invocations also count as requests, and
+each `setAlarm()` counts as a row written.
+
+The implementation uses hibernating sockets, transient live scores, bounded
+message rates and expiring rooms to reduce usage. These are not global quotas:
+more rooms, reconnects and rejected traffic can still consume billed resources.
+`MULTIPLAYER_ENABLED=false` only stops new rooms; existing rooms, joins, sockets
+and cleanup alarms continue. It is not an immediate billing kill switch.
+
+For a provider-enforced no-overage boundary, host multiplayer on a Workers Free
+account (which rejects operations at quota exhaustion). Moving accounts requires
+new room invites and deployment credentials. The current production account uses this boundary. Exhaustion can interrupt
+multiplayer; it does not guarantee uninterrupted service within the quotas.
 
 Room data expires after 30 minutes of inactivity or four hours maximum. There is
 no permanent leaderboard. Lifecycle/failure counters use structured Worker logs

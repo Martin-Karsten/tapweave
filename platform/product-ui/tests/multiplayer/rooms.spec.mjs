@@ -394,8 +394,10 @@ test('failed imports preserve selection; map changes invalidate ready and select
       await friend.evaluate(() => window.__tapweave_player_probe.session.selection.active.filename),
     ).toBe('first.osu');
     const revision = room.host_traffic.snapshots.at(-1).selection_revision;
-    await host.locator('#room-difficulty').selectOption('matching.osu');
-    await host.locator('#room-difficulty').selectOption('first.osu');
+    // The repacked archive and the earlier loose import both carry
+    // matching.osu; either row publishes the same map bytes.
+    await host.locator('#room-difficulty [data-map-filename="matching.osu"]').first().click();
+    await host.locator('#room-difficulty [data-map-filename="first.osu"]').click();
     await expect(host.locator('#room-ready')).toBeEnabled();
     await expect(friend.locator('#room-ready')).toBeEnabled();
     expect(room.host_traffic.snapshots.at(-1).selection_revision).toBeGreaterThan(revision);
@@ -472,7 +474,7 @@ test('superseded local checks and Ready sampling cannot ready a newer selection'
     await expect(friend.locator('#room-ready')).toBeEnabled();
     // Ready samples clocks for over a second; select a new revision meanwhile.
     await friend.locator('#room-ready').click();
-    await host.locator('#room-difficulty').selectOption('matching.osu');
+    await host.locator('#room-difficulty [data-map-filename="matching.osu"]').first().click();
     await expect(friend.locator('#room-ready')).toBeEnabled();
     await expect(friend.locator('#room-ready')).toHaveText('Ready');
     // Hold a real local source read across a host revision change, then release
@@ -495,7 +497,7 @@ test('superseded local checks and Ready sampling cannot ready a newer selection'
     });
     await friend.getByRole('button', { name: 'Check loaded map' }).click();
     await expect(friend.getByRole('region', { name: 'Selected map' })).toContainText('Checking');
-    await host.locator('#room-difficulty').selectOption('first.osu');
+    await host.locator('#room-difficulty [data-map-filename="first.osu"]').click();
     await expect(friend.getByRole('region', { name: 'Selected map' })).toContainText(
       'Other difficulty',
     );

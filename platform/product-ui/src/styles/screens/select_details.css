@@ -28,6 +28,66 @@
   white-space: nowrap;
 }
 
+/* Grouped-carousel set header: chevron, title, count and the per-set remove
+   affordance; one header per loaded session set. */
+.set-header-row {
+  font-weight: 700;
+  color: var(--color-text-bright);
+  background: linear-gradient(90deg, var(--color-surface-selected), transparent 70%);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.set-chevron {
+  flex: none;
+  width: 1em;
+  text-align: center;
+  color: var(--color-accent-strong);
+}
+
+.set-header-title {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.set-header-count {
+  flex: none;
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-note);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.set-remove {
+  flex: none;
+  border: none;
+  border-radius: var(--control-radius);
+  background: transparent;
+  color: var(--color-text-faint);
+  font: inherit;
+  font-weight: 400;
+  line-height: 1;
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+}
+
+.set-remove:hover {
+  color: var(--color-text-bright);
+  background: var(--color-surface-selected);
+}
+
+.set-remove:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* Difficulty rows indent beneath their set header. */
+.difficulty-list [data-map-filename] {
+  padding-left: calc(var(--space-5) + var(--space-6));
+}
+
 .difficulty-list [data-selected='true'] .difficulty-row-meta {
   color: var(--color-text-muted);
 }

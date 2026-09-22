@@ -134,18 +134,25 @@ toward upstream acceptance scenarios.
    (`SongSelect.ENTER_DURATION` both ways, filter/wedge sliding out to
    ±150 px). A transform on an ancestor of the gameplay canvas is also
    excluded by the rect-capture rule for the play route.
-3. **Single-set session.** The carousel holds only the imported set. There is
-   no beatmap database, grouping, sorting, collections or star-rating filter;
-   the FilterControl-position bar filters the active set's difficulties, and
-   the set panel is sheared for wedge-language consistency although pinned
-   carousel panels are not. The former filename-derived divergence is
-   resolved with fallback: title, artist, creator and difficulty name come
-   from the decoder-owned kind-54 metadata record of the prepared active
-   difficulty, while unprepared rows keep filename labels and the difficulty
-   filter searches those displayed labels. Only explicitly empty fields
-   count as absent and fall back to filename-derived strings; the decoder's
-   pinned lazer defaults ("Unknown" and friends) are ordinary values and
-   display as-is, as in lazer's own song select.
+3. **Session library instead of a beatmap database.** The carousel holds
+   every set imported in the current session: one collapsible header per set
+   with its difficulty rows underneath, imports append sets (each set is
+   individually removable, within a fixed count and retained-byte quota)
+   instead of replacing the previous one, and the FilterControl-position bar
+   searches set titles and displayed difficulty labels across the whole
+   library. The multiplayer lobby's host picker reuses the same grouped rows
+   (ADR-008 rooms; guest matching stays content-hash based). There is still
+   no beatmap database, persistence across reloads, sort/group modes,
+   collections or star-rating filter; the set panel is sheared for
+   wedge-language consistency although pinned carousel panels are not. The
+   former filename-derived divergence is resolved with fallback: title,
+   artist, creator and difficulty name come from the decoder-owned kind-54
+   metadata record of the prepared active difficulty, while unprepared rows
+   keep filename labels and the difficulty filter searches those displayed
+   labels. Only explicitly empty fields count as absent and fall back to
+   filename-derived strings; the decoder's pinned lazer defaults ("Unknown"
+   and friends) are ordinary values and display as-is, as in lazer's own
+   song select.
 4. **HTML-shell substitutions.** The screen title ("Song select") exists
    where pinned `SongSelect` has no header title; drag-and-drop import and
    the in-document footer are browser idioms standing in for lazer's global

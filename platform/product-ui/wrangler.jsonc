@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "tapweave",
+  "account_id": "1da4d2cf87f5713195cb6bc88895e0ad",
   "compatibility_date": "2026-09-21",
   "main": "worker/index.ts",
   "workers_dev": true,

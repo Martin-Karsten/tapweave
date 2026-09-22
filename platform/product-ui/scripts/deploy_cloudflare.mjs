@@ -1,4 +1,4 @@
-import { appendFile } from 'node:fs/promises';
+import { appendFile, readFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 
 const account_id = process.env.CLOUDFLARE_ACCOUNT_ID;
@@ -7,6 +7,12 @@ if (!account_id || !api_token) {
   throw new Error(
     'Deployment requires the CLOUDFLARE_ACCOUNT_ID repository variable and CLOUDFLARE_API_TOKEN secret. See docs/hosting.md.',
   );
+}
+const deployment_config = JSON.parse(
+  await readFile(new URL('../artifacts/deployment/wrangler.json', import.meta.url), 'utf8'),
+);
+if (account_id !== '1da4d2cf87f5713195cb6bc88895e0ad' || deployment_config.account_id !== account_id) {
+  throw new Error('Deployment must target the dedicated Tapweave Free account. See docs/hosting.md.');
 }
 const response = await fetch(
   `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(account_id)}/workers/subdomain`,

@@ -17,12 +17,19 @@ those bounded issues, not full M2/M3 or release certification.
 
 ## Static hosting
 
+Production moved to a dedicated Workers Free account on 2026-09-21:
+[tapweave.tapweave-game.workers.dev](https://tapweave.tapweave-game.workers.dev).
+The old public endpoint is retired and unsupported; old room invites must be
+recreated. See the
+[hosting budget boundary](hosting.md#durable-objects-budget-boundary).
+
 The product shell has Cloudflare Workers Static Assets configuration for a free
 `workers.dev` address, fingerprinted engine loading, explicit SPA route rewrites,
 and a CI deployment job gated on all existing validation jobs. Local hosting
 checks cover routes, cache headers, missing-asset 404s, engine boot, and demo start.
-The first deployment is live at
-[tapweave.mrtnkarsten.workers.dev](https://tapweave.mrtnkarsten.workers.dev).
+The first deployment used
+[tapweave.mrtnkarsten.workers.dev](https://tapweave.mrtnkarsten.workers.dev),
+an endpoint since retired (see below).
 Public hosting smoke passed on 2026-09-21, including engine boot and demo start/pause.
 GitHub automatic publishing still needs its API-token secret. Physical
 audible-output checks remain open. See [hosting](hosting.md).
@@ -1470,3 +1477,51 @@ passes the full engine suite, 194 browser-runtime tests, 47 product unit tests,
 product gates, 16 Worker tests and 30 Chromium/Firefox/WebKit multiplayer cases.
 These changes have not been deployed; see the linked validation record for scope
 and the remaining physical-device gate.
+
+## Multi-set song selection and lobby picker
+
+Song selection became a session library. `Selection_Controller` holds any
+number of loaded beatmap sets instead of one: imports append a set (within a
+12-set / 256-MiB retained-archive quota) and select its first difficulty,
+`select_map` addresses `(set_id, filename)` so identical difficulty filenames
+in different sets stay distinct, `remove_set` transactionally retires a set —
+removing the active set first prepares a neighbouring successor and re-inserts
+the set if that successor selection fails — and per-set background summaries
+replace the single flat cache, with the library generation fencing superseded
+passes. Candidate handling no longer disposes a scope merely because it is not
+the active one; only set removal disposes scopes, and a failed import still
+admits no set and keeps the standing selection. The music preview keys on
+`set_id + filename` so same-named difficulties in different sets restart it
+correctly. No engine, ABI, or protocol changes: this is entirely browser-layer
+state and product UI.
+
+The select screen renders the library as a grouped carousel — one collapsible
+header per set (chevron, title, difficulty count, per-set remove button) with
+indented difficulty rows and their duration/BPM meta — while the big set panel
+and the details wedge keep mirroring the active difficulty. The filter now
+searches set titles and displayed labels across all sets, auto-expanding
+matching sets; empty-state copy and a short controls hint in the wedge cover
+first-run guidance. Shared display helpers (`selection_display.ts`) serve both
+this screen and the multiplayer lobby.
+
+The ADR-008 lobby picker replaces the raw-filename dropdown with the same
+grouped difficulty list over the host's whole library (the published row is
+marked; choices may queue while an earlier publication is still being
+acknowledged, as before), and guests match the host's choice against every
+set they imported this session via a content-hash `find_map_by_hash` pass
+instead of only the active scope — importing sets once covers later host
+choices. The room map panel adds the descriptor length and clearer matching
+copy. Wire protocol, worker, and ADR-008 decisions are untouched.
+
+ADR-007 records the grouped multi-set carousel and the lobby list picker as
+browser-idiom divergences; upstream song-select acceptance remains open and
+unclaimed. Local evidence: the browser runtime suite (205 tests) including 22
+selection-controller cases for multi-set add/remove transactions, quotas,
+cross-set navigation and hash matching; product unit tests including a guest
+cross-set matching regression; product gates (typecheck, expected-errors,
+css-lint, build, Vitest, probes) green; the Playwright browser and
+multiplayer suites exercise the grouped carousel and the list-based lobby
+picker. The full browser suite shows one load-dependent timing flake per run
+in unrelated boot/replay specs that reproduces on a tree without these
+changes. Star rating, difficulty colours, sort/group modes and persistence
+remain deferred (M5).

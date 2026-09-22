@@ -11,8 +11,7 @@ const shell_module = vi.hoisted(() => {
     recovery: null, in_attempt: false, message: 'Starting engine…', error: null, result: null,
   });
   const empty_selection = Object.freeze({
-    state: 'empty', active: null, error: null,
-    summaries: Object.freeze(new Map()), summary_failures: Object.freeze(new Map()),
+    state: 'empty', active: null, sets: Object.freeze([]), error: null,
   });
   const booting_state: Shell_State = Object.freeze({
     phase: 'booting', boot_error: null,

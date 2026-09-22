@@ -1,6 +1,7 @@
 import type { Selection_Request } from '@browser/selection.js';
 import {
   describe_local_map,
+  hash_bytes,
   matching_filename,
   require_matching_map,
   Incompatible_Map,
@@ -38,7 +39,7 @@ export interface Multiplayer_State {
 }
 type Map_Preparation_Action =
   | { type: 'import'; files: File[] }
-  | { type: 'difficulty'; filename: string }
+  | { type: 'difficulty'; set_id: number; filename: string }
   | { type: 'demo' }
   | { type: 'check' };
 
@@ -284,7 +285,7 @@ export class Multiplayer_Service {
   ) {
     switch (action.type) {
       case 'import':
-        await this.player.load_files(action.files, request);
+        await this.player.add_files(action.files, request);
         return;
       case 'demo': {
         const response = await fetch('/demo/tapweave-demo.osz');
@@ -293,21 +294,30 @@ export class Multiplayer_Service {
         }
         const demo_archive = new File([await response.arrayBuffer()], 'tapweave-demo.osz');
         if (this.is_current_preparation(operation)) {
-          await this.player.load_files([demo_archive], request);
+          await this.player.add_files([demo_archive], request);
         }
         return;
       }
       case 'difficulty':
-        await this.player.select_map(action.filename, request);
+        await this.player.select_map(action.set_id, action.filename, request);
         return;
       case 'check': {
-        const active_selection = this.player.selection.active;
-        if (!active_selection || !operation.expected_map) {
+        if (!operation.expected_map) {
           return;
         }
-        const filename = await matching_filename(active_selection.source, operation.expected_map);
+        // Match against the whole session library: guests import their sets
+        // once and stay available for any difficulty the host publishes.
+        const match = await this.player.selection.find_map_by_hash(
+          hash_bytes,
+          operation.expected_map.map_hash,
+        );
+        if (!match) {
+          throw new Incompatible_Map(
+            'This set has no matching difficulty. Import the same .osu and music files as the host.',
+          );
+        }
         if (this.is_current_preparation(operation)) {
-          await this.player.select_map(filename, request);
+          await this.player.select_map(match.set_id, match.filename, request);
         }
         return;
       }
@@ -382,7 +392,7 @@ export class Multiplayer_Service {
       }
       this.require_compatible_build(operation);
       const needs_loaded_set = action.type === 'check' || action.type === 'difficulty';
-      if (needs_loaded_set && !this.player.selection.active) {
+      if (needs_loaded_set && this.player.selection.loaded_sets.length === 0) {
         this.set_availability('missing');
         return;
       }
@@ -458,9 +468,9 @@ export class Multiplayer_Service {
       return this.prepare_local({ type: 'import', files });
     }
   }
-  select_map(filename: string) {
+  select_map(set_id: number, filename: string) {
     if (this.state.room?.host_id === this.state.room?.member_id) {
-      return this.prepare_local({ type: 'difficulty', filename });
+      return this.prepare_local({ type: 'difficulty', set_id, filename });
     }
   }
   select_demo() {

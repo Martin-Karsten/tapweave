@@ -29,10 +29,11 @@ contain room identity only. Request and lifecycle counters never log credentials
 ## Scheduling and ownership
 
 The lobby starts without an automatic demo selection. The host selects a difficulty
-from the current session's set or imports an `.osz` or loose files in the room.
-Other members import their own copies; the client searches that set by selected
-`.osu` SHA-256 before preparation. The demo is an explicit optional import through
-the same flow. Imports and difficulty changes are limited to the lobby.
+from their session library (every set imported this session) or imports an `.osz`
+or loose files in the room. Other members import their own copies; the client
+searches all imported sets by selected `.osu` SHA-256 before preparation. The
+demo is an explicit optional import through the same flow. Imports and difficulty
+changes are limited to the lobby.
 
 Matching requires SHA-256 of the exact selected `.osu` bytes, the music bytes
 resolved from the engine's audio filename relative to that map, and the exact
@@ -128,8 +129,12 @@ selection or active round is migrated into v2.
 
 ## Deployment
 
-SQLite Durable Objects use the Workers Free plan; this work never changes billing
-or adds paid resources. Exceeding Free quotas fails operations. The server-side
+SQLite Durable Objects run on the dedicated Tapweave Workers Free account after
+migration on 2026-09-21. Free quota exhaustion fails operations. The deployment
+configuration pins that account; CI rejects a different account. This does not
+prevent a future subscription upgrade, so keep the account on Workers Free.
+See the [hosting budget boundary](../hosting.md#durable-objects-budget-boundary).
+The server-side
 `MULTIPLAYER_ENABLED` flag gates room creation independently of solo assets and
 existing rooms. Explicit SPA rewrites preserve missing-asset 404 responses;
 `run_worker_first` covers only `/api/multiplayer/*`.

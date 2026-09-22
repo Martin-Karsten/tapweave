@@ -45,9 +45,9 @@ test('a delayed selection acknowledgement cannot replace a newer host choice', a
       buffer: Buffer.from(zipSync(files)),
     });
   await expect(page.locator('#room-ready')).toBeEnabled();
-  await page.locator('#room-difficulty').selectOption('second.osu');
+  await page.locator('#room-difficulty [data-map-filename="second.osu"]').click();
   await expect.poll(() => held_acknowledgement).toBe(true);
-  await page.locator('#room-difficulty').selectOption('first.osu');
+  await page.locator('#room-difficulty [data-map-filename="first.osu"]').click();
   release_acknowledgement();
   await expect(page.locator('#room-ready')).toBeEnabled();
   await expect.poll(() => latest_snapshot?.selection_revision).toBe(3);

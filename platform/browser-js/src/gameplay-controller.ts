@@ -745,20 +745,28 @@ export class Gameplay_Controller {
     this.publish();
   }
 
-  async load_files(files: File[], request: Selection_Request = {}) {
+  async add_files(files: File[], request: Selection_Request = {}) {
     if (this.state === 'disposed') {
       return;
     }
     this.release_attempt();
-    await this.selection.load_files(files, request);
+    await this.selection.add_files(files, request);
   }
 
-  async select_map(filename: string, request: Selection_Request = {}) {
+  async select_map(set_id: number, filename: string, request: Selection_Request = {}) {
     if (this.state === 'disposed') {
       return;
     }
     this.release_attempt();
-    await this.selection.select_map(filename, request);
+    await this.selection.select_map(set_id, filename, request);
+  }
+
+  async remove_set(set_id: number) {
+    if (this.state === 'disposed') {
+      return;
+    }
+    this.release_attempt();
+    await this.selection.remove_set(set_id);
   }
 
   private stop_owners() {

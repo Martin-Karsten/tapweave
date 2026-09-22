@@ -30,7 +30,7 @@ export const request_demo = async (): Promise<void> => {
     }
     const archive_bytes = new Uint8Array(await archive_response.arrayBuffer());
     const archive_file = new File([archive_bytes], DEMO_ARCHIVE_FILENAME, { type: 'application/zip' });
-    await player_session()?.load_files([archive_file]);
+    await player_session()?.add_files([archive_file]);
     set_demo_request('idle');
   } catch (error) {
     // Fetch rejections arrive as bare TypeErrors ("Failed to fetch"); the

@@ -44,7 +44,7 @@ async function fixture({ map_text = mixed_map, renderer_failure = false, music =
   const samples = await load_sample_assets(map.descriptor, source, 'map.osu', async () => {},
     engine.sample_probe(), { fallback_assets: create_fallback_audio(context) });
   const selection = new Selection_Controller(engine);
-  selection.active = { ...map, source, filename: 'map.osu', music_buffer: music ? { duration: 10 } : null,
+  selection.active = { ...map, set_id: 1, source, filename: 'map.osu', music_buffer: music ? { duration: 10 } : null,
     samples, music_status: music ? 'decoded' : 'missing', music_error: music ? null : 'Missing music.' };
   selection.state = 'prepared';
   const callbacks = new Map();

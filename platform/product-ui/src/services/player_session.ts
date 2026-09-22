@@ -20,12 +20,19 @@ const PREVIEW_DELAY_MS = 800;
 
 export type Shell_Phase = 'booting' | 'ready' | 'boot-failed';
 
+export interface Selection_Set_Snapshot {
+  readonly set_id: number;
+  readonly filenames: readonly string[];
+  readonly active_filename: string | null;
+  readonly summaries: ReadonlyMap<string, Map_Summary>;
+  readonly summary_failures: ReadonlyMap<string, string>;
+}
+
 export interface Selection_Snapshot {
   readonly state: 'empty' | 'loading' | 'prepared' | 'disposed';
   readonly active: Active_Selection | null;
+  readonly sets: ReadonlyArray<Selection_Set_Snapshot>;
   readonly error: Browser_Error | null;
-  readonly summaries: ReadonlyMap<string, Map_Summary>;
-  readonly summary_failures: ReadonlyMap<string, string>;
 }
 
 export interface Shell_State {
@@ -41,9 +48,8 @@ export const INITIAL_SHELL_STATE: Shell_State = Object.freeze({
   selection: Object.freeze({
     state: 'empty',
     active: null,
+    sets: Object.freeze([]),
     error: null,
-    summaries: Object.freeze(new Map()),
-    summary_failures: Object.freeze(new Map()),
   }),
   gameplay: Object.freeze({
     state: 'ready',
@@ -106,9 +112,10 @@ export class Player_Session_Service {
 
   private readonly preview: Music_Preview;
   private preview_timer: ReturnType<typeof setTimeout> | null = null;
-  private preview_filename: string | null = null;
-  private summaries_view: ReadonlyMap<string, Map_Summary> = Object.freeze(new Map());
-  private summary_failures_view: ReadonlyMap<string, string> = Object.freeze(new Map());
+  // Preview identity is the library position (set id + filename), so two sets
+  // that ship the same difficulty filename still count as different previews.
+  private preview_selection_key: string | null = null;
+  private sets_view: ReadonlyArray<Selection_Set_Snapshot> = Object.freeze([]);
 
   static async create(fetch_engine_wasm: () => Promise<ArrayBuffer> = Player_Session_Service.default_engine_fetch): Promise<Player_Session_Service> {
     const settings = new Player_Settings_Service(() => window.localStorage);
@@ -198,8 +205,14 @@ export class Player_Session_Service {
 
   private publish() {
     this.debug.note_gameplay_view(this.gameplay.view, this.selection.active);
-    this.summaries_view = Object.freeze(new Map(this.selection.summaries));
-    this.summary_failures_view = Object.freeze(new Map(this.selection.summary_failures));
+    const active = this.selection.active;
+    this.sets_view = Object.freeze(this.selection.loaded_sets.map((loaded_set) => Object.freeze({
+      set_id: loaded_set.set_id,
+      filenames: Object.freeze(loaded_set.source.list_maps()),
+      active_filename: active && active.set_id === loaded_set.set_id ? active.filename : null,
+      summaries: Object.freeze(new Map(loaded_set.summaries)),
+      summary_failures: Object.freeze(new Map(loaded_set.summary_failures)),
+    })));
     this.coordinate_selection_extras();
     for (const listener of [...this.listeners]) listener();
     if (this.gameplay.view.state === 'disposed') {
@@ -227,16 +240,17 @@ export class Player_Session_Service {
       this.cancel_preview();
       return;
     }
-    if (this.preview_filename === active.filename) {
+    const selection_key = `${active.set_id}/${active.filename}`;
+    if (this.preview_selection_key === selection_key) {
       return;
     }
     this.cancel_preview_timer();
-    this.preview_filename = active.filename;
+    this.preview_selection_key = selection_key;
     this.preview_timer = setTimeout(() => {
       this.preview_timer = null;
       const current = this.selection.active;
       if (this.selection.state === 'prepared' && !this.gameplay.view.in_attempt &&
-          current?.music_buffer && current.filename === this.preview_filename) {
+          current?.music_buffer && `${current.set_id}/${current.filename}` === this.preview_selection_key) {
         this.preview.start(current.music_buffer, current.descriptor.playback.preview_time as number)
           .catch(() => {});
       }
@@ -252,7 +266,7 @@ export class Player_Session_Service {
 
   private cancel_preview() {
     this.cancel_preview_timer();
-    this.preview_filename = null;
+    this.preview_selection_key = null;
     this.preview.stop();
   }
 
@@ -268,9 +282,8 @@ export class Player_Session_Service {
       selection: Object.freeze({
         state: this.selection.state,
         active: this.selection.active,
+        sets: this.sets_view,
         error: this.selection.error,
-        summaries: this.summaries_view,
-        summary_failures: this.summary_failures_view,
       }),
       gameplay: this.gameplay.view,
     });
@@ -318,11 +331,14 @@ export class Player_Session_Service {
   export_replay(): Uint8Array { return this.gameplay.export_replay(); }
   async watch_replay(): Promise<void> { await this.gameplay.watch_replay(); }
   stop_watch(): void { this.gameplay.stop_watch(); }
-  async load_files(files: File[], request: Selection_Request = {}) {
-    await this.gameplay.load_files(files, request);
+  async add_files(files: File[], request: Selection_Request = {}) {
+    await this.gameplay.add_files(files, request);
   }
-  async select_map(filename: string, request: Selection_Request = {}) {
-    await this.gameplay.select_map(filename, request);
+  async select_map(set_id: number, filename: string, request: Selection_Request = {}) {
+    await this.gameplay.select_map(set_id, filename, request);
+  }
+  async remove_set(set_id: number) {
+    await this.gameplay.remove_set(set_id);
   }
 
   mark_boot_failed(error: unknown) {

@@ -81,26 +81,38 @@
   gap: var(--space-3);
 }
 
-.multiplayer-host-picker label {
+.multiplayer-host-picker .eyebrow {
+  margin: 0;
   font-size: var(--font-size-note);
   color: var(--color-text-muted);
 }
 
-.multiplayer-host-picker-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
+/* Bounded scroll window over the host's session library. */
+.multiplayer-host-list {
+  max-height: 13rem;
+  overflow-y: auto;
+  border: var(--stroke-width-panel) solid var(--color-border-subtle);
+  border-radius: var(--control-radius);
+  background: var(--color-surface);
 }
 
-.multiplayer-host-picker select {
-  flex: 1;
-  min-width: 0;
-  border: var(--stroke-width-panel) solid var(--color-border-strong);
-  border-radius: var(--control-radius);
-  background: var(--color-background-deep);
-  color: var(--color-text);
-  padding: var(--space-3) var(--space-4);
-  font: inherit;
+.multiplayer-host-list .set-header-row {
+  padding: 0 var(--space-4);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-floating);
+}
+
+/* The row currently published to the room. */
+.multiplayer-host-list .room-pick-published {
+  color: var(--color-accent-strong);
+}
+
+.multiplayer-map-hint {
+  margin: 0;
+  font-size: var(--font-size-note);
+  color: var(--color-text-faint);
+  overflow-wrap: anywhere;
 }
 
 .multiplayer-availability {

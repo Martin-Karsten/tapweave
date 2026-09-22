@@ -42,7 +42,7 @@ The product shell is configured for Cloudflare Workers Static Assets on a free
 `workers.dev` subdomain. Successful `main` builds deploy through GitHub Actions
 after account setup. See the [hosting guide](docs/hosting.md) for credentials,
 local verification, and rollback. Play at
-[tapweave.mrtnkarsten.workers.dev](https://tapweave.mrtnkarsten.workers.dev).
+[tapweave.tapweave-game.workers.dev](https://tapweave.tapweave-game.workers.dev).
 
 ## Repository layout
 
