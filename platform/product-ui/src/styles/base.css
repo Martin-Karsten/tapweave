@@ -106,6 +106,9 @@ a {
   margin-top: 0;
 }
 
+/* Import controls: the styled label is the button surface; the native file
+   input stays focusable (label click or Enter opens the picker) but is
+   visually hidden so no browser file chrome shows through. */
 .file-control {
   display: inline-block;
   border: var(--stroke-width-panel) solid var(--color-border-strong);
@@ -113,6 +116,48 @@ a {
   padding: var(--space-4) var(--space-8);
   background: var(--color-button-bg);
   cursor: pointer;
+  transition:
+    border-color var(--duration-fade-in) ease-out,
+    background-color var(--duration-fade-in) ease-out,
+    color var(--duration-fade-in) ease-out,
+    box-shadow var(--duration-fade-in) ease-out;
+}
+
+.file-control:hover {
+  border-color: var(--color-accent);
+  background: var(--color-surface-selected);
+  color: var(--color-text-bright);
+  box-shadow: var(--shadow-raised);
+}
+
+.file-control:focus-within {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: var(--glow-accent);
+}
+
+.file-control:has(input:disabled) {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.file-control:has(input:disabled):hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-button-bg);
+  color: var(--color-text);
+  box-shadow: none;
+}
+
+.file-control input[type='file'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 #status,
