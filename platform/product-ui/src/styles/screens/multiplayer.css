@@ -47,7 +47,7 @@
 .multiplayer-title::before {
   content: '✦';
   margin-right: var(--space-4);
-  color: var(--color-accent-strong);
+  color: var(--color-accent-warm);
 }
 
 .multiplayer-tagline {

@@ -11,46 +11,46 @@
   color-scheme: dark;
   font-family: system-ui, -apple-system, sans-serif;
 
-  /* Core palette: muted pastel direction (ADR-007 divergence 1) — soft
-     lavender-grey chrome, pastel accents, WCAG-AA text on every chrome surface. */
-  --color-background: #2b2433;
-  --color-background-deep: #1e1926;
-  --color-overlay: rgb(30 25 38 / 88%);
-  --color-surface: #352c40;
-  --color-surface-selected: #433752;
-  --color-text: #e9e2ee;
-  --color-text-bright: #f7f2f9;
-  --color-text-muted: #c9c0d5;
-  --color-text-dim: #bcb2cc;
-  --color-text-faint: #b0a6c0;
-  --color-link: #a9b6e8;
-  --color-accent: #f0a6c8;
-  --color-accent-strong: #f7c1da;
-  --color-accent-contrast: #3a2030;
-  --color-danger: #e8a1af;
-  --color-button-bg: #45385430;
-  --color-border: #5a4b70;
-  --color-border-strong: #71608c;
-  --color-border-subtle: #4d4160;
+  /* Core palette: neutral ink direction (ADR-007 divergence 1) — cool grey chrome,
+     multi-hue pastel accents (teal primary, amber/sky/coral support), AA text. */
+  --color-background: #22262e;
+  --color-background-deep: #171a20;
+  --color-overlay: rgb(23 26 32 / 88%);
+  --color-surface: #2b303a;
+  --color-surface-selected: #3a4150;
+  --color-text: #e8ecf0;
+  --color-text-bright: #f7f9fb;
+  --color-text-muted: #c4cbd4;
+  --color-text-dim: #b7bfc9;
+  --color-text-faint: #aab2bd;
+  --color-link: #8fc7e8;
+  --color-accent: #7fd6c8;
+  --color-accent-strong: #a4e4d9;
+  --color-accent-warm: #ecc98a;
+  --color-accent-contrast: #16332e;
+  --color-danger: #e8918f;
+  --color-button-bg: #3a435230;
+  --color-border: #49525f;
+  --color-border-strong: #5f6a79;
+  --color-border-subtle: #3c444f;
 
   /* Decorative treatment: soft panel shadows, whisper-quiet accent halos
-     (no neon), a gentle pastel gradient wash and the anime garnishes. */
-  --gradient-accent: linear-gradient(135deg, #f7c1da, #f0a6c8);
-  --gradient-wordmark: linear-gradient(120deg, #f7c1da, #a9b6e8);
-  --shadow-panel: 0 var(--space-4) var(--space-12) rgb(10 6 16 / 25%);
-  --shadow-raised: 0 var(--space-2) var(--space-8) rgb(10 6 16 / 20%);
-  --glow-accent: 0 0 var(--space-9) rgb(240 166 200 / 15%);
-  --glow-accent-strong: 0 0 var(--space-14) rgb(240 166 200 / 25%);
+     (no neon), gentle multi-hue pastel gradients and the anime garnishes. */
+  --gradient-accent: linear-gradient(135deg, #a4e4d9, #8fc7e8);
+  --gradient-wordmark: linear-gradient(120deg, #7fd6c8, #8fc7e8, #ecc98a);
+  --shadow-panel: 0 var(--space-4) var(--space-12) rgb(6 8 12 / 25%);
+  --shadow-raised: 0 var(--space-2) var(--space-8) rgb(6 8 12 / 20%);
+  --glow-accent: 0 0 var(--space-9) rgb(127 214 200 / 15%);
+  --glow-accent-strong: 0 0 var(--space-14) rgb(127 214 200 / 25%);
   --glow-text: none;
   --glow-drop: none;
 
-  /* Full-bleed menu/intro backdrop: radial lift behind the brand plus a
-     faint pastel-pink corner wash; --screen-stripes layers the gentle
-     old-song-select diagonal stripe nod above it. Static CSS. */
-  --screen-backdrop: radial-gradient(120% 85% at 50% 8%, var(--color-surface-selected) 0%, var(--color-background) 55%), radial-gradient(55% 40% at 88% 92%, rgb(240 166 200 / 4%) 0%, transparent 70%);
+  /* Full-bleed menu/intro backdrop: radial lift behind the brand plus faint teal
+     and amber corner washes; --screen-stripes layers the diagonal-stripe nod. */
+  --screen-backdrop: radial-gradient(120% 85% at 50% 8%, var(--color-surface-selected) 0%, var(--color-background) 55%), radial-gradient(55% 40% at 88% 92%, rgb(127 214 200 / 4%) 0%, transparent 70%), radial-gradient(45% 35% at 8% 90%, rgb(236 201 138 / 3%) 0%, transparent 70%);
   --screen-stripes: repeating-linear-gradient(115deg, rgb(255 255 255 / 2%) 0 22px, transparent 22px 44px);
   /* Scattered static star dots (anime night sky), tiling at three periods. */
-  --screen-stars: radial-gradient(rgb(255 255 255 / 6%) 0.5px, transparent 1.5px) 24px 30px / 180px 150px, radial-gradient(rgb(240 166 200 / 7%) 0.5px, transparent 1.5px) 110px 90px / 220px 190px, radial-gradient(rgb(169 182 232 / 6%) 0.5px, transparent 1.5px) 60px 140px / 260px 230px;
+  --screen-stars: radial-gradient(rgb(255 255 255 / 6%) 0.5px, transparent 1.5px) 24px 30px / 180px 150px, radial-gradient(rgb(127 214 200 / 7%) 0.5px, transparent 1.5px) 110px 90px / 220px 190px, radial-gradient(rgb(236 201 138 / 6%) 0.5px, transparent 1.5px) 60px 140px / 260px 230px;
 
   /* Debug suite palette. */
   --debug-hud-bg: #0b1020d9;
@@ -66,7 +66,7 @@
   --debug-text-detail: #8b98b5;
   --debug-error: #ffb6a6;
   --debug-warning: #ffd9a6;
-  --debug-probe-reactive: #f0a6c8; /* Frame probe: reactive-binding box. */
+  --debug-probe-reactive: #7fd6c8; /* Frame probe: reactive-binding box. */
   --debug-probe-baseline: #a9b6e8; /* Frame probe: direct-DOM baseline box. */
 
   /* Settings dialog palette. */

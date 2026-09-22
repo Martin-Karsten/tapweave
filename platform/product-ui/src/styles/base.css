@@ -47,7 +47,7 @@ a {
 .eyebrow {
   font-size: var(--font-size-eyebrow);
   letter-spacing: 0.14em;
-  color: var(--color-accent);
+  color: var(--color-accent-warm);
   margin: 0 0 var(--space-2);
 }
 

@@ -340,6 +340,8 @@ starfield :: proc(builder: ^Builder, view: Scene_View, time_ms: f64) {
 			star_colour = ACCENT_COLOUR
 		} else if colour_roll < 16384 {
 			star_colour = COMBO_COLOURS[1]
+		} else if colour_roll < 22938 {
+			star_colour = COMBO_COLOURS[2]
 		}
 		twinkle := 0.75 + 0.25 * math.sin(time_ms * 0.0011 + twinkle_phase)
 		star_alpha := 0.05 + 0.08 * f64(colour_roll % 512) / 512

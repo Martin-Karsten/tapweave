@@ -244,7 +244,7 @@ state, physical reconciliation and cursor-resume press blocking. Complete
 coverage remains open; cooldown and pause-menu sound loops are not claimed.
 Mods, mania, and account/score import/submission remain outside scope. Menu
 and song-select styling are implemented only as pinned-commit structure
-reference with documented MVP divergences (purple palette, enter-only
-transitions, single-set session; [ADR-007](../architecture/adr-007-product-flow.md)):
+reference with documented MVP divergences (multi-hue pastel palette,
+enter-only transitions, single-set session; [ADR-007](../architecture/adr-007-product-flow.md)):
 visual similarity to lazer is not upstream acceptance and stays excluded from
 the compatibility claims.

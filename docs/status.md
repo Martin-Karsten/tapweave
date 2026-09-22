@@ -769,12 +769,21 @@ previously unstyled `.warnings` list and `#watch-banner` badge gained rules.
 Layout, DOM, selectors and copy are unchanged, so the Playwright suite passes
 unmodified (ADR-007 divergence 1 records the updated palette direction).
 
+A palette expansion then de-violeted that theme in the same files: the chrome
+moved from lavender-grey to a neutral cool ink-grey ramp, the mono-pink accent
+became a multi-hue pastel set (teal primary accent, amber eyebrows/sparkles,
+sky links, coral danger), and the gameplay palette in
+`engine/presentation/draw.odin` mirrors it with six pastel combo hues (cyan,
+mint, gold, coral, periwinkle, lavender), a teal accent, and a deep
+neutral-ink playfield background. The engine starfield gained a gold star
+tint alongside teal and mint. Layout, DOM, selectors and copy are unchanged.
+
 Classification is honest and narrow: this is structure-reference chrome, not
 upstream acceptance. The structural citations (SongSelect.cs, FilterControl.cs,
 BeatmapTitleWedge.cs, PanelBeatmapSet.cs, ScreenFooter.cs, MainMenu.cs,
 ResultsScreen.cs, SoloResultsScreen.cs at
-pinned commit `3c1c96f7`) and the documented MVP divergences — purple
-palette, enter-only transitions, single-set session with filename-derived
+pinned commit `3c1c96f7`) and the documented MVP divergences — multi-hue
+pastel palette, enter-only transitions, single-set session with filename-derived
 titles, the HTML-shell substitutions (including the full-viewport chrome
 frame and slim footer bar), and the results rank palette — are
 recorded in
@@ -1410,8 +1419,8 @@ The scene uses original rounded stroke glyphs in a 512×256 atlas, bilinear/mipm
 sampling, tightened antialiasing and a narrow dark outline. Digit ink is centred
 within each cell; circle combo labels centre the complete number at the stacked
 object position in normal, hit-flash and miss states. HUD number runs retain their
-edge anchoring. Pastel combo cycling, disc gloss, deep-plum background, a
-deterministic starfield and star hit bursts are presentation policy in Odin;
+edge anchoring. Pastel combo cycling, disc gloss, deep neutral-ink background,
+a deterministic starfield and star hit bursts are presentation policy in Odin;
 this styling adds no ABI records and changes no judgement rules.
 
 The atlas mismatch was a nested global stroke-slice initialization problem:

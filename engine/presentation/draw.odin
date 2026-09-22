@@ -37,18 +37,21 @@ emit :: proc(builder: ^Builder, instance: Instance) {
 
 // Original Tapweave colours. Timing follows the pinned drawable curves where
 // noted; full A22 comparisons remain a separate acceptance gate. The palette
-// mirrors the product shell's pastel theme (styles/tokens.css), packed with
-// the low byte red like every instance colour.
-COMBO_COLOURS := [4]u32{
-	u32(0xffc8a6f0), // pastel pink #f0a6c8
-	u32(0xffe8b6a9), // periwinkle #a9b6e8
-	u32(0xffecb1c9), // lavender #c9b1ec
-	u32(0xff8acfee), // soft gold #eecf8a
+// mirrors the product shell's multi-hue pastel theme (styles/tokens.css):
+// cool grey chrome, teal accent, six pastel combo hues, packed with the low
+// byte red like every instance colour.
+COMBO_COLOURS := [6]u32{
+	u32(0xffe8d67f), // pastel cyan #7fd6e8
+	u32(0xffb8e08f), // pastel mint #8fe0b8
+	u32(0xff8acfee), // pastel gold #eecf8a
+	u32(0xff8ca6f2), // pastel coral #f2a68c
+	u32(0xffe8b6a9), // pastel periwinkle #a9b6e8
+	u32(0xffecb1c9), // pastel lavender #c9b1ec
 }
-ACCENT_COLOUR :: u32(0xffc8a6f0)
-BACKGROUND_COLOUR :: u32(0xff26191e) // deep plum #1e1926
+ACCENT_COLOUR :: u32(0xffc8d67f)      // pastel teal #7fd6c8
+BACKGROUND_COLOUR :: u32(0xff241d1a)  // deep neutral ink #1a1d24
 WHITE_COLOUR :: u32(0xffffffff)
-MISS_COLOUR :: u32(0xff6875ee)
+MISS_COLOUR :: u32(0xff6875ee)        // salmon red #ee7568
 
 // Combo colour cycling: the classic per-combo object colouring, driven by the
 // combo group index the preparation stage already computed.

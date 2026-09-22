@@ -69,7 +69,7 @@ void main() {
     float outline_edge = max(fwidth(outline) * .65, 1. / 255.);
     outline = smoothstep(.5 - outline_edge, .5 + outline_edge, outline);
     float shape = max(fill, outline);
-    draw_rgb = mix(vec3(.13, .09, .17), instance_colour.rgb, min(fill / max(shape, .001), 1.));
+    draw_rgb = mix(vec3(.08, .10, .13), instance_colour.rgb, min(fill / max(shape, .001), 1.));
     coverage = shape;
   } else if (primitive == 4) {
     if (path_progress < instance_detail.x || path_progress > instance_detail.y) discard;
