@@ -29,6 +29,10 @@ export function Virtual_List<Row>(props: Virtual_List_Props<Row>): JSX.Element {
     getScrollElement: () => scroll_element,
     estimateSize: () => props.row_height,
     overscan: 10,
+    // Route/layout changes can resize this viewport while Solid updates rows.
+    // Defer those DOM updates out of ResizeObserver delivery to avoid a
+    // same-frame resize loop in WebKit. This does not schedule gameplay work.
+    useAnimationFrameWithResizeObserver: true,
   });
 
   const move_selection = (target_index: number) => {
