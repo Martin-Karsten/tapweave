@@ -1,0 +1,79 @@
+{
+  "revision": "3c1c96f742e7aae2ff67a7361e058fe91ca3b955",
+  "classification": "pinned source inspection and local regression ports; executable upstream acceptance open",
+  "sources": [
+    {
+      "path": "osu.Game/Screens/OnlinePlay/Multiplayer/GameplayChatDisplay.cs",
+      "sha256": "e386591b0dc5ab68907b44f79af69704380bc67f907f7d084e14e44a69a8ce5e"
+    },
+    {
+      "path": "osu.Game.Tests/Visual/Multiplayer/TestSceneGameplayChatDisplay.cs",
+      "sha256": "84269a9d013d0ef8f1f5b51b42381dfbaed4fd0d1e8c39fd1000620b44ddecca"
+    },
+    {
+      "path": "osu.Game/Screens/Play/BreakTracker.cs",
+      "sha256": "11ec6338bd6f758d683f040bed204b05af1caa0ad0426417637a9204d954ff8e"
+    },
+    {
+      "path": "osu.Game.Tests/Visual/Gameplay/TestSceneBreakTracker.cs",
+      "sha256": "486e83be04703166b6534567a011cbc634ea9b4b13828e2ea224936c4954c76d"
+    },
+    {
+      "path": "osu.Game/Beatmaps/Timing/BreakPeriod.cs",
+      "sha256": "1fe40aa07ae7fe4ceb75f344aca2719167f4a6b4afa04e5f3256b77c298140ed"
+    },
+    {
+      "path": "osu.Game/Utils/PeriodTracker.cs",
+      "sha256": "4f4f6334356ae26d8a06b9e0bad9a73509c26c82ec97ca73124c201e59074734"
+    },
+    {
+      "path": "osu.Game/Screens/Play/Player.cs",
+      "sha256": "01feb551d864c598e1fac4255d38e3e5d5162b2b8bfbcd7f078997cf3bdfcec5"
+    },
+    {
+      "path": "osu.Game/Screens/OnlinePlay/Multiplayer/MultiplayerPlayer.cs",
+      "sha256": "90db69d76662ec7d608b96de669f9619605913b17ace66947b417b40a85201c4"
+    }
+  ],
+  "upstream_blocker": "OSU_REFERENCE_CHECKOUT and OSU_FRAMEWORK_CHECKOUT are not configured; dotnet is unavailable on PATH.",
+  "acceptance_ids": [
+    "MP-13",
+    "MP-14",
+    "MP-15",
+    "MP-16"
+  ],
+  "local_mappings": {
+    "TestSceneGameplayChatDisplay": [
+      "platform/product-ui/tests/room_chat_component.test.tsx",
+      "platform/product-ui/tests/multiplayer/chat.spec.mjs"
+    ],
+    "TestSceneBreakTracker": [
+      "engine/tests/activity_test.odin",
+      "platform/browser-js/tests/engine.test.mjs"
+    ],
+    "original_room_protocol": [
+      "platform/product-ui/worker-tests/rooms.test.ts",
+      "platform/product-ui/tests/room_chat.test.ts"
+    ]
+  },
+  "framework_revision": "f02756c5aa5032e6d04729922702b8d56c4bc2eb",
+  "framework_search": {
+    "scope": "recursive pinned test tree: focus, text box and keyboard tests",
+    "classification": "native drawable/text-input behavior inspected; browser IME, DOM focus and audio-stamped input adapters are local platform scenarios",
+    "sources": [
+      {
+        "path": "osu.Framework.Tests/Visual/UserInterface/TestSceneTextBoxKeyEvents.cs",
+        "sha256": "b9d4e4e47733d2b7a9e7c9a7bfe822f6ace3e36cc9635830de21c2c23f56baad"
+      },
+      {
+        "path": "osu.Framework.Tests/Visual/Drawables/TestSceneFocus.cs",
+        "sha256": "d60ca962d99b90582bde1f522e1b063649fd80d371ca290bf6d2b416378d6f0f"
+      }
+    ]
+  },
+  "local_fixture": {
+    "description": "Original HP0 three-circle room chat fixture; effective break 11000\u201315675 ms",
+    "map_sha256": "e53c7c2fa241be9b751d86010aafefbe26a175a630349118bf6522586439d406",
+    "music_sha256": "331e1abc4d5b92d2e9ab494abcaddaddd0ce2f78aa4c2d83790614aea7aee98d"
+  }
+}

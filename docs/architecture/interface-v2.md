@@ -17,6 +17,7 @@ EngineStatus oe_session_advance(EngineHandle, SessionHandle, f64 target_ms, Outp
 EngineStatus oe_session_snapshot(EngineHandle, SessionHandle, f64 presentation_ms, OutputBatch*);
 EngineStatus oe_session_pause(EngineHandle, SessionHandle, f64 at_ms, OutputBatch*);
 EngineStatus oe_session_resume(EngineHandle, SessionHandle, const ClockAnchor*);
+EngineStatus oe_session_activity(EngineHandle, SessionHandle, ByteSpan*);
 EngineStatus oe_session_resume_policy(EngineHandle, SessionHandle, u32 cursor_flags, ByteSpan*);
 EngineStatus oe_session_reset(EngineHandle, SessionHandle, f64 lead_in_ms);
 EngineStatus oe_session_result(EngineHandle, SessionHandle, ByteSpan*);
@@ -715,3 +716,22 @@ Forward reads use independent active indices; backward reads/epoch changes rebui
 those indices without simulation. Far-future diagnostic reads against unadvanced
 state may need more capacity than the normal committed-time interval estimate;
 there is no silent truncation or implicit advance.
+
+
+## Session activity (ABI 2.2)
+
+`oe_session_activity(engine, session, output_span)` is a read-only, allocation-free
+query of committed gameplay state. It validates the engine owner, resource kind,
+generation and output span using the existing ABI rules. It neither advances nor
+acknowledges output. The returned span uses the session diagnostic buffer and is
+invalidated by the next session-output call; consumers copy scalars immediately.
+
+Kind 55, version 1, size 24: standard header; `activity:u32` at 8 (`0=not_playing`,
+`1=break`, `2=playing`); zero-reserved u32 at 12; `committed_ms:f64` at 16. Offsets
+are generated from `engine/abi/records.json`, never handwritten by consumers.
+Only RUNNING live sessions are playing/break. READY, PAUSED, terminal and replay
+sessions report not-playing. Mark-and-continue failure stays active until terminal.
+The pinned effective break predicate uses the first object's time minus 2,000 ms
+for lead-in and effective break periods of at least 650 ms, inclusive from start
+through end minus 325 ms. Resume policy calls the same helper without changing its
+cursor, held-input or pause semantics. The capability record advertises minor 2.

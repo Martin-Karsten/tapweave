@@ -11,6 +11,7 @@ import type { Gameplay_Frame } from './gameplay-frame.js';
 // judgement is used.
 export class Gameplay_Input {
   cursor_flags = 0;
+  private text_input_active = false;
   private listeners = new AbortController();
   private touch_id: number | null = null;
   private captured_pointers = new Set<number>();
@@ -36,6 +37,7 @@ export class Gameplay_Input {
       try { handler(event as Event_Type); } catch (error) { frame.fail(error); }
     };
     window.addEventListener('keydown', guarded((event: KeyboardEvent) => {
+      if (this.text_input_active) return;
       const action = event.code === this.settings.left_key ? ACTION.LEFT : event.code === this.settings.right_key ? ACTION.RIGHT : 0;
       if (!action && event.code !== 'Escape') return;
       event.preventDefault();
@@ -53,13 +55,14 @@ export class Gameplay_Input {
       frame.input.receive({ source_id: event.code, action, held: true, ...this.stamp() });
     }), options);
     window.addEventListener('keyup', guarded((event: KeyboardEvent) => {
-      if (this.suppressed_sources.delete(event.code)) return;
+      if (this.suppressed_sources.delete(event.code) || this.text_input_active) return;
       const action = event.code === this.settings.left_key ? ACTION.LEFT : event.code === this.settings.right_key ? ACTION.RIGHT : 0;
       if (!action) return;
       event.preventDefault();
       frame.input.receive({ source_id: event.code, action, held: false, ...this.stamp() });
     }), options);
     canvas.addEventListener('pointerdown', guarded((event: PointerEvent) => {
+      if (this.text_input_active) return;
       if (event.pointerType === 'touch') {
         if (!event.isPrimary || this.touch_id !== null) return;
         this.touch_id = event.pointerId;
@@ -83,17 +86,18 @@ export class Gameplay_Input {
         event.pointerType !== 'mouse' || ![0, 2].includes(event.button)) return;
       event.preventDefault();
       const suppressed = this.suppressed_sources.delete(`mouse:${event.button}`);
+      if (this.text_input_active) return;
       this.pointer(event, event.pointerType === 'mouse' && (!this.settings.mouse_buttons_enabled || suppressed) ? undefined : false);
       if (event.pointerType === 'touch') this.touch_id = null;
       this.captured_pointers.delete(event.pointerId);
     }), options);
     const cancel = guarded(() => this.pause());
     window.addEventListener('pointercancel', guarded((event: PointerEvent) => {
-      if (event.pointerId === this.touch_id || event.pointerType === 'mouse') this.pause();
+      if (!this.text_input_active && (event.pointerId === this.touch_id || event.pointerType === 'mouse')) this.pause();
     }), options);
     canvas.addEventListener('lostpointercapture', guarded((event: PointerEvent) => {
-      if (event.pointerId === this.touch_id || frame.input.held_sources.has('mouse:0') ||
-        frame.input.held_sources.has('mouse:2')) this.pause();
+      if (!this.text_input_active && (event.pointerId === this.touch_id || frame.input.held_sources.has('mouse:0') ||
+        frame.input.held_sources.has('mouse:2'))) this.pause();
     }), options);
     if (owns_focus_events) {
       window.addEventListener('blur', cancel, options);
@@ -102,6 +106,21 @@ export class Gameplay_Input {
       }), options);
     }
     canvas.addEventListener('contextmenu', guarded(event => event.preventDefault()), options);
+  }
+
+  set_text_input_active(active: boolean, held_sources: ReadonlySet<string>) {
+    if (active === this.text_input_active) return;
+    this.text_input_active = active;
+    if (active && this.frame.playback.state === 'running' && !this.frame.terminal) {
+      const stamp = this.stamp();
+      this.frame.input.release_all(stamp.audio_seconds, stamp.clock_epoch, stamp.raw_time_ms);
+      this.touch_id = null;
+      for (const pointer_id of this.captured_pointers) {
+        if (this.canvas.hasPointerCapture?.(pointer_id)) this.canvas.releasePointerCapture(pointer_id);
+      }
+      this.captured_pointers.clear();
+    }
+    for (const source of held_sources) this.suppressed_sources.add(source);
   }
 
   // Capture the judgement stamp before any other handler work: the audio-clock

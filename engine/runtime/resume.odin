@@ -32,3 +32,23 @@ oe_session_resume_policy :: proc "c" (engine, session_handle: core_types.Handle,
 	abi_span(uintptr(raw_data(bytes)), ABI_RESUME_POLICY_SIZE)
 	return abi_status(.OK)
 }
+
+// Read-only query using the existing diagnostic output lifetime. No allocation.
+@(export)
+oe_session_activity :: proc "c" (engine, session_handle: core_types.Handle, output: uintptr) -> u32 {
+	context = runtime.default_context()
+	session, status := gameplay_get(engine, session_handle)
+	if status != .OK {
+		return abi_status(status)
+	}
+	if !output_span_valid(output) {
+		return abi_status(.INVALID_ARGUMENT)
+	}
+	bytes := session.output[:ABI_SESSION_ACTIVITY_SIZE]
+	put_header(bytes, ABI_SESSION_ACTIVITY_KIND, ABI_SESSION_ACTIVITY_SIZE)
+	put_u32(bytes, ABI_SESSION_ACTIVITY_ACTIVITY_OFFSET, u32(simulation.session_activity(&session.simulation)))
+	put_u32(bytes, ABI_SESSION_ACTIVITY_RESERVED_OFFSET, 0)
+	put_f64(bytes, ABI_SESSION_ACTIVITY_COMMITTED_MS_OFFSET, session.simulation.committed_ms)
+	abi_span(uintptr(raw_data(bytes)), ABI_SESSION_ACTIVITY_SIZE)
+	return abi_status(.OK)
+}

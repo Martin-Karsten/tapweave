@@ -1,3 +1,4 @@
+import { Room_Chat_Service, empty_chat_state, type Room_Chat_State } from './room_chat';
 import type { Selection_Request } from '@browser/selection.js';
 import {
   describe_local_map,
@@ -22,6 +23,7 @@ import { SESSION_STATE, RANK, FAIL_POLICY } from '@browser/abi-records.js';
 import type { Player_Session_Service } from './player_session';
 
 export interface Multiplayer_State {
+  chat: Room_Chat_State;
   room: Room_Snapshot | null;
   connected: boolean;
   prepared: boolean;
@@ -91,7 +93,9 @@ export function scheduled_audio_time(
 // Framework-independent owner of room I/O and browser-session coordination.
 // No hit judgement, cursor transport or music transport crosses this protocol.
 export class Multiplayer_Service {
+  readonly chat = new Room_Chat_Service(command => this.send_command(command), () => this.publish({ chat: this.chat.state }));
   private state_value: Multiplayer_State = {
+    chat: empty_chat_state(),
     room: null,
     connected: false,
     prepared: false,
@@ -497,6 +501,7 @@ export class Multiplayer_Service {
     const socket = new WebSocket(url);
     this.socket = socket;
     socket.onopen = () => {
+      this.chat.connected();
       this.check_on_snapshot = true;
       this.disconnected_ms = null;
       this.terminal_report_sent = false;
@@ -519,6 +524,7 @@ export class Multiplayer_Service {
       if (this.disposed || socket !== this.socket) {
         return;
       }
+      this.chat.disconnected();
       this.socket = null;
       this.preparation_generation++;
       this.host_preparation_generation = null;
@@ -554,6 +560,7 @@ export class Multiplayer_Service {
     if (!message || message.version !== PROTOCOL_VERSION) {
       throw new Error('Room protocol upgraded. Reload and recreate the room.');
     }
+    if (this.chat.receive(message, this.state.room?.member_id ?? '')) return;
     if (message.type === 'error') {
       this.report_error(new Error(message.message));
       return;
@@ -594,6 +601,7 @@ export class Multiplayer_Service {
     ) {
       return;
     }
+    this.chat.capability(message.chat_version);
     const needs_check = this.check_on_snapshot;
     this.check_on_snapshot = false;
     const previous_revision = this.state.room?.selection_revision;
@@ -884,7 +892,9 @@ export class Multiplayer_Service {
       return;
     }
     this.disposed = true;
-    this.publish({ connected: false });
+    this.chat.dispose();
+    this.player.set_text_input_active(false);
+    this.publish({ connected: false, chat: this.chat.state });
     this.preparation_generation++;
     this.player.set_fail_policy(FAIL_POLICY.TERMINAL);
     this.player.selection.cancel_pending();

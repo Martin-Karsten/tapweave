@@ -120,3 +120,28 @@ test('page physical tracking clears unobservable keys on blur and disposes all o
   dispatch(window, 'keydown', { code: 'KeyX' });
   assert.equal(held.sources.size, 0);
 });
+
+test('chat releases held actions at audio time, suppresses typing and quarantines held sources', () => {
+  const player = fixture();
+  player.key('KeyZ');
+  player.input.set_text_input_active(true, new Set(['KeyZ']));
+  assert.equal(player.frame.input.records.at(-1).action_bits, 0);
+  assert.equal(player.frame.input.records.at(-1).audio_seconds, 12.345);
+  const record_count = player.frame.input.records.length;
+  player.key('KeyZ', false);
+  player.key('KeyX');
+  player.key('Escape');
+  player.pointer('pointerdown', { buttons: 1 });
+  player.pointer('pointerup');
+  assert.equal(player.frame.input.records.length, record_count);
+  assert.equal(player.pauses(), 0);
+  player.input.set_text_input_active(false, new Set(['KeyX', 'mouse:0']));
+  player.key('KeyX');
+  assert.equal(player.frame.input.records.length, record_count);
+  player.key('KeyX', false);
+  player.key('KeyX');
+  assert.equal(player.frame.input.records.at(-1).action_bits, 2);
+  dispatch(player.window, 'blur');
+  assert.equal(player.pauses(), 1);
+  player.input.dispose();
+});

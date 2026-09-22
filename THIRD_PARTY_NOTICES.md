@@ -56,3 +56,13 @@ osu!framework `LogOverlay`, `PerformanceOverlay`, `GlobalStatisticsDisplay` and
 compatibility references in the source manifest. The diagnostics service, report
 format, player panel/HUD and scenario workspace are original Tapweave work; no
 upstream code was copied into the implementation.
+
+
+Room chat's focus and break regression scenarios adapt
+`TestSceneGameplayChatDisplay` and `TestSceneBreakTracker` from ppy/osu commit
+`3c1c96f742e7aae2ff67a7361e058fe91ca3b955`, copyright ppy Pty Ltd,
+under the upstream MIT licence retained in `engine/reference/sources/osu__LICENCE`.
+The Odin activity helper follows that revision's `BreakTracker`/`BreakPeriod`.
+Source hashes and local mappings are recorded in
+`engine/reference/findings/room-chat-sources.json`; this is not an upstream
+executable acceptance claim.

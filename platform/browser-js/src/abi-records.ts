@@ -59,6 +59,7 @@ export const RECORD = Object.freeze({
   scene_batch: 51,
   sample_probe: 52,
   resume_policy: 53,
+  session_activity: 55,
   prepared_metadata: 54,
 } as const);
 
@@ -320,6 +321,7 @@ export interface Odin_Exports {
     result_address: number): number;
   oe_session_pause(engine_handle: bigint, session_handle: bigint, time_ms: number,
     result_address: number): number;
+  oe_session_activity(engine_handle: bigint, session_handle: bigint, output_address: number): number;
   oe_session_resume_policy(engine_handle: bigint, session_handle: bigint, cursor_flags: number, output_address: number): number;
   oe_session_resume(engine_handle: bigint, session_handle: bigint, mailbox_address: number): number;
   oe_session_acknowledge(engine_handle: bigint, session_handle: bigint, batch_token: bigint): number;

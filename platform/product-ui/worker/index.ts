@@ -1,6 +1,8 @@
 import { DurableObject } from 'cloudflare:workers';
 import {
   PROTOCOL_VERSION,
+  CHAT_HISTORY_LIMIT,
+  type Chat_Message,
   type Selected_Map,
   RECONNECT_MS,
   parse_client_message,
@@ -23,6 +25,8 @@ const WITHDRAWN_REPORT = {
   progress: 0,
 };
 interface Stored_Member extends Room_Member {
+  chat_tokens?: number;
+  chat_refill_ms?: number;
   token_hash: string;
   joined_ms: number;
   disconnected_ms: number | null;
@@ -31,6 +35,8 @@ interface Stored_Member extends Room_Member {
   traffic?: Socket_State;
 }
 interface Stored_Room {
+  chat_messages: Chat_Message[];
+  chat_sequence: number;
   version: 2;
   selected_map: Selected_Map | null;
   selection_revision: number;
@@ -44,6 +50,7 @@ interface Stored_Room {
   round: Room_Round | null;
 }
 interface Socket_State {
+  chat_subscribed?: boolean;
   member_id: string;
   socket_id: string;
   sequence: number;
@@ -239,6 +246,8 @@ export class Multiplayer_Room extends DurableObject<Env> {
       // can distinguish an upgraded invite from a nonexistent room.
       throw new Protocol_Upgrade();
     }
+    room.chat_messages ??= [];
+    room.chat_sequence ??= 0;
     return room;
   }
 
@@ -297,6 +306,7 @@ export class Multiplayer_Room extends DurableObject<Env> {
       this.send_message(socket, {
         version: 2,
         type: 'snapshot',
+        chat_version: 1,
         sequence: room.sequence,
         room_id: room.room_id,
         member_id: attachment.member_id,
@@ -444,6 +454,8 @@ export class Multiplayer_Room extends DurableObject<Env> {
     if (!room) {
       room = {
         version: 2,
+        chat_messages: [],
+        chat_sequence: 0,
         selected_map: null,
         selection_revision: 0,
         room_id,
@@ -772,7 +784,69 @@ export class Multiplayer_Room extends DurableObject<Env> {
     count_event('terminal');
   }
 
+  private subscribe_chat(room: Stored_Room, socket: WebSocket, attachment: Socket_State) {
+    attachment.chat_subscribed = true;
+    socket.serializeAttachment(attachment);
+    let messages: Chat_Message[] = [];
+    const history = (final: boolean): Server_Message => ({
+      version: 2, type: 'chat_history', messages, high_water_id: room.chat_sequence, final,
+    });
+    // No await: all history frames precede subsequent live broadcasts.
+    for (const message of room.chat_messages) {
+      const candidate = { ...history(false), messages: [...messages, message] };
+      if (new TextEncoder().encode(JSON.stringify(candidate)).byteLength > 16 * 1024) {
+        this.send_message(socket, history(false));
+        messages = [];
+      }
+      messages.push(message);
+    }
+    this.send_message(socket, history(true));
+    count_event('chat_history');
+  }
+
+  private accept_chat(room: Stored_Room, member: Stored_Member, socket: WebSocket,
+    attachment: Socket_State, command: Extract<Client_Message, { type: 'chat_send' }>) {
+    if (!attachment.chat_subscribed) throw new Error('Subscribe to chat before sending.');
+    const previous = room.chat_messages.find(message =>
+      message.member_id === member.member_id && message.client_message_id === command.client_message_id);
+    if (previous) {
+      if (previous.text !== command.text) throw new Error('Message identifier already used.');
+      this.send_message(socket, { version: 2, type: 'chat_message', message: previous });
+      return false;
+    }
+    const now_ms = Date.now();
+    const tokens = Math.min(5, (member.chat_tokens ?? 5) + Math.max(0, now_ms - (member.chat_refill_ms ?? now_ms)) / 2000);
+    if (tokens < 1) {
+      this.send_message(socket, { version: 2, type: 'chat_error', client_message_id: command.client_message_id,
+        code: 'RATE_LIMITED', message: 'Please wait before sending another message.', retry_after_ms: Math.ceil((1 - tokens) * 2000) });
+      count_event('chat_rate_limited');
+      return false;
+    }
+    if (!Number.isSafeInteger(room.chat_sequence + 1)) throw new Error('Chat message limit reached.');
+    const message: Chat_Message = { message_id: ++room.chat_sequence, client_message_id: command.client_message_id,
+      member_id: member.member_id, nickname: member.nickname, sent_ms: now_ms, text: command.text };
+    member.chat_tokens = tokens - 1;
+    member.chat_refill_ms = now_ms;
+    room.chat_messages = [...room.chat_messages, message].slice(-CHAT_HISTORY_LIMIT);
+    room.active_ms = now_ms;
+    try {
+      this.save_room(room);
+    } catch {
+      count_event('chat_storage_failed');
+      throw new Error('Chat could not be saved. Try again.');
+    }
+    for (const recipient of this.open_sockets()) {
+      if (recipient.deserializeAttachment()?.chat_subscribed) {
+        this.send_message(recipient, { version: 2, type: 'chat_message', message });
+      }
+    }
+    count_event('chat_accepted');
+    return true;
+  }
+
   async webSocketMessage(socket: WebSocket, raw: string | ArrayBuffer) {
+    let chat_command = false;
+    let client_message_id: string | null = null;
     try {
       const room = this.read_room();
       if (!room) {
@@ -808,16 +882,36 @@ export class Multiplayer_Room extends DurableObject<Env> {
         socket.close(4000, 'Room protocol upgraded. Reload and recreate the room.');
         return;
       }
+      const envelope = JSON.parse(raw);
+      chat_command = envelope.type === 'chat_send' || envelope.type === 'chat_subscribe';
+      client_message_id = typeof envelope.client_message_id === 'string' && /^[a-f0-9]{32}$/.test(envelope.client_message_id)
+        ? envelope.client_message_id : null;
       const message = parse_client_message(raw);
       if (message.sequence <= attachment.sequence) {
         throw new Error('Stale or duplicate sequence.');
       }
       attachment.sequence = message.sequence;
       socket.serializeAttachment(attachment);
+      const previous_lifecycle = chat_command ? JSON.stringify(room) : '';
       this.apply_elapsed_deadlines(room);
+      const lifecycle_changed = chat_command && previous_lifecycle !== JSON.stringify(room);
+      if (lifecycle_changed) {
+        this.save_room(room);
+        this.broadcast_snapshot(room);
+      }
       const member = room.members.find((candidate) => candidate.member_id === attachment.member_id);
       if (!member?.connected || member.socket_id !== attachment.socket_id) {
         throw new Error('Membership required.');
+      }
+      if (message.type === 'chat_subscribe') {
+        this.subscribe_chat(room, socket, attachment);
+        if (lifecycle_changed) await this.schedule_next_alarm(room);
+        return;
+      }
+      if (message.type === 'chat_send') {
+        const accepted = this.accept_chat(room, member, socket, attachment, message);
+        if (accepted || lifecycle_changed) await this.schedule_next_alarm(room);
+        return;
       }
       if (message.type === 'clock') {
         this.send_message(socket, {
@@ -854,6 +948,12 @@ export class Multiplayer_Room extends DurableObject<Env> {
       await this.schedule_next_alarm(room);
       this.broadcast_snapshot(this.read_room()!);
     } catch (error) {
+      if (chat_command) {
+        count_event('chat_rejected');
+        this.send_message(socket, { version: 2, type: 'chat_error', client_message_id,
+          code: 'REJECTED', message: error instanceof Error ? error.message : 'Chat unavailable.' });
+        return;
+      }
       count_event('message_rejected');
       this.send_message(socket, {
         version: 2,

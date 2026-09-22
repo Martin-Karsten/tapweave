@@ -1,5 +1,26 @@
 // Private room protocol. These values describe client reports, never judgements.
 export const PROTOCOL_VERSION = 2;
+export const CHAT_HISTORY_LIMIT = 100;
+export interface Chat_Message {
+  message_id: number;
+  client_message_id: string;
+  member_id: string;
+  nickname: string;
+  sent_ms: number;
+  text: string;
+}
+
+export function canonical_chat_text(candidate: unknown): string {
+  if (typeof candidate !== 'string' || /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(candidate)) {
+    throw new Error('Invalid chat text.');
+  }
+  const text = candidate.replace(/[\r\n\t\u2028\u2029]/g, ' ').trim();
+  if (!text || [...text].length > 500 || new TextEncoder().encode(text).byteLength > 2000 || /[\u0000-\u001f\u007f-\u009f]/u.test(text)) {
+    throw new Error('Use 1–500 characters without control characters.');
+  }
+  return text;
+}
+
 export const RECONNECT_MS = 30_000;
 export type Map_Availability = 'missing' | 'checking' | 'incompatible' | 'failed' | 'available';
 export interface Selected_Map {
@@ -86,6 +107,7 @@ export interface Room_Round {
 export interface Room_Snapshot {
   version: 2;
   type: 'snapshot';
+  chat_version?: 1;
   sequence: number;
   room_id: string;
   member_id: string;
@@ -100,6 +122,8 @@ export interface Room_Snapshot {
 }
 
 export type Client_Command =
+  | { type: 'chat_subscribe' }
+  | { type: 'chat_send'; client_message_id: string; text: string }
   | {
       type: 'clock';
       client_ms: number;
@@ -145,6 +169,9 @@ export type Client_Message = Client_Command & {
 
 export type Server_Message =
   | Room_Snapshot
+  | { version: 2; type: 'chat_history'; messages: Chat_Message[]; high_water_id: number; final: boolean }
+  | { version: 2; type: 'chat_message'; message: Chat_Message }
+  | { version: 2; type: 'chat_error'; client_message_id: string | null; code: string; message: string; retry_after_ms?: number }
   | {
       version: 2;
       type: 'clock';
@@ -208,6 +235,14 @@ export function parse_client_message(raw: string): Client_Message {
     throw new Error('Invalid selection revision.');
   }
   switch (message.type) {
+    case 'chat_subscribe':
+      break;
+    case 'chat_send':
+      if (typeof message.client_message_id !== 'string' || !/^[a-f0-9]{32}$/.test(message.client_message_id)) {
+        throw new Error('Invalid chat message identifier.');
+      }
+      message.text = canonical_chat_text(message.text);
+      break;
     case 'select':
       if (
         !valid_selected_map(message.selected_map) ||
@@ -267,6 +302,8 @@ export function parse_client_message(raw: string): Client_Message {
       throw new Error('Unknown message type.');
   }
   const command_fields: Record<string, string[]> = {
+    chat_subscribe: [],
+    chat_send: ['client_message_id', 'text'],
     clock: ['client_ms'],
     select: ['selection_revision', 'selected_map'],
     availability: ['selection_revision', 'availability'],

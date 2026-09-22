@@ -15,6 +15,7 @@ import type { Diagnostics_Service } from './diagnostics.js';
 
 export type Gameplay_State = 'loading' | 'ready' | 'starting' | 'running' | 'resuming' | 'paused' | 'recovering' | 'terminal' | 'disposed';
 export interface Gameplay_View {
+  readonly local_playing_state: 'not_playing' | 'break' | 'playing';
   readonly state: Gameplay_State;
   readonly can_play: boolean;
   readonly can_resume: boolean;
@@ -103,6 +104,8 @@ export class Gameplay_Controller {
   private restoration_timer: ReturnType<typeof setTimeout> | null = null;
   private skip_windows: Skip_Window[] = [];
   private skip_available = false;
+  private local_playing_state: Gameplay_View['local_playing_state'] = 'not_playing';
+  private text_input_active = false;
   private last_epoch = 0;
   private readonly held_input: Held_Input;
   private readonly sample_audio: () => number;
@@ -167,6 +170,7 @@ export class Gameplay_Controller {
     const graphics_usable = !!this.renderer?.ready && !this.graphics_lost;
     const live_session = !this.watching_replay;
     return Object.freeze({ state: this.state,
+      local_playing_state: this.state === 'running' ? this.local_playing_state : 'not_playing',
       can_play: live_session && this.state === 'ready' && !!this.playback && graphics_usable,
       can_resume: live_session && this.state === 'paused' && this.playback?.state === 'paused' && graphics_usable,
       can_retry: this.in_attempt && this.state !== 'starting' && this.state !== 'disposed' && graphics_usable,
@@ -310,6 +314,11 @@ export class Gameplay_Controller {
         this.skip_available = skip_available;
         this.publish();
       }
+      const activity = this.engine.session_activity(this.session_handle!);
+      if (activity !== this.local_playing_state) {
+        this.local_playing_state = activity;
+        this.publish();
+      }
       // Diagnostic UI refresh rides the existing frame driver; no scheduler is
       // added and the callback itself never touches gameplay state.
       this.options.on_frame?.();
@@ -401,6 +410,11 @@ export class Gameplay_Controller {
       y: Number(transform.inverse_b) * pointer_x + Number(transform.inverse_d) * pointer_y + Number(transform.inverse_f) };
   }
 
+  set_text_input_active(active: boolean) {
+    this.text_input_active = active;
+    this.input?.set_text_input_active(active, this.held_input.sources);
+  }
+
   quarantine_input(source: string) {
     this.held_input.quarantined.add(source);
   }
@@ -481,6 +495,7 @@ export class Gameplay_Controller {
       // Live runs attach the gameplay input surface; watch playback never does.
       this.input = new Gameplay_Input(this.canvas, this.frame!, this.sample_audio, reason => this.pause(reason), false,
         input_settings, resuming ? new Set([...this.held_input.sources].filter(source => !retained_sources.has(source))) : this.held_input.sources);
+      this.input.set_text_input_active(this.text_input_active, this.held_input.sources);
       if (resuming) this.input.cursor_flags = this.paused_cursor_flags;
       this.frame!.start();
       this.publish();

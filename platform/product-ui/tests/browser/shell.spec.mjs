@@ -10,7 +10,7 @@ test('shell serves and the a2 counter is interactive', async ({ page }) => {
 
 test('b1 engine bridge boots the production wasm', async ({ page }) => {
   await page.goto('/diagnostics');
-  await expect(page.locator('[data-b1-state="ready"]')).toContainText(/build \d+ · behavior \d+ · ABI 2\.0/, {
+  await expect(page.locator('[data-b1-state="ready"]')).toContainText(/build \d+ · behavior \d+ · ABI 2\.2/, {
     timeout: 20_000,
   });
   await expect(page.locator('[data-capability-field="preparation_version"] dd')).toHaveText('2');

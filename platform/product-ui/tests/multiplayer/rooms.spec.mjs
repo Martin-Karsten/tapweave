@@ -72,6 +72,8 @@ function capture_multiplayer_traffic(page) {
 }
 function assert_metadata_only(traffic) {
   const allowed_fields = [
+    'client_message_id',
+    'text',
     'nickname',
     'type',
     'version',

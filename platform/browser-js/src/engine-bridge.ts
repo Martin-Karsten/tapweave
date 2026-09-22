@@ -502,6 +502,13 @@ export class Engine_Bridge {
     return this.session_output(this.wasm.oe_session_pause, session_handle, time_ms);
   }
 
+  session_activity(session_handle: bigint): 'not_playing' | 'break' | 'playing' {
+    this.check_status(this.wasm.oe_session_activity(this.engine_handle, session_handle, this.result_address), false);
+    const activity = readRecord(this.view(), this.read_span().address, RECORD.session_activity);
+    require_condition(activity.reserved === 0 && [0, 1, 2].includes(Number(activity.activity)), 'INVALID_SPAN', 'Invalid session activity.');
+    return (['not_playing', 'break', 'playing'] as const)[Number(activity.activity)]!;
+  }
+
   resume_policy(session_handle: bigint, cursor_flags: number) {
     this.check_status(this.wasm.oe_session_resume_policy(this.engine_handle, session_handle, cursor_flags, this.result_address), false);
     return readRecord(this.view(), this.read_span().address, RECORD.resume_policy);

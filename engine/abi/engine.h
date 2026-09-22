@@ -1457,6 +1457,15 @@ _Static_assert(offsetof(oe_prepared_metadata_v1, creator_stride)==40, "field off
 _Static_assert(offsetof(oe_prepared_metadata_v1, version_offset)==44, "field offset");
 _Static_assert(offsetof(oe_prepared_metadata_v1, version_count)==48, "field offset");
 _Static_assert(offsetof(oe_prepared_metadata_v1, version_stride)==52, "field offset");
+typedef struct { uint16_t type, version; uint32_t byte_size;
+  uint32_t activity;
+  uint32_t reserved;
+  double committed_ms;
+} oe_session_activity_v1;
+_Static_assert(sizeof(oe_session_activity_v1)==24, "record size");
+_Static_assert(offsetof(oe_session_activity_v1, activity)==8, "field offset");
+_Static_assert(offsetof(oe_session_activity_v1, reserved)==12, "field offset");
+_Static_assert(offsetof(oe_session_activity_v1, committed_ms)==16, "field offset");
 typedef uint64_t oe_handle;
 typedef struct { uint64_t address; uint32_t count, reserved; uint64_t token; } oe_byte_span;
 uintptr_t oe_abi_control(void);
@@ -1502,5 +1511,6 @@ uint32_t oe_session_advance(oe_handle, oe_handle, double time_ms, uintptr_t outp
 uint32_t oe_session_snapshot(oe_handle, oe_handle, double time_ms, uintptr_t output);
 uint32_t oe_session_pause(oe_handle, oe_handle, double time_ms, uintptr_t output);
 uint32_t oe_session_resume(oe_handle, oe_handle, uintptr_t anchor);
+uint32_t oe_session_activity(oe_handle, oe_handle, uintptr_t output);
 uint32_t oe_session_resume_policy(oe_handle, oe_handle, uint32_t cursor_flags, uintptr_t output);
 uint32_t oe_session_result(oe_handle, oe_handle, uintptr_t output);

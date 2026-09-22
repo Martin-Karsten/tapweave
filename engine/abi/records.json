@@ -1,6 +1,6 @@
 {
   "abi_major": 2,
-  "abi_minor": 1,
+  "abi_minor": 2,
   "version": 1,
   "records": [
     {
@@ -2957,6 +2957,26 @@
         "version_stride": [
           52,
           "u32"
+        ]
+      }
+    },
+    {
+      "name": "session_activity",
+      "kind": 55,
+      "version": 1,
+      "size": 24,
+      "fields": {
+        "activity": [
+          8,
+          "u32"
+        ],
+        "reserved": [
+          12,
+          "u32"
+        ],
+        "committed_ms": [
+          16,
+          "f64"
         ]
       }
     }

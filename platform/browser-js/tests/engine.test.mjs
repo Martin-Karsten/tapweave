@@ -477,3 +477,22 @@ test('fail policy marks multiplayer failure without ending the run', async () =>
     engine.dispose();
   }
 });
+
+test('activity ABI mirrors pinned break boundaries without growth and validates lifetimes', async () => {
+  const engine = await Engine_Bridge.create(wasm_bytes);
+  try {
+    assert.equal(engine.capabilities.abi_minor, 2);
+    const prepared = engine.prepare_map(new TextEncoder().encode('osu file format v14\n[Difficulty]\nHPDrainRate:0\n[Events]\n2,6000,6500\n2,8000,8650\n2,10000,14000\n[HitObjects]\n256,192,5000,1,0\n256,192,20000,1,0\n'));
+    const session = engine.create_session(prepared.map_handle, { input_capacity: 64, batch_capacity: 32 });
+    assert.equal(engine.session_activity(session), 'not_playing');
+    const memory = engine.wasm.memory.buffer;
+    for (const [time_ms, expected] of [[0, 'break'], [2999.999, 'break'], [3000, 'playing'], [6000, 'playing'], [6250, 'playing'], [6500, 'playing'], [7999.999, 'playing'], [8000, 'break'], [8325, 'break'], [8325.001, 'playing'], [10000, 'break'], [13675, 'break'], [13675.001, 'playing'], [21000, 'not_playing']]) {
+      engine.advance(session, time_ms);
+      assert.equal(engine.session_activity(session), expected, String(time_ms));
+    }
+    assert.equal(engine.wasm.memory.buffer, memory);
+    assert.notEqual(engine.wasm.oe_session_activity(engine.engine_handle, session, 0), 0);
+    engine.release_session(session);
+    assert.throws(() => engine.session_activity(session));
+  } finally { engine.dispose(); }
+});

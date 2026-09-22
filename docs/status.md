@@ -1525,3 +1525,15 @@ picker. The full browser suite shows one load-dependent timing flake per run
 in unrelated boot/replay specs that reproduces on a tree without these
 changes. Star rating, difficulty colours, sort/group modes and persistence
 remain deferred (M5).
+
+
+## Private room chat
+
+Private rooms now include bounded plain-text chat with 100-message durable history,
+server author attribution, reconnect recovery and rate limiting. Protocol v2
+capability negotiation preserves existing rooms and older clients. Gameplay chat
+uses Enter/Escape and engine-owned effective-break state through ABI 2.2; typing
+suppresses gameplay actions without pausing playback. Incoming messages stay quiet
+while playing. See [chat validation](compatibility/multiplayer.md#room-chat).
+Executable pinned-upstream comparison and physical-device certification remain
+open. This is not osu! chat protocol compatibility; no deployment is implied.

@@ -24,7 +24,7 @@ export function testABI(wasm) {
  const prepare=(e,input,flags=1)=>{header(2,32);u64(8,input.token);u32(20,input.count);u32(24,flags);return wasm.oe_map_prepare(e,base,out,error)};
  const session=(e,m,bytes)=>{header(3,32);u32(8,1);u64(16,bytes);assert.equal(wasm.oe_session_create(e,m,base,out,error),0);return result()};
  const native=JSON.parse(execFileSync(resolve(root,'artifacts/abi-native'),{encoding:'utf8',maxBuffer:64*1024*1024}));
- assert.deepEqual(native.capabilities,[65540,64,2,0,1,0,14,128,8388608,0,134217728,0,1,0,202608042,3]);
+ assert.deepEqual(native.capabilities,[65540,64,2,2,1,0,14,128,8388608,0,134217728,0,1,0,202608042,3]);
  assert.deepEqual(native.statuses,[1,0,0,0,0,0,0,0,0,3,0,0,0,0,9]);
  const text='osu file format v14\n[TimingPoints]\n100,500\n[HitObjects]\n0,0,0,1,0';
  assert.equal(wasm.oe_engine_create(0,out,error),1);
@@ -40,7 +40,7 @@ export function testABI(wasm) {
  assert.equal(readRecord(view(),cap,4).abi_major,2);
  assert.throws(()=>readRecord(view(),cap+1,4));
  assert.throws(()=>readRecord(new DataView(memory.buffer,cap,8),0,4));
- assert.deepEqual(Array.from({length:16},(_,word_index)=>view().getUint32(cap+4*word_index,true)),[65540,64,2,0,1,0,14,128,8388608,0,134217728,0,1,0,202608042,3]);
+ assert.deepEqual(Array.from({length:16},(_,word_index)=>view().getUint32(cap+4*word_index,true)),[65540,64,2,2,1,0,14,128,8388608,0,134217728,0,1,0,202608042,3]);
  const input=reserve(first,text);
  assert.equal(prepare(first,{...input,token:input.token+1n}),1);
  assert.equal(prepare(first,{...input,count:0xffffffff}),1);

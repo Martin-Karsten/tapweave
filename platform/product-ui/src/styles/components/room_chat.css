@@ -1,0 +1,127 @@
+.room-chat {
+  min-width: 0;
+  order: 3;
+}
+.room-chat h2 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-title);
+}
+.room-chat small {
+  font-size: var(--font-size-note);
+  color: var(--color-text-muted);
+}
+.room-chat-log {
+  max-height: 16rem;
+  overflow: auto;
+  overflow-anchor: none;
+}
+.room-chat-message {
+  margin: var(--space-2) 0;
+  overflow-wrap: anywhere;
+}
+.room-chat-message time, .room-chat-note {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-note);
+}
+.room-chat-author {
+  font-weight: 700;
+}
+.room-chat-message.self .room-chat-author {
+  color: var(--color-accent);
+}
+.room-chat form {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+.room-chat input {
+  min-width: 0;
+  flex: 1;
+  border: 1px solid var(--color-border);
+  border-radius: var(--control-radius);
+  background: var(--color-background-deep);
+  color: var(--color-text);
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+}
+.room-chat input:focus-visible {
+  outline: 1px solid var(--color-accent);
+}
+.room-chat-error {
+  color: var(--color-danger);
+}
+.room-chat-label, .room-chat-announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.room-chat-gameplay {
+  position: absolute;
+  top: calc(var(--space-16) + 3rem);
+  left: var(--space-12);
+  width: min(26rem, 70%);
+  z-index: var(--z-floating);
+}
+.room-chat-gameplay .room-chat-log {
+  max-height: 6rem;
+}
+.room-chat-active {
+  pointer-events: none;
+}
+.room-chat-collapsed .room-chat-body {
+  display: none;
+}
+.multiplayer-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.multiplayer-screen .multiplayer-lobby {
+  display: contents;
+}
+.multiplayer-invite {
+  order: 1;
+}
+.multiplayer-columns {
+  order: 2;
+}
+.multiplayer-footer {
+  order: 4;
+}
+.multiplayer-round-layout {
+  order: 2;
+}
+@media (prefers-reduced-motion: reduce) {
+  .room-chat {
+    transition: none;
+  }
+}
+
+.multiplayer-screen.room-results {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 1fr);
+}
+.multiplayer-screen.room-results .multiplayer-topbar {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+.multiplayer-screen.room-results .multiplayer-alert {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+.multiplayer-screen.room-results .multiplayer-round-layout {
+  grid-column: 1;
+  grid-row: 3;
+}
+.multiplayer-screen.room-results .room-chat {
+  grid-column: 2;
+  grid-row: 3;
+}
+@media (max-width: 760px) {
+  .multiplayer-screen.room-results {
+    display: flex;
+  }
+}

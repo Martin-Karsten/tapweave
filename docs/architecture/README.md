@@ -58,3 +58,10 @@ runtime and browser exports do not import that test-only package.
 - [ADR-008: Private rooms with local maps](adr-008-private-demo-rooms.md)
 
 The production successor is specified in [interface v2](interface-v2.md). ABI v1 and its demo remain local research material outside this repository.
+
+
+Room chat uses the existing Worker/room service boundary. Odin exposes committed
+session activity (ABI 2.2); browser services translate activity transitions and
+text-field focus into UI notifications/input ownership, while the Solid shell
+renders chat. The shell never computes break policy or hit judgements. See the
+[ADR-008 chat extension](adr-008-private-demo-rooms.md#room-chat-extension-2026-09-22).

@@ -195,3 +195,84 @@ Local browser logs are retained in ignored
 `platform/product-ui/artifacts/multiplayer-v2-validation/`. These are product
 regression results, not upstream oracle evidence. Protocol v2 was not deployed.
 MP-08 physical-device and audible-output validation remain open.
+
+
+## Room chat
+
+| Acceptance | Local regression mapping |
+|---|---|
+| MP-13 authenticated delivery, isolation, validation, rate limits | `worker-tests/rooms.test.ts`, `tests/room_chat.test.ts` |
+| MP-14 bounded history, eviction, lazy v2 initialization, delivery reconciliation | same Worker and service suites |
+| MP-15 pinned focus/break interaction | `tests/room_chat_component.test.tsx`, `tests/multiplayer/chat.spec.mjs`, `engine/tests/activity_test.odin`, browser `tests/engine.test.mjs` |
+| MP-16 typing cannot hit/pause/withdraw; canvas geometry remains stable | browser `tests/settings-input.test.mjs`, multiplayer chat browser scenario |
+
+Paths without a prefix are relative to `platform/product-ui`. These rows describe
+local regression coverage, not executed upstream acceptance or release certification.
+
+Source hashes at osu! `3c1c96f742e7aae2ff67a7361e058fe91ca3b955` are in
+[`room-chat-sources.json`](../../engine/reference/findings/room-chat-sources.json).
+Inspected `GameplayChatDisplay`, `MultiplayerPlayer`, `Player`, `BreakTracker`,
+`BreakPeriod`, `PeriodTracker`, and the pinned test trees for Chat/Online and
+Visual/Multiplayer/Gameplay. The five `TestSceneGameplayChatDisplay` methods
+(`TestCantClickWhenPlaying`, `TestFocusDroppedWhenPlaying`,
+`TestFocusOnEnterKeyWhenExpanded`, `TestFocusLostOnBackKey`,
+`TestFocusOnEnterKeyWhenNotExpanded`) map to the component and real browser tests.
+`TestSceneBreakTracker.TestNoEffectsBreak`, `TestMultipleBreaks`, `TestRewindBreaks`,
+`TestSkipBreaks` and both `TestBeforeGameplayStart` parameter cases inform the
+native/WASM boundary tests. The real-time `TestShowBreaks` is a visual overlay
+exercise; Tapweave does not implement that break overlay. No upstream test covers
+Cloudflare cookie authentication, hibernation or this private room protocol.
+
+The implementation run attempted `verify-sources.mjs --require-checkouts` and
+failed because `OSU_REFERENCE_CHECKOUT` is not configured; there is also no
+`dotnet` executable on PATH. No upstream visual tests or adapter ran. Their
+executable acceptance remains open, and local ports are not relabelled as oracle
+results. Restore clean pinned osu/framework checkouts and the reference-host SDK
+before executing these scenes through the headless upstream runner. Account-backed
+channel management, commands, rich formatting and moderation remain out of scope.
+
+The chat browser fixture is an original three-circle HP0 map with an 11–16 second
+break, exercising automatic focus release at 15,675 ms and a terminal at the map's
+end. It uses the existing demo audio locally; neither map nor music travels through
+chat. The fixture is retained directly in `tests/multiplayer/chat.spec.mjs`.
+
+The chat browser scenario also generates messages every 2.1 seconds through the
+other member's composer while gameplay continues. It records frame/publication
+counts and long tasks, asserts bounded message DOM and no per-frame player-service
+publications, and checks that expanding chat does not resize the canvas.
+
+The pinned framework test tree at `f02756c5aa5032e6d04729922702b8d56c4bc2eb`
+was also searched for focus, text-box and keyboard cases. Inspected
+`TestSceneTextBoxKeyEvents` (consumed keydown, repeat, Escape and same-frame
+release/press) and `TestSceneFocus` (disabled/hidden focus and propagation).
+Their drawable/native-text-input infrastructure is not used by the browser;
+DOM focus, IME and audio-clock input suppression have focused platform tests.
+These framework visual tests were not executed; their inspected hashes are
+recorded alongside the osu! sources.
+
+### Local implementation validation (2026-09-22)
+
+The pinned Node 24 and Odin toolchains passed the engine test/build commands,
+browser-runtime typecheck/test/build (207 tests), product gates (60 unit tests),
+Worker typecheck and all 19 Worker tests. All 33 multiplayer browser regressions
+passed across Chromium, Firefox and WebKit; the final packaged chat scenario was
+also run separately on all three after styling and countdown coverage changes.
+
+The general browser suite completed 174 passes and three existing WebKit skips
+(Ctrl+F10 delivery, native Tab traversal and file-drop support). Its three
+diagnostics failures were the old ABI 2.0 expectation; after updating it to 2.2,
+all 12 shell checks passed across the three browsers. No gameplay regression
+failed. Deployment packaging, hash verification, hosting-asset integrity, local
+hosting smoke and `git diff --check` passed. The artifact was not rebuilt between
+its final multiplayer test and hosting smoke test.
+
+During that final chat workload, Chromium measured 55.51 fps and one 75 ms long
+task, Firefox 118.13 fps, and WebKit 59.91 fps. Each browser published only seven
+player-service updates over approximately 16 seconds. These local observations
+are not physical-device performance certification. History/DOM bounds and stable
+canvas geometry were asserted in the scenario.
+
+The combined Worker, shell and WASM artifact is in the ignored
+`platform/product-ui/artifacts/deployment/` directory. Validation logs are retained
+in ignored `platform/product-ui/artifacts/room-chat-validation/`. No deployment
+was performed.

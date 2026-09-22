@@ -700,3 +700,116 @@ test('legacy stored rooms and old wire clients retire with a recreate-room expla
   expect(await response.text()).toContain('Recreate');
   await runDurableObjectAlarm(room_stub(host.room_id));
 });
+
+test('chat is authenticated, ordered, persisted, deduplicated, isolated and rate limited', async () => {
+  const host = await create();
+  const friend = await join(host.room_id);
+  const host_socket = await connect(host);
+  const friend_socket = await connect(friend);
+  const other = await create('Other room');
+  const other_socket = await connect(other);
+  for (const connection of [host_socket, friend_socket, other_socket]) {
+    connection.send({ type: 'chat_subscribe' });
+    expect((await connection.wait('chat_history')).final).toBe(true);
+  }
+  const client_message_id = 'a'.repeat(32);
+  host_socket.send({ type: 'chat_send', client_message_id, text: ' hello 👩‍💻 ' });
+  const first = (await friend_socket.wait('chat_message')).message;
+  expect(first).toMatchObject({ text: 'hello 👩‍💻', nickname: 'Host', member_id: host.member_id, message_id: 1 });
+  expect((await host_socket.wait('chat_message')).message).toEqual(first);
+  await runInDurableObject(room_stub(host.room_id), (_instance, context) => {
+    const stored = JSON.parse(context.storage.sql.exec('SELECT payload FROM room').one().payload as string);
+    expect(stored.chat_messages).toEqual([first]);
+  });
+  host_socket.send({ type: 'chat_send', client_message_id, text: first.text });
+  expect((await host_socket.wait('chat_message')).message).toEqual(first);
+  host_socket.send({ type: 'chat_send', client_message_id, text: 'changed' });
+  expect((await host_socket.wait('chat_error')).code).toBe('REJECTED');
+  host_socket.send({ type: 'chat_send', client_message_id: 'f'.repeat(32), text: 'spoof', nickname: 'Other' });
+  expect((await host_socket.wait('chat_error')).code).toBe('REJECTED');
+  for (let message_index = 2; message_index <= 5; message_index++) {
+    host_socket.send({ type: 'chat_send', client_message_id: message_index.toString(16).padStart(32, '0'), text: `Message ${message_index}` });
+    await host_socket.wait('chat_message');
+  }
+  host_socket.send({ type: 'chat_send', client_message_id: 'b'.repeat(32), text: 'Too fast' });
+  expect((await host_socket.wait('chat_error')).code).toBe('RATE_LIMITED');
+  expect(other_socket.messages.some(message => message.type === 'chat_message')).toBe(false);
+  await evictDurableObject(room_stub(host.room_id));
+  friend_socket.send({ type: 'chat_subscribe' });
+  expect((await friend_socket.wait('chat_history')).messages).toHaveLength(5);
+  host_socket.send({ type: 'chat_send', client_message_id: 'c'.repeat(32), text: 'Still too fast' });
+  expect((await host_socket.wait('chat_error')).code).toBe('RATE_LIMITED');
+});
+
+test('v2 rooms initialize chat lazily and history frames respect byte limits', async () => {
+  const host = await create();
+  await runInDurableObject(room_stub(host.room_id), (_instance, context) => {
+    const stored = JSON.parse(context.storage.sql.exec('SELECT payload FROM room').one().payload as string);
+    delete stored.chat_messages;
+    delete stored.chat_sequence;
+    context.storage.sql.exec('UPDATE room SET payload = ?', JSON.stringify(stored));
+  });
+  const connection = await connect(host);
+  expect((await connection.wait('snapshot')).chat_version).toBe(1);
+  connection.send({ type: 'chat_subscribe' });
+  expect((await connection.wait('chat_history')).messages).toEqual([]);
+  await runInDurableObject(room_stub(host.room_id), (_instance, context) => {
+    const stored = JSON.parse(context.storage.sql.exec('SELECT payload FROM room').one().payload as string);
+    stored.chat_sequence = 100;
+    stored.chat_messages = Array.from({ length: 100 }, (_, message_index) => ({
+      message_id: message_index + 1, client_message_id: message_index.toString(16).padStart(32, '0'),
+      member_id: 'departed', nickname: 'Former member', sent_ms: 1, text: '😀'.repeat(500),
+    }));
+    context.storage.sql.exec('UPDATE room SET payload = ?', JSON.stringify(stored));
+  });
+  connection.send({ type: 'chat_send', client_message_id: 'a'.repeat(32), text: 'Newest' });
+  expect((await connection.wait('chat_message')).message.message_id).toBe(101);
+  connection.send({ type: 'chat_subscribe' });
+  const history = [];
+  let final = false;
+  while (!final) {
+    const chunk = await connection.wait('chat_history');
+    expect(new TextEncoder().encode(JSON.stringify(chunk)).byteLength).toBeLessThanOrEqual(16 * 1024);
+    history.push(...chunk.messages);
+    final = chunk.final;
+  }
+  expect(history).toHaveLength(100);
+  expect(history[0].message_id).toBe(2);
+  expect(history.at(-1)!.text).toBe('Newest');
+  expect(history[0].nickname).toBe('Former member');
+});
+
+test('chat storage failure never acknowledges and legacy sockets receive no chat', async () => {
+  const host = await create();
+  const friend = await join(host.room_id);
+  const connection = await connect(host);
+  const legacy = await connect(friend);
+  connection.send({ type: 'chat_subscribe' });
+  await connection.wait('chat_history');
+  await runInDurableObject(room_stub(host.room_id), (_instance, context) => {
+    context.storage.sql.exec("CREATE TRIGGER reject_chat BEFORE INSERT ON room BEGIN SELECT RAISE(ABORT, 'injected storage failure'); END");
+  });
+  const command = { type: 'chat_send', client_message_id: 'a'.repeat(32), text: 'Persist before acceptance' };
+  connection.send(command);
+  expect((await connection.wait('chat_error')).message).toBe('Chat could not be saved. Try again.');
+  expect(connection.messages.some(message => message.type === 'chat_message')).toBe(false);
+  await runInDurableObject(room_stub(host.room_id), (_instance, context) => {
+    const stored = JSON.parse(context.storage.sql.exec('SELECT payload FROM room').one().payload as string);
+    expect(stored.chat_sequence).toBe(0);
+    expect(stored.chat_messages).toEqual([]);
+    context.storage.sql.exec('DROP TRIGGER reject_chat');
+  });
+  connection.send(command);
+  expect((await connection.wait('chat_message')).message.message_id).toBe(1);
+  expect(legacy.messages.some(message => message.type === 'chat_message' || message.type === 'chat_history')).toBe(false);
+  // Replacing the same connection retains persisted rate credit.
+  const replacement = await connect(host);
+  replacement.send({ type: 'chat_subscribe' });
+  expect((await replacement.wait('chat_history')).messages).toHaveLength(1);
+  for (let message_index = 2; message_index <= 5; message_index++) {
+    replacement.send({ type: 'chat_send', client_message_id: String(message_index).padStart(32, '0'), text: 'Bounded' });
+    await replacement.wait('chat_message');
+  }
+  replacement.send({ type: 'chat_send', client_message_id: 'b'.repeat(32), text: 'No reconnect reset' });
+  expect((await replacement.wait('chat_error')).code).toBe('RATE_LIMITED');
+});

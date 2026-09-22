@@ -201,6 +201,7 @@ uint32_t oe_session_advance(oe_handle, oe_handle, double time_ms, uintptr_t outp
 uint32_t oe_session_snapshot(oe_handle, oe_handle, double time_ms, uintptr_t output);
 uint32_t oe_session_pause(oe_handle, oe_handle, double time_ms, uintptr_t output);
 uint32_t oe_session_resume(oe_handle, oe_handle, uintptr_t anchor);
+uint32_t oe_session_activity(oe_handle, oe_handle, uintptr_t output);
 uint32_t oe_session_resume_policy(oe_handle, oe_handle, uint32_t cursor_flags, uintptr_t output);
 uint32_t oe_session_result(oe_handle, oe_handle, uintptr_t output);
 `;

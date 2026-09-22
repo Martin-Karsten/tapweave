@@ -52,7 +52,7 @@ export const INITIAL_SHELL_STATE: Shell_State = Object.freeze({
     error: null,
   }),
   gameplay: Object.freeze({
-    state: 'ready',
+    state: 'ready', local_playing_state: 'not_playing',
     can_play: false,
     can_resume: false,
     can_retry: false,
@@ -322,6 +322,7 @@ export class Player_Session_Service {
     return this.gameplay.multiplayer_score;
   }
 
+  set_text_input_active(active: boolean) { this.gameplay.set_text_input_active(active); }
   quarantine_input(source: string) { this.gameplay.quarantine_input(source); }
   pause(reason?: string) { this.gameplay.pause(reason); }
   skip() { this.gameplay.skip(); }

@@ -8,6 +8,8 @@ import {
   type Component,
 } from 'solid-js';
 import { A, useNavigate, useParams } from '@solidjs/router';
+import { Room_Chat } from '../components/room_chat';
+import { empty_chat_state } from '../services/room_chat';
 import { Virtual_List } from '../components/virtual_list';
 import { boot_player_session, player_session, shell_state } from '../state/session_state';
 import { Multiplayer_Service, type Multiplayer_State } from '../services/multiplayer';
@@ -39,6 +41,7 @@ export const Multiplayer_Screen: Component = () => {
   const [copied, set_copied] = createSignal(false);
   const [countdown_seconds, set_countdown_seconds] = createSignal<number | null>(null);
   const [state, set_state] = createSignal<Multiplayer_State>({
+    chat: empty_chat_state(),
     room: null,
     connected: false,
     prepared: false,
@@ -292,7 +295,7 @@ export const Multiplayer_Screen: Component = () => {
   return (
     <main
       class="screen multiplayer-screen"
-      classList={{ playing: playing() }}
+      classList={{ playing: playing(), 'room-results': !!room() && !playing() && !in_lobby() }}
       aria-label="Private multiplayer"
     >
       <header class="multiplayer-topbar">
@@ -352,6 +355,13 @@ export const Multiplayer_Screen: Component = () => {
             </button>
           </div>
         </Show>
+      </Show>
+      <Show when={room()}>
+        <Room_Chat state={state().chat} member_id={room()!.member_id}
+          gameplay={playing() && room()?.phase !== 'countdown'} activity={shell_state().gameplay.local_playing_state}
+          set_draft={draft => service?.chat.set_draft(draft)} submit={() => service?.chat.submit() ?? false}
+          set_text_input_active={active => player_session()?.set_text_input_active(active)}
+          focus_playfield={() => player_session()?.canvas.focus({ preventScroll: true })} />
       </Show>
       <Show when={room() && !playing() && in_lobby()}>
         <div class="multiplayer-lobby">

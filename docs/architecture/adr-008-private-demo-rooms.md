@@ -12,8 +12,9 @@ Durable Object per unguessable private room. The Solid shell subscribes to a pla
 browser service. Odin retains all preparation, judgement, scoring, replay and
 presentation policy. This is an original social coordination feature, not an
 implementation of osu!'s multiplayer protocol or competitive verification.
-No production ABI changes. Persistent map libraries, downloads, file sharing, teams, mods, ready subsets,
-accounts, chat, uploads, spectating, matchmaking,
+The activity query is additive ABI 2.2; see the chat extension below. Persistent
+map libraries, downloads, file sharing, teams, mods, ready subsets, accounts,
+uploads, spectating, matchmaking,
 public listings and persistent leaderboards remain out of scope.
 
 The Worker creates server-issued random credentials in Secure, HttpOnly,
@@ -162,3 +163,48 @@ ready and ports the pinned upstream multiplayer fail marking for rounds; solo
 play retains its ordinary local Odin failure/judgement rules. This is not
 osu! multiplayer wire or scoring compatibility. Deployment is separate from local
 validation; physical-device acceptance remains open.
+
+## Room chat extension (2026-09-22)
+
+Chat is now in scope for these private rooms: plain text, Unicode and typed emoji,
+without accounts, moderation, formatting, attachments or external services.
+Protocol v2 advertises optional `chat_version=1`. Clients subscribe once per
+connection; only subscribed sockets receive history and live messages. Old v2
+clients remain usable, and old v2 records lazily initialize empty chat fields.
+
+`chat_send` supplies text and a 32-character random hexadecimal client message
+ID. The server supplies member identity, nickname-at-send, timestamp and a
+monotonic room-local message ID. The latest 100 messages and per-member token
+bucket are persisted in the existing SQLite room record before acceptance.
+History survives rematches, departures and hibernation, and expires with the room.
+Accepted messages refresh inactivity; rejections and duplicate submissions do not.
+The four-hour absolute expiry and existing score/control limits still apply.
+The chat bucket allows five messages, replenishing one token every two seconds.
+Deduplication covers the retained 100-message window, scoped to member identity.
+
+Canonical text is trimmed, with newlines/tabs converted to spaces, at most 500
+Unicode code points / 2,000 UTF-8 bytes. Controls and unpaired surrogates are
+rejected. Text is escaped by Solid, with no link interpretation. History is sent
+oldest-first in frames no larger than 16 KiB, with a high-water ID and final marker;
+it is not appended to ordinary room snapshots. History enqueueing is synchronous
+before live delivery. Chat rejection is a separate event and never a map error.
+Clients allow one pending send, reconcile acceptance on reconnect, and never
+retry automatically; after five seconds they explicitly report uncertain delivery.
+Only operational counters are logged, never chat text.
+
+The Odin-owned `oe_session_activity` query (ABI 2.2, record 55) exposes effective
+break/playing/not-playing state. The browser copies it after advancement and
+publishes only transitions. Shared break policy also retains resume semantics.
+The shell controls chat focus/layout, not break timing or gameplay. Typing releases
+held input at audio-clock time, suppresses gameplay presses and quarantines held
+sources until release when returning. It never pauses the audio/simulation.
+Window blur, hidden-page and audio interruption policies remain unchanged.
+
+Pinned lazer interaction: Enter opens chat during play; Escape or sending releases
+focus during active play, with a 600 ms delayed collapse. Breaks expand without
+focusing; active play drops focus and disables pointer interaction with chat.
+Break sends retain focus. Lobby/countdown/results use the full panel. No incoming
+sound, popup or unread badge appears during active play. Drafts survive layout
+changes and disconnects; leaving clears local chat state. This adopts interaction
+semantics, not osu! chat wire compatibility. See multiplayer validation for the
+source hashes, local ports and remaining executable-upstream blocker.
