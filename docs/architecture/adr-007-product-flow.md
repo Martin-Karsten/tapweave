@@ -160,8 +160,8 @@ toward upstream acceptance scenarios.
    column on every route — chrome screens fill it between fixed bars with
    internal scrolling, and the play route is the chrome-free immersive
    exception — and the frame's slim app footer (the fixed-height strip
-   carrying the disclaimer, engine baseline and Settings) is product chrome
-   with no pinned equivalent.
+   carrying the disclaimer, a GitHub project link and Settings) is product
+   chrome with no pinned equivalent.
 5. **Results rank palette.** The rank emblem ring/letter uses per-rank
    product tokens in `src/styles/tokens.css` (X/S gold, A green, B blue,
    C purple, D red, F grey) — product styling, not lazer's rank colours or

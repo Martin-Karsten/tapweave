@@ -1,0 +1,61 @@
+/* Slim edge-to-edge app footer: one fixed-height row with the small print
+   truncated and the GitHub link plus Settings pinned right. It is scoped to
+   .app-footer because the song-select footer is a footer element too. */
+.app-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-height: var(--footer-bar-height);
+  padding: 0 var(--space-10);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-faint);
+  font-size: var(--font-size-note);
+}
+
+.footer-note {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.footer-actions {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.footer-actions button {
+  font-size: var(--font-size-note);
+  padding: var(--space-3) var(--space-7);
+}
+
+/* GitHub project link: the mark in a pill sized to the sibling Settings
+   button (same note font-size, 1.5em icon matching the text line box). */
+.footer-actions .footer-github {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--font-size-note);
+  padding: var(--space-3) var(--space-7);
+  border: var(--stroke-width-panel) solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  transition:
+    border-color var(--duration-fade-in) ease-out,
+    color var(--duration-fade-in) ease-out,
+    box-shadow var(--duration-fade-in) ease-out;
+}
+
+.footer-actions .footer-github:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text-bright);
+  box-shadow: var(--shadow-raised);
+}
+
+.footer-github svg {
+  display: block;
+  width: 1.5em;
+  height: 1.5em;
+  fill: currentColor;
+}

@@ -66,3 +66,7 @@ The Odin activity helper follows that revision's `BreakTracker`/`BreakPeriod`.
 Source hashes and local mappings are recorded in
 `engine/reference/findings/room-chat-sources.json`; this is not an upstream
 executable acceptance claim.
+
+The product footer embeds the GitHub `mark-github` icon path from
+**GitHub Octicons** (MIT, Copyright (c) GitHub, Inc.),
+<https://github.com/primer/octicons>, as an inline SVG.

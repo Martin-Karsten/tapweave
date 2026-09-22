@@ -251,47 +251,7 @@ pre {
   font-size: var(--font-size-note);
 }
 
-/* Slim edge-to-edge app footer: one fixed-height row with the small print
-   truncated and Settings pinned right. It is scoped to .app-footer because
-   the song-select footer is a footer element too. */
-.app-footer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-  min-height: var(--footer-bar-height);
-  padding: 0 var(--space-10);
-  border-top: 1px solid var(--color-border);
-  color: var(--color-text-faint);
-  font-size: var(--font-size-note);
-}
-
-.footer-note {
-  margin: 0;
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.footer-note > span + span::before {
-  content: '·';
-  margin: 0 var(--space-4);
-}
-
-.footer-baseline {
-  font-size: var(--font-size-eyebrow);
-}
-
-.footer-actions {
-  display: flex;
-  gap: var(--space-4);
-}
-
-.footer-actions button {
-  font-size: var(--font-size-note);
-  padding: var(--space-3) var(--space-7);
-}
+/* The slim app footer lives in footer.css beside its feature styles. */
 
 @media (prefers-reduced-motion: reduce) {
   *,

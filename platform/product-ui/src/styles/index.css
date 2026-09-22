@@ -3,6 +3,7 @@
    scripts/gates/css_lint.mjs checks every file below src/styles/. */
 @import './tokens.css';
 @import './base.css';
+@import './footer.css';
 @import './screens/intro_screen.css';
 @import './screens/main_menu_screen.css';
 @import './screens/select_screen.css';
