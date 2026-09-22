@@ -1,58 +1,87 @@
 # Tapweave
 
-A browser rhythm game written in Odin, targeting pinned osu!lazer osu!standard behavior.
+**Tapweave** is a free browser rhythm game that recreates osu!standard gameplay —
+tap circles, hold sliders, spin spinners — with mechanics pinned to a specific
+osu!lazer build instead of approximated. The entire game is an Odin program
+compiled to WebAssembly: no installs, no accounts, and no uploads. Your beatmaps
+never leave your device.
+
+**Play it:** [tapweave.tapweave-game.workers.dev](https://tapweave.tapweave-game.workers.dev)
+— drop an `.osz` onto the song select (or try the bundled demo beatmap) and press Play.
 
 Tapweave is an independent project, not affiliated with or endorsed by osu! or ppy.
 
+## Features
+
+- **Faithful osu!standard gameplay.** Judgement, scoring, health, combo and
+  slider behavior are matched against the pinned osu!lazer sources and its test
+  suites — the goal is that a map plays the same here as it does in lazer.
+- **Fully client-side.** Odin compiled to WASM, WebGL2 rendering, Web Audio
+  playback driven by the audio clock. Import `.osz` archives or loose beatmap
+  files; imported sets stay available for the whole session.
+- **Private multiplayer rooms.** Play with 2–8 friends: the host picks a
+  difficulty, everyone starts on a synchronized beat, and a live scoreboard
+  follows the round. Every player imports the same files themselves — the room
+  server only relays metadata and scores, never map or audio data.
+- **Replays.** Save any finished run and watch it back.
+- **Comfortable song select.** Session library of imported sets, per-difficulty
+  stats, music preview, keyboard navigation.
+
 ## Status
 
-M0 (compatibility foundation) and M1 (beatmap preparation) are implemented and
-validated against pinned upstream behavior. Headless M2 sessions integrate rules,
-scoring/health, replay and snapshots. The browser exposes a playable validation
-player through the product shell: rendering, audio, input, pause/retry/recovery,
-settings and results. Full upstream M2/M3 acceptance and release-browser
-certification remain open.
+The engine core — beatmap decoding, preparation, rules, scoring, health and
+replay — is implemented and continuously validated against pinned upstream
+behavior, and the browser player is playable end to end. Remaining work is
+honest and tracked: full upstream acceptance for the later milestones and
+certification across release browsers are still open, so expect rough edges.
 
-See [implementation status and evidence](docs/status.md), the [roadmap](docs/roadmap.md), and [architecture](docs/architecture/README.md).
+Progress, evidence and open gates: [implementation status](docs/status.md) ·
+[roadmap](docs/roadmap.md) · [architecture decisions](docs/architecture/README.md).
 
-## Development
+## Building from source
 
-Requirements: Node.js 24, a native C/C++ linker, and `wasm-ld` on `PATH`. LLD 20 is tested locally; set `ODIN_WASM_LD_DIR` if it is not on `PATH`.
+Requirements: Node.js 24, a native C/C++ linker, and `wasm-ld` on `PATH`
+(LLD 20 is tested; point `ODIN_WASM_LD_DIR` at it if it lives elsewhere).
 
-On macOS, install Xcode command-line tools and LLD (for example `brew install lld@20`), then export `ODIN_WASM_LD_DIR="$(brew --prefix lld@20)/bin"`. On Ubuntu, install `clang` and `lld` using the package manager.
+- macOS: install Xcode command-line tools and LLD, e.g.
+  `brew install lld@20`, then `export ODIN_WASM_LD_DIR="$(brew --prefix lld@20)/bin"`.
+- Ubuntu: install `clang` and `lld` from the package manager.
 
 ```sh
-npm --prefix engine run setup
+npm --prefix engine run setup                     # fetch the checksum-pinned Odin compiler
 npm --prefix platform/browser-js ci
-npm --prefix engine test
+npm --prefix engine test                          # source hash checks, Odin/native/WASM tests
 npm --prefix engine run build
-engine/artifacts/decode-native path/to/map.osu
+engine/artifacts/decode-native path/to/map.osu    # decode a beatmap from the command line
 ```
 
-Setup downloads a checksum-verified Odin compiler into the ignored `engine/.toolchain/` directory, pinned in [toolchain.json](engine/toolchain.json); set `ODIN_BIN` to use an existing matching compiler.
-
-Tests verify upstream source hashes, run allocation-tracked Odin and native C ABI checks, and compare native/WASM traces byte-for-byte. The `test:*:upstream` scripts execute pinned upstream comparisons; see the [reference-host setup](engine/reference-host/README.md).
-
-CI runner prerequisites and the latest failure investigation are documented in
-[GitHub CI](docs/ci.md).
+The Odin compiler is pinned in [toolchain.json](engine/toolchain.json) and
+verified by checksum on setup; set `ODIN_BIN` to use a local compiler that
+matches. The test suite also compares generated traces between native and WASM
+builds byte-for-byte, and can run pinned upstream comparisons — see the
+[reference-host setup](engine/reference-host/README.md).
 
 ## Hosting
 
-The product shell is configured for Cloudflare Workers Static Assets on a free
-`workers.dev` subdomain. Successful `main` builds deploy through GitHub Actions
-after account setup. See the [hosting guide](docs/hosting.md) for credentials,
-local verification, and rollback. Play at
-[tapweave.tapweave-game.workers.dev](https://tapweave.tapweave-game.workers.dev).
+The product shell deploys to Cloudflare Workers Static Assets on a free
+`workers.dev` subdomain; pushes to `main` publish automatically once account
+credentials are configured. The [hosting guide](docs/hosting.md) covers setup,
+local preview and rollback, and [docs/ci.md](docs/ci.md) documents the CI
+runners.
 
 ## Repository layout
 
-- `engine/`: Odin engine implementation, tests, schemas, and tooling.
-- `platform/browser-js/`: browser service layer (WASM runtime, input/audio/renderer services) with developer fixtures.
-- `platform/product-ui/`: Solid product shell hosting the playable player ([ADR-006](docs/architecture/adr-006-product-shell.md)); holds the repo's exact-pinned npm dependencies.
-- `docs/`: implementation specification, decisions, and roadmap.
-- `.github/workflows/`: automated validation.
-- `engines/`, `plans/`, `comparison/`, `shared/`: retained historical spike and benchmark material, not part of the current implementation.
+- `engine/` — the Odin engine: decoding, preparation, rules, scoring, replay, tests and tooling.
+- `platform/browser-js/` — the browser service layer around the WASM engine (input, audio, renderer, selection).
+- `platform/product-ui/` — the Solid app shell hosting the playable player ([ADR-006](docs/architecture/adr-006-product-shell.md)); the only package with npm dependencies.
+- `docs/` — specifications, architecture decisions and progress records.
+- `.github/workflows/` — CI that validates every push.
+- `engines/`, `plans/`, `comparison/`, `shared/` — archived experiments; not part of the current implementation.
 
 ## Licence
 
-Tapweave's original code is licensed under [MIT](LICENSE). Retained upstream sources keep their original notices and licences; see [third-party notices](THIRD_PARTY_NOTICES.md). No rights to osu! branding, beatmap music, or other third-party assets are granted by this project's licence.
+Tapweave's original code is licensed under [MIT](LICENSE). Retained upstream
+sources keep their original notices and licences; see
+[third-party notices](THIRD_PARTY_NOTICES.md). No rights to osu! branding,
+beatmap music, or other third-party assets are granted by this project's
+licence.
