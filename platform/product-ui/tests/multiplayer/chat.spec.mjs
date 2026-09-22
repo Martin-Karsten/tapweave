@@ -35,6 +35,11 @@ const files = [
 test('room chat survives gameplay, effective breaks, results, rematch and new membership', async ({ browser, baseURL }) => {
   const contexts = await Promise.all(Array.from({ length: 3 }, () => browser.newContext({ ignoreHTTPSErrors: true })));
   const [host, friend, newcomer] = await Promise.all(contexts.map(context => context.newPage()));
+  let host_socket;
+  await host.routeWebSocket('**/api/multiplayer/*/socket*', socket => {
+    socket.connectToServer();
+    host_socket = socket;
+  });
   try {
     await host.goto(baseURL + '/multiplayer');
     await host.getByLabel('Your nickname').fill('Host');
@@ -92,6 +97,10 @@ test('room chat survives gameplay, effective breaks, results, rematch and new me
       }, 2100);
     });
     const canvas_bounds = await host.locator('canvas').boundingBox();
+    // A transient server notice must not shift the running playfield either.
+    host_socket.send(JSON.stringify({ version: 2, type: 'error', message: 'Transient room notice' }));
+    await expect(host.locator('.multiplayer-alert')).toContainText('Transient room notice');
+    expect(await host.locator('canvas').boundingBox()).toEqual(canvas_bounds);
     await expect(host.locator('.room-chat-collapsed')).toBeVisible();
     await host.keyboard.press('Enter');
     await expect(composer(host)).toBeFocused();

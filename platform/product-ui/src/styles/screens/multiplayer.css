@@ -83,6 +83,18 @@
   overflow-wrap: anywhere;
 }
 
+/* Transient room notices must not move the playfield during a live round. */
+.multiplayer-screen.playing .multiplayer-alert {
+  position: absolute;
+  bottom: var(--space-4);
+  left: var(--space-10);
+  right: var(--space-10);
+  z-index: var(--z-floating);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--control-radius);
+  background: var(--color-background-deep);
+}
+
 /* Entry form: a centered panel under the top bar. */
 .multiplayer-entry {
   display: grid;

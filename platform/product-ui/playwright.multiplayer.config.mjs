@@ -2,6 +2,8 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/multiplayer',
   workers: 1,
+  // Stop at the first CI failure instead of spending 13+ minutes on later rounds.
+  maxFailures: process.env.CI ? 1 : undefined,
   timeout: 120_000,
   outputDir: './artifacts/multiplayer-browser',
   reporter: [['list'], ['json', { outputFile: './artifacts/multiplayer-browser.json' }]],
