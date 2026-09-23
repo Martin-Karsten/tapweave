@@ -350,3 +350,16 @@ It owns no engine voices, participates in no scheduling or judgement, and never
 touches the gameplay transports; the one-audio-clock rule is preserved because
 it shares the page context. A suspended context is resumed only from the user
 activation that selection gestures provide.
+
+## Original welcome music
+
+The product session additionally owns an original synthesized 19.2-second
+welcome loop (warm seventh chords, bell arpeggios, bass and percussion), on the
+same AudioContext and music mixer. It is scheduled at boot and attempts autoplay;
+when browser policy blocks audio, pointer/key/touch activation retries resume.
+Menu navigation, settings and unsuccessful imports keep the same loop alive.
+The first successfully prepared selection permanently retires it with a 400 ms
+fade, including selections without usable music; the ordinary song preview
+then takes over. Disposal also retires it and removes gesture listeners.
+Composition and playback are original shell audio, outside gameplay intent,
+with no external assets, new clock, ABI change or upstream acceptance claim.

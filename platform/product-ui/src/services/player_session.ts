@@ -12,6 +12,7 @@ import type { Map_Summary } from '@browser/map-summary.js';
 import type { Browser_Error } from '@browser/errors.js';
 import { WASM_PAGE_BYTES, type Engine_Diagnostic, type Prepared_Descriptor_Record } from '@browser/abi-records.js';
 import { Debug_Session_Service } from './debug_session.js';
+import { Welcome_Music } from './welcome_music.js';
 
 const MAXIMUM_ENGINE_MESSAGES = 64;
 // The preview starts only once a selection has settled briefly, so rapid
@@ -108,9 +109,11 @@ export class Player_Session_Service {
     // The preview loops through the mixer's music destination so volume
     // settings apply; it never touches the gameplay voice protocol.
     this.preview = new Music_Preview(audio_context, mixer.music);
+    this.welcome_music = new Welcome_Music(audio_context, mixer.music);
   }
 
   private readonly preview: Music_Preview;
+  private readonly welcome_music: Welcome_Music;
   private preview_timer: ReturnType<typeof setTimeout> | null = null;
   // Preview identity is the library position (set id + filename), so two sets
   // that ship the same difficulty filename still count as different previews.
@@ -228,10 +231,12 @@ export class Player_Session_Service {
     const view = this.gameplay.view;
     const active = this.selection.active;
     if (view.state === 'disposed') {
+      this.welcome_music.stop();
       this.cancel_preview();
       return;
     }
     if (this.selection.state === 'prepared') {
+      if (active) this.welcome_music.stop();
       // Background work: failures surface through the summaries snapshot and
       // selection state, never as unhandled rejections.
       this.selection.describe_summaries().catch(() => {});
@@ -370,6 +375,7 @@ export class Player_Session_Service {
   }
 
   dispose() {
+    this.welcome_music.stop();
     this.cancel_preview();
     this.gameplay.dispose();
     this.cleanup_settings();

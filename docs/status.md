@@ -1,5 +1,29 @@
 # Implementation status
 
+## Welcome music
+
+The product shell schedules an original synthesized welcome loop at boot,
+through the shared music mixer. Browser autoplay restrictions defer audibility
+until a click/key/touch gesture when necessary. Navigation and failed imports
+preserve it; the first prepared song fades it out permanently for that page
+session. Source and composition are MIT-licensed original Tapweave material.
+Local buffer/lifecycle and browser handoff regressions cover the feature.
+This is original product policy, not lazer compatibility or an acceptance-row
+closure; audible listening and release-browser certification remain open.
+
+Pinned test search: osu! `3c1c96f742e7aae2ff67a7361e058fe91ca3b955`,
+`osu.Game.Tests/Visual/Menus/TestSceneIntroWelcome.TestPlayIntro` checks a
+loaded, looping 48-second track. The local welcome unit test checks the
+corresponding buffer/loop properties, with an explicitly original 19.2-second
+composition instead of the upstream asset. `TestSceneIntroMusicActionHandling.
+TestPauseDuringIntro` covers global music pause actions, which this shell does
+not implement and this change does not add. Menu/intro test-tree search and
+those two test bodies were inspected; no upstream executable comparison was
+run and no music-control compatibility is claimed. Browser regressions exercise
+Tapweave's own navigation, failed import and selection handoff policy.
+Validation: product typecheck/build and all 62 unit tests pass on Node 24;
+the welcome handoff regression passes in Chromium, Firefox and WebKit.
+
 M0 (compatibility foundation) and M1 (beatmap preparation) are implemented for
 unmodded osu!standard against osu!lazer **2026.804.2**, commit
 `3c1c96f742e7aae2ff67a7361e058fe91ca3b955`, and framework **2026.731.0**, commit
