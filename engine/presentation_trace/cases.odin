@@ -40,9 +40,9 @@ case_values :: proc(case_index: u32) -> [VALUE_COUNT]f64 {
 		transform.inverse[3], transform.inverse[4], transform.inverse[5]}
 }
 
-// Source-derived regressions for the scene correction investigation. These
-// preserve ADR-002 input segments; the independent drawable matrix separately
-// diagnoses upstream update sampling and the one-update tracking feedback lag.
+// Source-derived regression cases. These preserve ADR-002 input segments; the
+// independent drawable matrix separately diagnoses upstream update sampling
+// and the one-update tracking feedback lag.
 semantic_values :: proc(case_index: u32) -> [VALUE_COUNT]f64 {
 	if case_index >= SEMANTIC_CASE_COUNT {
 		return {}

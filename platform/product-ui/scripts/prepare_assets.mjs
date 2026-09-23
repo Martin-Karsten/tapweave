@@ -15,7 +15,7 @@ try {
 }
 
 await mkdir(new URL('../public/', import.meta.url), { recursive: true });
-// Remove the obsolete fixed-name copy left by earlier builds.
+// Remove the fixed-name copy if an older build left it in public/.
 await rm(new URL('../public/tapweave.wasm', import.meta.url), { force: true });
 for (const filename of ['_headers', '_redirects']) {
   await copyFile(

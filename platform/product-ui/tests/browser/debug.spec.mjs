@@ -1,8 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-// Parity port of the retired platform/browser-js/tests/browser/debug.spec.mjs
-// player-page tests (revision 5916496): panel tabs/filtering/search/freeze,
+// Product-shell debug coverage: panel tabs/filtering/search/freeze,
 // non-interactive HUD, pause path during play, manual export/import, failure
 // report persistence and the Ctrl+F10 shortcut. The workspace scenario tests
 // remain in platform/browser-js/tests/browser/debug.spec.mjs.
@@ -39,9 +38,8 @@ async function load(page) {
   await expect(page.locator('#start')).toBeEnabled();
 }
 
-// Deterministic clock fault through the browser-spec player probe; the vanilla
-// page patched Audio_Clock.prototype from served sources, the bundled shell
-// exposes the active playback clock read-only instead.
+// Deterministic clock fault through the browser-spec player probe: the
+// bundled shell exposes the active playback clock read-only.
 async function fault_input_time(page) {
   await page.evaluate(() => {
     const clock = window.__tapweave_player_probe.session.playback_clock;
@@ -176,8 +174,8 @@ test('failure reports persist across reload and remain listed with controls', as
     if (!persistence) throw new Error('Failure report persistence was not started');
     await persistence;
   });
-  // The vanilla single page reloaded in place; the shell returns to the
-  // selection route, whose status element gates the fresh boot.
+  // Recovery returns to the selection route, whose status element gates the
+  // fresh boot.
   await page.goto('/select');
   await expect(page.locator('#status')).toContainText('Engine ready');
   await page.locator('#files').setInputFiles([

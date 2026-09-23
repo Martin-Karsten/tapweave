@@ -116,7 +116,7 @@ test('mixed scene reads preserve gameplay, pending audio acknowledgement and pri
 });
 
 
-test('scene frames publish f32-exact viewport uniforms the executor used to derive', async () => {
+test('scene frames publish f32-exact viewport uniforms', async () => {
   const engine = await create_engine();
   try {
     const map = engine.prepare_map(mixed_map);
@@ -128,8 +128,7 @@ test('scene frames publish f32-exact viewport uniforms the executor used to deri
     for (const probe_viewport of [viewport, { css_left: 0, css_top: 0, css_width: 512, css_height: 384, device_pixel_ratio: 1 },
       { css_left: 240.5, css_top: -60.25, css_width: 1512, css_height: 982, device_pixel_ratio: 1.5 }]) {
       engine.scene_draw(session, 1400, probe_viewport, output);
-      // The engine-computed uniforms must equal the previous executor
-      // derivation: f64 operands in this order, rounded through f32 once.
+      // Uniforms round f64 operands in this exact order through f32 once.
       assert.equal(output.summary.uniform_scale_x, Math.fround(2 * output.summary.scale / probe_viewport.css_width));
       assert.equal(output.summary.uniform_scale_y, Math.fround(-2 * output.summary.scale / probe_viewport.css_height));
       assert.equal(output.summary.uniform_shift_x,

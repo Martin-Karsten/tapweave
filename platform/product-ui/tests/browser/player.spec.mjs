@@ -42,7 +42,7 @@ test('malicious archive reports a typed error and diagnostics download works', a
   const archive = zipSync({ '../bad.osu': strToU8(beatmap) });
   await page.getByLabel('Open local files', { exact: true }).setInputFiles({ name: 'bad.osz', mimeType: 'application/zip', buffer: Buffer.from(archive) });
   await expect(page.getByRole('alert')).toContainText('Ambiguous asset path');
-  // The frame navigation chrome is gone; diagnostics is directly addressable.
+  // Diagnostics is directly addressable.
   await page.goto('/diagnostics');
   const download_pending = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download diagnostics' }).click();

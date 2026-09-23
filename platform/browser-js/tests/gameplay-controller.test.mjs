@@ -188,10 +188,9 @@ test('rejected input and dispatch failure require Retry; diagnostics retain the 
   }
 });
 
-// Regression for the two-clock failure: an extrapolated performance.now()
-// receipt used to map this input before the committed boundary and reject it.
-// With one audio clock the handler samples the already-committed block, the
-// stamp equals the committed boundary, and the input is admitted.
+// With one audio clock, an input handled after its block committed samples the
+// already-committed block: the stamp equals the committed boundary, so the
+// input is judged at the audio boundary instead of being rejected.
 test('input handled after its block committed is judged at the audio boundary, not rejected', async () => {
   let expected;
   for (const integrated of [false, true]) {

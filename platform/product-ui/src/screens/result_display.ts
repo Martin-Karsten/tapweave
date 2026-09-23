@@ -13,7 +13,7 @@ export const accuracy_text = (result: Session_Output): string => `${(Number(resu
 export const max_combo_text = (result: Session_Output): string => String(result.summary.highest_combo);
 
 // Rank letters come from the ABI record names (X/S/A/B/C/D/F); an out-of-range
-// rank renders as its raw value, as the previous inline mapping did.
+// rank renders as its raw value.
 export const rank_name = (rank: number): string | null => RANK_NAMES[rank] ?? null;
 
 // The results emblem colors each rank through the per-rank product tokens in

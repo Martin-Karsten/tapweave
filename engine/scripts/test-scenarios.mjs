@@ -14,8 +14,8 @@ const dotnet = process.env.DOTNET_BIN || 'dotnet';
 const project = path.join(root, 'reference-host/ReferenceHost.csproj');
 execFileSync(process.execPath, [path.join(root, 'scripts/verify-sources.mjs'), '--require-checkouts'], { stdio: 'inherit' });
 execFileSync(dotnet, ['restore', project, '--locked-mode'], { stdio: 'inherit' });
-// A previous component-only build may leave unwoven Realm types in obj/. The
-// real input manager uses the database; rebuilding executes the pinned weaver.
+// The Rebuild target executes the pinned weaver: the real input manager uses
+// the database, and stale unwoven Realm types in obj/ would otherwise fail.
 execFileSync(dotnet, ['build', project, '--no-restore', '-t:Rebuild', '-m:1', '-p:RunAnalyzers=false', '-v:quiet'], { stdio: 'inherit' });
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const lock_sha256 = digest(await readFile(path.join(root, 'reference-host/packages.lock.json')));

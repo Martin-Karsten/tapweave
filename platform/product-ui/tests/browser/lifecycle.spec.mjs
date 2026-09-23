@@ -59,7 +59,7 @@ test('shell plays mixed maps, pauses with keyboard, resumes, retries and shows a
   await expect(page.locator('#lifecycle-title')).toHaveText('Paused');
   await expect(page.locator('#lifecycle-panel')).toBeFocused();
   // The attempt locks file selection: the select route stays out of reach
-  // during play (the vanilla player disabled the input instead).
+  // during play.
   await expect(page.locator('#files')).toHaveCount(0);
   await page.locator('#resume').click();
   await expect(page.locator('#pause')).toBeVisible();
@@ -125,11 +125,10 @@ test('mixed failure results, repeated Back and failed replacement remain usable'
   }
 });
 
-// Interruption-report parity port of the retired vanilla player test
-// (revision 5916496): a deterministic LATE_INPUT clock fault through the
-// browser-spec player probe, copyable failure report with clipboard fallback
-// and a tapweave-report-* download. The Node debug-scenarios suite still
-// covers the LATE_INPUT timing evidence.
+// Interruption-report coverage: a deterministic LATE_INPUT clock fault through
+// the browser-spec player probe, copyable failure report with clipboard
+// fallback and a tapweave-report-* download. The Node debug-scenarios suite
+// still covers the LATE_INPUT timing evidence.
 test('interruption renders a copyable report and selects it when clipboard access fails', async ({ page }) => {
   await load(page);
   await page.evaluate(() => {
@@ -176,7 +175,7 @@ test('play fills the window, toggles fullscreen and keeps Escape-exit unpauseed'
   await expect(page.locator('#pause')).toBeVisible();
 
   // The gameplay route owns the full window: no frame footer, canvas at
-  // content-area size instead of the retired bordered 4:3 panel.
+  // content-area size.
   await expect(page.locator('footer')).toHaveCount(0);
   const viewport = page.viewportSize();
   const playfield = await page.locator('#playfield').boundingBox();

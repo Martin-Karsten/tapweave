@@ -106,8 +106,7 @@ hud_scale :: proc(viewport: Viewport) -> f64 {
 
 // Final GPU NDC uniforms for the scene shader: playfield x/y map to
 // [-1,1] over the CSS viewport. Each component is rounded through f32 exactly
-// once, at the end, matching the browser executor contract that previously
-// computed these from Math.fround of the same operands in this order.
+// once, at the end.
 Viewport_Uniforms :: struct {
 	scale_x, scale_y, shift_x, shift_y: f64,
 }

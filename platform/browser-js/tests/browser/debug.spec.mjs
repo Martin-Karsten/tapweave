@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-// In-player debug flows (panel/HUD/export from the player screens) targeted the
-// retired vanilla player page; they return with the panel re-homed in
-// platform/product-ui. The developer workspace tests below remain.
+// This suite covers the developer debug workspace (debug.html). In-player
+// debug flows (panel/HUD/export from the player screens) are covered by the
+// product-shell suite in platform/product-ui/tests/browser/debug.spec.mjs.
 
 test('workspace lists searchable scenarios with run, step, reset and run-all controls', async ({ page }) => {
   await page.goto('/debug.html');

@@ -7,10 +7,10 @@ import type { Engine_Bridge } from '@browser/engine-bridge.js';
 import type { Gameplay_View } from '@browser/gameplay-controller.js';
 import type { Engine_Diagnostic } from '@browser/abi-records.js';
 
-// Debug suite re-homed from the retired vanilla player (ADR-006): this service
-// owns the typed diagnostics service, the IndexedDB report store and the
-// report identity builder. It is a plain class without reactivity; the shell
-// state layer converts its publishes into throttled signal updates.
+// Debug suite service (ADR-006): owns the typed diagnostics service, the
+// IndexedDB report store and the report identity builder. It is a plain class
+// without reactivity; the shell state layer converts its publishes into
+// throttled signal updates.
 
 export const DEBUG_VIEW_REFRESH_INTERVAL_MS = 250;
 
